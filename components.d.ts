@@ -8,12 +8,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    copy: typeof import('./src/components/ListItem copy.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     LaunchItem: typeof import('./src/components/LaunchItem.vue')['default']
     ListItem: typeof import('./src/components/ListItem.vue')['default']
     ListItemContextMenu: typeof import('./src/components/ListItemContextMenu.vue')['default']
-    ListItemMenu: typeof import('./src/components/ListItemMenu.vue')['default']
     NCheckbox: typeof import('naive-ui')['NCheckbox']
     NDropdown: typeof import('naive-ui')['NDropdown']
     NIcon: typeof import('naive-ui')['NIcon']
