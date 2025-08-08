@@ -1,8 +1,10 @@
 use crate::{db, models::config_item::ConfigItem};
 use rusqlite::{params, Result};
+use serde_json::Value;
 
+// pub fn get_app_config() -> Result<ConfigItem, String> {
 #[tauri::command]
-pub fn get_app_config() -> Result<ConfigItem, String> {
+pub fn get_app_config() -> Result<Value, String> {
     // state: State<'_, Mutex<Connection>>,
     // let conn = state.lock().unwrap();
 
@@ -50,7 +52,11 @@ pub fn get_app_config() -> Result<ConfigItem, String> {
         Err(e) => return Err(format!("查询失败：{}", e)),
     };
 
-    Ok(config_item)
+    let parsed_data: Value =
+        serde_json::from_str(&config_item.data).map_err(|e| format!("解析 JSON 失败：{}", e))?;
+
+    // Ok(config_item)
+    Ok(parsed_data)
     // let config_item = row.unwrap();
     // println!("哈哈哈哈3");
     // Ok(config_item)

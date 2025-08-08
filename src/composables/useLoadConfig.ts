@@ -1,17 +1,17 @@
-import { invoke } from '@tauri-apps/api/core'
 import { useAppConfigStore } from '@/store/useAppConfigStore'
 import { Pinia } from 'pinia'
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { enable, isEnabled, disable } from '@tauri-apps/plugin-autostart'
+import { getAppConfig } from '@/api'
 
 export const useLoadConfig = async (store: Pinia) => {
   const appConfigStore = useAppConfigStore(store)
 
   // 获取数据库中的应用配置数据
-  const { data } = await invoke<any>('get_app_config')
-  const hasConfig = !!Object.keys(JSON.parse(data))?.length
+  const data = await getAppConfig()
+  const hasConfig = !!Object.keys(data)?.length
 
-  const config: AppConfigState = hasConfig ? JSON.parse(data) : appConfigStore.$state
+  const config: AppConfigState = hasConfig ? data : appConfigStore.$state
 
   // 获取 自启动的最新状态 防止任务管理器中被关闭 导致展示状态错误
   const isEnaAffter = await isEnabled()

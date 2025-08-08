@@ -24,7 +24,8 @@
   <ul
     tabindex="-1"
     v-if="hasResult"
-    class="search-container absolute z-50 w-full overflow-y-scroll bg-white border-none rounded-b-[10px] !border-t-gray-200"
+    class="search-container absolute z-50 w-full overflow-y-scroll bg-white border-none rounded-b-[10px] !border-t-gray-200 max-h-[300px]"
+    :style="{ maxHeight: `calc(${searchWindowHeight}px - ${SEARCH_INPUT_HEIGHT}px)` }"
   >
     <template
       :key="item.id"
@@ -72,8 +73,14 @@ import { invoke } from '@tauri-apps/api/core'
 import { SearchOutline } from '@vicons/ionicons5'
 import { useLaunchAction } from '@/composables/useLaunchAction'
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut'
+import { useAppConfig } from '@/composables/useAppConfig'
+
+import { SEARCH_WINDOW_WIDTH, SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT } from '@/constant'
+import { exeCommand, searchLaunch } from '@/api'
 
 const { runLaunch } = useLaunchAction()
+
+const { appConfigStore } = useAppConfig()
 
 const placeholder = ref('名称 / 拼音 / 关键字 / 文件(目录)地址 / URL / Win内置命令 (mstsc)')
 
@@ -124,11 +131,11 @@ const handleEnter = async () => {
    *   4.如果不是则将输入内容传入命令执行
    *
    * 根据命令行执行结果 执行后续
-   * 如果为有效命令 执行并关闭收款
-   * 如果为无效命令 不做响应
+   * 如果为有效命令 执行并关闭搜索框
+   * 如果为无效命令 不做响应 (无法实现)
    */
   if (!resultList.value.length) {
-    await invoke('exe_command', { cmd: keyword.value })
+    await exeCommand(keyword.value)
   } else {
     const item = resultList.value[selectedIndex.value]
     if (!item) return
@@ -159,8 +166,8 @@ const handleShow = async () => {
   inputRef.value?.focus()
 }
 
-const searchWindowHeight = ref<number>(300)
-
+// const searchWindowHeight = ref<number>(300)
+// console.log('searchWindowHeight ------', searchWindowHeight.value)
 // 当使用箭头控制选项是 自动将预选项滚到可视窗口内
 watch(selectedIndex, async newIndex => {
   await nextTick()
@@ -168,30 +175,34 @@ watch(selectedIndex, async newIndex => {
   el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
 })
 
+const searchWindowHeight = computed(() => {
+  if (!resultList.value.length) return SEARCH_INPUT_HEIGHT
+
+  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT
+
+  return resultsHeight + SEARCH_INPUT_HEIGHT > appConfigStore.searchWindowMaxHeight
+    ? appConfigStore.searchWindowMaxHeight
+    : resultsHeight + SEARCH_INPUT_HEIGHT
+})
+
 watch(
   () => keyword.value,
   async keyword => {
-    const windowWidth = 600
-    let windowHeight = 0
-
     if (!keyword.trim()) {
       selectedIndex.value = 0
       resultList.value = []
-      windowHeight = 45
     } else {
-      const launchs = await invoke<SearchLauncItem[]>('search_launch', { keyword })
+      const launchs = await searchLaunch(keyword)
       resultList.value = launchs
-      windowHeight = resultList.value.length ? 48 * resultList.value.length + 45 : 45
-      // searchWindowHeight.value
     }
-    current.setSize(new LogicalSize(windowWidth, windowHeight))
+    current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value))
   }
 )
 
 const hasResult = computed(() => !!resultList.value.length)
 
 const handleRegisterSearchHotkey = async () => {
-  const key = 'Ctrl+Space'
+  const key = 'Alt+Space'
   const isReg = await isRegistered(key)
   isReg && (await unregister(key))
 
@@ -233,9 +244,7 @@ handleRegisterSearchHotkey()
 }
 
 .search-container {
-  --windowHeight: ;
-  max-height: calc(v-bind(searchWindowHeight + 'px') - 45px);
-  /* border: 0.5px solid gray !important; */
+  /* max-height: calc(v-bind(searchWindowHeight + 'px') - v-bind(SEARCH_INPUT_HEIGHT + 'px')); */
   border-top: 0.5px solid;
 }
 

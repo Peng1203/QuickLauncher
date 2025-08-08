@@ -59,7 +59,16 @@ interface AppConfigState {
   /** 开机自启 */
   autoStart: boolean
   /** 窗口置顶 */
-onTop: boolean
+  onTop: boolean
   /** 窗口居中 */
   center: boolean
+
+  /** 搜索窗口最大高度 */
+  searchWindowMaxHeight: number
+  /** 搜索窗口固定宽度 */
+  searchWindowWidth: number
+  /* 搜索框高度 */
+  searchWindowInput: number
+  /* 搜索结果高度 */
+  searchResultItemHeight: number
 }

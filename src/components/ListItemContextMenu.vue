@@ -7,8 +7,8 @@
   >
     <ul class="text-sm text-gray-700">
       <li
-        v-for="item in menuItems"
         :key="item.label"
+        v-for="item in menuItems"
         @click="handleClick(item)"
         class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
       >
@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { invoke } from '@tauri-apps/api/core'
+import { openPath } from '@/api'
 import { ref, onMounted, onUnmounted } from 'vue'
 
 export interface MenuAction {
@@ -48,11 +48,11 @@ const handleClick = (item: MenuAction) => {
 const menuItems = ref<MenuAction[]>([
   {
     label: '以管理员身份运行',
-    onClick: () => invoke('open_path', { path: props.item.path }),
+    onClick: () => openPath(props.item.path),
   },
   {
     label: '打开所在位置',
-    onClick: () => invoke('open_path', { path: props.item.path }),
+    onClick: () => openPath(props.item.path),
   },
   {
     label: '复制路径',
@@ -64,6 +64,12 @@ const menuItems = ref<MenuAction[]>([
     label: '重命名',
     onClick: () => {
       console.log('重命名')
+    },
+  },
+  {
+    label: '删除',
+    onClick: () => {
+      console.log('删除')
     },
   },
   {

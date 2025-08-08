@@ -1,6 +1,9 @@
 import { watch } from 'vue'
 import { useAppConfigStore } from '@/store/useAppConfigStore'
 
+/**
+ * 加载 App配置 修改时自动保存
+ */
 export const useAppConfig = () => {
   const appConfigStore = useAppConfigStore()
 

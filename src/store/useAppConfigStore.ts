@@ -1,5 +1,11 @@
-import { invoke } from '@tauri-apps/api/core'
 import { defineStore } from 'pinia'
+import {
+  SEARCH_WINDOW_MAX_HEIGHT,
+  SEARCH_WINDOW_WIDTH,
+  SEARCH_INPUT_HEIGHT,
+  SEARCH_RESULT_ITEM_HEIGHT,
+} from '@/constant'
+import { saveAppConfig } from '@/api'
 
 export const useAppConfigStore = defineStore('appConfig', {
   state: (): AppConfigState => ({
@@ -7,6 +13,12 @@ export const useAppConfigStore = defineStore('appConfig', {
     autoStart: true,
     onTop: true,
     center: true,
+
+    // 可变通过用户后续输入的高度动态调整
+    searchWindowMaxHeight: SEARCH_WINDOW_MAX_HEIGHT,
+    searchWindowWidth: SEARCH_WINDOW_WIDTH,
+    searchWindowInput: SEARCH_INPUT_HEIGHT,
+    searchResultItemHeight: SEARCH_RESULT_ITEM_HEIGHT,
   }),
   actions: {
     loadConfig(initData: AppConfigState) {
@@ -16,12 +28,7 @@ export const useAppConfigStore = defineStore('appConfig', {
       }
     },
     saveConfig() {
-      invoke('save_app_config', {
-        config: {
-          name: 'appConfig',
-          data: JSON.stringify(this.$state),
-        },
-      })
+      saveAppConfig(this.$state)
     },
   },
 })

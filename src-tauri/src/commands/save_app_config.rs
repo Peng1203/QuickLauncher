@@ -7,8 +7,21 @@ pub fn save_app_config(config: OperConfigItem) -> Result<(), String> {
 
     // 使用 UPSERT 语句插入或更新配置项
     // 如果配置项已存在，则更新其数据；如果不存在，则插入新记录
+    // conn.execute(
+    //     "INSERT INTO configs (name, data) VALUES (?1, ?2) ON CONFLICT(name) DO UPDATE SET data = excluded.data",
+    //     params![config.name, config.data],
+    // )
+    // .map_err(|e| e.to_string())?;
+
+    // conn.execute(
+    //     "INSERT INTO configs (name, data) VALUES (?1, ?2)
+    //     ON CONFLICT(name) DO UPDATE SET data = excluded.data",
+    //     params![config.name, config.data],
+    // )
+    // .map_err(|e| e.to_string())?;
+
     conn.execute(
-        "INSERT INTO configs (name, data) VALUES (?1, ?2) ON CONFLICT(name) DO UPDATE SET data = excluded.data",
+        "INSERT OR REPLACE INTO configs (id, name, data) VALUES ((SELECT id FROM configs WHERE name = ?1), ?1, ?2)",
         params![config.name, config.data],
     )
     .map_err(|e| e.to_string())?;

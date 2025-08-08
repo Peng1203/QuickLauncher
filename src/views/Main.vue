@@ -17,6 +17,8 @@
         >
           {{ `默认` }}
         </button>
+
+        <!-- <button @click="unregisterAll()" >取消所有快捷键</button> -->
       </nav>
     </aside>
 
@@ -52,14 +54,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { invoke } from '@tauri-apps/api/core'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import ListItem from '@/components/ListItem.vue'
+import { getFileInfo, addLaunch, getLaunchs } from '@/api'
 
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   if (e.payload.type === 'drop') {
     const addLaunchTasks = (e.payload.paths ?? []).map(async path => {
-      const fileInfo = await invoke<FileInfo>('get_file_info', { path })
+      const fileInfo = await getFileInfo(path)
 
       const item: NewLaunchItem = {
         name: fileInfo.name,
@@ -69,7 +71,7 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
         // category_id: null,
       }
       // // 添加记录
-      await invoke('add_launch', { item })
+      await addLaunch(item)
     })
 
     await Promise.all(addLaunchTasks)
@@ -82,7 +84,7 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
 const dataList = ref<LaunchItem[]>([])
 
 const getData = async () => {
-  const data = await invoke<LaunchItem[]>('get_launch')
+  const data = await getLaunchs()
   dataList.value = data
 }
 
