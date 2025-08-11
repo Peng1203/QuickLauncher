@@ -27,7 +27,10 @@
       tabindex="-1"
       class="pl-48 pt-8 h-screen overflow-auto"
     >
-      <div class="w-full h-full max-w-5xl mx-auto p-1">
+      <div
+        class="w-full h-full max-w-5xl mx-auto p-1"
+        @contextmenu.prevent="handleShowListContextMenu"
+      >
         <div
           class="grid grid-cols-6"
           v-if="dataList.length"
@@ -48,6 +51,12 @@
           拖动文件到该区域
         </div>
       </div>
+
+      <ListContextMenu
+        v-model="contextMenuVisible"
+        :position="contextMenuPosition"
+        @refresh="getData"
+      />
     </main>
   </div>
 </template>
@@ -57,6 +66,7 @@ import { ref } from 'vue'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import ListItem from '@/components/ListItem.vue'
 import { getFileInfo, addLaunch, getLaunchs } from '@/api'
+import ListContextMenu from '@/components/ListContextMenu.vue'
 
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   if (e.payload.type === 'drop') {
@@ -89,4 +99,12 @@ const getData = async () => {
 }
 
 getData()
+
+const contextMenuVisible = ref<boolean>(false)
+const contextMenuPosition = ref({ x: 0, y: 0 })
+
+const handleShowListContextMenu = (e: MouseEvent) => {
+  contextMenuVisible.value = true
+  contextMenuPosition.value = { x: e.clientX, y: e.clientY }
+}
 </script>

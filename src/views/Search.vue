@@ -69,7 +69,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { LogicalSize, getCurrentWindow } from '@tauri-apps/api/window'
-import { invoke } from '@tauri-apps/api/core'
 import { SearchOutline } from '@vicons/ionicons5'
 import { useLaunchAction } from '@/composables/useLaunchAction'
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut'

@@ -5,7 +5,7 @@
     tabindex="0"
     @dblclick="handleRun"
     @keydown="handleKeydown"
-    @contextmenu.prevent="handleShowContextMenu"
+    @contextmenu.prevent.stop="handleShowContextMenu"
   >
     <img
       :src="icon"
