@@ -16,7 +16,8 @@ pub fn run_launch(id: i32) -> Result<LaunchItem, String> {
 
     let launch_item = row.unwrap();
     // println!("名称：{}", launch_item);
-    println!("id:{}, path:{}", id, launch_item.path);
+
+    log::info!("id:{}, path:{}", id, launch_item.path);
 
     // dbg!(&launch_item);
     let mut args = vec![
@@ -32,8 +33,10 @@ pub fn run_launch(id: i32) -> Result<LaunchItem, String> {
 
     if launch_item.r#type == "file" || launch_item.r#type == "directory" {
         // 如果是文件，直接打开
+        // .creation_flags(0x00000008) 不会显示启动命令行窗口执行 但是无法使新运行的程序窗口聚焦
+
         if let Err(e) = Command::new("cmd")
-            .creation_flags(0x00000008)
+            .creation_flags(0x08000000)
             .current_dir("C:\\Windows\\System32")
             .args(args)
             .spawn()
@@ -45,22 +48,6 @@ pub fn run_launch(id: i32) -> Result<LaunchItem, String> {
     } else if launch_item.r#type == "url" {
         return Err("未知的类型".to_string());
     }
-
-    // 收集所有结果到一个向量中
-    // let mut items = Vec::new();
-    // for row in rows.unwrap() {
-    //     let item = row.unwrap();
-    //     items.push(item);
-    // }
-
-    // let mut launch_item;
-    // for item in rows.unwrap() {
-    //     launch_item = item.unwrap();
-    //     println!("名称：{}", launch_item.name);
-    //     println!("路径：{}", launch_item.path);
-    // }
-
-    // Ok(launch_item)
 
     Ok(launch_item)
 }
