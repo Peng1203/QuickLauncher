@@ -68,7 +68,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { LogicalSize, getCurrentWindow } from '@tauri-apps/api/window'
+import {
+  LogicalPosition,
+  LogicalSize,
+  cursorPosition,
+  getCurrentWindow,
+} from '@tauri-apps/api/window'
 import { SearchOutline } from '@vicons/ionicons5'
 import { useLaunchAction } from '@/composables/useLaunchAction'
 import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut'
@@ -157,6 +162,11 @@ const handleClose = () => {
 }
 
 const handleShow = async () => {
+  // 当存在多个显示器时 将搜索窗口显示在鼠标停留的显示器上
+  const { x, y } = await cursorPosition()
+  await current.setPosition(new LogicalPosition(x, y))
+
+  await current.center()
   // 显示搜索窗口
   await current.show()
   // 窗口聚焦
