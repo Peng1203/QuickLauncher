@@ -30,9 +30,7 @@ export interface MenuAction {
 
 const visible = defineModel<boolean>()
 
-const props = defineProps<{
-  position: { x: number; y: number }
-}>()
+defineProps<{ position: { x: number; y: number } }>()
 
 const emit = defineEmits(['refresh'])
 
