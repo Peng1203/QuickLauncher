@@ -30,6 +30,8 @@ export const enum InvokeMethod {
   RUN_LAUNCH = 'run_launch',
   RUN_LAUNCH_AS_ADMIN = 'run_launch_as_admin',
   SEARCH_LAUNCH = 'search_launch',
+  RENAME_LAUNCH = 'rename_launch',
+  DELETE_LAUNCH = 'delete_launch',
 
   EXE_COMMAND = 'exe_command',
 }

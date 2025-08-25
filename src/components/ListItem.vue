@@ -41,9 +41,11 @@
 <script setup lang="ts">
 import { useLaunchAction } from '@/composables/useLaunchAction'
 import LaunchItemContextMenu from './ListItemContextMenu.vue'
+import { renameLaunch } from '@/api'
 
 const { runLaunch } = useLaunchAction()
 
+// 鼠标单击选中的项
 const activeItem = defineModel<LaunchItem>()
 
 const props = defineProps<{
@@ -102,18 +104,14 @@ const handleCancelEditName = () => {
 }
 
 const handleSaveEditName = async () => {
-  console.log(
-    `%c 保存编辑名称 ----`,
-    'color: #fff;background-color: #000;font-size: 18px',
-    nameRef.value?.textContent
-  )
-  await saveEditName()
-
+  await saveEditName(nameRef.value!.textContent)
+  // 更新数据
   isEdit.value = false
 }
 
-const saveEditName = async () => {
+const saveEditName = async (newName: string) => {
   try {
+    await renameLaunch(props.item.id, newName)
   } catch (e) {
     console.log('e', e)
   }

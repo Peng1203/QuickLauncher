@@ -106,3 +106,14 @@ export const exeCommand = (cmd: string) => invoke(InvokeMethod.EXE_COMMAND, { cm
  */
 export const searchLaunch = <T = SearchLauncItem>(keyword: string) =>
   invoke<T[]>(InvokeMethod.SEARCH_LAUNCH, { keyword })
+
+/**
+ * 启动项重命名
+ * @author Peng
+ *
+ * @param {number} id
+ * @param {string} name
+ * @returns {*}
+ */
+export const renameLaunch = (id: number, name: string) =>
+  invoke(InvokeMethod.RENAME_LAUNCH, { id, name })
