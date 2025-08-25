@@ -4,22 +4,24 @@ use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
 
 use commands::add_launch::add_launch;
+use commands::delete_launch::delete_launch;
+use commands::exe_command::exe_command;
 use commands::get_app_config::get_app_config;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
 use commands::open_path::open_path;
+use commands::rename_launch::rename_launch;
 use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
-use commands::search::exe_command::exe_command;
 use commands::search_launch::search_launch;
 
 use tray::create_tray;
 
 mod commands;
+mod common;
 mod db;
 mod models;
-
 mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -58,6 +60,8 @@ pub fn run() {
             add_launch,
             get_launch,
             search_launch,
+            rename_launch,
+            delete_launch,
             get_file_info,
             exe_command,
             save_app_config,

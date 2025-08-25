@@ -1,19 +1,24 @@
 pub mod add_launch;
+pub mod delete_launch;
+pub mod exe_command;
 pub mod get_app_config;
 pub mod get_file_info;
 pub mod get_launch;
 pub mod open_path;
+pub mod rename_launch;
 pub mod run_launch;
 pub mod run_launch_as_admin;
 pub mod save_app_config;
-pub mod search;
 pub mod search_launch;
 
 pub use add_launch::add_launch;
+pub use delete_launch::delete_launch;
+pub use exe_command::exe_command;
 pub use get_app_config::get_app_config;
 pub use get_file_info::get_file_info;
 pub use get_launch::get_launch;
 pub use open_path::open_path;
+pub use rename_launch::rename_launch;
 pub use run_launch::run_launch;
 pub use run_launch_as_admin::run_launch_as_admin;
 pub use save_app_config::save_app_config;
