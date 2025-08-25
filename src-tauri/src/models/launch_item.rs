@@ -22,6 +22,9 @@ pub struct LaunchItem {
     pub last_used_at: Option<String>, // 可用 chrono::NaiveDateTime 代替
     pub created_at: String,
     pub updated_at: String,
+    pub extension: Option<String>, // TEXT，可能为 NULL
+    pub launch_count: i32,         // INTEGER，默认 0
+    pub failure_count: i32,        // INTEGER，默认 0
 }
 
 impl LaunchItem {
@@ -48,6 +51,9 @@ impl LaunchItem {
             last_used_at: row.get(17)?,
             created_at: row.get(18)?,
             updated_at: row.get(19)?,
+            extension: row.get(20)?,
+            launch_count: row.get(21)?,
+            failure_count: row.get(22)?,
         })
     }
 }
@@ -70,6 +76,7 @@ pub struct NewLaunchItem {
     pub order_index: Option<i32>,
     pub enabled: Option<i32>,
     pub category_id: Option<i32>,
+    pub extension: Option<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]

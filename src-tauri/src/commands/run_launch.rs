@@ -43,6 +43,7 @@ pub fn run_launch(id: i32) -> Result<LaunchItem, String> {
         // .arg(&launch_item.args)
         // .spawn()
         {
+            log::error!("无法打开文件: {}", e);
             return Err(format!("无法打开文件: {}", e));
         }
     } else if launch_item.r#type == "url" {

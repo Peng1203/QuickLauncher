@@ -4,7 +4,6 @@ use std::{
     path::{Path, PathBuf},
     sync::Mutex,
 };
-use tauri::path::{BaseDirectory, PathResolver};
 
 use once_cell::sync::OnceCell;
 
@@ -33,7 +32,7 @@ fn create_tables(conn: &Connection) -> Result<()> {
 	        id INTEGER PRIMARY KEY AUTOINCREMENT,
 	        name TEXT NOT NULL,
 	        path TEXT NOT NULL,
-	        type TEXT NOT NULL CHECK (type IN ('file', 'directory')),
+	        type TEXT NOT NULL CHECK (type IN ('file', 'directory', 'url')),
 	        icon TEXT,
 	        hotkey TEXT,
           hotkey_global INTEGER DEFAULT 0 CHECK (hotkey_global IN (0, 1)),
@@ -50,6 +49,9 @@ fn create_tables(conn: &Connection) -> Result<()> {
           last_used_at DATETIME,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          extension TEXT,
+          launch_count INTEGER DEFAULT 0,
+          failure_count INTEGER DEFAULT 0,
 	        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
         )",
         [],

@@ -36,11 +36,12 @@
           v-if="dataList.length"
         >
           <ListItem
-            v-for="item in dataList"
+            v-model="activeItem"
             :item="item"
             :key="item.id"
             :icon="item.icon!"
             :name="item.name"
+            v-for="item in dataList"
           />
         </div>
 
@@ -107,4 +108,6 @@ const handleShowListContextMenu = (e: MouseEvent) => {
   contextMenuVisible.value = true
   contextMenuPosition.value = { x: e.clientX, y: e.clientY }
 }
+
+const activeItem = ref<LaunchItem>()
 </script>

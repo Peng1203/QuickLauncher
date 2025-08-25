@@ -2,7 +2,9 @@
   <div
     class="item flex flex-col items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded pt-0.5 pb-0.5"
     :title="name"
+    :style="activeItem?.id === item.id ? { backgroundColor: '#f5f5f5 !important' } : {}"
     tabindex="0"
+    @click="handleActive"
     @dblclick="handleRun"
     @keydown="handleKeydown"
     @contextmenu.prevent.stop="handleShowContextMenu"
@@ -17,8 +19,8 @@
 
     <span
       ref="nameRef"
-      :contenteditable="isEdit"
-      class="text-xs text-center text-black px-1 w-full pointer-events-none line-clamp-2 mt-0.5 leading-normal"
+      :contenteditable="isEdit && activeItem?.id === item.id"
+      class="text-xs text-center text-black px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal max-2-lines"
     >
       {{ name }}
       <!-- -- {{ newName }} -->
@@ -31,6 +33,7 @@
       :item-path="item.path"
       :item-name="item.name"
       :on-close="() => (menuVisible = false)"
+      @rename="handleEditName"
     />
   </div>
 </template>
@@ -40,6 +43,8 @@ import { useLaunchAction } from '@/composables/useLaunchAction'
 import LaunchItemContextMenu from './ListItemContextMenu.vue'
 
 const { runLaunch } = useLaunchAction()
+
+const activeItem = defineModel<LaunchItem>()
 
 const props = defineProps<{
   icon: string
@@ -76,6 +81,7 @@ const handleKeydown = (e: KeyboardEvent) => {
 
 const nameRef = useTemplateRef('nameRef')
 const handleEditName = () => {
+  handleActive()
   if (isEdit.value) return
   newName.value = props.name
   isEdit.value = true
@@ -120,10 +126,32 @@ const handleShowContextMenu = (e: MouseEvent) => {
   menuVisible.value = true
   menuPosition.value = { x: e.clientX, y: e.clientY }
 }
+
+const handleActive = () => {
+  isEdit.value = false
+  activeItem.value = props.item
+}
 </script>
 
 <style scoped>
 .item:hover {
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
+  background-color: #f5f5f586;
+}
+span[contenteditable='true'] {
+  display: inline-block;
+  max-width: 100%;
+  width: fit-content;
+  border: 1px solid rgba(128, 128, 128, 0.486); /* 蓝色边框 */
+  /* padding: 4px; */
+  border-radius: 4px;
+}
+.max-2-lines {
+  display: inline-block;
+  max-width: 100%;
+  width: fit-content;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: clip; /* 不要省略号 */
 }
 </style>

@@ -164,9 +164,12 @@ const handleClose = () => {
 const handleShow = async () => {
   // 当存在多个显示器时 将搜索窗口显示在鼠标停留的显示器上
   const { x, y } = await cursorPosition()
-  await current.setPosition(new LogicalPosition(x, y))
 
+  // 可作为个性化设置 搜索框呼出位置跟随鼠标 需要适配搜索结果显示位置 朝上或者朝下
+  // await current.setPosition(new LogicalPosition(x, y))
+  await current.setPosition(new LogicalPosition(x - 600 / 2, y))
   await current.center()
+
   // 显示搜索窗口
   await current.show()
   // 窗口聚焦

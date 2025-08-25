@@ -1,5 +1,8 @@
 import { invoke } from '@tauri-apps/api/core'
 import { InvokeMethod } from '@/constant'
+import { createDiscreteApi } from 'naive-ui'
+
+const { message } = createDiscreteApi(['message'])
 
 /**
  * 打开文件所在文件
@@ -8,7 +11,8 @@ import { InvokeMethod } from '@/constant'
  * @param {string} path
  * @returns {*}
  */
-export const openPath = (path: string) => invoke(InvokeMethod.OPEN_PATH, { path })
+export const openPath = (path: string) =>
+  invoke(InvokeMethod.OPEN_PATH, { path }).catch(e => message.error(e))
 
 /**
  * 获取App配置信息
@@ -27,14 +31,13 @@ export const getAppConfig = <T = AppConfigState>() => invoke<T>(InvokeMethod.GET
  * @param {T} configData
  * @returns {*}
  */
-export const saveAppConfig = <T = AppConfigState>(configData: T) => {
-  return invoke(InvokeMethod.SAVE_APP_CONFIG, {
+export const saveAppConfig = <T = AppConfigState>(configData: T) =>
+  invoke(InvokeMethod.SAVE_APP_CONFIG, {
     config: {
       name: 'appConfig',
       data: JSON.stringify(configData),
     },
   })
-}
 
 /**
  * 运行启动项

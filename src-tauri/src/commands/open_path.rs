@@ -7,6 +7,7 @@ pub fn open_path(path: String) -> Result<(), String> {
     let path = PathBuf::from(&path);
 
     if !path.exists() {
+        log::error!("路径不存在{}", path.to_string_lossy().to_string());
         return Err("路径不存在".into());
     }
 
@@ -20,7 +21,13 @@ pub fn open_path(path: String) -> Result<(), String> {
         Ok(s) if s.success() => Ok(()),
         // Windows 特殊处理，exit code 1 也视为成功
         Ok(s) if s.code() == Some(1) => Ok(()),
-        Ok(s) => Err(format!("命令执行失败，状态码: {}", s)),
-        Err(e) => Err(format!("无法启动打开命令: {}", e)),
+        Ok(s) => {
+            log::error!("命令执行失败，状态码: {}", s);
+            Err(format!("命令执行失败，状态码: {}", s))
+        }
+        Err(e) => {
+            log::error!("无法启动打开命令: {}", e);
+            return Err(format!("无法启动打开命令: {}", e));
+        }
     }
 }

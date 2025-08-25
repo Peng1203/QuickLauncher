@@ -51,12 +51,18 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     // 获取文件或目录名称
     let name = get_name(p);
 
+    // 提取扩展名（目录没有扩展名）
+    let extension = p.extension().map(|ext| ext.to_string_lossy().to_string());
+
+    // dbg!(&extension.unwrap());
+
     let base64 = get_icon_base64_by_path(&full_path).unwrap();
     let icon = "data:image/png;base64,".to_string() + &base64;
 
     Ok(FileInfo {
         name,
         path: full_path,
+        extension,
         icon,
         size: metadata.len(),
         r#type: if metadata.is_file() {

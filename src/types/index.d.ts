@@ -17,9 +17,16 @@ interface LaunchItem {
   last_used_at?: string // 你可以换成 Date 类型根据需要
   created_at: string
   updated_at: string
+
+  extension?: string | null
+  launch_count: number
+  failure_count: number
 }
 
-type NewLaunchItem = Omit<LaunchItem, 'id' | 'last_used_at' | 'created_at' | 'updated_at'>
+type NewLaunchItem = Omit<
+  LaunchItem,
+  'id' | 'last_used_at' | 'created_at' | 'updated_at' | 'launch_count' | 'failure_count'
+>
 
 type SearchLauncItem = Pick<LaunchItem, 'id' | 'name' | 'icon'>
 
@@ -49,7 +56,8 @@ interface FileInfo {
   modified?: number | null
   is_file: boolean
   is_dir: boolean
-  type: 'file' | 'directory' // 更精确的枚举类型
+  type: 'file' | 'directory'
+  extension: string | null
 }
 
 // 应用配置状态

@@ -61,6 +61,7 @@ const menuItems = ref<MenuAction[]>([
         type: fileInfo.type,
         icon: fileInfo.icon,
         // category_id: null,
+        extension: fileInfo?.extension,
       }
       // // 添加记录
       await addLaunch(item)

@@ -6,25 +6,32 @@
     @click.stop
   >
     <ul class="text-sm text-gray-700">
-      <li
+      <template
         :key="item.label"
         v-for="item in menuItems"
-        @click="handleClick(item)"
-        class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
       >
-        {{ item.label }}
-      </li>
+        <li
+          v-if="item?.itemVisible === undefined ? true : item.itemVisible()"
+          @click="handleClick(item)"
+          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+        >
+          {{ item.label }}
+        </li>
+      </template>
     </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { openPath } from '@/api'
+import { openPath, runLaunchAsAdmin } from '@/api'
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useMessage } from 'naive-ui'
+import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 
 export interface MenuAction {
   label: string
   onClick: () => void
+  itemVisible?: () => void
 }
 
 const props = defineProps<{
@@ -37,7 +44,9 @@ const props = defineProps<{
   extraItems?: MenuAction[]
 }>()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'rename'])
+
+const message = useMessage()
 
 const handleClick = (item: MenuAction) => {
   item.onClick()
@@ -48,23 +57,23 @@ const handleClick = (item: MenuAction) => {
 const menuItems = ref<MenuAction[]>([
   {
     label: '以管理员身份运行',
-    onClick: () => openPath(props.item.path),
+    onClick: () => runLaunchAsAdmin(props.item.id),
+    itemVisible: () => ['exe'].includes(props.item?.extension || ''),
   },
   {
     label: '打开所在位置',
-    onClick: () => openPath(props.item.path),
+    onClick: async () => openPath(props.item.path),
   },
   {
     label: '复制路径',
     onClick: async () => {
-      // await window.__TAURI__.clipboard.writeText(props.itemPath);
+      await writeText(props.itemPath)
+      message.success('复制成功')
     },
   },
   {
     label: '重命名',
-    onClick: () => {
-      console.log('重命名')
-    },
+    onClick: () => emit('rename'),
   },
   {
     label: '删除',

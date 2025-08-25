@@ -9,6 +9,7 @@ use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
 use commands::open_path::open_path;
 use commands::run_launch::run_launch;
+use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
 use commands::search::exe_command::exe_command;
 use commands::search_launch::search_launch;
@@ -27,6 +28,7 @@ pub fn run() {
     let _ = db::connection::init_db();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
@@ -52,6 +54,7 @@ pub fn run() {
         }))
         .invoke_handler(tauri::generate_handler![
             run_launch,
+            run_launch_as_admin,
             add_launch,
             get_launch,
             search_launch,
