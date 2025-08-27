@@ -51,7 +51,7 @@
       >
         <!-- @mouseenter="selectedIndex = index" -->
         <img
-          :src="item.icon"
+          :src="item.icon || ''"
           alt="icon"
           class="!m-2 object-contain pointer-events-none"
         />
@@ -165,9 +165,11 @@ const handleShow = async () => {
   // 当存在多个显示器时 将搜索窗口显示在鼠标停留的显示器上
   const { x, y } = await cursorPosition()
 
-  // 可作为个性化设置 搜索框呼出位置跟随鼠标 需要适配搜索结果显示位置 朝上或者朝下
+  // TODO 可作为个性化设置 搜索框呼出位置跟随鼠标 需要适配搜索结果显示位置 朝上或者朝下
   // await current.setPosition(new LogicalPosition(x, y))
-  await current.setPosition(new LogicalPosition(x - 600 / 2, y))
+  const { width } = await current.innerSize()
+  // 存在多个显示器时 鼠标边缘呼出适配
+  await current.setPosition(new LogicalPosition(x - width / 2, y))
   await current.center()
 
   // 显示搜索窗口

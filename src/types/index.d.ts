@@ -2,19 +2,19 @@ interface LaunchItem {
   id: number
   name: string
   path: string
-  type: 'file' | 'directory' // 网站
-  icon?: string
-  hotkey?: string
+  type: 'file' | 'directory' | 'url'
+  icon?: string | null
+  hotkey?: string | null
   hotkey_global?: 0 | 1
-  keywords?: string
-  start_dir?: string
-  remarks?: string
-  args?: string
+  keywords?: string | null
+  start_dir?: string | null
+  remarks?: string | null
+  args?: string | null
   run_as_admin?: 0 | 1
   order_index?: number
   enabled?: 0 | 1
-  category_id?: number
-  last_used_at?: string // 你可以换成 Date 类型根据需要
+  category_id?: number | null
+  last_used_at?: string | null
   created_at: string
   updated_at: string
 

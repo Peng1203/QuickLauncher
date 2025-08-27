@@ -9,6 +9,7 @@ use commands::exe_command::exe_command;
 use commands::get_app_config::get_app_config;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
+use commands::get_website_info::get_website_info;
 use commands::open_path::open_path;
 use commands::rename_launch::rename_launch;
 use commands::run_launch::run_launch;
@@ -30,6 +31,7 @@ pub fn run() {
     let _ = db::connection::init_db();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
@@ -66,7 +68,8 @@ pub fn run() {
             exe_command,
             save_app_config,
             get_app_config,
-            open_path
+            open_path,
+            get_website_info
         ])
         .setup(|app| {
             // 初始化数据库连接

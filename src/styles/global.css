@@ -33,3 +33,7 @@ body,
   height: 0 !important;
   display: none;
 }
+
+textarea {
+  resize: none;
+}

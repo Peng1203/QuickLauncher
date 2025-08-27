@@ -117,3 +117,21 @@ export const searchLaunch = <T = SearchLauncItem>(keyword: string) =>
  */
 export const renameLaunch = (id: number, name: string) =>
   invoke(InvokeMethod.RENAME_LAUNCH, { id, name })
+
+/**
+ * 删除启动项
+ * @author Peng
+ *
+ * @param {number} id
+ * @returns {*}
+ */
+export const deleteLaunch = (id: number) => invoke(InvokeMethod.DELETE_LAUNCH, { id })
+
+/**
+ * 获取网站信息
+ * @author Peng
+ *
+ * @param {string} url
+ * @returns {*}
+ */
+export const getWebsiteInfo = (url: string) => invoke(InvokeMethod.GET_WEBSITE_INFO, { url })

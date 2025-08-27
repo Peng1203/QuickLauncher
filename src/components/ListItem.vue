@@ -104,7 +104,8 @@ const handleCancelEditName = () => {
 }
 
 const handleSaveEditName = async () => {
-  await saveEditName(nameRef.value!.textContent)
+  // @ts-ignore
+  await saveEditName(nameRef.value.textContent)
   // 更新数据
   isEdit.value = false
 }

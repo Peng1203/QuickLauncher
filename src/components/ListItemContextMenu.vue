@@ -23,10 +23,11 @@
 </template>
 
 <script setup lang="ts">
-import { openPath, runLaunchAsAdmin } from '@/api'
+import { deleteLaunch, openPath, runLaunchAsAdmin } from '@/api'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useMessage } from 'naive-ui'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
+import { ask } from '@tauri-apps/plugin-dialog'
 
 export interface MenuAction {
   label: string
@@ -77,22 +78,29 @@ const menuItems = ref<MenuAction[]>([
   },
   {
     label: '删除',
-    onClick: () => {
-      console.log('删除')
+    onClick: async () => {
+      const answer = await ask(`是否删除 ${props.itemName} ?`, {
+        title: '删 除',
+        kind: 'warning',
+      })
+      if (!answer) return
+      console.log(answer)
+      await deleteLaunch(props.item.id)
+      // TODO 更新列表数据
     },
   },
-  {
-    label: '设置开机启动',
-    onClick: () => {
-      console.log('设置开机启动')
-    },
-  },
-  {
-    label: '移除启动项',
-    onClick: () => {
-      console.log('移除启动项')
-    },
-  },
+  // {
+  //   label: '设置开机启动',
+  //   onClick: () => {
+  //     console.log('设置开机启动')
+  //   },
+  // },
+  // {
+  //   label: '移除启动项',
+  //   onClick: () => {
+  //     console.log('移除启动项')
+  //   },
+  // },
 ])
 
 // 自动监听点击窗口其他地方关闭菜单

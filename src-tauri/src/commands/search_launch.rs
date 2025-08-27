@@ -6,13 +6,19 @@ pub fn search_launch(keyword: &str) -> Result<Vec<SearchLaunchItem>, String> {
     let conn = db::connection::get_conn().lock().unwrap();
 
     let like_pattern = format!("%{}%", keyword);
+    // TODO 添加 enabled 的条件
     let mut stmt = conn
         .prepare(
-            "SELECT id, name, icon FROM launch_items WHERE name LIKE ?1
-            OR pinyin_full LIKE ?1
-            OR pinyin_abbr LIKE ?1
-            OR keywords LIKE ?1
-         ORDER BY order_index ASC",
+            "SELECT id, name, icon 
+            FROM launch_items 
+            WHERE enabled = 1
+            AND (
+              name LIKE ?1
+              OR pinyin_full LIKE ?1
+              OR pinyin_abbr LIKE ?1
+              OR keywords LIKE ?1
+            )
+            ORDER BY order_index ASC",
         )
         .map_err(|e| format!("准备查询语句失败：{}", e))
         .unwrap();

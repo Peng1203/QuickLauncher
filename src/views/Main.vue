@@ -56,8 +56,11 @@
       <ListContextMenu
         v-model="contextMenuVisible"
         :position="contextMenuPosition"
+        @add="modalStatus = true"
         @refresh="getData"
       />
+
+      <OperationLaunchModal v-model="modalStatus" />
     </main>
   </div>
 </template>
@@ -68,6 +71,9 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import ListItem from '@/components/ListItem.vue'
 import { getFileInfo, addLaunch, getLaunchs } from '@/api'
 import ListContextMenu from '@/components/ListContextMenu.vue'
+import OperationLaunchModal from '@/components/OperationLaunchModal.vue'
+
+const modalStatus = ref(false)
 
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   if (e.payload.type === 'drop') {
@@ -96,6 +102,7 @@ const dataList = ref<LaunchItem[]>([])
 
 const getData = async () => {
   const data = await getLaunchs()
+  console.log(`%c data ----`, 'color: #fff;background-color: #000;font-size: 18px', data)
   dataList.value = data
 }
 

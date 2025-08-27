@@ -34,4 +34,6 @@ export const enum InvokeMethod {
   DELETE_LAUNCH = 'delete_launch',
 
   EXE_COMMAND = 'exe_command',
+
+  GET_WEBSITE_INFO = 'get_website_info',
 }
