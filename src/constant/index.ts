@@ -32,8 +32,16 @@ export const enum InvokeMethod {
   SEARCH_LAUNCH = 'search_launch',
   RENAME_LAUNCH = 'rename_launch',
   DELETE_LAUNCH = 'delete_launch',
+  UPDATE_LAUNCH = 'update_launch',
 
   EXE_COMMAND = 'exe_command',
 
   GET_WEBSITE_INFO = 'get_website_info',
 }
+
+export const enum AppEvent {
+  UPDATE_LAUNCH_LIST = 'update_launch_list',
+  EDIT_LAUNCH = 'edit_launch',
+}
+
+export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent]

@@ -1,6 +1,6 @@
 use rusqlite::{Result, Row};
 
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct LaunchItem {
     pub id: i32,
     pub name: String,

@@ -79,6 +79,17 @@ export const getFileInfo = <T = FileInfo>(path: string) =>
 export const addLaunch = <T = NewLaunchItem>(item: T) => invoke(InvokeMethod.ADD_LAUNCH, { item })
 
 /**
+ * 更新启动项
+ * @author Peng
+ *
+ * @template [T=LaunchItem]
+ * @param {T} item
+ * @returns {*}
+ */
+export const updateLaunch = <T = LaunchItem>(item: T) =>
+  invoke(InvokeMethod.UPDATE_LAUNCH, { item })
+
+/**
  * 获取启动项
  * @author Peng
  *

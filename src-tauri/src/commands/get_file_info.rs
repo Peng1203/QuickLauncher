@@ -52,7 +52,9 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     let name = get_name(p);
 
     // 提取扩展名（目录没有扩展名）
-    let extension = p.extension().map(|ext| ext.to_string_lossy().to_string());
+    let extension = Path::new(&full_path)
+        .extension()
+        .map(|ext| ext.to_string_lossy().to_string());
 
     // dbg!(&extension.unwrap());
 

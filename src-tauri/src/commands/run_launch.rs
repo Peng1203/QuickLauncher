@@ -50,5 +50,7 @@ pub fn run_launch(id: i32) -> Result<LaunchItem, String> {
         return Err("未知的类型".to_string());
     }
 
+    // TODO 记录启动次数和最后启动时间
+
     Ok(launch_item)
 }

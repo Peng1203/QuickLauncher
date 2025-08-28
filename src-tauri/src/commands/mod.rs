@@ -11,6 +11,7 @@ pub mod run_launch;
 pub mod run_launch_as_admin;
 pub mod save_app_config;
 pub mod search_launch;
+pub mod update_launch;
 
 pub use add_launch::add_launch;
 pub use delete_launch::delete_launch;
@@ -25,3 +26,4 @@ pub use run_launch::run_launch;
 pub use run_launch_as_admin::run_launch_as_admin;
 pub use save_app_config::save_app_config;
 pub use search_launch::search_launch;
+pub use update_launch::update_launch;

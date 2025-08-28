@@ -56,11 +56,15 @@
       <ListContextMenu
         v-model="contextMenuVisible"
         :position="contextMenuPosition"
-        @add="modalStatus = true"
+        @add="handleOpenAddLaunch"
         @refresh="getData"
       />
 
-      <OperationLaunchModal v-model="modalStatus" />
+      <OperationLaunchModal
+        :editItem="editItem"
+        v-model="modalStatus"
+        @refresh="getData"
+      />
     </main>
   </div>
 </template>
@@ -72,10 +76,16 @@ import ListItem from '@/components/ListItem.vue'
 import { getFileInfo, addLaunch, getLaunchs } from '@/api'
 import ListContextMenu from '@/components/ListContextMenu.vue'
 import OperationLaunchModal from '@/components/OperationLaunchModal.vue'
+import { EventBus } from '@/utils/eventBus'
+import { AppEvent } from '@/constant'
 
 const modalStatus = ref(false)
 
+const editItem = ref<LaunchItem>()
+
 getCurrentWebviewWindow().onDragDropEvent(async e => {
+  // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
+  if (modalStatus.value) return
   if (e.payload.type === 'drop') {
     const addLaunchTasks = (e.payload.paths ?? []).map(async path => {
       const fileInfo = await getFileInfo(path)
@@ -86,6 +96,17 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
         type: fileInfo.type,
         icon: fileInfo.icon,
         // category_id: null,
+        hotkey: '',
+        hotkey_global: 0,
+        keywords: '',
+        start_dir: '',
+        remarks: '',
+        args: '',
+        run_as_admin: 0,
+        order_index: 0,
+        enabled: 1,
+        category_id: null,
+        extension: null,
       }
       // // 添加记录
       await addLaunch(item)
@@ -102,7 +123,6 @@ const dataList = ref<LaunchItem[]>([])
 
 const getData = async () => {
   const data = await getLaunchs()
-  console.log(`%c data ----`, 'color: #fff;background-color: #000;font-size: 18px', data)
   dataList.value = data
 }
 
@@ -116,5 +136,17 @@ const handleShowListContextMenu = (e: MouseEvent) => {
   contextMenuPosition.value = { x: e.clientX, y: e.clientY }
 }
 
+const handleOpenAddLaunch = () => {
+  editItem.value = undefined
+  modalStatus.value = true
+}
+
 const activeItem = ref<LaunchItem>()
+
+EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, getData)
+
+EventBus.listen<LaunchItem>(AppEvent.EDIT_LAUNCH, item => {
+  editItem.value = item
+  modalStatus.value = true
+})
 </script>

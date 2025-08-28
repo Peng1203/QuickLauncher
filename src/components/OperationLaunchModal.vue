@@ -1,16 +1,16 @@
 <template>
   <n-modal
+    transform-origin="center"
     :mask-closable="false"
     v-model:show="modalStatus"
     @close="handleClose"
   >
-    <!-- TODO 新建支持拖拽 -->
     <n-card
-      title="新建项目"
-      size="huge"
+      size="small"
       role="dialog"
       aria-modal="true"
       :bordered="false"
+      :title="isEdit ? '编辑项目' : '新建项目'"
     >
       <template #header-extra>
         <n-icon
@@ -26,10 +26,13 @@
         type="bar"
         placement="left"
         size="small"
+        v-model:value="form.type"
         :default-value="form.type"
         :on-update:value="handleTypeChange"
+        :style="`--n-tabs-nav-visbile: ${typesBarVisible}`"
       >
         <n-tab-pane
+          :disabled="isEdit"
           :name="item.value"
           :tab="item.label"
           v-for="item in launchTypes"
@@ -53,6 +56,7 @@
                     v-if="item.slot === 'iconSlot'"
                   >
                     <n-avatar
+                      :style="form.icon ? 'background-color: transparent' : ''"
                       size="large"
                       :src="form.icon || ''"
                     />
@@ -78,9 +82,11 @@
                       size="small"
                       color="lightgray"
                       text-color="gary"
+                      @click="handleSelectLaunch"
                     >
                       选 择
                     </n-button>
+                    *支持拖拽
                   </n-col>
 
                   <n-col
@@ -142,6 +148,7 @@
                       :checked-value="1"
                       :unchecked-value="0"
                       :default-checked="0"
+                      :disabled="!form.hotkey"
                     >
                       全局快捷键
                     </n-checkbox>
@@ -162,6 +169,7 @@
                         :checked-value="1"
                         :unchecked-value="0"
                         :default-checked="0"
+                        :disabled="form.extension !== 'exe'"
                       >
                         以管理员身份运行
                       </n-checkbox>
@@ -204,7 +212,9 @@
                         size="small"
                         v-model:value.number="form.order_index"
                       />
-                      <span class="ml-2 text-gray-400"> 数字越小越靠前 </span>
+                      <span class="ml-2 text-gray-400"
+                        >用于搜索返回展示的优先级 数字越小越靠前
+                      </span>
                     </n-form-item>
                   </n-col>
 
@@ -264,7 +274,6 @@
             </n-form>
           </div>
         </n-tab-pane>
-        <template #suffix> </template>
       </n-tabs>
 
       <template #footer>
@@ -272,6 +281,8 @@
           <n-button
             size="small"
             type="info"
+            :disabled="!form.name || !form.path"
+            @click="handleConfirm"
           >
             确 认
           </n-button>
@@ -288,10 +299,14 @@
 </template>
 
 <script setup lang="ts">
-import { getWebsiteInfo } from '@/api'
+import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api'
 import { Close } from '@vicons/ionicons5'
 import { ref, computed } from 'vue'
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
+import { open } from '@tauri-apps/plugin-dialog'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { EventBus } from '@/utils/eventBus'
+import { AppEvent } from '@/constant'
 
 // 表单字段 schema 类型
 type FieldSchema = {
@@ -306,6 +321,8 @@ type FieldSchema = {
 type LaunchItemType = NewLaunchItem['type']
 
 const modalStatus = defineModel<boolean>({ default: true })
+const props = defineProps<{ editItem?: LaunchItem }>()
+
 const launchTypes = [
   { value: 'file', label: '文 件' },
   { value: 'directory', label: '文件夹' },
@@ -357,6 +374,8 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
     { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
   ],
 }
+
+// TODO 分类选择
 const categoryOptions = ref([
   {
     label: '应用程序',
@@ -370,8 +389,8 @@ const form = ref<NewLaunchItem>({
   name: '',
   path: '',
   type: launchTypes[0].value,
-
   icon: '',
+
   hotkey: '',
   hotkey_global: 0,
   keywords: '',
@@ -401,6 +420,7 @@ const inputTheme = {
 
 const handleClose = () => {
   modalStatus.value = false
+  initForm()
 }
 
 const { message } = useNaiveUiApi()
@@ -444,6 +464,84 @@ const handleTypeChange = (val: LaunchItemType) => {
     form.value.type = val
   })
 }
+
+const setForm = (fileInfo: FileInfo) => {
+  // 重新选择文件/文件夹时 将该参数重置
+  form.value.run_as_admin = 0
+  form.value.hotkey_global = 0
+
+  form.value.name = fileInfo.name
+  form.value.path = fileInfo.path
+  form.value.icon = fileInfo.icon
+  form.value.type = fileInfo.type
+  form.value.extension = fileInfo.extension
+}
+
+const handleSelectLaunch = async () => {
+  const path = await open({
+    multiple: false,
+    directory: form.value.type === 'directory',
+  })
+
+  const fileInfo = await getFileInfo(path!)
+  setForm(fileInfo)
+}
+
+const handleConfirm = async () => {
+  if (isEdit.value) {
+    // @ts-ignore
+    const item: LaunchItem = JSON.parse(
+      JSON.stringify({
+        ...props.editItem,
+        ...form.value,
+      })
+    )
+
+    await updateLaunch(item)
+  } else {
+    await addLaunch(form.value)
+  }
+  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST)
+  handleClose()
+}
+
+const isEdit = computed(() => !!(props?.editItem && Object.keys(props.editItem).length))
+
+//we weiru
+
+watch(
+  () => props.editItem,
+  val => {
+    if (!val) return
+    for (const key in form.value) {
+      // @ts-ignore
+      form.value[key] = val[key]
+    }
+  },
+  { deep: true }
+)
+
+getCurrentWebviewWindow().onDragDropEvent(async e => {
+  // 当添加对话框没打开时不触发后续操作 防止和外层 拖拽事件相互影响
+  if (!modalStatus.value) return
+  if (e.payload.type === 'drop') {
+    if (!e.payload.paths.length) return
+    const path = e.payload.paths[0]
+    const fileInfo = await getFileInfo(path)
+
+    // 当拖进来的启动项 不符合当前类型 则初始表单 并切换到对应的类型
+    if (fileInfo.type !== form.value.type) {
+      initForm()
+      nextTick(() => {
+        setForm(fileInfo)
+      })
+    } else {
+      setForm(fileInfo)
+    }
+  }
+})
+
+const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'))
 </script>
 
 <style scoped>
@@ -479,7 +577,6 @@ const handleTypeChange = (val: LaunchItemType) => {
 }
 
 ::v-deep(.n-input--focus:hover) {
-  border-color: red;
   background-color: inherit !important;
 }
 
@@ -508,11 +605,33 @@ const handleTypeChange = (val: LaunchItemType) => {
   transition: none !important;
 }
 
+/* prettier-ignore */
+::v-deep(.n-base-selection__state-border) {
+  transition: none !important;
+}
+/* prettier-ignore */
+::v-deep(.n-base-selection) {
+  --n-caret-color: inherit !important;
+  --n-border-hover: inherit !important;
+  --n-border-focus: inherit !important;
+  --n-box-shadow-focus: none !important;
+  --n-border-active: inherit !important;
+  --n-border-focus: inherit !important;
+  --n-border-hover: inherit !important;
+  --n-box-shadow-active: inherit !important;
+  --n-box-shadow-focus: inherit !important;
+  transition: none !important;
+}
+
 ::v-deep(.n-input--textarea) {
   min-height: 80px !important;
 }
 
 ::v-deep(.n-input-wrapper) {
   resize: none !important;
+}
+
+::v-deep(.n-tabs-nav) {
+  display: var(--n-tabs-nav-visbile);
 }
 </style>

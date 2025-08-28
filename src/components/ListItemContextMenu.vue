@@ -28,6 +28,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useMessage } from 'naive-ui'
 import { writeText } from '@tauri-apps/plugin-clipboard-manager'
 import { ask } from '@tauri-apps/plugin-dialog'
+import { EventBus } from '@/utils/eventBus'
+import { AppEvent } from '@/constant'
 
 export interface MenuAction {
   label: string
@@ -79,14 +81,21 @@ const menuItems = ref<MenuAction[]>([
   {
     label: '删除',
     onClick: async () => {
+      // TODO 用户配置关闭 二次确认
       const answer = await ask(`是否删除 ${props.itemName} ?`, {
         title: '删 除',
         kind: 'warning',
       })
       if (!answer) return
-      console.log(answer)
       await deleteLaunch(props.item.id)
-      // TODO 更新列表数据
+
+      EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST)
+    },
+  },
+  {
+    label: '编辑',
+    onClick: () => {
+      EventBus.emit(AppEvent.EDIT_LAUNCH, props.item)
     },
   },
   // {

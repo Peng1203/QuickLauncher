@@ -16,6 +16,7 @@ use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
 use commands::search_launch::search_launch;
+use commands::update_launch::update_launch;
 
 use tray::create_tray;
 
@@ -51,7 +52,7 @@ pub fn run() {
             MacosLauncher::LaunchAgent,
             Some(vec!["--flag1", "--flag2"]),
         ))
-        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             let main_window = app.get_webview_window("main").unwrap();
             let _ = main_window.show();
             let _ = main_window.set_focus();
@@ -64,12 +65,13 @@ pub fn run() {
             search_launch,
             rename_launch,
             delete_launch,
+            update_launch,
             get_file_info,
             exe_command,
             save_app_config,
             get_app_config,
             open_path,
-            get_website_info
+            get_website_info,
         ])
         .setup(|app| {
             // 初始化数据库连接
