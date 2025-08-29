@@ -13,6 +13,7 @@
   >
     <!-- @keydown.up -->
     <template #prefix>
+      <!-- {{ selectedIndex }} -->
       <!-- {{ selectedIndex }}--- {{ resultList.length }}--{{ hasResult }} -->
       <n-icon
         :component="SearchOutline"
@@ -97,6 +98,9 @@ const itemRefs = ref<HTMLElement[]>([])
 const selectedIndex = ref(0)
 
 const handleKeydown = (e: KeyboardEvent) => {
+  const reultCount = resultList.value.length
+  const minIndex = 0
+  const maxIndex = reultCount - 1
   const { keyCode } = e
   // code
   // Enter keyCode=13 code=Enter
@@ -112,11 +116,13 @@ const handleKeydown = (e: KeyboardEvent) => {
       handleClose()
       break
     case 38:
-      selectedIndex.value > 0 && selectedIndex.value--
+      if (selectedIndex.value === minIndex && reultCount) selectedIndex.value = reultCount - 1
+      else selectedIndex.value > 0 && selectedIndex.value--
       e.preventDefault()
       break
     case 40:
-      selectedIndex.value < resultList.value.length - 1 && selectedIndex.value++
+      if (selectedIndex.value === maxIndex && reultCount) selectedIndex.value = minIndex
+      else selectedIndex.value < maxIndex && selectedIndex.value++
       e.preventDefault()
       break
   }
@@ -192,11 +198,12 @@ watch(selectedIndex, async newIndex => {
 const searchWindowHeight = computed(() => {
   if (!resultList.value.length) return SEARCH_INPUT_HEIGHT
 
-  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT
+  // 结果列表总高度 + 1像素的的顶部边框高度
+  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT + 1
 
   return resultsHeight + SEARCH_INPUT_HEIGHT > appConfigStore.searchWindowMaxHeight
     ? appConfigStore.searchWindowMaxHeight
-    : resultsHeight + SEARCH_INPUT_HEIGHT
+    : resultsHeight + SEARCH_INPUT_HEIGHT + 1
 })
 
 watch(
@@ -260,6 +267,7 @@ handleRegisterSearchHotkey()
 .search-container {
   /* max-height: calc(v-bind(searchWindowHeight + 'px') - v-bind(SEARCH_INPUT_HEIGHT + 'px')); */
   border-top: 0.5px solid;
+  box-sizing: border-box;
 }
 
 ul:focus-visible {
