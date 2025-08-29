@@ -10,6 +10,9 @@ export const SEARCH_INPUT_HEIGHT = 45
 /* 搜索结果高度 */
 export const SEARCH_RESULT_ITEM_HEIGHT = 48
 
+/* 右击菜单的宽度 */
+export const MENU_WIDTH = 150
+
 export const enum SearchWindow {
   WINDOW_WIDTH = SEARCH_WINDOW_WIDTH,
   MAX_HEIGHT = SEARCH_WINDOW_MAX_HEIGHT,
@@ -42,6 +45,9 @@ export const enum InvokeMethod {
 export const enum AppEvent {
   UPDATE_LAUNCH_LIST = 'update_launch_list',
   EDIT_LAUNCH = 'edit_launch',
+
+  // 关闭右键菜单
+  CLOSE_CONTEXT_MENU = 'close_context_menu',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent]

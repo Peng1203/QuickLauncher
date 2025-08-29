@@ -26,13 +26,13 @@
       <!-- -- {{ newName }} -->
     </span>
 
+    <!-- :visible="menuVisible" -->
     <LaunchItemContextMenu
+      v-model="menuVisible"
       :item="item"
-      :visible="menuVisible"
       :position="menuPosition"
       :item-path="item.path"
       :item-name="item.name"
-      :on-close="() => (menuVisible = false)"
       @rename="handleEditName"
     />
   </div>
@@ -42,6 +42,8 @@
 import { useLaunchAction } from '@/composables/useLaunchAction'
 import LaunchItemContextMenu from './ListItemContextMenu.vue'
 import { renameLaunch } from '@/api'
+import { EventBus } from '@/utils/eventBus'
+import { AppEvent } from '@/constant'
 
 const { runLaunch } = useLaunchAction()
 
@@ -106,8 +108,9 @@ const handleCancelEditName = () => {
 const handleSaveEditName = async () => {
   // @ts-ignore
   await saveEditName(nameRef.value.textContent)
-  // 更新数据
   isEdit.value = false
+  // 更新数据
+  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST)
 }
 
 const saveEditName = async (newName: string) => {
@@ -122,8 +125,18 @@ const menuVisible = ref(false)
 const menuPosition = ref({ x: 0, y: 0 })
 
 const handleShowContextMenu = (e: MouseEvent) => {
-  menuVisible.value = true
-  menuPosition.value = { x: e.clientX, y: e.clientY }
+  // 先关闭其他菜单 再打开当前菜单
+  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU)
+
+  setTimeout(() => {
+    nextTick(() => {
+      menuVisible.value = true
+      menuPosition.value = { x: e.clientX, y: e.clientY }
+
+      // 选中当前菜单
+      activeItem.value = props.item
+    })
+  }, 100)
 }
 
 const handleActive = () => {

@@ -1,8 +1,9 @@
 <template>
   <div
     v-if="visible"
-    :style="{ top: `${position.y}px`, left: `${position.x}px` }"
-    class="fixed z-50 w-48 rounded-lg shadow-lg bg-white border border-gray-200"
+    ref="menuRef"
+    class="fixed z-50 rounded-lg shadow-lg bg-white border border-gray-200"
+    :style="{ top: `${calcPosition.y}px`, left: `${calcPosition.x}px`, width: MENU_WIDTH + 'px' }"
     @click.stop
   >
     <ul class="text-sm text-gray-700">
@@ -19,6 +20,8 @@
 </template>
 
 <script setup lang="ts">
+import { AppEvent, MENU_WIDTH } from '@/constant'
+import { EventBus } from '@/utils/eventBus'
 import { ref, onMounted, onUnmounted } from 'vue'
 
 export interface MenuAction {
@@ -28,7 +31,7 @@ export interface MenuAction {
 
 const visible = defineModel<boolean>()
 
-defineProps<{ position: { x: number; y: number } }>()
+const props = defineProps<{ position: { x: number; y: number } }>()
 
 const emit = defineEmits(['refresh', 'add'])
 
@@ -45,42 +48,53 @@ const handleClick = (item: MenuAction) => {
 const menuItems = ref<MenuAction[]>([
   {
     label: '新建',
-    onClick: async () => {
-      emit('add')
-      // const path = await open({
-      //   multiple: false,
-      //   directory: false,
-      // })
-      // if (!path) return
-      // console.log(`%c path ----`, 'color: #fff;background-color: #000;font-size: 18px', path)
-      // const fileInfo = await getFileInfo(path!)
-      // const item: NewLaunchItem = {
-      //   name: fileInfo.name,
-      //   path: fileInfo.path,
-      //   type: fileInfo.type,
-      //   icon: fileInfo.icon,
-      //   // category_id: null,
-      //   extension: fileInfo?.extension,
-      // }
-      // // // 添加记录
-      // await addLaunch(item)
-      // // 通知父组件刷新列表
-      // emit('refresh')
-    },
+    onClick: async () => emit('add'),
   },
 ])
 
+const menuRef = useTemplateRef('menuRef')
 // 自动监听点击窗口其他地方关闭菜单
 const handleOutsideClick = (e: MouseEvent) => {
-  if (!(e.target as HTMLElement).closest('.context-menu')) {
+  if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
     handleClose()
   }
+
+  // if (!(e.target as HTMLElement).closest('.context-menu')) {
+  //   handleClose()
+  // }
 }
 
+// 菜单距离窗口边的距离
+const VIEWPORT_MARGIN = 5
+
+// 计算出菜单出现的 x y 位置
+const calcPosition = computed(() => {
+  let x = props.position.x
+  let y = props.position.y
+
+  if (props.position.x + MENU_WIDTH > window.innerWidth) {
+    x = window.innerWidth - MENU_WIDTH - VIEWPORT_MARGIN
+  }
+
+  if (menuRef.value) {
+    if (props.position.y + menuRef.value.offsetHeight > window.innerHeight) {
+      y = window.innerHeight - menuRef.value.offsetHeight - VIEWPORT_MARGIN
+    }
+  }
+
+  return { x, y }
+})
+
 onMounted(() => {
+  EventBus.listen(AppEvent.CLOSE_CONTEXT_MENU, handleClose)
+
   window.addEventListener('click', handleOutsideClick)
+  window.addEventListener('contextmenu', handleOutsideClick)
+  window.addEventListener('scroll', handleClose, true)
 })
 onUnmounted(() => {
   window.removeEventListener('click', handleOutsideClick)
+  window.removeEventListener('contextmenu', handleOutsideClick)
+  window.removeEventListener('scroll', handleClose, true)
 })
 </script>

@@ -29,8 +29,9 @@
     >
       <div
         class="w-full h-full max-w-5xl mx-auto p-1"
-        @contextmenu.prevent="handleShowListContextMenu"
+        @contextmenu.prevent.stop="handleShowListContextMenu"
       >
+        <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
         <div
           class="grid grid-cols-6"
           v-if="dataList.length"
@@ -132,8 +133,14 @@ const contextMenuVisible = ref<boolean>(false)
 const contextMenuPosition = ref({ x: 0, y: 0 })
 
 const handleShowListContextMenu = (e: MouseEvent) => {
-  contextMenuVisible.value = true
-  contextMenuPosition.value = { x: e.clientX, y: e.clientY }
+  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU)
+
+  setTimeout(() => {
+    nextTick(() => {
+      contextMenuVisible.value = true
+      contextMenuPosition.value = { x: e.clientX, y: e.clientY }
+    })
+  }, 100)
 }
 
 const handleOpenAddLaunch = () => {
