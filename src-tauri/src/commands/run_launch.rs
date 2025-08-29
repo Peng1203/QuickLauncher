@@ -32,9 +32,7 @@ pub fn run_launch(id: i32) -> Result<LaunchItem, String> {
     }
 
     if launch_item.r#type == "file" || launch_item.r#type == "directory" {
-        // 如果是文件，直接打开
-        // .creation_flags(0x00000008) 不会显示启动命令行窗口执行 但是无法使新运行的程序窗口聚焦
-
+        // TODO 文件打开目录和传入参数
         if let Err(e) = Command::new("cmd")
             .creation_flags(0x08000000)
             .current_dir("C:\\Windows\\System32")
@@ -47,7 +45,29 @@ pub fn run_launch(id: i32) -> Result<LaunchItem, String> {
             return Err(format!("无法打开文件: {}", e));
         }
     } else if launch_item.r#type == "url" {
-        return Err("未知的类型".to_string());
+        // 处理URL类型，使用默认浏览器打开
+        // TODO 可通过参数指定浏览器
+        let mut url_args = vec![
+            "/C".to_string(),
+            "start".to_string(),
+            "".to_string(),
+            launch_item.path.to_string(),
+        ];
+
+        // URL类型通常不需要额外参数，但保留兼容性
+        if let Some(ref arg) = launch_item.args {
+            url_args.push(arg.to_string());
+        }
+
+        if let Err(e) = Command::new("cmd")
+            .creation_flags(0x08000000)
+            .current_dir("C:\\Windows\\System32")
+            .args(url_args)
+            .spawn()
+        {
+            log::error!("无法打开URL: {}", e);
+            return Err(format!("无法打开URL: {}", e));
+        }
     }
 
     // TODO 记录启动次数和最后启动时间
