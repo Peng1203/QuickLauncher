@@ -107,7 +107,7 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
         order_index: 0,
         enabled: 1,
         category_id: null,
-        extension: null,
+        extension: fileInfo.extension,
       }
       // // 添加记录
       await addLaunch(item)

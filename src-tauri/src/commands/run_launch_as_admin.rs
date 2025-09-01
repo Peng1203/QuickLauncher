@@ -26,7 +26,6 @@ pub fn run_launch_as_admin(id: i32) -> Result<LaunchItem, String> {
         "-Verb".to_string(),
         "RunAs".to_string(),
     ];
-    log::info!("IF-------------1");
 
     // 如果有参数，则添加到 `-ArgumentList`
     if let Some(ref arg) = launch_item.args {
@@ -35,7 +34,6 @@ pub fn run_launch_as_admin(id: i32) -> Result<LaunchItem, String> {
     }
 
     if launch_item.r#type == "file" || launch_item.r#type == "directory" {
-        log::info!("IF-------------2");
         if let Err(e) = Command::new("powershell")
             .creation_flags(0x08000000)
             .current_dir("C:\\Windows\\System32")
@@ -43,8 +41,6 @@ pub fn run_launch_as_admin(id: i32) -> Result<LaunchItem, String> {
             .args(&powershell_cmd)
             .spawn()
         {
-            log::info!("IF-------------3 {}", e);
-
             log::error!("❌ 无法以管理员权限运行启动项: {}", e);
             return Err(format!("❌ 无法以管理员权限运行启动项: {}", e));
         }

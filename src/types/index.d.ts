@@ -69,3 +69,8 @@ interface AppConfigState {
   /* 搜索结果高度 */
   searchResultItemHeight: number
 }
+
+type OptionItem<T = string, K = string> = {
+  label: K
+  value: T
+}

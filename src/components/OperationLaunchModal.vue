@@ -176,6 +176,48 @@
                     </n-form-item>
                   </n-col>
 
+                  <!-- 网址选择指定浏览器打开 -->
+                  <n-col
+                    :span="(item.span  as any)"
+                    v-else-if="item.slot === 'browserSlot'"
+                  >
+                    <n-form-item
+                      :label="item.label"
+                      :path="item.prop"
+                    >
+                      <template #label>
+                        <div class="flex">
+                          <span class="mr-1">{{ item.label }}</span>
+
+                          <n-tooltip trigger="hover">
+                            <template #trigger>
+                              <n-icon
+                                size="16"
+                                class="cursor-pointer"
+                                @click="handleClose"
+                              >
+                                <AlertCircleOutline />
+                              </n-icon>
+                            </template>
+                            按照以下格式添加自定义浏览器<br />
+                            浏览器名称=浏览器exe文件地址<br />
+                            例: QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
+                          </n-tooltip>
+                        </div>
+                      </template>
+                      <!--           @change="handleChangeOpenBrowser"
+                        @click="handleChangeOpenBrowser" -->
+                      <n-dynamic-tags
+                        size="small"
+                        :render-tag="handleRenderBrowserTag"
+                        v-model:value="browserOptions"
+                        @create="handleCreateBrowserOption"
+                      />
+
+                      <!-- {{ browserOptions }} -->
+                    </n-form-item>
+                  </n-col>
+
                   <!-- 关键字 -->
                   <n-col
                     :span="(item.span  as any)"
@@ -298,9 +340,9 @@
   </n-modal>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api'
-import { Close } from '@vicons/ionicons5'
+import { Close, AlertCircleOutline } from '@vicons/ionicons5'
 import { ref, computed } from 'vue'
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
 import { open } from '@tauri-apps/plugin-dialog'
@@ -327,7 +369,8 @@ const launchTypes = [
   { value: 'file', label: '文 件' },
   { value: 'directory', label: '文件夹' },
   { value: 'url', label: '网 站' },
-] as const satisfies { value: LaunchItemType; label: string }[]
+] as const satisfies OptionItem<LaunchItemType>[]
+// ] as const satisfies { value: LaunchItemType; label: string }[]
 
 const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
   file: [
@@ -364,6 +407,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
     { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
     { prop: 'name', label: '名称', span: 17 },
     { prop: 'path', label: '网址', type: 'textarea', span: 20, slot: 'urlSlot' },
+    { prop: 'args', label: '浏览器', span: 20, slot: 'browserSlot' },
 
     { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
     { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
@@ -374,6 +418,79 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
     { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
   ],
 }
+
+const LOCAL_BROWSER_KEY = 'local_browser_key'
+
+// 浏览器选择
+const baseBrowserOptions = ref<OptionItem[]>(
+  localStorage.getItem(LOCAL_BROWSER_KEY)
+    ? JSON.parse(localStorage.getItem(LOCAL_BROWSER_KEY) as any)
+    : [
+        {
+          label: '默认',
+          value: '',
+        },
+        {
+          label: 'Chrome',
+          value: 'chrome',
+        },
+        {
+          label: 'Edge',
+          value: 'msedge',
+        },
+        {
+          label: 'Firefox',
+          value: 'firefox',
+        },
+      ]
+)
+
+const browserOptions = computed<OptionItem[]>({
+  get: () => baseBrowserOptions.value,
+  set: val => (baseBrowserOptions.value = val.filter(item => item.value !== undefined)),
+})
+
+const saveBrowserOption = () => {
+  nextTick(() => {
+    localStorage.setItem(LOCAL_BROWSER_KEY, JSON.stringify(baseBrowserOptions.value))
+  })
+}
+
+const handleCreateBrowserOption = (newTag: string) => {
+  const [label, value] = newTag.split('=')
+
+  if (!value || !label) message.warning('输入信息有误')
+  else saveBrowserOption()
+
+  return {
+    label,
+    value,
+  }
+}
+
+const handleDeleteBrowserOption = (item: OptionItem) => {
+  // 当删除的是当前选中的浏览器 则重置为默认
+  if (form.value.args === item.value) form.value.args = ''
+  // baseBrowserOptions.value
+  const delIndex = baseBrowserOptions.value.findIndex(tag => tag.value === item.value)
+  baseBrowserOptions.value.splice(delIndex, 1)
+  // 持久化保存到本地
+  saveBrowserOption()
+}
+
+const handleRenderBrowserTag = (tag: OptionItem, index: number) => (
+  <n-tag
+    size='small'
+    closable={index !== 0}
+    style='cursor: pointer;'
+    title={tag.value}
+    type={form.value.args === tag.value ? 'info' : ''}
+    onClick={() => (form.value.args = tag.value)}
+    onClose={() => handleDeleteBrowserOption(tag)}
+  >
+    {tag.label}
+  </n-tag>
+)
 
 // TODO 分类选择
 const categoryOptions = ref([
@@ -633,5 +750,10 @@ const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'))
 
 ::v-deep(.n-tabs-nav) {
   display: var(--n-tabs-nav-visbile);
+}
+
+::v-deep(.n-form-item-label__text) {
+  display: flex;
+  align-items: center;
 }
 </style>
