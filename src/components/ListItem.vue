@@ -1,7 +1,7 @@
 <template>
   <div
     class="item flex flex-col items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded pt-0.5 pb-0.5"
-    :title="name"
+    :title="item.remarks || name"
     :style="activeItem?.id === item.id ? { backgroundColor: '#f5f5f5 !important' } : {}"
     tabindex="0"
     @click="handleActive"

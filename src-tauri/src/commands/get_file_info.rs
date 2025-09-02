@@ -22,27 +22,43 @@ fn get_name(p: &Path) -> String {
 
 #[tauri::command]
 pub fn get_file_info(path: String) -> Result<FileInfo, String> {
+    log::info!("path --->{}", path);
+
     let p = Path::new(&path);
     let metadata = fs::metadata(&p).map_err(|e| e.to_string())?;
 
     let mut full_path: String;
+    let mut args: String = "".to_string();
+    let mut remarks: String = "".to_string();
     // 检查路径是否是 lnk 文件
     if p.extension().map_or(false, |ext| ext == "lnk") {
-        log::info!("if");
         // 解析 lnk 文件 并获取真正的路径
         let lnk_info = LNKParser::from_path(&path).unwrap();
+        dbg!(&lnk_info);
+
+        args = lnk_info
+            .get_command_line_arguments()
+            .as_ref()
+            .map(|s| s.to_string())
+            .unwrap_or_default();
+
         full_path = lnk_info
             .get_target_full_path()
             .as_deref()
             .unwrap()
             .to_string();
 
+        remarks = lnk_info
+            .get_name_string()
+            .as_ref()
+            .map(|s| s.to_string())
+            .unwrap_or_default();
+
         // 解析出来的带中文的路径会存在乱码 转换为正常的内容
         let raw_bytes: Vec<u8> = full_path.chars().map(|c| c as u8).collect();
         let (fixed, _, _) = GBK.decode(&raw_bytes);
         full_path = fixed.into_owned();
     } else {
-        log::info!("else");
         full_path = p.to_str().unwrap_or_default().to_string();
     }
 
@@ -67,6 +83,8 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
         extension,
         icon,
         size: metadata.len(),
+        args,
+        remarks,
         r#type: if metadata.is_file() {
             "file".to_string()
         } else {

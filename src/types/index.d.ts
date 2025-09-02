@@ -47,7 +47,10 @@ type SearchLauncItem = Pick<LaunchItem, 'id' | 'name' | 'icon'>
 //   category_id?: number | null
 // }
 
-type FileInfo = Pick<LaunchItem, 'name' | 'path' | 'icon' | 'type' | 'extension'> & { size: number }
+type FileInfo = Pick<
+  LaunchItem,
+  'name' | 'path' | 'icon' | 'type' | 'extension' | 'args' | 'remarks'
+> & { size: number }
 
 // 应用配置状态
 interface AppConfigState {

@@ -385,7 +385,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
     { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
     { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
 
-    { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
     { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
     { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
     { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
@@ -398,7 +398,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
     { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
     { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
 
-    { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
     { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
     { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
     { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
@@ -412,7 +412,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
     { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
     { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
 
-    { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
     { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
     { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
     { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
@@ -592,6 +592,8 @@ const setForm = (fileInfo: FileInfo) => {
   form.value.icon = fileInfo.icon
   form.value.type = fileInfo.type
   form.value.extension = fileInfo.extension
+  form.value.args = fileInfo.args
+  form.value.remarks = fileInfo.remarks
 }
 
 const handleSelectLaunch = async () => {
