@@ -8,6 +8,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
+    copy: typeof import('./src/components/ListContextMenu copy.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     LaunchItem: typeof import('./src/components/LaunchItem.vue')['default']
     ListContextMenu: typeof import('./src/components/ListContextMenu.vue')['default']
@@ -35,6 +37,7 @@ declare module 'vue' {
     NTabs: typeof import('naive-ui')['NTabs']
     NTag: typeof import('naive-ui')['NTag']
     NTooltip: typeof import('naive-ui')['NTooltip']
+    OperationCategoryModal: typeof import('./src/components/OperationCategoryModal.vue')['default']
     OperationLaunchModal: typeof import('./src/components/OperationLaunchModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

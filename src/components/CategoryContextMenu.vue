@@ -47,8 +47,8 @@ const handleClick = (item: MenuAction) => {
 // 默认菜单项
 const menuItems = ref<MenuAction[]>([
   {
-    label: '新建启动项',
-    onClick: async () => EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH),
+    label: '新建分类',
+    onClick: async () => emit('add'),
   },
 ])
 

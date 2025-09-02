@@ -46,6 +46,7 @@
               :model="form"
               :rules="formRules"
             >
+              <!-- {{ isEdit }} <br /> -->
               <!-- {{ currentFormSchemas }} -->
               <!-- {{ form }} -->
               <n-row>
@@ -254,8 +255,8 @@
                         size="small"
                         v-model:value.number="form.order_index"
                       />
-                      <span class="ml-2 text-gray-400"
-                        >用于搜索返回展示的优先级 数字越小越靠前
+                      <span class="ml-2 text-gray-400">
+                        用于搜索返回展示的优先级 数字越小越靠前
                       </span>
                     </n-form-item>
                   </n-col>
@@ -363,7 +364,6 @@ type FieldSchema = {
 type LaunchItemType = NewLaunchItem['type']
 
 const modalStatus = defineModel<boolean>({ default: true })
-const props = defineProps<{ editItem?: LaunchItem }>()
 
 const launchTypes = [
   { value: 'file', label: '文 件' },
@@ -606,12 +606,14 @@ const handleSelectLaunch = async () => {
   setForm(fileInfo)
 }
 
+const editItem = ref<LaunchItem>()
+
 const handleConfirm = async () => {
   if (isEdit.value) {
     // @ts-ignore
     const item: LaunchItem = JSON.parse(
       JSON.stringify({
-        ...props.editItem,
+        ...editItem.value,
         ...form.value,
       })
     )
@@ -624,21 +626,24 @@ const handleConfirm = async () => {
   handleClose()
 }
 
-const isEdit = computed(() => !!(props?.editItem && Object.keys(props.editItem).length))
+const isEdit = ref<boolean>(false)
 
-//we weiru
+const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'))
 
-watch(
-  () => props.editItem,
-  val => {
-    if (!val) return
+// 打开对话框
+EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, val => {
+  isEdit.value = !!val
+  editItem.value = val
+
+  if (val) {
     for (const key in form.value) {
       // @ts-ignore
       form.value[key] = val[key]
     }
-  },
-  { deep: true }
-)
+  }
+
+  modalStatus.value = true
+})
 
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   // 当添加对话框没打开时不触发后续操作 防止和外层 拖拽事件相互影响
@@ -659,8 +664,6 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
     }
   }
 })
-
-const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'))
 </script>
 
 <style scoped>

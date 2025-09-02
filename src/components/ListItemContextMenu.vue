@@ -97,7 +97,7 @@ const menuItems = ref<MenuAction[]>([
   {
     label: '编辑',
     onClick: () => {
-      EventBus.emit(AppEvent.EDIT_LAUNCH, props.item)
+      EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item)
     },
   },
   // {

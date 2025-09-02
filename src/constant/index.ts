@@ -44,7 +44,7 @@ export const enum InvokeMethod {
 
 export const enum AppEvent {
   UPDATE_LAUNCH_LIST = 'update_launch_list',
-  EDIT_LAUNCH = 'edit_launch',
+  OPEN_OPERATION_LAUNCH = 'edit_launch',
 
   // 关闭右键菜单
   CLOSE_CONTEXT_MENU = 'close_context_menu',

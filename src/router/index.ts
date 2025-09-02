@@ -1,6 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 
-import Main from '@/views/Main.vue'
+import Main from '@/views/Main/Main.vue'
 import Search from '@/views/Search.vue'
 
 export const router = createRouter({
