@@ -34,7 +34,6 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     if p.extension().map_or(false, |ext| ext == "lnk") {
         // 解析 lnk 文件 并获取真正的路径
         let lnk_info = LNKParser::from_path(&path).unwrap();
-        dbg!(&lnk_info);
 
         args = lnk_info
             .get_command_line_arguments()
