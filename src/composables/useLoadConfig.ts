@@ -1,7 +1,7 @@
 import { useAppConfigStore } from '@/store/useAppConfigStore'
 import { Pinia } from 'pinia'
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
-import { enable, isEnabled, disable } from '@tauri-apps/plugin-autostart'
+import { enable, isEnabled, disable, } from '@tauri-apps/plugin-autostart'
 import { getAppConfig } from '@/api'
 
 export const useLoadConfig = async (store: Pinia) => {

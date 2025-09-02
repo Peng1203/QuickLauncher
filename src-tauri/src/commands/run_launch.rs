@@ -1,3 +1,4 @@
+use crate::common::utils::run_as_admin;
 use crate::db;
 use crate::models::launch_item::LaunchItem;
 use rusqlite::{params, Result};
@@ -29,13 +30,20 @@ pub fn run_launch(id: i32) -> Result<(), String> {
             .as_deref()
             .filter(|s| !s.trim().is_empty())
             .unwrap_or("C:\\Windows\\System32");
+
         if launch_item.run_as_admin == 0 {
+            args = vec![
+                "/C".to_string(),
+                "start".to_string(),
+                "".to_string(),
+                launch_item.path.to_string(),
+            ];
             // 动态拼接执行参数
             if let Some(arg) = launch_item.args.as_ref().filter(|s| !s.trim().is_empty()) {
                 args.push(arg.clone());
             }
 
-            if let Err(e) = Command::new(launch_item.path.clone())
+            if let Err(e) = Command::new("cmd")
                 .creation_flags(0x08000000)
                 .current_dir(start_dir)
                 .args(args)
@@ -45,32 +53,7 @@ pub fn run_launch(id: i32) -> Result<(), String> {
                 return Err(format!("无法打开文件: {}", e));
             }
         } else {
-            // Start-Process -FilePath C:\Application\QQMusic\QQMusic.exe -Verb RunAs -ArgumentList --12
-            // 以管理员权限运行
-            let mut powershell_cmd = vec![
-                "Start-Process".to_string(),
-                "-FilePath".to_string(),
-                format!("'{}'", launch_item.path),
-                // launch_item.path.to_string(),
-                "-Verb".to_string(),
-                "RunAs".to_string(),
-            ];
-
-            // 如果有参数，则添加到 `-ArgumentList`
-            if let Some(ref arg) = launch_item.args.as_ref().filter(|s| !s.trim().is_empty()) {
-                powershell_cmd.push("-ArgumentList".to_string());
-                powershell_cmd.push(format!("'{}'", arg));
-            }
-
-            if let Err(e) = Command::new("powershell")
-                .creation_flags(0x08000000)
-                .current_dir(start_dir)
-                .args(&powershell_cmd)
-                .spawn()
-            {
-                log::error!("❌ 无法以管理员权限运行启动项: {}", e);
-                return Err(format!("❌ 无法以管理员权限运行启动项: {}", e));
-            }
+            run_as_admin(launch_item.clone())?;
         }
     } else if launch_item.r#type == "directory" {
         args = vec![
