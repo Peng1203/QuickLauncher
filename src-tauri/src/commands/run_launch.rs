@@ -24,7 +24,6 @@ pub fn run_launch(id: i32) -> Result<(), String> {
     let mut args = vec![];
 
     if launch_item.r#type == "file" {
-        println!("run_as_admin:{}", &launch_item.run_as_admin);
         let start_dir = launch_item
             .start_dir
             .as_deref()
@@ -40,8 +39,11 @@ pub fn run_launch(id: i32) -> Result<(), String> {
             ];
             // 动态拼接执行参数
             if let Some(arg) = launch_item.args.as_ref().filter(|s| !s.trim().is_empty()) {
-                args.push(arg.clone());
+                // 当 args 有多个参数时，需要拆分
+                arg.split_whitespace()
+                    .for_each(|a| args.push(a.to_string()));
             }
+            dbg!(&args);
 
             if let Err(e) = Command::new("cmd")
                 .creation_flags(0x08000000)
