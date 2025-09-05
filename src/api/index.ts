@@ -97,7 +97,8 @@ export const updateLaunch = <T = LaunchItem>(item: T) =>
  * @param {T} item
  * @returns {*}
  */
-export const getLaunchs = <T = LaunchItem>() => invoke<T[]>(InvokeMethod.GET_LAUNCH)
+export const getLaunchs = <T = LaunchItem>(categoryId: number = -1) =>
+  invoke<T[]>(InvokeMethod.GET_LAUNCH, { categoryId })
 
 /**
  * 执行命令行
@@ -146,3 +147,22 @@ export const deleteLaunch = (id: number) => invoke(InvokeMethod.DELETE_LAUNCH, {
  * @returns {*}
  */
 export const getWebsiteInfo = (url: string) => invoke(InvokeMethod.GET_WEBSITE_INFO, { url })
+
+/**
+ * 新建分类
+ * @author Peng
+ *
+ * @template [T=NewCategoryItem]
+ * @param {T} item
+ * @returns {*}
+ */
+export const addCategory = <T = NewCategoryItem>(item: T) =>
+  invoke(InvokeMethod.ADD_CATEGORY, { item })
+
+/**
+ * 获取分类
+ * @author Peng
+ *
+ * @returns {*}
+ */
+export const getCategory = () => invoke<CategoryItem[]>(InvokeMethod.GET_CATEGORY)

@@ -33,8 +33,6 @@ const visible = defineModel<boolean>()
 
 const props = defineProps<{ position: { x: number; y: number } }>()
 
-const emit = defineEmits(['add'])
-
 const handleClose = () => {
   visible.value = false
 }
@@ -48,7 +46,7 @@ const handleClick = (item: MenuAction) => {
 const menuItems = ref<MenuAction[]>([
   {
     label: '新建分类',
-    onClick: async () => emit('add'),
+    onClick: async () => EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY),
   },
 ])
 

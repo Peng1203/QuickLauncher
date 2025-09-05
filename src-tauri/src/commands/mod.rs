@@ -1,3 +1,4 @@
+pub mod add_category;
 pub mod add_launch;
 pub mod delete_launch;
 pub mod exe_command;
@@ -12,3 +13,4 @@ pub mod run_launch_as_admin;
 pub mod save_app_config;
 pub mod search_launch;
 pub mod update_launch;
+pub mod get_category;

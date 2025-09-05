@@ -9,12 +9,26 @@
         tabindex="-1"
         :class="[
           'text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer',
-          1 ? 'bg-gray-100 text-blue-600' : 'hover:bg-gray-50 text-gray-700',
+          activeCategory === -1 ? 'bg-gray-100 text-blue-600' : 'hover:bg-gray-50 text-gray-700',
         ]"
+        @click="handleChangeCategory(-1)"
       >
         {{ `默 认` }}
       </button>
 
+      <button
+        tabindex="-1"
+        :class="[
+          'text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer',
+          activeCategory === item.id
+            ? 'bg-gray-100 text-blue-600'
+            : 'hover:bg-gray-50 text-gray-700',
+        ]"
+        v-for="item of categoryData"
+        @click="handleChangeCategory(item.id)"
+      >
+        {{ item.name }}
+      </button>
       <!-- <button @click="unregisterAll()" >取消所有快捷键</button> -->
     </nav>
   </aside>
@@ -33,10 +47,25 @@
 import CategoryContextMenu from '@/components/CategoryContextMenu.vue'
 import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
+import { useStore } from '@/store/useStore'
+import { storeToRefs } from 'pinia'
+
+const store = useStore()
+const { categoryData, activeCategory } = storeToRefs(store)
+
+const handleChangeCategory = (id: number) => {
+  activeCategory.value = id
+  nextTick(() => {
+    store.getLaunchData()
+  })
+}
+
+const handleOpenAddCategory = () => {}
+
+store.getCategoryData()
 
 const contextMenuVisible = ref<boolean>(false)
 const contextMenuPosition = ref({ x: 0, y: 0 })
-
 const handleShowCategoryContextMenu = (e: MouseEvent) => {
   EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU)
 
@@ -47,6 +76,4 @@ const handleShowCategoryContextMenu = (e: MouseEvent) => {
     })
   }, 100)
 }
-
-const handleOpenAddCategory = () => {}
 </script>

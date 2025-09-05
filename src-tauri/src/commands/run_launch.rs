@@ -21,7 +21,7 @@ pub fn run_launch(id: i32) -> Result<(), String> {
     log::info!("id:{}, path:{}", id, launch_item.path);
 
     // dbg!(&launch_item);
-    let mut args = vec![];
+    let mut args;
 
     if launch_item.r#type == "file" {
         let start_dir = launch_item

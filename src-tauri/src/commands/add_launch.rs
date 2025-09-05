@@ -15,8 +15,8 @@ pub fn add_launch(item: NewLaunchItem) -> Result<(), String> {
 
     conn.execute(
         "INSERT INTO launch_items 
-        (name, path, type, icon, pinyin_full, pinyin_abbr, extension, hotkey, hotkey_global, keywords, start_dir, remarks, args, run_as_admin, order_index, enabled, category_id) VALUES 
-        (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)", 
+        (name, path, type, icon, pinyin_full, pinyin_abbr, extension, hotkey, hotkey_global, keywords, start_dir, remarks, args, run_as_admin, order_index, enabled, category_id, subcategory_id) VALUES 
+        (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)", 
         params![
         item.name,
         item.path,
@@ -34,7 +34,8 @@ pub fn add_launch(item: NewLaunchItem) -> Result<(), String> {
         item.run_as_admin,
         item.order_index,
         item.enabled,
-        item.category_id
+        item.category_id,
+        item.subcategory_id
     ]).expect("Failed to insert new launch item");
     Ok(())
 }

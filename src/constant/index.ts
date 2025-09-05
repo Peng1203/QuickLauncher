@@ -37,6 +37,9 @@ export const enum InvokeMethod {
   DELETE_LAUNCH = 'delete_launch',
   UPDATE_LAUNCH = 'update_launch',
 
+  ADD_CATEGORY = 'add_category',
+  GET_CATEGORY = 'get_category',
+
   EXE_COMMAND = 'exe_command',
 
   GET_WEBSITE_INFO = 'get_website_info',
@@ -44,7 +47,8 @@ export const enum InvokeMethod {
 
 export const enum AppEvent {
   UPDATE_LAUNCH_LIST = 'update_launch_list',
-  OPEN_OPERATION_LAUNCH = 'edit_launch',
+  OPEN_OPERATION_LAUNCH = 'open_operation_launch',
+  OPEN_OPERATION_CATEGORY = 'open_operation_category',
 
   // 关闭右键菜单
   CLOSE_CONTEXT_MENU = 'close_context_menu',

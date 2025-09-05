@@ -59,7 +59,13 @@
 
         <span class="!ml-0.5">{{ item.name }}</span>
 
-        <!-- 分类 -->
+        <!-- TODO 个性化控制 分类是否显示 -->
+        <span
+          v-if="item.category_name"
+          class="!ml-3"
+        >
+          （{{ item.category_name }}）
+        </span>
       </li>
     </template>
   </ul>
@@ -151,6 +157,7 @@ const handleEnter = async () => {
     if (!item) return
     // 执行启动
     await runLaunch(item.id)
+    // TODO 根据返回结果进行统计 对应次数
   }
   handleClose()
 }

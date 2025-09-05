@@ -14,6 +14,7 @@ interface LaunchItem {
   order_index?: number
   enabled?: 0 | 1
   category_id?: number | null
+  subcategory_id?: number | null
   last_used_at?: string | null
   created_at: string
   updated_at: string
@@ -28,7 +29,13 @@ type NewLaunchItem = Omit<
   'id' | 'last_used_at' | 'created_at' | 'updated_at' | 'launch_count' | 'failure_count'
 >
 
-type SearchLauncItem = Pick<LaunchItem, 'id' | 'name' | 'icon'>
+type SearchLauncItem = Pick<
+  LaunchItem,
+  'id' | 'name' | 'icon' | 'category_id' | 'subcategory_id'
+> & {
+  category_name: string
+  subcategory_name: string
+}
 
 // interface NewLaunchItem {
 //   name: string
@@ -73,7 +80,18 @@ interface AppConfigState {
   searchResultItemHeight: number
 }
 
-type OptionItem<T = string, K = string> = {
+type OptionItem<T = string | number, K = string> = {
   label: K
   value: T
 }
+
+interface CategoryItem {
+  id: number
+  name: string
+  parent_id: number
+  association_directory?: string | null
+  created_at: string
+  updated_at: string
+}
+
+type NewCategoryItem = Omit<CategoryItem, 'id' | 'created_at' | 'updated_at'>

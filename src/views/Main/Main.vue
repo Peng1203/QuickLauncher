@@ -17,7 +17,7 @@
         <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
         <div
           class="grid grid-cols-6"
-          v-if="dataList.length"
+          v-if="launchData.length"
         >
           <ListItem
             v-model="activeItem"
@@ -25,7 +25,7 @@
             :key="item.id"
             :icon="item.icon!"
             :name="item.name"
-            v-for="item in dataList"
+            v-for="item in launchData"
           />
         </div>
 
@@ -45,12 +45,9 @@
     />
 
     <!-- 新增/编辑 启动项 -->
-    <OperationLaunchModal
-      v-model="modalStatus"
-      @refresh="getData"
-    />
+    <OperationLaunchModal v-model="launchModalStatus" />
 
-    <OperationCategoryModal />
+    <OperationCategoryModal v-model="categoryModalStatus" />
   </div>
 </template>
 
@@ -58,19 +55,24 @@
 import { ref } from 'vue'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import ListItem from '@/components/ListItem.vue'
-import { getFileInfo, addLaunch, getLaunchs } from '@/api'
+import { getFileInfo, addLaunch } from '@/api'
 import ListContextMenu from '@/components/ListContextMenu.vue'
 import OperationLaunchModal from '@/components/OperationLaunchModal.vue'
-
 import Sidebar from './components/Sidebar.vue'
 import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
+import { useStore } from '@/store/useStore'
+import { storeToRefs } from 'pinia'
 
-const modalStatus = ref(false)
+const store = useStore()
+const { launchData } = storeToRefs(store)
+
+const launchModalStatus = ref(false)
+const categoryModalStatus = ref(false)
 
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
-  if (modalStatus.value) return
+  if (launchModalStatus.value || categoryModalStatus.value) return
   // TODO 分类对话框打开
   if (e.payload.type === 'drop') {
     const addLaunchTasks = (e.payload.paths ?? []).map(async path => {
@@ -92,6 +94,7 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
         order_index: 0,
         enabled: 1,
         category_id: null,
+        subcategory_id: null,
         extension: fileInfo.extension,
       }
       // // 添加记录
@@ -101,18 +104,11 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
     await Promise.all(addLaunchTasks)
 
     // 刷新列表
-    getData()
+    store.getLaunchData()
   }
 })
 
-const dataList = ref<LaunchItem[]>([])
-
-const getData = async () => {
-  const data = await getLaunchs()
-  dataList.value = data
-}
-
-getData()
+store.getLaunchData()
 
 const contextMenuVisible = ref<boolean>(false)
 const contextMenuPosition = ref({ x: 0, y: 0 })
@@ -130,5 +126,5 @@ const handleShowListContextMenu = (e: MouseEvent) => {
 
 const activeItem = ref<LaunchItem>()
 
-EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, getData)
+EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData)
 </script>

@@ -38,6 +38,8 @@ import { AppEvent } from '@/constant'
 
 const activeItem = ref<LaunchItem>()
 
+const dataList = ref()
+
 const contextMenuVisible = ref<boolean>(false)
 const contextMenuPosition = ref({ x: 0, y: 0 })
 

@@ -19,6 +19,7 @@ pub struct LaunchItem {
     pub order_index: i32,
     pub enabled: i32, // 0 or 1
     pub category_id: Option<i32>,
+    pub subcategory_id: Option<i32>,  // 新增字段
     pub last_used_at: Option<String>, // 可用 chrono::NaiveDateTime 代替
     pub created_at: String,
     pub updated_at: String,
@@ -48,12 +49,13 @@ impl LaunchItem {
             order_index: row.get(14)?,
             enabled: row.get(15)?,
             category_id: row.get(16)?,
-            last_used_at: row.get(17)?,
-            created_at: row.get(18)?,
-            updated_at: row.get(19)?,
-            extension: row.get(20)?,
-            launch_count: row.get(21)?,
-            failure_count: row.get(22)?,
+            subcategory_id: row.get(17)?,
+            last_used_at: row.get(18)?,
+            created_at: row.get(19)?,
+            updated_at: row.get(20)?,
+            extension: row.get(21)?,
+            launch_count: row.get(22)?,
+            failure_count: row.get(23)?,
         })
     }
 }
@@ -76,6 +78,7 @@ pub struct NewLaunchItem {
     pub order_index: Option<i32>,
     pub enabled: Option<i32>,
     pub category_id: Option<i32>,
+    pub subcategory_id: Option<i32>,
     pub extension: Option<String>,
 }
 
@@ -84,6 +87,10 @@ pub struct SearchLaunchItem {
     pub id: i32,
     pub name: String,
     pub icon: Option<String>,
+    pub category_id: Option<i32>,
+    pub category_name: Option<String>,
+    pub subcategory_id: Option<i32>,
+    pub subcategory_name: Option<String>,
 }
 
 impl SearchLaunchItem {
@@ -92,6 +99,10 @@ impl SearchLaunchItem {
             id: row.get(0)?,
             name: row.get(1)?,
             icon: row.get(2)?,
+            category_id: row.get(3)?,
+            category_name: row.get(4)?,
+            subcategory_id: row.get(5)?,
+            subcategory_name: row.get(6)?,
         })
     }
 }

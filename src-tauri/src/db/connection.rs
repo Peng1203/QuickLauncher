@@ -46,13 +46,15 @@ fn create_tables(conn: &Connection) -> Result<()> {
 	        order_index INTEGER DEFAULT 0,
           enabled INTEGER DEFAULT 1 CHECK (enabled IN (0, 1)),
 	        category_id INTEGER,
+          subcategory_id INTEGER,
           last_used_at DATETIME,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           extension TEXT,
           launch_count INTEGER DEFAULT 0,
           failure_count INTEGER DEFAULT 0,
-	        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+	        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+          FOREIGN KEY (subcategory_id) REFERENCES categories(id) ON DELETE SET NULL
         )",
         [],
     )?;
@@ -80,13 +82,15 @@ fn create_tables(conn: &Connection) -> Result<()> {
         "CREATE TABLE IF NOT EXISTS categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL UNIQUE,
+          parent_id INTEGER NOT NULL DEFAULT 0,
           association_directory TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );",
         [],
     )?;
 
-    // 创建搜索记录表
+    // TODO 创建搜索记录表
     // conn.execute(
     //     "CREATE TABLE IF NOT EXISTS search_history (
     //         id INTEGER PRIMARY KEY AUTOINCREMENT,

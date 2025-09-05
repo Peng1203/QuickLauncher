@@ -99,8 +99,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Close, AlertCircleOutline } from '@vicons/ionicons5'
+import { Close } from '@vicons/ionicons5'
 import { open } from '@tauri-apps/plugin-dialog'
+import { EventBus } from '@/utils/eventBus'
+import { AppEvent } from '@/constant'
+import { addCategory } from '@/api'
+import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
+
+const { message } = useNaiveUiApi()
 
 const inputTheme = {
   borderFocus: 'inherit',
@@ -109,13 +115,18 @@ const inputTheme = {
   borderHover: 'inherit',
 }
 
-const modalStatus = defineModel<boolean>({ default: true })
+const modalStatus = defineModel<boolean>({ default: false })
 
-const form = ref({
+const form = ref<NewCategoryItem>({
   name: '',
+  parent_id: 0,
   association_directory: '',
 })
-const initForm = () => {}
+const initForm = () => {
+  form.value.name = ''
+  form.value.parent_id = 0
+  form.value.association_directory = ''
+}
 
 const handleClose = () => {
   modalStatus.value = false
@@ -133,7 +144,34 @@ const handleSelectDir = async () => {
 
 const isEdit = ref<boolean>(false)
 
-const handleConfirm = () => {}
+// TODO  LaunchItem
+const editItem = ref<LaunchItem>()
+const handleConfirm = async () => {
+  try {
+    if (isEdit.value) {
+    } else {
+      await addCategory(form.value)
+    }
+    handleClose()
+  } catch (e) {
+    message.error(e as string)
+  }
+}
+
+// 打开对话框
+EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, val => {
+  isEdit.value = !!val
+  editItem.value = val
+
+  if (val) {
+    for (const key in form.value) {
+      // @ts-ignore
+      form.value[key] = val[key]
+    }
+  }
+
+  modalStatus.value = true
+})
 </script>
 
 <style scoped>

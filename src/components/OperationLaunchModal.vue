@@ -211,7 +211,7 @@
                       <n-dynamic-tags
                         size="small"
                         :render-tag="handleRenderBrowserTag"
-                        v-model:value="browserOptions"
+                        v-model:value="(browserOptions as any)"
                         @create="handleCreateBrowserOption"
                       />
 
@@ -270,11 +270,15 @@
                       :label="item.label"
                       :path="item.prop"
                     >
+                      <!-- TODO 分类切换 重置子分类 -->
+                      <!-- {{ form }} -->
                       <n-select
+                        clearable
                         placeholder=""
                         :default-value="null"
                         :options="categoryOptions"
                         v-model:value="form.category_id"
+                        :disabled="activeCategory !== -1"
                       />
                     </n-form-item>
                   </n-col>
@@ -350,6 +354,8 @@ import { open } from '@tauri-apps/plugin-dialog'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
+import { useStore } from '@/store/useStore'
+import { storeToRefs } from 'pinia'
 
 // 表单字段 schema 类型
 type FieldSchema = {
@@ -364,6 +370,9 @@ type FieldSchema = {
 type LaunchItemType = NewLaunchItem['type']
 
 const modalStatus = defineModel<boolean>({ default: true })
+
+const store = useStore()
+const { categoryOptions, activeCategory } = storeToRefs(store)
 
 const launchTypes = [
   { value: 'file', label: '文 件' },
@@ -384,6 +393,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
 
     { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
     { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
+    { prop: 'subcategory_id', label: '子分类', span: 20, slot: 'subCategorySlot' },
 
     // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
     { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
@@ -397,6 +407,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
 
     { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
     { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
+    { prop: 'subcategory_id', label: '子分类', span: 20, slot: 'subCategorySlot' },
 
     // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
     { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
@@ -411,6 +422,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
 
     { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
     { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
+    { prop: 'subcategory_id', label: '子分类', span: 20, slot: 'subCategorySlot' },
 
     // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
     { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
@@ -485,20 +497,12 @@ const handleRenderBrowserTag = (tag: OptionItem, index: number) => (
     style='cursor: pointer;'
     title={tag.value}
     type={form.value.args === tag.value ? 'info' : ''}
-    onClick={() => (form.value.args = tag.value)}
+    onClick={() => (form.value.args = tag.value as any)}
     onClose={() => handleDeleteBrowserOption(tag)}
   >
     {tag.label}
   </n-tag>
 )
-
-// TODO 分类选择
-const categoryOptions = ref([
-  {
-    label: '应用程序',
-    value: 1,
-  },
-])
 
 const currentFormSchemas = computed(() => formSchemas[form.value.type])
 
@@ -518,6 +522,7 @@ const form = ref<NewLaunchItem>({
   order_index: 0,
   enabled: 1,
   category_id: null,
+  subcategory_id: null,
   extension: null,
 })
 
@@ -571,6 +576,7 @@ const initForm = () => {
   form.value.order_index = 0
   form.value.enabled = 1
   form.value.category_id = null
+  form.value.subcategory_id = null
 
   form.value.extension = null
 }
@@ -617,7 +623,7 @@ const handleConfirm = async () => {
         ...form.value,
       })
     )
-
+    // TODO 错误处理
     await updateLaunch(item)
   } else {
     await addLaunch(form.value)
@@ -635,11 +641,14 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, val => {
   isEdit.value = !!val
   editItem.value = val
 
-  if (val) {
+  if (isEdit.value) {
     for (const key in form.value) {
       // @ts-ignore
       form.value[key] = val[key]
     }
+  } else {
+    // 新建时 设置默认选中的分类
+    if (activeCategory.value !== -1) form.value.category_id = activeCategory.value
   }
 
   modalStatus.value = true

@@ -3,10 +3,12 @@
 use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
 
+use commands::add_category::add_category;
 use commands::add_launch::add_launch;
 use commands::delete_launch::delete_launch;
 use commands::exe_command::exe_command;
 use commands::get_app_config::get_app_config;
+use commands::get_category::get_category;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
 use commands::get_website_info::get_website_info;
@@ -72,6 +74,8 @@ pub fn run() {
             get_app_config,
             open_path,
             get_website_info,
+            add_category,
+            get_category
         ])
         .setup(|app| {
             // 初始化数据库连接
