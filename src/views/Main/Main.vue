@@ -66,7 +66,7 @@ import { storeToRefs } from 'pinia'
 import { useAppConfig } from '@/composables/useAppConfig'
 
 const store = useStore()
-const { launchData } = storeToRefs(store)
+const { launchData, activeCategory } = storeToRefs(store)
 
 const { appConfigStore } = useAppConfig()
 
@@ -98,7 +98,7 @@ currentWindow.onDragDropEvent(async e => {
         run_as_admin: 0,
         order_index: 0,
         enabled: 1,
-        category_id: null,
+        category_id: activeCategory.value || null,
         subcategory_id: null,
         extension: fileInfo.extension,
       }
@@ -117,9 +117,8 @@ let timer: any
 currentWindow.onMoved(({ payload: position }) => {
   clearTimeout(timer)
   timer = setTimeout(() => {
-    console.log('Window moved', position)
-    appConfigStore.mainWindowPosition.x = position.x
-    appConfigStore.mainWindowPosition.y = position.y
+    appConfigStore.mainWindowPositionX = position.x
+    appConfigStore.mainWindowPositionY = position.y
   }, 100)
 })
 

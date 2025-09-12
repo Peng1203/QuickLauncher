@@ -35,8 +35,8 @@ export const useLoadConfig = async (store: Pinia) => {
   if (!hasConfig) appConfigStore.saveConfig()
 
   const mainWindow = await WebviewWindow.getByLabel('main')
-  const x = config.mainWindowPosition?.x > 0 ? config.mainWindowPosition?.x : 0
-  const y = config.mainWindowPosition?.x > 0 ? config.mainWindowPosition?.y : 0
+  const x = config.mainWindowPositionX > 0 ? config.mainWindowPositionX : 0
+  const y = config.mainWindowPositionY > 0 ? config.mainWindowPositionY : 0
   // 设置窗口位置
   if (x || y) {
     mainWindow?.setPosition(new LogicalPosition(x, y))

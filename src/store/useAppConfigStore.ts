@@ -28,7 +28,9 @@ export const useAppConfigStore = defineStore('appConfig', {
     proxyUsername: '',
     proxyPassword: '',
 
-    mainWindowPosition: { x: 0, y: 0 },
+    // mainWindowPosition: { x: 0, y: 0 },
+    mainWindowPositionX: 0,
+    mainWindowPositionY: 0,
   }),
   actions: {
     loadConfig(initData: AppConfigState) {

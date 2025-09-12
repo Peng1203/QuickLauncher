@@ -27,4 +27,7 @@ pub struct AppConfigState {
     pub proxy_username: String,
     // 代理密码
     pub proxy_password: String,
+
+    pub main_window_position_x: i32,
+    pub main_window_position_y: i32,
 }

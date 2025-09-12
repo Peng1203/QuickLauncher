@@ -144,14 +144,15 @@ const handleSelectDir = async () => {
 
 const isEdit = ref<boolean>(false)
 
-// TODO  LaunchItem
-const editItem = ref<LaunchItem>()
+const editItem = ref<CategoryItem>()
 const handleConfirm = async () => {
   try {
     if (isEdit.value) {
     } else {
       await addCategory(form.value)
     }
+    EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST)
+    handleClose()
     handleClose()
   } catch (e) {
     message.error(e as string)

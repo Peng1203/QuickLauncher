@@ -49,6 +49,7 @@ import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
 import { useStore } from '@/store/useStore'
 import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 
 const store = useStore()
 const { categoryData, activeCategory } = storeToRefs(store)
@@ -60,7 +61,9 @@ const handleChangeCategory = (id: number) => {
   })
 }
 
-const handleOpenAddCategory = () => {}
+const handleOpenAddCategory = () => {
+  console.log(`%c 121 ----`, 'color: #fff;background-color: #000;font-size: 18px', 121)
+}
 
 store.getCategoryData()
 
@@ -76,4 +79,10 @@ const handleShowCategoryContextMenu = (e: MouseEvent) => {
     })
   }, 100)
 }
+
+const currentCategory = computed<CategoryItem>(
+  () => categoryData.value.find(item => item.id === activeCategory.value)!
+)
+
+EventBus.listen(AppEvent.UPDATE_CATEGORY_LIST, store.getCategoryData)
 </script>

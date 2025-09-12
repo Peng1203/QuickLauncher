@@ -29,6 +29,12 @@
     "autostart:allow-disable",
     "autostart:allow-is-enabled",
 
-    "clipboard-manager:allow-write-text"
+    "clipboard-manager:allow-write-text",
+
+    "fs:default",
+    "fs:deny-watch",
+    "fs:allow-watch",
+    "fs:deny-unwatch",
+    "fs:allow-unwatch"
   ]
 }

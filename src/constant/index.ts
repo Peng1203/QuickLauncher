@@ -55,6 +55,7 @@ export const enum AppEvent {
 
   // 关闭右键菜单
   CLOSE_CONTEXT_MENU = 'close_context_menu',
+  UPDATE_CATEGORY_LIST = 'update_category_list',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent]

@@ -546,6 +546,7 @@ const inputTheme = {
 
 const handleClose = () => {
   modalStatus.value = false
+  urlInfoLoading.value = false
   initForm()
 }
 
@@ -620,7 +621,6 @@ const handleSelectLaunch = async () => {
 }
 
 const handleSwitchProxy = (val: boolean) => {
-  console.log(`%c val ----`, 'color: #fff;background-color: #000;font-size: 18px', val)
   appConfigStore.proxy = val
   if (appConfigStore.proxyHost && val) appConfigStore.proxy = true
   else if (!appConfigStore.proxyHost && val) {

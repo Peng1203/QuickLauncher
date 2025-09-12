@@ -86,7 +86,9 @@ interface AppConfigState {
   proxyUsername: string
   proxyPassword: string
 
-  mainWindowPosition: { x: number; y: number }
+  // mainWindowPosition: { x: number; y: number }
+  mainWindowPositionX: number
+  mainWindowPositionY: number
 }
 
 type OptionItem<T = string | number, K = string> = {

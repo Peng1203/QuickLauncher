@@ -1,8 +1,12 @@
+use std::os::windows;
+
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    App, Manager,
+    App, Manager, WebviewWindowBuilder,
 };
+
+use crate::commands::get_app_config::get_app_config;
 
 pub fn create_tray(app: &App) {
     let quit_i = MenuItem::with_id(app, "quit", "退 出", true, None::<&str>).unwrap();
@@ -21,6 +25,28 @@ pub fn create_tray(app: &App) {
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.show();
                     let _ = window.set_focus();
+                } else {
+                    let app_config = get_app_config().unwrap();
+                    // dbg!(app_config);
+
+                    let window =
+                        WebviewWindowBuilder::from_config(app, &app.config().app.windows[0])
+                            .unwrap()
+                            .build()
+                            .unwrap();
+                    window
+                        .set_position(tauri::PhysicalPosition {
+                            x: app_config.main_window_position_x,
+                            y: app_config.main_window_position_y,
+                        })
+                        .unwrap();
+
+                    let _ = window.show();
+                    let _ = window.set_focus();
+
+                    // dbg!(&app.webview_windows());
+
+                    // WebviewWindowBuilder::new(&app, "main", tauri::WebviewUrl::App("index.html".into()));
                 }
             }
             _ => {}
