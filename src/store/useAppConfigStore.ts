@@ -10,7 +10,7 @@ import { saveAppConfig } from '@/api'
 export const useAppConfigStore = defineStore('appConfig', {
   state: (): AppConfigState => ({
     silentStart: true,
-    autoStart: true,
+    autoStart: false,
     onTop: true,
     center: true,
 
@@ -19,6 +19,16 @@ export const useAppConfigStore = defineStore('appConfig', {
     searchWindowWidth: SEARCH_WINDOW_WIDTH,
     searchWindowInput: SEARCH_INPUT_HEIGHT,
     searchResultItemHeight: SEARCH_RESULT_ITEM_HEIGHT,
+    searchGlobalShortcutKey: 'Alt+Space',
+
+    proxy: false,
+    proxyHost: '',
+    // proxy: true,
+    // proxyHost: 'http://127.0.0.1:10090',
+    proxyUsername: '',
+    proxyPassword: '',
+
+    mainWindowPosition: { x: 0, y: 0 },
   }),
   actions: {
     loadConfig(initData: AppConfigState) {

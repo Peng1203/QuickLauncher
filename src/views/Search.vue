@@ -54,7 +54,7 @@
         <img
           :src="item.icon || ''"
           alt="icon"
-          class="!m-2 object-contain pointer-events-none"
+          class="!m-2 object-contain pointer-events-none w-8"
         />
 
         <span class="!ml-0.5">{{ item.name }}</span>
@@ -230,7 +230,8 @@ watch(
 const hasResult = computed(() => !!resultList.value.length)
 
 const handleRegisterSearchHotkey = async () => {
-  const key = 'Alt+Space'
+  const key = appConfigStore.searchGlobalShortcutKey
+  if (!key) return
   const isReg = await isRegistered(key)
   isReg && (await unregister(key))
 

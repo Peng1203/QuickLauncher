@@ -1,8 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
-use tauri::Manager;
-use tauri_plugin_autostart::MacosLauncher;
-
+use crate::models::app_config_state::AppConfigState;
 use commands::add_category::add_category;
 use commands::add_launch::add_launch;
 use commands::delete_launch::delete_launch;
@@ -18,10 +16,12 @@ use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
 use commands::search_launch::search_launch;
+use commands::set_app_config::set_app_config;
 use commands::update_launch::update_launch;
-
+use std::sync::Mutex;
+use tauri::Manager;
+use tauri_plugin_autostart::MacosLauncher;
 use tray::create_tray;
-
 mod commands;
 mod common;
 mod db;
@@ -75,7 +75,8 @@ pub fn run() {
             open_path,
             get_website_info,
             add_category,
-            get_category
+            get_category,
+            set_app_config
         ])
         .setup(|app| {
             // 初始化数据库连接
@@ -86,8 +87,9 @@ pub fn run() {
             // // 将数据库连接存储在应用状态中
             // app.manage(Mutex::new(conn));
 
-            // 打开开发者工具
-            // app.get_webview_window("main").unwrap().open_devtools();
+            // 初始化应用配置
+            app.manage(Mutex::new(AppConfigState::default()));
+
             #[cfg(debug_assertions)]
             {
                 // 只有开发模式下执行

@@ -32,7 +32,7 @@
         :style="`--n-tabs-nav-visbile: ${typesBarVisible}`"
       >
         <n-tab-pane
-          :disabled="isEdit"
+          :disabled="isEdit || urlInfoLoading"
           :name="item.value"
           :tab="item.label"
           v-for="item in launchTypes"
@@ -99,7 +99,7 @@
                       :path="item.prop"
                     >
                       <n-input
-                        placeholder=""
+                        placeholder="https://www.bilibili.com"
                         :type="item.type || 'text'"
                         :theme-overrides="inputTheme"
                         v-model:value="(form[item.prop] as any)"
@@ -115,13 +115,14 @@
                       获取网址信息
                     </n-button>
 
-                    <!-- TODO 快捷开启代理 v-model:checked="" -->
                     <n-checkbox
-                      class="ml-5"
+                      class="ml-3"
                       size="small"
-                      :checked-value="1"
-                      :unchecked-value="0"
-                      :default-checked="0"
+                      v-model:checked="appConfigStore.proxy"
+                      :checked-value="true"
+                      :unchecked-value="false"
+                      :default-checked="appConfigStore.proxy"
+                      :on-update:checked="handleSwitchProxy"
                     >
                       代理
                     </n-checkbox>
@@ -229,7 +230,7 @@
                       :path="item.prop"
                     >
                       <n-dynamic-tags
-                        type="success"
+                        type="info"
                         size="small"
                         v-model:value="keywordsTags"
                       />
@@ -356,6 +357,7 @@ import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
 import { useStore } from '@/store/useStore'
 import { storeToRefs } from 'pinia'
+import { useAppConfig } from '@/composables/useAppConfig'
 
 // 表单字段 schema 类型
 type FieldSchema = {
@@ -373,6 +375,8 @@ const modalStatus = defineModel<boolean>({ default: true })
 
 const store = useStore()
 const { categoryOptions, activeCategory } = storeToRefs(store)
+
+const { appConfigStore } = useAppConfig()
 
 const launchTypes = [
   { value: 'file', label: '文 件' },
@@ -549,16 +553,19 @@ const { message } = useNaiveUiApi()
 
 const urlInfoLoading = ref(false)
 const getUrlInfo = async () => {
-  if (!form.value.path.trim()) return
-  // 输入的url进行补全
-  if (!(form.value.path.includes('http://') || form.value.path.includes('https://')))
-    form.value.path = `http://${form.value.path}`
-  urlInfoLoading.value = true
-  const data: any = await getWebsiteInfo(form.value.path).catch(err => message.error(err))
-  urlInfoLoading.value = false
-  form.value.icon = `${form.value.path}${data.icon}`
-  form.value.name = data.title
-  // console.log('res ------', res)
+  try {
+    if (!form.value.path.trim()) return
+    // TODO 优化 输入的url进行补全
+    if (!(form.value.path.includes('http://') || form.value.path.includes('https://')))
+      form.value.path = `https://${form.value.path}`
+    urlInfoLoading.value = true
+    const data: any = await getWebsiteInfo(form.value.path)
+    urlInfoLoading.value = false
+    form.value.icon = data.icon
+    form.value.name = data.title
+  } catch (e) {
+    message.error(e as string)
+  }
 }
 
 const initForm = () => {
@@ -610,6 +617,18 @@ const handleSelectLaunch = async () => {
 
   const fileInfo = await getFileInfo(path!)
   setForm(fileInfo)
+}
+
+const handleSwitchProxy = (val: boolean) => {
+  console.log(`%c val ----`, 'color: #fff;background-color: #000;font-size: 18px', val)
+  appConfigStore.proxy = val
+  if (appConfigStore.proxyHost && val) appConfigStore.proxy = true
+  else if (!appConfigStore.proxyHost && val) {
+    message.warning('请先设置代理地址')
+    appConfigStore.proxy = false
+  } else {
+    appConfigStore.proxy = false
+  }
 }
 
 const editItem = ref<LaunchItem>()

@@ -63,14 +63,19 @@ import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
 import { useStore } from '@/store/useStore'
 import { storeToRefs } from 'pinia'
+import { useAppConfig } from '@/composables/useAppConfig'
 
 const store = useStore()
 const { launchData } = storeToRefs(store)
 
+const { appConfigStore } = useAppConfig()
+
 const launchModalStatus = ref(false)
 const categoryModalStatus = ref(false)
 
-getCurrentWebviewWindow().onDragDropEvent(async e => {
+const currentWindow = getCurrentWebviewWindow()
+
+currentWindow.onDragDropEvent(async e => {
   // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
   if (launchModalStatus.value || categoryModalStatus.value) return
   // TODO 分类对话框打开
@@ -106,6 +111,16 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
     // 刷新列表
     store.getLaunchData()
   }
+})
+
+let timer: any
+currentWindow.onMoved(({ payload: position }) => {
+  clearTimeout(timer)
+  timer = setTimeout(() => {
+    console.log('Window moved', position)
+    appConfigStore.mainWindowPosition.x = position.x
+    appConfigStore.mainWindowPosition.y = position.y
+  }, 100)
 })
 
 store.getLaunchData()

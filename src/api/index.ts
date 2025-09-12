@@ -166,3 +166,6 @@ export const addCategory = <T = NewCategoryItem>(item: T) =>
  * @returns {*}
  */
 export const getCategory = () => invoke<CategoryItem[]>(InvokeMethod.GET_CATEGORY)
+
+export const setAppConfig = (config: AppConfigState) =>
+  invoke(InvokeMethod.SET_APP_CONFIG, { config })

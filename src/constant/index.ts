@@ -43,6 +43,9 @@ export const enum InvokeMethod {
   EXE_COMMAND = 'exe_command',
 
   GET_WEBSITE_INFO = 'get_website_info',
+
+  // 将app配置数据存放在后端共享线程中
+  SET_APP_CONFIG = 'set_app_config',
 }
 
 export const enum AppEvent {

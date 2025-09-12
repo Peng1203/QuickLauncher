@@ -78,6 +78,15 @@ interface AppConfigState {
   searchWindowInput: number
   /* 搜索结果高度 */
   searchResultItemHeight: number
+  /* 全局快捷键 */
+  searchGlobalShortcutKey: string
+
+  proxy: boolean
+  proxyHost: string
+  proxyUsername: string
+  proxyPassword: string
+
+  mainWindowPosition: { x: number; y: number }
 }
 
 type OptionItem<T = string | number, K = string> = {

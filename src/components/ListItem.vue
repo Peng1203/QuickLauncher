@@ -12,7 +12,7 @@
     <img
       :src="icon"
       alt="icon"
-      class="object-contain pointer-events-none"
+      class="object-contain pointer-events-none w-8"
     />
     <!-- v-if="!isEdit" -->
     <!-- {{ isEdit }} -->
