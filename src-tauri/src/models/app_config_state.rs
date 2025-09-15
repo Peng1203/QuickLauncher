@@ -17,6 +17,7 @@ pub struct AppConfigState {
     // 搜索结果高度
     pub search_result_item_height: i32,
     // 全局快捷键
+    #[serde(default)]
     pub search_global_shortcut_key: String,
 
     // 是否启用代理

@@ -26,56 +26,7 @@ fn connect_db(date_dir: PathBuf) -> Result<Connection> {
 
 // 创建数据库表
 fn create_tables(conn: &Connection) -> Result<()> {
-    // 创建查询项表
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS launch_items (
-	        id INTEGER PRIMARY KEY AUTOINCREMENT,
-	        name TEXT NOT NULL,
-	        path TEXT NOT NULL,
-	        type TEXT NOT NULL CHECK (type IN ('file', 'directory', 'url')),
-	        icon TEXT,
-	        hotkey TEXT,
-          hotkey_global INTEGER DEFAULT 0 CHECK (hotkey_global IN (0, 1)),
-          pinyin_full TEXT,
-          pinyin_abbr TEXT,
-	        keywords TEXT,
-	        start_dir TEXT,
-	        remarks TEXT,
-          args TEXT,
-          run_as_admin INTEGER DEFAULT 0 CHECK (run_as_admin IN (0, 1)),
-	        order_index INTEGER DEFAULT 0,
-          enabled INTEGER DEFAULT 1 CHECK (enabled IN (0, 1)),
-	        category_id INTEGER,
-          subcategory_id INTEGER,
-          last_used_at DATETIME,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          extension TEXT,
-          launch_count INTEGER DEFAULT 0,
-          failure_count INTEGER DEFAULT 0,
-	        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
-          FOREIGN KEY (subcategory_id) REFERENCES categories(id) ON DELETE SET NULL
-        )",
-        [],
-    )?;
-
-    // 创建查询索引
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_name ON launch_items(name)",
-        [],
-    )?;
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_pinyin_full ON launch_items(pinyin_full)",
-        [],
-    )?;
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_pinyin_abbr ON launch_items(pinyin_abbr)",
-        [],
-    )?;
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_keywords ON launch_items(keywords)",
-        [],
-    )?;
+    create_launch_items_table(conn)?;
 
     // 创建分类表
     conn.execute(
@@ -109,6 +60,103 @@ fn create_tables(conn: &Connection) -> Result<()> {
         );",
         [],
     )?;
+
+    Ok(())
+}
+
+// 创建启动项表
+fn create_launch_items_table(conn: &Connection) -> Result<()> {
+    // 定义表应该有的字段
+    let required_columns = vec![
+        ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
+        ("name", "TEXT NOT NULL"),
+        ("path", "TEXT NOT NULL"),
+        (
+            "type",
+            "TEXT NOT NULL CHECK (type IN ('file', 'directory', 'url'))",
+        ),
+        ("icon", "TEXT"),
+        ("hotkey", "TEXT"),
+        (
+            "hotkey_global",
+            "INTEGER DEFAULT 0 CHECK (hotkey_global IN (0, 1))",
+        ),
+        ("pinyin_full", "TEXT"),
+        ("pinyin_abbr", "TEXT"),
+        ("keywords", "TEXT"),
+        ("start_dir", "TEXT"),
+        ("remarks", "TEXT"),
+        ("args", "TEXT"),
+        (
+            "run_as_admin",
+            "INTEGER DEFAULT 0 CHECK (run_as_admin IN (0, 1))",
+        ),
+        ("order_index", "INTEGER DEFAULT 0"),
+        ("enabled", "INTEGER DEFAULT 1 CHECK (enabled IN (0, 1))"),
+        ("category_id", "INTEGER"),
+        ("subcategory_id", "INTEGER"),
+        ("last_used_at", "DATETIME"),
+        ("created_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+        ("updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP"),
+        ("extension", "TEXT"),
+        ("launch_count", "INTEGER DEFAULT 0"),
+        ("failure_count", "INTEGER DEFAULT 0"),
+    ];
+
+    // 拼接字段定义部分
+    let columns_def = required_columns
+        .iter()
+        .map(|(name, def)| format!("{} {}", name, def))
+        .collect::<Vec<_>>()
+        .join(",\n    ");
+
+    // 组装建表语句
+    let create_sql = format!(
+        "CREATE TABLE IF NOT EXISTS launch_items (
+        {columns},
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+        FOREIGN KEY (subcategory_id) REFERENCES categories(id) ON DELETE SET NULL
+    )",
+        columns = columns_def
+    );
+
+    conn.execute(&create_sql, [])?;
+
+    // 创建查询索引
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_name ON launch_items(name)",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pinyin_full ON launch_items(pinyin_full)",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pinyin_abbr ON launch_items(pinyin_abbr)",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_keywords ON launch_items(keywords)",
+        [],
+    )?;
+
+    // 查询表中已有的字段
+    let mut stmt = conn.prepare("PRAGMA table_info(launch_items);")?;
+    let mut rows = stmt.query([])?;
+    let mut existing_cols = Vec::new();
+    while let Some(row) = rows.next()? {
+        let name: String = row.get(1)?; // 第二列是字段名
+        existing_cols.push(name.to_lowercase());
+    }
+
+    // 对比差异并补齐缺失的字段
+    for (col, def) in required_columns {
+        if !existing_cols.contains(&col.to_lowercase()) {
+            let sql = format!("ALTER TABLE launch_items ADD COLUMN {} {};", col, def);
+            conn.execute(&sql, [])?;
+            println!("✅ Added missing column '{}' to launch_items", col);
+        }
+    }
 
     Ok(())
 }

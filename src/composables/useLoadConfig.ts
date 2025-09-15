@@ -10,6 +10,8 @@ export const useLoadConfig = async (store: Pinia) => {
 
   // 获取数据库中的应用配置数据
   const data = await getAppConfig()
+  // const data = await getAppConfig().catch(err => appConfigStore.$state)
+
   // 判断是否有配置数据
   const hasConfig = !!Object.keys(data)?.length
   // 如果没有配置数据 则使用 store 中的默认配置
@@ -26,10 +28,7 @@ export const useLoadConfig = async (store: Pinia) => {
 
   appConfigStore.loadConfig(config)
   // rust端加载 配置文件数据
-
   setAppConfig(config)
-
-  // event.emit('load_app_config', config)
 
   // 当返回空对象 表示第一次加载 则将初始化的配置保存到数据库中
   if (!hasConfig) appConfigStore.saveConfig()
@@ -50,4 +49,6 @@ export const useLoadConfig = async (store: Pinia) => {
   const isEna = await isEnabled()
   if (!isEna && config.autoStart) await enable()
   else if (isEna && !config.autoStart) await disable()
+
+  // TODO 注册快捷键
 }

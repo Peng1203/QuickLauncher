@@ -230,7 +230,8 @@ watch(
 const hasResult = computed(() => !!resultList.value.length)
 
 const handleRegisterSearchHotkey = async () => {
-  const key = appConfigStore.searchGlobalShortcutKey
+  // || 'Alt+Space'
+  const key = appConfigStore?.searchGlobalShortcutKey
   if (!key) return
   const isReg = await isRegistered(key)
   isReg && (await unregister(key))
