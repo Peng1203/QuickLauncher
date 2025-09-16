@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
+    CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     LaunchItem: typeof import('./src/components/LaunchItem.vue')['default']
     ListContextMenu: typeof import('./src/components/ListContextMenu.vue')['default']

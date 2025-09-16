@@ -103,7 +103,7 @@ import { Close } from '@vicons/ionicons5'
 import { open } from '@tauri-apps/plugin-dialog'
 import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
-import { addCategory } from '@/api'
+import { addCategory, updateCategory } from '@/api'
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
 
 const { message } = useNaiveUiApi()
@@ -148,11 +148,15 @@ const editItem = ref<CategoryItem>()
 const handleConfirm = async () => {
   try {
     if (isEdit.value) {
+      const item = {
+        ...editItem.value,
+        ...form.value,
+      }
+      await updateCategory(item)
     } else {
       await addCategory(form.value)
     }
     EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST)
-    handleClose()
     handleClose()
   } catch (e) {
     message.error(e as string)

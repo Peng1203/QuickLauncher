@@ -17,6 +17,7 @@ use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
 use commands::search_launch::search_launch;
 use commands::set_app_config::set_app_config;
+use commands::update_category::update_category;
 use commands::update_launch::update_launch;
 use std::sync::Mutex;
 use tauri::Manager;
@@ -77,7 +78,8 @@ pub fn run() {
             get_website_info,
             add_category,
             get_category,
-            set_app_config
+            set_app_config,
+            update_category
         ])
         .setup(|app| {
             // 初始化数据库连接

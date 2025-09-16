@@ -160,6 +160,17 @@ export const addCategory = <T = NewCategoryItem>(item: T) =>
   invoke(InvokeMethod.ADD_CATEGORY, { item })
 
 /**
+ * 新建分类
+ * @author Peng
+ *
+ * @template [T=CategoryItem]
+ * @param {T} item
+ * @returns {*}
+ */
+export const updateCategory = <T = CategoryItem>(item: T) =>
+  invoke(InvokeMethod.UPDATE_CATEGORY, { item })
+
+/**
  * 获取分类
  * @author Peng
  *

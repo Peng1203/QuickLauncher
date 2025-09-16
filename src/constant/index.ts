@@ -38,6 +38,7 @@ export const enum InvokeMethod {
   UPDATE_LAUNCH = 'update_launch',
 
   ADD_CATEGORY = 'add_category',
+  UPDATE_CATEGORY = 'update_category',
   GET_CATEGORY = 'get_category',
 
   EXE_COMMAND = 'exe_command',

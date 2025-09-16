@@ -12,6 +12,7 @@
           activeCategory === -1 ? 'bg-gray-100 text-blue-600' : 'hover:bg-gray-50 text-gray-700',
         ]"
         @click="handleChangeCategory(-1)"
+        @contextmenu.prevent.stop
       >
         {{ `默 认` }}
       </button>
@@ -26,6 +27,7 @@
         ]"
         v-for="item of categoryData"
         @click="handleChangeCategory(item.id)"
+        @contextmenu.prevent.stop="handleShowCategoryItemContextMenu($event, item)"
       >
         {{ item.name }}
       </button>
@@ -40,15 +42,23 @@
     @add="handleOpenAddCategory"
   />
 
+  <!-- 分类自定义菜单 -->
+  <CategoryItemContextMenu
+    v-model="itemMenuVisible"
+    :item="activeItem!"
+    :position="contextMenuPosition"
+  />
+
   <!--  -->
 </template>
 
 <script setup lang="ts">
-import CategoryContextMenu from '@/components/CategoryContextMenu.vue'
+import { storeToRefs } from 'pinia'
 import { EventBus } from '@/utils/eventBus'
 import { AppEvent } from '@/constant'
 import { useStore } from '@/store/useStore'
-import { storeToRefs } from 'pinia'
+import CategoryContextMenu from '@/components/CategoryContextMenu.vue'
+import CategoryItemContextMenu from '@/components/CategoryItemContextMenu.vue'
 
 const store = useStore()
 const { categoryData, activeCategory } = storeToRefs(store)
@@ -74,6 +84,20 @@ const handleShowCategoryContextMenu = (e: MouseEvent) => {
   setTimeout(() => {
     nextTick(() => {
       contextMenuVisible.value = true
+      contextMenuPosition.value = { x: e.clientX, y: e.clientY }
+    })
+  }, 100)
+}
+
+const itemMenuVisible = ref<boolean>(false)
+const activeItem = ref<CategoryItem>()
+const handleShowCategoryItemContextMenu = (e: MouseEvent, item: CategoryItem) => {
+  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU)
+
+  setTimeout(() => {
+    nextTick(() => {
+      itemMenuVisible.value = true
+      activeItem.value = item
       contextMenuPosition.value = { x: e.clientX, y: e.clientY }
     })
   }, 100)
