@@ -21,7 +21,7 @@ export const useAppConfigStore = defineStore('appConfig', {
     searchResultItemHeight: SEARCH_RESULT_ITEM_HEIGHT,
     searchGlobalShortcutKey: 'Alt+Space',
 
-    proxy: false, 
+    proxy: false,
     proxyHost: '',
     // proxy: true,
     // proxyHost: 'http://127.0.0.1:10090',
@@ -31,6 +31,9 @@ export const useAppConfigStore = defineStore('appConfig', {
     // mainWindowPosition: { x: 0, y: 0 },
     mainWindowPositionX: 0,
     mainWindowPositionY: 0,
+    mainWindowGlobalShortcutKey: '',
+
+    language: 'zh-CN',
   }),
   actions: {
     loadConfig(initData: AppConfigState) {

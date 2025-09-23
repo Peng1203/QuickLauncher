@@ -57,6 +57,9 @@ export const enum AppEvent {
   // 关闭右键菜单
   CLOSE_CONTEXT_MENU = 'close_context_menu',
   UPDATE_CATEGORY_LIST = 'update_category_list',
+
+  // 通知其他窗口更新pinia中的appConfig数据
+  UPDATE_APP_CONFIG_DATA = 'update_app_config',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent]

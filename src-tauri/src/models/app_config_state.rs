@@ -16,7 +16,7 @@ pub struct AppConfigState {
     pub search_window_input: i32,
     // 搜索结果高度
     pub search_result_item_height: i32,
-    // 全局快捷键
+    // 搜索框全局快捷键
     #[serde(default)]
     pub search_global_shortcut_key: String,
 
@@ -31,4 +31,13 @@ pub struct AppConfigState {
 
     pub main_window_position_x: i32,
     pub main_window_position_y: i32,
+    #[serde(default)]
+    pub main_window_global_shortcut_key: String,
+
+    #[serde(default = "default_language")]
+    pub language: String,
+}
+
+fn default_language() -> String {
+    "zh-CN".to_string()
 }

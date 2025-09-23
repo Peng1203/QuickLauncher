@@ -41,6 +41,18 @@
         "transparent": true,
         "titleBarStyle": "Overlay",
         "contentProtected": true
+      },
+      {
+        "title": "Setting",
+        "label": "setting",
+        "width": 600,
+        "height": 500,
+        "url": "/#/setting",
+        "visible": true,
+        "center": true,
+        "decorations": false,
+        "resizable": false,
+        "skipTaskbar": true
       }
     ],
     "security": {

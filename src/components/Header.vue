@@ -7,6 +7,15 @@
 
     <!-- 右侧操作 -->
     <div class="flex items-center gap-2">
+      <n-icon
+        title="设置"
+        size="20"
+        class="cursor-pointer"
+        @click="handleToggleSettingWindowVisible"
+      >
+        <SettingsOutline />
+      </n-icon>
+
       <n-dropdown
         placement="bottom-start"
         trigger="click"
@@ -23,6 +32,7 @@
       </n-dropdown>
 
       <n-icon
+        title="关闭窗口"
         size="25"
         class="cursor-pointer"
         @click="handleClose"
@@ -34,16 +44,20 @@
 </template>
 
 <script setup lang="tsx">
-import { CloseOutline, MenuOutline } from '@vicons/ionicons5'
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { CloseOutline, MenuOutline, SettingsOutline } from '@vicons/ionicons5'
+import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
-import { enable, isEnabled, disable } from '@tauri-apps/plugin-autostart'
 import { useAppConfig } from '@/composables/useAppConfig'
+import { listen } from '@tauri-apps/api/event'
+import { AppEvent } from '@/constant'
+import { useAppConfigActions } from '@/composables/useAppConfigActions'
 
 const { appConfigStore } = useAppConfig()
+const { setAlwaysOnTop, setWindowCenter, setAutoStart } = useAppConfigActions()
 
 const cuurrentWindow = getCurrentWebviewWindow()
 
+// TODO 通过个性化配置设置 为隐藏还是关闭
 const handleClose = async () => cuurrentWindow?.hide()
 
 const options: DropdownMixedOption[] = [
@@ -55,15 +69,14 @@ const options: DropdownMixedOption[] = [
       h(
         // v-model:
         // checked={appConfigStore.onTop}
+        /* onChange={setAlwaysOnTop} */
         <n-checkbox
           size='small'
           class='mx-2'
           label='窗口置顶'
           default-checked={appConfigStore.onTop}
-          on-update:checked={(val: boolean) => {
-            appConfigStore.onTop = val
-            cuurrentWindow?.setAlwaysOnTop(val)
-          }}
+          v-model:checked={appConfigStore.onTop}
+          onUpdate-checked={setAlwaysOnTop}
         />
       ),
   },
@@ -73,16 +86,13 @@ const options: DropdownMixedOption[] = [
     type: 'render',
     render: () =>
       h(
-        // v-model:checked={appConfigStore.center}
         <n-checkbox
           size='small'
           class='mx-2'
           label='居中显示'
           default-checked={appConfigStore.center}
-          on-update:checked={(val: boolean) => {
-            appConfigStore.center = val
-            val && cuurrentWindow?.center()
-          }}
+          v-model:checked={appConfigStore.center}
+          onUpdate-checked={setWindowCenter}
         />
       ),
   },
@@ -107,20 +117,13 @@ const options: DropdownMixedOption[] = [
     type: 'render',
     render: () =>
       h(
-        // v-model:checked={appConfigStore.autoStart}
         <n-checkbox
           size='small'
           class='mx-2'
           label='开机自启'
           default-checked={appConfigStore.autoStart}
-          on-update:checked={async (val: boolean) => {
-            appConfigStore.autoStart = val
-
-            const isEna = await isEnabled()
-
-            if (!isEna && val) await enable()
-            else await disable()
-          }}
+          v-model:checked={appConfigStore.autoStart}
+          onUpdate-checked={setAutoStart}
         />
       ),
   },
@@ -130,4 +133,23 @@ const options: DropdownMixedOption[] = [
   //   label: '关于',
   // },
 ]
+
+const handleToggleSettingWindowVisible = async () => {
+  // 获取 setting 窗口
+  const settingWindow = await WebviewWindow.getByLabel('setting')
+
+  const visbile = await settingWindow?.isVisible()
+  if (visbile) settingWindow?.hide()
+  else {
+    await settingWindow?.setAlwaysOnTop(appConfigStore.onTop)
+    settingWindow?.show()
+  }
+}
+
+listen<AppConfigState>(AppEvent.UPDATE_APP_CONFIG_DATA, val => {
+  for (const key in val.payload) {
+    // @ts-ignore
+    appConfigStore[key] = val.payload[key]
+  }
+})
 </script>

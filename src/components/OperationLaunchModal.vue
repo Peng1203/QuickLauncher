@@ -216,7 +216,16 @@
                         @create="handleCreateBrowserOption"
                       />
 
-                      <!-- {{ browserOptions }} -->
+                      <n-button
+                        class="!ml-2"
+                        size="tiny"
+                        title="重置默认选项"
+                        @click="handleSetDefaultBrowserOptions"
+                      >
+                        <n-icon size="16">
+                          <RefreshOutline />
+                        </n-icon>
+                      </n-button>
                     </n-form-item>
                   </n-col>
 
@@ -348,7 +357,14 @@
 
 <script setup lang="tsx">
 import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api'
-import { Close, AlertCircleOutline } from '@vicons/ionicons5'
+import {
+  Close,
+  AlertCircleOutline,
+  RefreshOutline,
+  LogoChrome,
+  LogoEdge,
+  LogoFirefox,
+} from '@vicons/ionicons5'
 import { ref, computed } from 'vue'
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
 import { open } from '@tauri-apps/plugin-dialog'
@@ -437,34 +453,41 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
 
 const LOCAL_BROWSER_KEY = 'local_browser_key'
 
+const defaultBrowserOptions = ref([
+  {
+    label: '默认',
+    value: '',
+  },
+  {
+    label: 'Chrome',
+    value: 'chrome',
+  },
+  {
+    label: 'Edge',
+    value: 'msedge',
+  },
+  {
+    label: 'Firefox',
+    value: 'firefox',
+  },
+])
+
 // 浏览器选择
 const baseBrowserOptions = ref<OptionItem[]>(
   localStorage.getItem(LOCAL_BROWSER_KEY)
     ? JSON.parse(localStorage.getItem(LOCAL_BROWSER_KEY) as any)
-    : [
-        {
-          label: '默认',
-          value: '',
-        },
-        {
-          label: 'Chrome',
-          value: 'chrome',
-        },
-        {
-          label: 'Edge',
-          value: 'msedge',
-        },
-        {
-          label: 'Firefox',
-          value: 'firefox',
-        },
-      ]
+    : defaultBrowserOptions.value
 )
 
 const browserOptions = computed<OptionItem[]>({
   get: () => baseBrowserOptions.value,
   set: val => (baseBrowserOptions.value = val.filter(item => item.value !== undefined)),
 })
+
+const handleSetDefaultBrowserOptions = () => {
+  baseBrowserOptions.value = JSON.parse(JSON.stringify(defaultBrowserOptions.value))
+  saveBrowserOption()
+}
 
 const saveBrowserOption = () => {
   nextTick(() => {
@@ -504,7 +527,18 @@ const handleRenderBrowserTag = (tag: OptionItem, index: number) => (
     onClick={() => (form.value.args = tag.value as any)}
     onClose={() => handleDeleteBrowserOption(tag)}
   >
-    {tag.label}
+    {['chrome', 'msedge', 'firefox'].includes(tag.value as string) ? (
+      <n-icon
+        size='16'
+        style={{ 'padding-top': '1px' }}
+      >
+        {tag.value === 'chrome' && <LogoChrome />}
+        {tag.value === 'msedge' && <LogoEdge />}
+        {tag.value === 'firefox' && <LogoFirefox />}
+      </n-icon>
+    ) : (
+      tag.label
+    )}
   </n-tag>
 )
 

@@ -54,7 +54,7 @@ pub fn get_app_config() -> Result<AppConfigState, String> {
         Err(e) => return Err(format!("查询失败：{}", e)),
     };
 
-    dbg!(&config_item.data);
+    // dbg!(&config_item.data);
 
     let parsed_data: AppConfigState =
         serde_json::from_str(&config_item.data).map_err(|e| format!("解析 JSON 失败：{}", e))?;

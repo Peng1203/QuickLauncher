@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "search"],
+  "windows": ["main", "search", "setting"],
   "permissions": [
     "core:default",
     "core:window:allow-set-size",
@@ -33,8 +33,14 @@
 
     "fs:default",
     "fs:deny-watch",
-    "fs:allow-watch",
     "fs:deny-unwatch",
-    "fs:allow-unwatch"
+    {
+      "identifier": "fs:allow-watch",
+      "allow": [{ "path": "**/*" }]
+    },
+    {
+      "identifier": "fs:allow-unwatch",
+      "allow": [{ "path": "**/*" }]
+    }
   ]
 }

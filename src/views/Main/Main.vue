@@ -64,9 +64,12 @@ import { AppEvent } from '@/constant'
 import { useStore } from '@/store/useStore'
 import { storeToRefs } from 'pinia'
 import { useAppConfig } from '@/composables/useAppConfig'
+import { emit, listen } from '@tauri-apps/api/event'
+import { useUpdateAppConfig } from '@/composables/useUpdateAppConfig'
 
+useUpdateAppConfig()
 const store = useStore()
-const { launchData, activeCategory } = storeToRefs(store)
+const { launchData, activeCategory, categoryData } = storeToRefs(store)
 
 const { appConfigStore } = useAppConfig()
 
@@ -141,4 +144,27 @@ const handleShowListContextMenu = (e: MouseEvent) => {
 const activeItem = ref<LaunchItem>()
 
 EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData)
+
+watch(
+  () => categoryData.value,
+  val => {
+    if (!val.length) return
+  },
+  { deep: true, immediate: true }
+)
+
+// watchImmediate(
+//   'C:\\Users\\Mayn\\Desktop\\FTTH APP截图',
+//   event => {
+//     console.log(`%c event ----`, 'color: #fff;background-color: #000;font-size: 18px', event)
+//   },
+//   { baseDir: BaseDirectory.Desktop }
+// )
+
+// listen<AppConfigState>(AppEvent.UPDATE_APP_CONFIG_DATA, val => {
+//   for (const key in val.payload) {
+//     // @ts-ignore
+//     appConfigStore[key] = val.payload[key]
+//   }
+// })
 </script>

@@ -89,11 +89,17 @@ interface AppConfigState {
   // mainWindowPosition: { x: number; y: number }
   mainWindowPositionX: number
   mainWindowPositionY: number
+  mainWindowGlobalShortcutKey: string
+
+  language: LanguageType
 }
+
+type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja'
 
 type OptionItem<T = string | number, K = string> = {
   label: K
   value: T
+  icon?: any
 }
 
 interface CategoryItem {

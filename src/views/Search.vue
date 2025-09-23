@@ -1,5 +1,6 @@
 <template>
   <!-- border border-gray-100 -->
+  <!-- TODO 根据启动历史 tab进行智能补全键操作 -->
   <n-input
     tabindex="-1"
     type="text"
@@ -178,6 +179,7 @@ const handleShow = async () => {
   // 当存在多个显示器时 将搜索窗口显示在鼠标停留的显示器上
   const { x, y } = await cursorPosition()
 
+  // TODO 适配多显示器上下排版呼出
   // TODO 可作为个性化设置 搜索框呼出位置跟随鼠标 需要适配搜索结果显示位置 朝上或者朝下
   // await current.setPosition(new LogicalPosition(x, y))
   const { width } = await current.innerSize()
