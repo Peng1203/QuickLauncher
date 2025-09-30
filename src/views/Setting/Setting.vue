@@ -41,12 +41,10 @@
 import { ref } from 'vue'
 import { CloseOutline } from '@vicons/ionicons5'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
-import { useAppConfig } from '@/composables/useAppConfig'
 import GeneralPane from './components/General.vue'
 import { useUpdateAppConfig } from '@/composables/useUpdateAppConfig'
 
 useUpdateAppConfig()
-const { appConfigStore } = useAppConfig()
 
 const cuurrentWindow = getCurrentWebviewWindow()
 

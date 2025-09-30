@@ -1,12 +1,17 @@
 import { useAppConfigStore } from '@/store/useAppConfigStore'
 import { Pinia } from 'pinia'
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
-import { enable, isEnabled, disable } from '@tauri-apps/plugin-autostart'
+import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow'
+import { isEnabled, disable } from '@tauri-apps/plugin-autostart'
 import { getAppConfig, setAppConfig } from '@/api'
 import { LogicalPosition } from '@tauri-apps/api/window'
+import { useAppConfigActions } from './useAppConfigActions'
 
 export const useLoadConfig = async (store: Pinia) => {
+  const currentWindow = getCurrentWebviewWindow()
+
   const appConfigStore = useAppConfigStore(store)
+  const { setAlwaysOnTop, setWindowCenter, setAutoStart, initMainWindowShortcutKey } =
+    useAppConfigActions()
 
   // 获取数据库中的应用配置数据
   const data = await getAppConfig()
@@ -42,13 +47,13 @@ export const useLoadConfig = async (store: Pinia) => {
   }
 
   // 设置窗口是否置顶、居中、静默启动、开机自启 等配置
-  mainWindow?.setAlwaysOnTop(config.onTop)
-  config.center && mainWindow?.center()
+  // mainWindow?.setAlwaysOnTop(config.onTop)
+  setAlwaysOnTop()
+  setWindowCenter()
+  // config.center && mainWindow?.center()
   config.silentStart ? mainWindow?.hide() : mainWindow?.show()
+  setAutoStart()
 
-  const isEna = await isEnabled()
-  if (!isEna && config.autoStart) await enable()
-  else if (isEna && !config.autoStart) await disable()
-
-  // TODO 注册快捷键
+  // 只针对 设置窗口执行一次
+  currentWindow.label === 'setting' && initMainWindowShortcutKey()
 }

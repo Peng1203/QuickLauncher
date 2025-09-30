@@ -51,6 +51,7 @@ import { useAppConfig } from '@/composables/useAppConfig'
 import { listen } from '@tauri-apps/api/event'
 import { AppEvent } from '@/constant'
 import { useAppConfigActions } from '@/composables/useAppConfigActions'
+import { LogicalPosition } from '@tauri-apps/api/dpi'
 
 const { appConfigStore } = useAppConfig()
 const { setAlwaysOnTop, setWindowCenter, setAutoStart } = useAppConfigActions()
@@ -141,6 +142,10 @@ const handleToggleSettingWindowVisible = async () => {
   const visbile = await settingWindow?.isVisible()
   if (visbile) settingWindow?.hide()
   else {
+    const x = appConfigStore.mainWindowPositionX + 100
+    const y = appConfigStore.mainWindowPositionY + 50
+    // 将设置窗口置于 当前主窗口之间展示
+    settingWindow?.setPosition(new LogicalPosition(x, y))
     await settingWindow?.setAlwaysOnTop(appConfigStore.onTop)
     settingWindow?.show()
   }

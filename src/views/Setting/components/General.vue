@@ -12,18 +12,14 @@
       <n-checkbox
         size="small"
         v-model:checked="appConfigStore.autoStart"
+        @update-checked="setAutoStart"
       >
         开机自启
       </n-checkbox>
     </n-form-item>
 
     <n-form-item>
-      <n-checkbox
-        v-model:checked="appConfigStore.silentStart"
-        @update-checked=""
-      >
-        静默启动
-      </n-checkbox>
+      <n-checkbox v-model:checked="appConfigStore.silentStart"> 静默启动 </n-checkbox>
     </n-form-item>
 
     <!-- <n-form-item>
@@ -42,7 +38,12 @@
 
     <h3>窗口</h3>
     <n-form-item>
-      <n-checkbox v-model:checked="appConfigStore.onTop"> 窗口置顶 </n-checkbox>
+      <n-checkbox
+        v-model:checked="appConfigStore.onTop"
+        @update-checked="setAlwaysOnTop"
+      >
+        窗口置顶
+      </n-checkbox>
     </n-form-item>
     <n-form-item>
       <n-checkbox
@@ -59,34 +60,55 @@
       label-width="auto"
     >
       <n-input
-        clearable
         v-model:value="shortcutKey"
-        type="text"
         readonly
+        clearable
+        type="text"
         placeholder=""
-        @input="handleChange"
+        :status="shortcutKeyInputStatus"
         @keydown.prevent="handleKeydown"
         @blur="handleBlur"
+        @focus="shortcutKeyInputStatus = 'success'"
       />
+      <!-- @input="handleChange" -->
     </n-form-item>
-    <n-button size="small">Alt + P</n-button>
-    <n-button size="small">Alt + M</n-button>
+
+    <div class="mt-1 flex gap-1">
+      <n-button
+        type="info"
+        size="tiny"
+        @click="registerPresetShortcutKey('Alt + P')"
+      >
+        Alt + P
+      </n-button>
+      <n-button
+        type="info"
+        size="tiny"
+        @click="registerPresetShortcutKey('Alt + M')"
+      >
+        Alt + M
+      </n-button>
+    </div>
   </n-form>
 </template>
 
 <script setup lang="ts">
+import { FormValidationStatus } from 'naive-ui'
 import { useAppConfig } from '@/composables/useAppConfig'
 import { useAppConfigActions } from '@/composables/useAppConfigActions'
-import { getShortcutKey } from '@/utils/shortcutKey'
+import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
 import {
-  isRegistered,
-  register,
-  unregister,
-  unregisterAll,
-} from '@tauri-apps/plugin-global-shortcut'
+  checkShortcutKey,
+  checkShortcutKeyComplete,
+  getShortcutKey,
+  unRegisterShortcutKey,
+} from '@/utils/shortcutKey'
+
+const { message } = useNaiveUiApi()
 
 const { appConfigStore } = useAppConfig()
-const { setAlwaysOnTop, setWindowCenter, setAutoStart } = useAppConfigActions()
+const { setAlwaysOnTop, setWindowCenter, setAutoStart, setMainWindowShortcutKey } =
+  useAppConfigActions()
 
 const languageOptions: OptionItem<LanguageType>[] = [
   { label: '简体中文', value: 'zh-CN' },
@@ -95,62 +117,59 @@ const languageOptions: OptionItem<LanguageType>[] = [
   { label: '日本語', value: 'ja' },
 ]
 
-const shortcutKey = ref(appConfigStore.mainWindowGlobalShortcutKey)
+const shortcutKeyInputStatus = ref<FormValidationStatus>('success')
+const shortcutKey = ref('')
+watch(
+  () => appConfigStore.mainWindowGlobalShortcutKey,
+  val => (shortcutKey.value = val),
+  { immediate: true }
+)
 const handleKeydown = (e: KeyboardEvent) => {
   const keyValue = getShortcutKey(e, appConfigStore.mainWindowGlobalShortcutKey)
-  console.log(`%c keyValue ----`, 'color: #fff;background-color: #000;font-size: 18px', keyValue)
-  // TODO 校验输入的组合键是否合法
+
   shortcutKey.value = keyValue
-  const { code, key, keyCode } = e
-
-  // if (code === 'Escape' && keyCode === 27) return appConfigStore.mainWindowGlobalShortcutKey
-  // if (code === 'Backspace' && keyCode === 8) return (shortcutKey.value = '')
-  // // console.log(`%c e ----`, 'color: #fff;background-color: #000;font-size: 18px', e, code)
-  // // 组合按键前置键
-  // // const keys = ['Shift', 'Control', 'Alt', 'Meta']
-  console.log('key ------', key)
-  console.log('code ------', code)
-  console.log('keyCode ------', keyCode)
-
-  // if (keys.includes(key)) shortcutKey.value += `${key} + `
-  // else {
-  //   // 当判断前面已经存在组合按键 存在则根据 + 号拆分 则进行组合拼接 不存在时 只绑定单个按键
-  //   if (keys.some(cKey => shortcutKey.value.includes(cKey))) {
-  //     shortcutKey.value += code
-  //     // shortcutKey.value += key.toUpperCase()
-  //   } else shortcutKey.value = code
-  // }
-
-  // e.preventDefault()
 }
 
-const handleChange = (e: string) => {
-  // shortcutKey.value = ''
-}
+const handleBlur = async () => {
+  // 清空快捷键值 则进行取消绑定的操作
+  if (!shortcutKey.value) return handleUnRegisterShortcutKey()
 
-const handleBlur = () => {
-  console.log(`%c handleBlur ----`, 'color: #fff;background-color: #000;font-size: 18px')
-}
+  const isComplete = checkShortcutKeyComplete(shortcutKey.value)
+  if (!isComplete) {
+    message.error('快捷键输入不完整')
+    shortcutKeyInputStatus.value = 'error'
+    return
+  }
 
-const test1 = () => {
-  unregisterAll()
-}
-
-const test = () => {
-  console.log(
-    `%c shortcutKey.value ----`,
-    'color: #fff;background-color: #000;font-size: 18px',
-    shortcutKey.value
+  const checkVal = await checkShortcutKey(
+    shortcutKey.value,
+    appConfigStore.mainWindowGlobalShortcutKey
   )
-  // register(shortcutKey.value, e => {
-  register('Win + Numpad5', e => {
-    console.log(
-      `%c 快捷键触发 ----`,
-      'color: #fff;background-color: #000;font-size: 18px',
-      shortcutKey.value,
-      e
-    )
-  })
+  if (!checkVal) {
+    message.warning('快捷键被占用')
+    shortcutKeyInputStatus.value = 'warning'
+    return
+  }
+  registerShortcutKey(shortcutKey.value)
+}
+
+const handleUnRegisterShortcutKey = async () => {
+  await unRegisterShortcutKey(appConfigStore.mainWindowGlobalShortcutKey)
+  shortcutKeyInputStatus.value = 'success'
+}
+
+const registerShortcutKey = async (key: string) => {
+  // 取消注册之前在的快捷键 并注册新的快捷键
+  await handleUnRegisterShortcutKey()
+
+  // 注册快捷键
+  await setMainWindowShortcutKey(key)
+  appConfigStore.mainWindowGlobalShortcutKey = key
+}
+
+const registerPresetShortcutKey = async (key: string) => {
+  shortcutKey.value = key
+  await registerShortcutKey(key)
 }
 </script>
 

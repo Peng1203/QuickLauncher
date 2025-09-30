@@ -48,7 +48,7 @@
         "width": 600,
         "height": 500,
         "url": "/#/setting",
-        "visible": true,
+        "visible": false,
         "center": true,
         "decorations": false,
         "resizable": false,
