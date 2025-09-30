@@ -64,7 +64,6 @@ import { AppEvent } from '@/constant'
 import { useStore } from '@/store/useStore'
 import { storeToRefs } from 'pinia'
 import { useAppConfig } from '@/composables/useAppConfig'
-import { emit, listen } from '@tauri-apps/api/event'
 import { useUpdateAppConfig } from '@/composables/useUpdateAppConfig'
 
 useUpdateAppConfig()
@@ -101,7 +100,7 @@ currentWindow.onDragDropEvent(async e => {
         run_as_admin: 0,
         order_index: 0,
         enabled: 1,
-        category_id: activeCategory.value || null,
+        category_id: activeCategory.value === -1 ? null : activeCategory.value,
         subcategory_id: null,
         extension: fileInfo.extension,
       }
