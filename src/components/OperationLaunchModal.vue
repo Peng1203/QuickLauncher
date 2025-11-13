@@ -47,10 +47,10 @@
               <!-- {{ currentFormSchemas }} -->
               <!-- {{ form }} -->
               <n-row>
-                <template v-for="item in currentFormSchemas" :key="item.prop">
+                <template v-for="sItem in currentFormSchemas" :key="sItem.prop">
                   <n-col
-                    v-if="item.slot === 'iconSlot'"
-                    :span="(item.span as any)"
+                    v-if="sItem.slot === 'iconSlot'"
+                    :span="(sItem.span as any)"
                     class="!flex justify-start items-end"
                   >
                     <n-avatar
@@ -61,14 +61,14 @@
                   </n-col>
 
                   <n-col
-                    v-else-if="item.slot === 'pathSlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'pathSlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <n-input
-                        v-model:value="(form[item.prop] as any)"
+                        v-model:value="(form[sItem.prop] as any)"
                         placeholder=""
-                        :type="item.type || 'text'"
+                        :type="sItem.type || 'text'"
                         :theme-overrides="inputTheme"
                       />
                     </n-form-item>
@@ -85,14 +85,14 @@
                   </n-col>
 
                   <n-col
-                    v-else-if="item.slot === 'urlSlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'urlSlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <n-input
-                        v-model:value="(form[item.prop] as any)"
+                        v-model:value="(form[sItem.prop] as any)"
                         placeholder="https://www.bilibili.com"
-                        :type="item.type || 'text'"
+                        :type="sItem.type || 'text'"
                         :theme-overrides="inputTheme"
                       />
                     </n-form-item>
@@ -120,14 +120,14 @@
                   </n-col>
 
                   <n-col
-                    v-else-if="item.slot === 'hotkeySlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'hotkeySlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <n-input
-                        v-model:value="(form[item.prop] as any)"
+                        v-model:value="(form[sItem.prop] as any)"
                         placeholder=""
-                        :type="item.type || 'text'"
+                        :type="sItem.type || 'text'"
                         :theme-overrides="inputTheme"
                       />
                     </n-form-item>
@@ -145,12 +145,12 @@
                   </n-col>
 
                   <n-col
-                    v-else-if="item.slot === 'runAsAdminSlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'runAsAdminSlot'"
+                    :span="(sItem.span as any)"
                   >
                     <n-form-item
-                      :label="item.label"
-                      :path="item.prop"
+                      :label="sItem.label"
+                      :path="sItem.prop"
                       class="run_as_admin"
                     >
                       <n-checkbox
@@ -168,13 +168,13 @@
 
                   <!-- 网址选择指定浏览器打开 -->
                   <n-col
-                    v-else-if="item.slot === 'browserSlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'browserSlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <template #label>
                         <div class="flex">
-                          <span class="mr-1">{{ item.label }}</span>
+                          <span class="mr-1">{{ sItem.label }}</span>
 
                           <n-tooltip trigger="hover">
                             <template #trigger>
@@ -218,10 +218,10 @@
 
                   <!-- 关键字 -->
                   <n-col
-                    v-else-if="item.slot === 'keywordsSlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'keywordsSlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <n-dynamic-tags
                         v-model:value="keywordsTags"
                         type="info"
@@ -232,10 +232,10 @@
 
                   <!-- 排序 -->
                   <n-col
-                    v-else-if="item.slot === 'orderSlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'orderSlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <!-- borderFocus: 'inherit', -->
                       <!-- boxShadowFocus: 'none', -->
                       <!-- caretColor: 'inherit', -->
@@ -254,10 +254,10 @@
 
                   <!-- 启动项分类 -->
                   <n-col
-                    v-else-if="item.slot === 'categorySlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'categorySlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <!-- TODO 分类切换 重置子分类 -->
                       <!-- {{ form }} -->
                       <n-select
@@ -265,17 +265,17 @@
                         clearable
                         placeholder=""
                         :default-value="null"
-                        :options="categoryOptions"
+                        :options="(categoryOptions as any)"
                         :disabled="activeCategory !== -1"
                       />
                     </n-form-item>
                   </n-col>
 
                   <n-col
-                    v-else-if="item.slot === 'enabledSlot'"
-                    :span="(item.span as any)"
+                    v-else-if="sItem.slot === 'enabledSlot'"
+                    :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="item.label" :path="item.prop">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <n-switch
                         v-model:value="form.enabled"
                         :default-value="1"
@@ -285,13 +285,13 @@
                     </n-form-item>
                   </n-col>
 
-                  <n-col v-else :span="(item.span as any)">
-                    <n-form-item :label="item.label" :path="item.prop">
+                  <n-col v-else :span="(sItem.span as any)">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
                       <n-input
-                        v-model:value="(form[item.prop] as any)"
+                        v-model:value="(form[sItem.prop] as any)"
                         :theme-overrides="inputTheme"
-                        :type="item.type || 'text'"
-                        :placeholder="item.placeholder || ''"
+                        :type="sItem.type || 'text'"
+                        :placeholder="sItem.placeholder || ''"
                       />
                     </n-form-item>
                   </n-col>
@@ -341,17 +341,16 @@ import { EventBus } from '@/utils/eventBus';
 
 // 表单字段 schema 类型
 interface FieldSchema {
-  // eslint-disable-next-line style/member-delimiter-style
   prop: keyof NewLaunchItem;
-  // eslint-disable-next-line style/member-delimiter-style
+
   label: string;
-  // eslint-disable-next-line style/member-delimiter-style
+
   type?: 'text' | 'textarea';
-  // eslint-disable-next-line style/member-delimiter-style
+
   slot?: string;
-  // eslint-disable-next-line style/member-delimiter-style
+
   span?: number;
-  // eslint-disable-next-line style/member-delimiter-style
+
   placeholder?: string;
 }
 
@@ -728,7 +727,6 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, val => {
 
   if (isEdit.value) {
     for (const key in form.value) {
-      // eslint-disable-next-line ts/ban-ts-comment
       // @ts-expect-error
       form.value[key] = val[key];
     }

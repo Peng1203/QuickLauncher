@@ -77,7 +77,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.onTop}
           v-model:checked={appConfigStore.onTop}
           onUpdate-checked={setAlwaysOnTop}
-        />
+        />,
       ),
   },
   {
@@ -93,7 +93,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.center}
           v-model:checked={appConfigStore.center}
           onUpdate-checked={setWindowCenter}
-        />
+        />,
       ),
   },
   {
@@ -108,7 +108,7 @@ const options: DropdownMixedOption[] = [
           label="静默启动"
           default-checked={appConfigStore.silentStart}
           v-model:checked={appConfigStore.silentStart}
-        />
+        />,
       ),
   },
   {
@@ -124,7 +124,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.autoStart}
           v-model:checked={appConfigStore.autoStart}
           onUpdate-checked={setAutoStart}
-        />
+        />,
       ),
   },
 
@@ -153,7 +153,6 @@ async function handleToggleSettingWindowVisible() {
 
 listen<AppConfigState>(AppEvent.UPDATE_APP_CONFIG_DATA, val => {
   for (const key in val.payload) {
-    // eslint-disable-next-line ts/ban-ts-comment
     // @ts-expect-error
     appConfigStore[key] = val.payload[key];
   }

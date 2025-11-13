@@ -1,8 +1,8 @@
 <template>
   <n-modal
+    v-model:show="modalStatus"
     transform-origin="center"
     :mask-closable="false"
-    v-model:show="modalStatus"
     @close="handleClose"
   >
     <n-card
@@ -14,11 +14,7 @@
       :title="isEdit ? '编辑分类' : '新建分类'"
     >
       <template #header-extra>
-        <n-icon
-          size="20"
-          class="cursor-pointer"
-          @click="handleClose"
-        >
+        <n-icon size="20" class="cursor-pointer" @click="handleClose">
           <Close />
         </n-icon>
       </template>
@@ -33,29 +29,23 @@
       >
         <n-row>
           <n-col span="22">
-            <n-form-item
-              label="名称"
-              path="name"
-            >
+            <n-form-item label="名称" path="name">
               <n-input
+                v-model:value="form.name"
                 placeholder=""
                 type="text"
                 :theme-overrides="inputTheme"
-                v-model:value="form.name"
               />
             </n-form-item>
           </n-col>
 
           <n-col span="22">
-            <n-form-item
-              label="关联目录"
-              path="association_directory"
-            >
+            <n-form-item label="关联目录" path="association_directory">
               <n-input
+                v-model:value="form.association_directory"
                 placeholder=""
                 type="textarea"
                 :theme-overrides="inputTheme"
-                v-model:value="form.association_directory"
               />
             </n-form-item>
             <n-button
@@ -85,12 +75,7 @@
           >
             确 认
           </n-button>
-          <n-button
-            size="small"
-            @click="handleClose"
-          >
-            取 消
-          </n-button>
+          <n-button size="small" @click="handleClose">取 消</n-button>
         </div>
       </template>
     </n-card>
@@ -98,85 +83,88 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { Close } from '@vicons/ionicons5'
-import { open } from '@tauri-apps/plugin-dialog'
-import { EventBus } from '@/utils/eventBus'
-import { AppEvent } from '@/constant'
-import { addCategory, updateCategory } from '@/api'
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
+import { open } from '@tauri-apps/plugin-dialog';
+import { Close } from '@vicons/ionicons5';
+import { ref } from 'vue';
+import { addCategory, updateCategory } from '@/api';
+import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import { AppEvent } from '@/constant';
+import { EventBus } from '@/utils/eventBus';
 
-const { message } = useNaiveUiApi()
+const { message } = useNaiveUiApi();
 
 const inputTheme = {
   borderFocus: 'inherit',
   boxShadowFocus: 'none',
   caretColor: 'inherit',
   borderHover: 'inherit',
-}
+};
 
-const modalStatus = defineModel<boolean>({ default: false })
+const modalStatus = defineModel<boolean>({ default: false });
 
 const form = ref<NewCategoryItem>({
   name: '',
   parent_id: 0,
   association_directory: '',
-})
-const initForm = () => {
-  form.value.name = ''
-  form.value.parent_id = 0
-  form.value.association_directory = ''
+});
+function initForm() {
+  form.value.name = '';
+  form.value.parent_id = 0;
+  form.value.association_directory = '';
 }
 
-const handleClose = () => {
-  modalStatus.value = false
-  initForm()
+function handleClose() {
+  modalStatus.value = false;
+  initForm();
 }
 
-const handleSelectDir = async () => {
+async function handleSelectDir() {
   const path = await open({
     multiple: false,
     directory: true,
-  })
+  });
 
-  form.value.association_directory = path!
+  form.value.association_directory = path!;
 }
 
-const isEdit = ref<boolean>(false)
+const isEdit = ref<boolean>(false);
 
-const editItem = ref<CategoryItem>()
-const handleConfirm = async () => {
+const editItem = ref<CategoryItem>();
+async function handleConfirm() {
   try {
     if (isEdit.value) {
       const item = {
         ...editItem.value,
         ...form.value,
-      }
-      await updateCategory(item)
+      };
+      await updateCategory(item);
     } else {
-      await addCategory(form.value)
+      await addCategory(form.value);
     }
-    EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST)
-    handleClose()
+    EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST);
+    handleClose();
   } catch (e) {
-    message.error(e as string)
+    message.error(e as string);
   }
 }
 
 // 打开对话框
-EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, val => {
-  isEdit.value = !!val
-  editItem.value = val
+EventBus.listen<typeof editItem.value>(
+  AppEvent.OPEN_OPERATION_CATEGORY,
+  val => {
+    isEdit.value = !!val;
+    editItem.value = val;
 
-  if (val) {
-    for (const key in form.value) {
-      // @ts-ignore
-      form.value[key] = val[key]
+    if (val) {
+      for (const key in form.value) {
+        // @ts-ignore
+        form.value[key] = val[key];
+      }
     }
-  }
 
-  modalStatus.value = true
-})
+    modalStatus.value = true;
+  }
+);
 </script>
 
 <style scoped>

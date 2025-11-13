@@ -1,4 +1,4 @@
-import { WebSearchOpenModel } from '@/constant';
+import type { WebSearchOpenModel } from '@/constant';
 
 declare global {
   interface LaunchItem {
@@ -115,11 +115,12 @@ declare global {
 
   type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja';
 
-  type OptionItem<T = string | number, K = string> = {
+  interface OptionItem<T = string | number, K = string> {
     label: K;
     value: T;
     icon?: any;
-  };
+    type?: any;
+  }
 
   interface CategoryItem {
     id: number;

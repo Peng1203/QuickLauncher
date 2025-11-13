@@ -1,3 +1,4 @@
+/* eslint-disable */
 export * from './data.ts';
 
 /* 搜索窗口最大高度 */
@@ -15,14 +16,14 @@ export const SEARCH_RESULT_ITEM_HEIGHT = 48;
 /* 右击菜单的宽度 */
 export const MENU_WIDTH = 150;
 
-export const enum SearchWindow {
+export enum SearchWindow {
   WINDOW_WIDTH = SEARCH_WINDOW_WIDTH,
   MAX_HEIGHT = SEARCH_WINDOW_MAX_HEIGHT,
   INPUT_HEIGHT = SEARCH_INPUT_HEIGHT,
   RESULT_ITEM_HEIGHT = SEARCH_RESULT_ITEM_HEIGHT,
 }
 
-export const enum InvokeMethod {
+export enum InvokeMethod {
   OPEN_PATH = 'open_path',
 
   GET_APP_CONFIG = 'get_app_config',
@@ -54,7 +55,7 @@ export const enum InvokeMethod {
   GET_ONLINE_IMG_BASE64 = 'get_online_img_base64',
 }
 
-export const enum AppEvent {
+export enum AppEvent {
   UPDATE_LAUNCH_LIST = 'update_launch_list',
   OPEN_OPERATION_LAUNCH = 'open_operation_launch',
   OPEN_OPERATION_CATEGORY = 'open_operation_category',
@@ -72,7 +73,7 @@ export const enum AppEvent {
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
 
-export const enum WebSearchOpenModel {
+export enum WebSearchOpenModel {
   KEY_SPACE = 0,
   COLON_KEY_SPACE = 1,
 }

@@ -11,10 +11,11 @@
       <h3>呼出方式</h3>
       <n-form-item>
         <div class="w-full">
+          <!-- @ts-ignore -->
           <n-select
             v-model:value="appConfigStore.webSearchOpenModel"
             class="!w-[90%]"
-            :options="options"
+            :options="(options as any)"
           />
           <p class="text-[12px] leading-3.5 text-gray-500 mt-1">
             输入
@@ -374,7 +375,6 @@ function handleSaveEdit() {
   );
   if (!editSource) return;
   for (const key in sourceForm.value) {
-    // eslint-disable-next-line ts/ban-ts-comment
     // @ts-expect-error
     editSource[key] = sourceForm.value[key];
   }

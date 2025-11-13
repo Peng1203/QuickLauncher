@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
+    "lint": "eslint ./src --ext .ts,.tsx,.vue",
+    "lint:fix": "eslint ./src --ext .ts,.tsx,.vue --fix",
+    "format": "npx prettier --write ./src/",
     "preview": "vite preview",
     "tauri": "tauri"
   },

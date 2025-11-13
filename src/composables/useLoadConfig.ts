@@ -1,16 +1,11 @@
-import {
-  getCurrentWebviewWindow,
-  WebviewWindow,
-} from '@tauri-apps/api/webviewWindow';
-import { getAppConfig, setAppConfig } from '@/api';
-import { useAppConfig } from './useAppConfig';
-import { disable, isEnabled } from '@tauri-apps/plugin-autostart';
 import { LogicalPosition } from '@tauri-apps/api/dpi';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { disable, isEnabled } from '@tauri-apps/plugin-autostart';
+import { getAppConfig } from '@/api';
+import { useAppConfig } from './useAppConfig';
 import { useAppConfigActions } from './useAppConfigActions';
 
-export const useLoadConfig = async () => {
-  const currentWindow = getCurrentWebviewWindow();
-
+export async function useLoadConfig() {
   const {
     loadConfig,
     saveConfig,
@@ -61,4 +56,4 @@ export const useLoadConfig = async () => {
   // config.center && mainWindow?.center()
   silentStart.value ? mainWindow?.hide() : mainWindow?.show();
   setAutoStart();
-};
+}

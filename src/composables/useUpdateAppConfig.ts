@@ -1,6 +1,6 @@
+import { emit, listen } from '@tauri-apps/api/event';
 import { AppEvent } from '@/constant';
 import { useAppConfigStore } from '@/store/useAppConfigStore';
-import { emit, listen } from '@tauri-apps/api/event';
 // import store from '@/store'
 
 /**
@@ -8,7 +8,7 @@ import { emit, listen } from '@tauri-apps/api/event';
  * @author Peng
  */
 let flag = false;
-export const useUpdateAppConfig = () => {
+export function useUpdateAppConfig() {
   const appConfigStore = useAppConfigStore();
   let timer: any;
   watch(
@@ -23,7 +23,7 @@ export const useUpdateAppConfig = () => {
         flag = true;
       }, 50);
     },
-    { deep: true }
+    { deep: true },
   );
   listen<AppConfigState>(AppEvent.UPDATE_APP_CONFIG_DATA, val => {
     for (const key in val.payload) {
@@ -32,4 +32,4 @@ export const useUpdateAppConfig = () => {
     }
     appConfigStore.saveConfig();
   });
-};
+}

@@ -1,7 +1,3 @@
-import { AppEvent } from '@/constant';
-import { useAppConfigStore } from '@/store/useAppConfigStore';
-import { EventBus } from '@/utils/eventBus';
-import { unRegisterShortcutKey } from '@/utils/shortcutKey';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { disable, enable, isEnabled } from '@tauri-apps/plugin-autostart';
 import {
@@ -9,12 +5,16 @@ import {
   register,
   unregister,
 } from '@tauri-apps/plugin-global-shortcut';
+import { AppEvent } from '@/constant';
+import { useAppConfigStore } from '@/store/useAppConfigStore';
+import { EventBus } from '@/utils/eventBus';
+import { unRegisterShortcutKey } from '@/utils/shortcutKey';
 
-let mainWindow: WebviewWindow | null = null;
+const mainWindow: WebviewWindow | null = null;
 
-export const useAppConfigActions = () => {
+export function useAppConfigActions() {
   const getMainWindow = async () => {
-    return mainWindow ? mainWindow : await WebviewWindow.getByLabel('main');
+    return mainWindow || await WebviewWindow.getByLabel('main');
   };
 
   const appConfigStore = useAppConfigStore();
@@ -56,18 +56,19 @@ export const useAppConfigActions = () => {
     if (appConfigStore.mainWindowGlobalShortcutKey) {
       // 注册之前先取消之前注册的快捷键
       const isReg = await isRegistered(
-        appConfigStore.mainWindowGlobalShortcutKey
+        appConfigStore.mainWindowGlobalShortcutKey,
       );
-      if (isReg)
+      if (isReg) {
         await unRegisterShortcutKey(
-          appConfigStore.mainWindowGlobalShortcutKey
+          appConfigStore.mainWindowGlobalShortcutKey,
         ).catch(() => '');
+      }
     }
     registerMainWindowShortcutKey(appConfigStore.mainWindowGlobalShortcutKey);
   };
 
   const registerSearchShortcutKey = async (
-    key: string = appConfigStore?.searchGlobalShortcutKey
+    key: string = appConfigStore?.searchGlobalShortcutKey,
   ) => {
     nextTick(async () => {
       // || 'Alt+Space'
@@ -91,4 +92,4 @@ export const useAppConfigActions = () => {
     initMainWindowShortcutKey,
     registerSearchShortcutKey,
   };
-};
+}

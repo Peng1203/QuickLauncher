@@ -2,7 +2,11 @@
   <div
     class="item flex flex-col items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded pt-0.5 pb-0.5"
     :title="item.remarks || name"
-    :style="activeItem?.id === item.id ? { backgroundColor: '#f5f5f5 !important' } : {}"
+    :style="
+      activeItem?.id === item.id
+        ? { backgroundColor: '#f5f5f5 !important' }
+        : {}
+    "
     tabindex="0"
     @click="handleActive"
     @dblclick="handleRun"
@@ -39,109 +43,114 @@
 </template>
 
 <script setup lang="ts">
-import { useLaunchAction } from '@/composables/useLaunchAction'
-import LaunchItemContextMenu from './ListItemContextMenu.vue'
-import { renameLaunch } from '@/api'
-import { EventBus } from '@/utils/eventBus'
-import { AppEvent } from '@/constant'
-
-const { runLaunch } = useLaunchAction()
-
-// 鼠标单击选中的项
-const activeItem = defineModel<LaunchItem>()
+import { renameLaunch } from '@/api';
+import { useLaunchAction } from '@/composables/useLaunchAction';
+import { AppEvent } from '@/constant';
+import { EventBus } from '@/utils/eventBus';
+import LaunchItemContextMenu from './ListItemContextMenu.vue';
 
 const props = defineProps<{
-  icon: string
-  name: string
-  item: LaunchItem
-}>()
+  icon: string;
+  name: string;
+  item: LaunchItem;
+}>();
 
-const isEdit = ref<boolean>(false)
-const newName = ref<string>(props.name)
+const { runLaunch } = useLaunchAction();
 
-const handleRun = () => {
-  runLaunch(props.item.id)
+// 鼠标单击选中的项
+const activeItem = defineModel<LaunchItem>();
+
+const isEdit = ref<boolean>(false);
+const newName = ref<string>(props.name);
+
+function handleRun() {
+  runLaunch(props.item.id);
 }
 
-const handleKeydown = (e: KeyboardEvent) => {
-  const { keyCode, key } = e
+function handleKeydown(e: KeyboardEvent) {
+  const { keyCode, key } = e;
 
-  console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key)
+  console.log(
+    `%c keyCode ----`,
+    'color: #fff;background-color: #000;font-size: 18px',
+    keyCode,
+    key,
+  );
   switch (key) {
     case 'F2': // 113
-      handleEditName()
-      break
+      handleEditName();
+      break;
     case 'Enter': // 13
-      handleSaveEditName()
-      e.preventDefault()
-      break
+      handleSaveEditName();
+      e.preventDefault();
+      break;
     case 'Escape': // 27
-      handleCancelEditName()
-      break
+      handleCancelEditName();
+      break;
     default:
-      break
+      break;
   }
 }
 
-const nameRef = useTemplateRef('nameRef')
-const handleEditName = () => {
-  handleActive()
-  if (isEdit.value) return
-  newName.value = props.name
-  isEdit.value = true
+const nameRef = useTemplateRef('nameRef');
+function handleEditName() {
+  handleActive();
+  if (isEdit.value) return;
+  newName.value = props.name;
+  isEdit.value = true;
   nextTick(() => {
-    nameRef.value?.focus()
-    const range = document.createRange()
-    range.selectNodeContents(nameRef.value as any) // 选择元素内的所有内容
-    const selection = window.getSelection()
-    selection?.removeAllRanges() // 清除之前的选区
-    selection?.addRange(range)
+    nameRef.value?.focus();
+    const range = document.createRange();
+    range.selectNodeContents(nameRef.value as any); // 选择元素内的所有内容
+    const selection = window.getSelection();
+    selection?.removeAllRanges(); // 清除之前的选区
+    selection?.addRange(range);
 
     // setInputWidth()
-  })
+  });
 }
 
-const handleCancelEditName = () => {
-  isEdit.value = false
+function handleCancelEditName() {
+  isEdit.value = false;
 }
 
-const handleSaveEditName = async () => {
+async function handleSaveEditName() {
   // @ts-ignore
-  await saveEditName(nameRef.value.textContent)
-  isEdit.value = false
+  await saveEditName(nameRef.value.textContent);
+  isEdit.value = false;
   // 更新数据
-  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST)
+  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
 }
 
-const saveEditName = async (newName: string) => {
+async function saveEditName(newName: string) {
   try {
-    await renameLaunch(props.item.id, newName)
+    await renameLaunch(props.item.id, newName);
   } catch (e) {
-    console.log('e', e)
+    console.log('e', e);
   }
 }
 
-const menuVisible = ref(false)
-const menuPosition = ref({ x: 0, y: 0 })
+const menuVisible = ref(false);
+const menuPosition = ref({ x: 0, y: 0 });
 
-const handleShowContextMenu = (e: MouseEvent) => {
+function handleShowContextMenu(e: MouseEvent) {
   // 先关闭其他菜单 再打开当前菜单
-  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU)
+  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 
   setTimeout(() => {
     nextTick(() => {
-      menuVisible.value = true
-      menuPosition.value = { x: e.clientX, y: e.clientY }
+      menuVisible.value = true;
+      menuPosition.value = { x: e.clientX, y: e.clientY };
 
       // 选中当前菜单
-      activeItem.value = props.item
-    })
-  }, 100)
+      activeItem.value = props.item;
+    });
+  }, 100);
 }
 
-const handleActive = () => {
-  isEdit.value = false
-  activeItem.value = props.item
+function handleActive() {
+  isEdit.value = false;
+  activeItem.value = props.item;
 }
 </script>
 

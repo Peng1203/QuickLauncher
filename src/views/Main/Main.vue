@@ -145,7 +145,7 @@ watch(
     // eslint-disable-next-line no-useless-return
     if (!val.length) return;
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
 useAppConfigActions().initMainWindowShortcutKey();

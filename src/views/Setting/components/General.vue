@@ -34,7 +34,7 @@
         v-model:value="appConfigStore.language"
         size="small"
         placeholder="Select"
-        :options="languageOptions"
+        :options="(languageOptions as any)"
       />
     </n-form-item>
 

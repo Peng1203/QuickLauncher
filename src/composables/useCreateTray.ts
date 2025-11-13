@@ -1,9 +1,9 @@
-import { TrayIcon } from '@tauri-apps/api/tray'
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow'
-import { Menu } from '@tauri-apps/api/menu'
-import { exit } from '@tauri-apps/plugin-process'
+import { Menu } from '@tauri-apps/api/menu';
+import { TrayIcon } from '@tauri-apps/api/tray';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { exit } from '@tauri-apps/plugin-process';
 
-const createMenu = async () => {
+async function createMenu() {
   return await Menu.new({
     // items 的显示顺序是倒过来的
     items: [
@@ -17,15 +17,15 @@ const createMenu = async () => {
         action: () => exit(0),
       },
     ],
-  })
+  });
 }
 
-export const useCreateTray = async () => {
+export async function useCreateTray() {
   const handleShowMainWindow = async () => {
-    const mainWindow = await WebviewWindow.getByLabel('main')
-    mainWindow?.show()
-    mainWindow?.setFocus()
-  }
+    const mainWindow = await WebviewWindow.getByLabel('main');
+    mainWindow?.show();
+    mainWindow?.setFocus();
+  };
 
   await TrayIcon.new({
     title: 'Tauri App',
@@ -36,11 +36,13 @@ export const useCreateTray = async () => {
     action: e => {
       switch (e.type) {
         case 'Click':
-          e.button === 'Left' && e.buttonState === 'Up' && handleShowMainWindow()
-          break
+          e.button === 'Left' &&
+          e.buttonState === 'Up' &&
+          handleShowMainWindow();
+          break;
         case 'DoubleClick':
-          break
+          break;
       }
     },
-  })
+  });
 }

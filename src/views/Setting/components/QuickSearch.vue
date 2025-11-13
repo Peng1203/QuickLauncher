@@ -10,19 +10,13 @@
     >
       <h3>启动</h3>
       <n-form-item>
-        <n-checkbox
-          size="small"
-          v-model:checked="appConfigStore.enableSearch"
-        >
+        <n-checkbox v-model:checked="appConfigStore.enableSearch" size="small">
           启动快速搜索
         </n-checkbox>
       </n-form-item>
 
       <h3>显示/隐藏</h3>
-      <n-form-item
-        label="快捷键"
-        label-width="auto"
-      >
+      <n-form-item label="快捷键" label-width="auto">
         <n-input
           v-model:value="shortcutKey"
           readonly
@@ -56,8 +50,8 @@
       <h3>窗口</h3>
       <n-form-item>
         <n-checkbox
-          size="small"
           v-model:checked="appConfigStore.searchLostFocusHide"
+          size="small"
         >
           失去焦点隐藏
         </n-checkbox>
@@ -65,8 +59,8 @@
 
       <n-form-item>
         <n-checkbox
-          size="small"
           v-model:checked="appConfigStore.searchHideAfterOpen"
+          size="small"
         >
           Enter后隐藏
         </n-checkbox>
@@ -76,8 +70,8 @@
       <h3>历史记录</h3>
       <n-form-item>
         <n-checkbox
-          size="small"
           v-model:checked="appConfigStore.searchLostFocusHide"
+          size="small"
         >
           显示
         </n-checkbox>
@@ -88,8 +82,8 @@
       <h3>自动补全</h3>
       <n-form-item>
         <n-checkbox
-          size="small"
           v-model:checked="appConfigStore.searchLostFocusHide"
+          size="small"
         >
           启动
         </n-checkbox>
@@ -99,73 +93,76 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAppConfig } from '@/composables/useAppConfig'
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi'
-import { FormValidationStatus } from 'naive-ui'
+import type { FormValidationStatus } from 'naive-ui';
+import { ref } from 'vue';
+import { useAppConfig } from '@/composables/useAppConfig';
+import { useAppConfigActions } from '@/composables/useAppConfigActions';
+import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import {
   checkShortcutKey,
   checkShortcutKeyComplete,
   getShortcutKey,
   unRegisterShortcutKey,
-} from '@/utils/shortcutKey'
-import { useAppConfigActions } from '@/composables/useAppConfigActions'
+} from '@/utils/shortcutKey';
 
-const { message } = useNaiveUiApi()
-const { appConfigStore } = useAppConfig()
-const { registerSearchShortcutKey } = useAppConfigActions()
+const { message } = useNaiveUiApi();
+const { appConfigStore } = useAppConfig();
+const { registerSearchShortcutKey } = useAppConfigActions();
 
-const shortcutKeyInputStatus = ref<FormValidationStatus>('success')
-const shortcutKey = ref('')
+const shortcutKeyInputStatus = ref<FormValidationStatus>('success');
+const shortcutKey = ref('');
 watch(
   () => appConfigStore.searchGlobalShortcutKey,
   val => (shortcutKey.value = val),
   { immediate: true }
-)
+);
 
-const handleKeydown = (e: KeyboardEvent) => {
-  const keyValue = getShortcutKey(e, appConfigStore.searchGlobalShortcutKey)
+function handleKeydown(e: KeyboardEvent) {
+  const keyValue = getShortcutKey(e, appConfigStore.searchGlobalShortcutKey);
 
-  shortcutKey.value = keyValue
+  shortcutKey.value = keyValue;
 }
 
-const handleBlur = async () => {
+async function handleBlur() {
   // 清空快捷键值 则进行取消绑定的操作
-  if (!shortcutKey.value) return handleUnRegisterShortcutKey()
+  if (!shortcutKey.value) return handleUnRegisterShortcutKey();
 
-  const isComplete = checkShortcutKeyComplete(shortcutKey.value)
+  const isComplete = checkShortcutKeyComplete(shortcutKey.value);
   if (!isComplete) {
-    message.error('快捷键输入不完整')
-    shortcutKeyInputStatus.value = 'error'
-    return
+    message.error('快捷键输入不完整');
+    shortcutKeyInputStatus.value = 'error';
+    return;
   }
 
-  const checkVal = await checkShortcutKey(shortcutKey.value, appConfigStore.searchGlobalShortcutKey)
+  const checkVal = await checkShortcutKey(
+    shortcutKey.value,
+    appConfigStore.searchGlobalShortcutKey
+  );
   if (!checkVal) {
-    message.warning('快捷键被占用')
-    shortcutKeyInputStatus.value = 'warning'
-    return
+    message.warning('快捷键被占用');
+    shortcutKeyInputStatus.value = 'warning';
+    return;
   }
-  registerShortcutKey(shortcutKey.value)
+  registerShortcutKey(shortcutKey.value);
 }
 
-const handleUnRegisterShortcutKey = async () => {
-  await unRegisterShortcutKey(appConfigStore.searchGlobalShortcutKey)
-  shortcutKeyInputStatus.value = 'success'
+async function handleUnRegisterShortcutKey() {
+  await unRegisterShortcutKey(appConfigStore.searchGlobalShortcutKey);
+  shortcutKeyInputStatus.value = 'success';
 }
 
-const registerShortcutKey = async (key: string) => {
+async function registerShortcutKey(key: string) {
   // 取消注册之前在的快捷键 并注册新的快捷键
-  await handleUnRegisterShortcutKey()
+  await handleUnRegisterShortcutKey();
 
   // 注册快捷键
-  await registerSearchShortcutKey(key)
-  appConfigStore.searchGlobalShortcutKey = key
+  await registerSearchShortcutKey(key);
+  appConfigStore.searchGlobalShortcutKey = key;
 }
 
-const registerPresetShortcutKey = async (key: string) => {
-  shortcutKey.value = key
-  await registerShortcutKey(key)
+async function registerPresetShortcutKey(key: string) {
+  shortcutKey.value = key;
+  await registerShortcutKey(key);
 }
 </script>
 

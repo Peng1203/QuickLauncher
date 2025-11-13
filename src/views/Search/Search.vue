@@ -183,18 +183,18 @@ async function handleOpenWebSearch() {
       `%c flag ----`,
       'color: #fff;background-color: #000;font-size: 18px',
       flag,
-      appConfigStore.webSearchSourceList
+      appConfigStore.webSearchSourceList,
     );
     if (!flag) return;
 
     const searchSource = appConfigStore.webSearchSourceList.find(
-      ({ keywords }) => keywords === key
+      ({ keywords }) => keywords === key,
     );
 
     console.log(
       `%c searchSource ----`,
       'color: #fff;background-color: #000;font-size: 18px',
-      searchSource
+      searchSource,
     );
     if (!searchSource) return;
     searchSourch.value = searchSource;
@@ -245,7 +245,7 @@ async function handleEnterWebSearch() {
   const keywordStr =
     searchSourch.value?.searchApi?.replace(
       '{w}',
-      item ? item.name : keyword.value
+      item ? item.name : keyword.value,
     ) || '';
 
   await exeCommand(keywordStr!);
@@ -285,7 +285,7 @@ async function searchSuggestion(): Promise<SearchLauncItem[]> {
       'fetch',
       'searchSourch',
       'keyword',
-      `"use strict"; return (async () => { ${userCode} })();`
+      `"use strict"; return (async () => { ${userCode} })();`,
     );
     const result = await fn(fetch, searchSourch.value, keyword.value);
     return result;
@@ -364,9 +364,9 @@ watch(
       resultList.value = launchs;
     }
     current.setSize(
-      new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value)
+      new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value),
     );
-  }
+  },
 );
 
 function handleBlur() {

@@ -79,7 +79,7 @@ function handleOpenAddCategory() {
   console.log(
     `%c 121 ----`,
     'color: #fff;background-color: #000;font-size: 18px',
-    121
+    121,
   );
 }
 

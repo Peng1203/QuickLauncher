@@ -1,11 +1,11 @@
-import { useMessage, useModal } from 'naive-ui'
+import { useMessage, useModal } from 'naive-ui';
 
-export const useNaiveUiApi = () => {
-  const message = useMessage()
-  const modal = useModal()
+export function useNaiveUiApi() {
+  const message = useMessage();
+  const modal = useModal();
 
   return {
     message,
     modal,
-  }
+  };
 }

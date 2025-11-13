@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
+import { saveAppConfig } from '@/api';
 import {
-  SEARCH_WINDOW_MAX_HEIGHT,
-  SEARCH_WINDOW_WIDTH,
   SEARCH_INPUT_HEIGHT,
   SEARCH_RESULT_ITEM_HEIGHT,
+  SEARCH_WINDOW_MAX_HEIGHT,
+  SEARCH_WINDOW_WIDTH,
 } from '@/constant';
-import { saveAppConfig } from '@/api';
 
 export const useAppConfigStore = defineStore(
   'appConfig',
@@ -66,7 +66,7 @@ export const useAppConfigStore = defineStore(
           console.log(
             `%c beforeBackendSync ----`,
             'color: #fff;background-color: #000;font-size: 18px',
-            state
+            state,
           );
           saveAppConfig(state);
 
@@ -75,5 +75,5 @@ export const useAppConfigStore = defineStore(
       },
       saveOnChange: true,
     },
-  }
+  },
 );

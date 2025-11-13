@@ -28,5 +28,23 @@ export default antfu({
       },
     ],
     'vue/singleline-html-element-content-newline': 'off',
+    'style/member-delimiter-style': [
+      'error',
+      {
+        multiline: {
+          delimiter: 'semi',
+          requireLast: true,
+        },
+        singleline: {
+          delimiter: 'semi',
+          requireLast: false,
+        },
+      },
+    ],
+    'ts/ban-ts-comment': 'off',
+    'ts/prefer-literal-enum-member': 'off',
+    'jsdoc/require-returns-description': 'off',
+    'eslint-comments/no-unlimited-disable': 'off',
+    'ts/no-empty-object-type': 'off',
   },
 });
