@@ -1,7 +1,6 @@
+use crate::models::launch_item::LaunchItem;
 use pinyin::ToPinyin;
 use std::{os::windows::process::CommandExt, process::Command};
-
-use crate::models::launch_item::LaunchItem;
 
 // 获取拼音的全拼和缩写
 pub fn get_pinyin_variants(name: &str) -> (String, String) {

@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "search", "setting"],
+  "windows": ["*"],
   "permissions": [
     "core:default",
     "core:window:allow-set-size",
@@ -34,6 +34,13 @@
     "fs:default",
     "fs:deny-watch",
     "fs:deny-unwatch",
+
+    "http:allow-fetch",
+    {
+      "identifier": "http:default",
+      "allow": [{ "url": "https://*/*" }, { "url": "http://*/*" }],
+      "deny": [{ "url": "https://private.tauri.app" }]
+    },
     {
       "identifier": "fs:allow-watch",
       "allow": [{ "path": "**/*" }]
@@ -41,6 +48,8 @@
     {
       "identifier": "fs:allow-unwatch",
       "allow": [{ "path": "**/*" }]
-    }
+    },
+    "pinia:default",
+    "core:event:default"
   ]
 }

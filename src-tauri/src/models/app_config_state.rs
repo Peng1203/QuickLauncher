@@ -1,3 +1,5 @@
+use serde_json::Value;
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct AppConfigState {
@@ -36,6 +38,17 @@ pub struct AppConfigState {
 
     #[serde(default = "default_language")]
     pub language: String,
+
+    #[serde(default)]
+    pub enable_search: bool,
+    #[serde(default)]
+    pub search_lost_focus_hide: bool,
+    #[serde(default)]
+    pub search_hide_after_open: bool,
+    #[serde(default)]
+    pub web_search_open_model: i32,
+    #[serde(default)]
+    pub web_search_source_list: Vec<Value>,
 }
 
 fn default_language() -> String {

@@ -9,6 +9,8 @@ use commands::get_app_config::get_app_config;
 use commands::get_category::get_category;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
+use commands::get_local_icon_base64::get_local_icon_base64;
+use commands::get_online_img_base64::get_online_img_base64;
 use commands::get_website_info::get_website_info;
 use commands::open_path::open_path;
 use commands::rename_launch::rename_launch;
@@ -22,6 +24,7 @@ use commands::update_launch::update_launch;
 use std::sync::Mutex;
 use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
+
 use tray::create_tray;
 mod commands;
 mod common;
@@ -35,6 +38,7 @@ pub fn run() {
     let _ = db::connection::init_db();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
@@ -79,7 +83,9 @@ pub fn run() {
             add_category,
             get_category,
             set_app_config,
-            update_category
+            update_category,
+            get_local_icon_base64,
+            get_online_img_base64
         ])
         .setup(|app| {
             // 初始化数据库连接

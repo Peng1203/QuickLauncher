@@ -37,3 +37,39 @@ body,
 textarea {
   resize: none;
 }
+
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 5px;
+}
+
+
+/* .n-input--focus:hover {
+  background-color: inherit !important;
+} */
+
+.n-input {
+  transition: none !important;
+}
+
+.n-input * {
+  transition: none !important;
+}
+
+.n-input {
+  --n-caret-color: inherit !important;
+  --n-border-hover: inherit !important;
+  --n-border-focus: inherit !important;
+  --n-box-shadow-focus: none !important;
+  transition: none !important;
+}
+
+/* prettier-ignore */
+.n-input * {
+  --n-caret-color: inherit !important;
+  --n-border-hover: inherit !important;
+  --n-border-focus: inherit !important;
+  --n-box-shadow-focus: none !important;
+  transition: none !important;
+}

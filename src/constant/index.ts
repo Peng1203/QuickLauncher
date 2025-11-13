@@ -1,17 +1,19 @@
+export * from './data.ts';
+
 /* 搜索窗口最大高度 */
-export const SEARCH_WINDOW_MAX_HEIGHT = 400
+export const SEARCH_WINDOW_MAX_HEIGHT = 400;
 
 /* 搜索窗口固定宽度 */
-export const SEARCH_WINDOW_WIDTH = 600
+export const SEARCH_WINDOW_WIDTH = 600;
 
 /* 搜索框高度 */
-export const SEARCH_INPUT_HEIGHT = 45
+export const SEARCH_INPUT_HEIGHT = 45;
 
 /* 搜索结果高度 */
-export const SEARCH_RESULT_ITEM_HEIGHT = 48
+export const SEARCH_RESULT_ITEM_HEIGHT = 48;
 
 /* 右击菜单的宽度 */
-export const MENU_WIDTH = 150
+export const MENU_WIDTH = 150;
 
 export const enum SearchWindow {
   WINDOW_WIDTH = SEARCH_WINDOW_WIDTH,
@@ -47,6 +49,9 @@ export const enum InvokeMethod {
 
   // 将app配置数据存放在后端共享线程中
   SET_APP_CONFIG = 'set_app_config',
+
+  GET_LOCAL_ICON_BASE64 = 'get_local_icon_base64',
+  GET_ONLINE_IMG_BASE64 = 'get_online_img_base64',
 }
 
 export const enum AppEvent {
@@ -60,6 +65,14 @@ export const enum AppEvent {
 
   // 通知其他窗口更新pinia中的appConfig数据
   UPDATE_APP_CONFIG_DATA = 'update_app_config',
+
+  // 快速搜索快捷键事件
+  SEARCH_SHORTCU_KEY = 'search_shortcu_key',
 }
 
-export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent]
+export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
+
+export const enum WebSearchOpenModel {
+  KEY_SPACE = 0,
+  COLON_KEY_SPACE = 1,
+}

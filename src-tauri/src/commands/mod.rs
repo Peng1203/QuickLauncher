@@ -6,6 +6,8 @@ pub mod get_app_config;
 pub mod get_category;
 pub mod get_file_info;
 pub mod get_launch;
+pub mod get_local_icon_base64;
+pub mod get_online_img_base64;
 pub mod get_website_info;
 pub mod open_path;
 pub mod rename_launch;

@@ -4,7 +4,6 @@
     class="fixed top-0 left-0 right-0 h-8 bg-white flex items-center justify-between px-2 border-b-1 border-gray-200 z-10"
   >
     <span class="text-gray-700">Quick Launcher</span>
-
     <!-- 右侧操作 -->
     <div class="flex items-center gap-2">
       <n-icon
@@ -21,12 +20,9 @@
         trigger="click"
         size="small"
         :options="options"
-        @select=""
       >
-        <n-icon
-          size="25"
-          class="cursor-pointer"
-        >
+        <!-- @select="" -->
+        <n-icon size="25" class="cursor-pointer">
           <MenuOutline />
         </n-icon>
       </n-dropdown>
@@ -44,22 +40,25 @@
 </template>
 
 <script setup lang="tsx">
-import { CloseOutline, MenuOutline, SettingsOutline } from '@vicons/ionicons5'
-import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow'
-import { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface'
-import { useAppConfig } from '@/composables/useAppConfig'
-import { listen } from '@tauri-apps/api/event'
-import { AppEvent } from '@/constant'
-import { useAppConfigActions } from '@/composables/useAppConfigActions'
-import { LogicalPosition } from '@tauri-apps/api/dpi'
+import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface';
+import { LogicalPosition } from '@tauri-apps/api/dpi';
+import { listen } from '@tauri-apps/api/event';
+import {
+  getCurrentWebviewWindow,
+  WebviewWindow,
+} from '@tauri-apps/api/webviewWindow';
+import { CloseOutline, MenuOutline, SettingsOutline } from '@vicons/ionicons5';
+import { useAppConfig } from '@/composables/useAppConfig';
+import { useAppConfigActions } from '@/composables/useAppConfigActions';
+import { AppEvent } from '@/constant';
 
-const { appConfigStore } = useAppConfig()
-const { setAlwaysOnTop, setWindowCenter, setAutoStart } = useAppConfigActions()
+const { appConfigStore } = useAppConfig();
+const { setAlwaysOnTop, setWindowCenter, setAutoStart } = useAppConfigActions();
 
-const cuurrentWindow = getCurrentWebviewWindow()
+const cuurrentWindow = getCurrentWebviewWindow();
 
 // TODO 通过个性化配置设置 为隐藏还是关闭
-const handleClose = async () => cuurrentWindow?.hide()
+const handleClose = async () => cuurrentWindow?.hide();
 
 const options: DropdownMixedOption[] = [
   {
@@ -72,9 +71,9 @@ const options: DropdownMixedOption[] = [
         // checked={appConfigStore.onTop}
         /* onChange={setAlwaysOnTop} */
         <n-checkbox
-          size='small'
-          class='mx-2'
-          label='窗口置顶'
+          size="small"
+          class="mx-2"
+          label="窗口置顶"
           default-checked={appConfigStore.onTop}
           v-model:checked={appConfigStore.onTop}
           onUpdate-checked={setAlwaysOnTop}
@@ -88,9 +87,9 @@ const options: DropdownMixedOption[] = [
     render: () =>
       h(
         <n-checkbox
-          size='small'
-          class='mx-2'
-          label='居中显示'
+          size="small"
+          class="mx-2"
+          label="居中显示"
           default-checked={appConfigStore.center}
           v-model:checked={appConfigStore.center}
           onUpdate-checked={setWindowCenter}
@@ -104,9 +103,9 @@ const options: DropdownMixedOption[] = [
     render: () =>
       h(
         <n-checkbox
-          size='small'
-          class='mx-2'
-          label='静默启动'
+          size="small"
+          class="mx-2"
+          label="静默启动"
           default-checked={appConfigStore.silentStart}
           v-model:checked={appConfigStore.silentStart}
         />
@@ -119,9 +118,9 @@ const options: DropdownMixedOption[] = [
     render: () =>
       h(
         <n-checkbox
-          size='small'
-          class='mx-2'
-          label='开机自启'
+          size="small"
+          class="mx-2"
+          label="开机自启"
           default-checked={appConfigStore.autoStart}
           v-model:checked={appConfigStore.autoStart}
           onUpdate-checked={setAutoStart}
@@ -133,28 +132,30 @@ const options: DropdownMixedOption[] = [
   //   key: 'about',
   //   label: '关于',
   // },
-]
+];
 
-const handleToggleSettingWindowVisible = async () => {
+async function handleToggleSettingWindowVisible() {
   // 获取 setting 窗口
-  const settingWindow = await WebviewWindow.getByLabel('setting')
+  const settingWindow = await WebviewWindow.getByLabel('setting');
 
-  const visbile = await settingWindow?.isVisible()
-  if (visbile) settingWindow?.hide()
-  else {
-    const x = appConfigStore.mainWindowPositionX + 100
-    const y = appConfigStore.mainWindowPositionY + 50
+  const visbile = await settingWindow?.isVisible();
+  if (visbile) {
+    settingWindow?.hide();
+  } else {
+    const x = appConfigStore.mainWindowPositionX + 100;
+    const y = appConfigStore.mainWindowPositionY + 50;
     // 将设置窗口置于 当前主窗口之间展示
-    settingWindow?.setPosition(new LogicalPosition(x, y))
-    await settingWindow?.setAlwaysOnTop(appConfigStore.onTop)
-    settingWindow?.show()
+    settingWindow?.setPosition(new LogicalPosition(x, y));
+    await settingWindow?.setAlwaysOnTop(appConfigStore.onTop);
+    settingWindow?.show();
   }
 }
 
 listen<AppConfigState>(AppEvent.UPDATE_APP_CONFIG_DATA, val => {
   for (const key in val.payload) {
-    // @ts-ignore
-    appConfigStore[key] = val.payload[key]
+    // eslint-disable-next-line ts/ban-ts-comment
+    // @ts-expect-error
+    appConfigStore[key] = val.payload[key];
   }
-})
+});
 </script>

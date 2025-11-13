@@ -2,30 +2,25 @@
   <div class="h-screen bg-white">
     <!-- 顶部固定自定义拖拽导航栏 -->
     <Header />
+
     <!-- 左侧分类栏 -->
     <Sidebar />
 
     <!-- 右侧启动项区域 -->
-    <main
-      tabindex="-1"
-      class="pl-48 pt-8 h-screen overflow-auto"
-    >
+    <main tabindex="-1" class="pl-48 pt-8 h-screen overflow-auto">
       <div
         class="w-full h-full max-w-5xl mx-auto p-1"
         @contextmenu.prevent.stop="handleShowListContextMenu"
       >
         <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
-        <div
-          class="grid grid-cols-6"
-          v-if="launchData.length"
-        >
+        <div v-if="launchData.length" class="grid grid-cols-6">
           <ListItem
+            v-for="item in launchData"
+            :key="item.id"
             v-model="activeItem"
             :item="item"
-            :key="item.id"
             :icon="item.icon!"
             :name="item.name"
-            v-for="item in launchData"
           />
         </div>
 
@@ -52,38 +47,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
-import ListItem from '@/components/ListItem.vue'
-import { getFileInfo, addLaunch } from '@/api'
-import ListContextMenu from '@/components/ListContextMenu.vue'
-import OperationLaunchModal from '@/components/OperationLaunchModal.vue'
-import Sidebar from './components/Sidebar.vue'
-import { EventBus } from '@/utils/eventBus'
-import { AppEvent } from '@/constant'
-import { useStore } from '@/store/useStore'
-import { storeToRefs } from 'pinia'
-import { useAppConfig } from '@/composables/useAppConfig'
-import { useUpdateAppConfig } from '@/composables/useUpdateAppConfig'
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { storeToRefs } from 'pinia';
+import { ref } from 'vue';
+import { addLaunch, getFileInfo } from '@/api';
+import ListContextMenu from '@/components/ListContextMenu.vue';
+import ListItem from '@/components/ListItem.vue';
+import OperationLaunchModal from '@/components/OperationLaunchModal.vue';
+import { useAppConfig } from '@/composables/useAppConfig';
+import { useAppConfigActions } from '@/composables/useAppConfigActions';
+import { AppEvent } from '@/constant';
+import { useStore } from '@/store/useStore';
 
-useUpdateAppConfig()
-const store = useStore()
-const { launchData, activeCategory, categoryData } = storeToRefs(store)
+import { EventBus } from '@/utils/eventBus';
+import Sidebar from './components/Sidebar.vue';
 
-const { appConfigStore } = useAppConfig()
+const store = useStore();
+const { launchData, activeCategory, categoryData } = storeToRefs(store);
 
-const launchModalStatus = ref(false)
-const categoryModalStatus = ref(false)
+const { appConfigStore } = useAppConfig();
 
-const currentWindow = getCurrentWebviewWindow()
+const launchModalStatus = ref(false);
+const categoryModalStatus = ref(false);
+
+const currentWindow = getCurrentWebviewWindow();
 
 currentWindow.onDragDropEvent(async e => {
   // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
-  if (launchModalStatus.value || categoryModalStatus.value) return
+  if (launchModalStatus.value || categoryModalStatus.value) return;
   // TODO 分类对话框打开
   if (e.payload.type === 'drop') {
     const addLaunchTasks = (e.payload.paths ?? []).map(async path => {
-      const fileInfo = await getFileInfo(path)
+      const fileInfo = await getFileInfo(path);
 
       const item: NewLaunchItem = {
         name: fileInfo.name,
@@ -103,54 +98,57 @@ currentWindow.onDragDropEvent(async e => {
         category_id: activeCategory.value === -1 ? null : activeCategory.value,
         subcategory_id: null,
         extension: fileInfo.extension,
-      }
+      };
       // // 添加记录
-      await addLaunch(item)
-    })
+      await addLaunch(item);
+    });
 
-    await Promise.all(addLaunchTasks)
+    await Promise.all(addLaunchTasks);
 
     // 刷新列表
-    store.getLaunchData()
+    store.getLaunchData();
   }
-})
+});
 
-let timer: any
+let timer: any;
 currentWindow.onMoved(({ payload: position }) => {
-  clearTimeout(timer)
+  clearTimeout(timer);
   timer = setTimeout(() => {
-    appConfigStore.mainWindowPositionX = position.x
-    appConfigStore.mainWindowPositionY = position.y
-  }, 100)
-})
+    appConfigStore.mainWindowPositionX = position.x;
+    appConfigStore.mainWindowPositionY = position.y;
+  }, 100);
+});
 
-store.getLaunchData()
+store.getLaunchData();
 
-const contextMenuVisible = ref<boolean>(false)
-const contextMenuPosition = ref({ x: 0, y: 0 })
+const contextMenuVisible = ref<boolean>(false);
+const contextMenuPosition = ref({ x: 0, y: 0 });
 
-const handleShowListContextMenu = (e: MouseEvent) => {
-  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU)
+function handleShowListContextMenu(e: MouseEvent) {
+  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 
   setTimeout(() => {
     nextTick(() => {
-      contextMenuVisible.value = true
-      contextMenuPosition.value = { x: e.clientX, y: e.clientY }
-    })
-  }, 100)
+      contextMenuVisible.value = true;
+      contextMenuPosition.value = { x: e.clientX, y: e.clientY };
+    });
+  }, 100);
 }
 
-const activeItem = ref<LaunchItem>()
+const activeItem = ref<LaunchItem>();
 
-EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData)
+EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData);
 
 watch(
   () => categoryData.value,
   val => {
-    if (!val.length) return
+    // eslint-disable-next-line no-useless-return
+    if (!val.length) return;
   },
   { deep: true, immediate: true }
-)
+);
+
+useAppConfigActions().initMainWindowShortcutKey();
 
 // watchImmediate(
 //   'C:\\Users\\Mayn\\Desktop\\FTTH APP截图',

@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
-import { getCategory, getLaunchs } from '@/api'
+import { defineStore } from 'pinia';
+import { getCategory, getLaunchs } from '@/api';
 
-export const useStore = defineStore('', {
+export const useStore = defineStore('main', {
   state: () => ({
     launchData: <LaunchItem[]>[],
 
@@ -12,25 +12,25 @@ export const useStore = defineStore('', {
   actions: {
     async getLaunchData(id?: number) {
       try {
-        const data = await getLaunchs(id || this.activeCategory)
-        this.launchData = data
+        const data = await getLaunchs(id || this.activeCategory);
+        this.launchData = data;
       } catch (e) {
-        console.log('e', e)
+        console.log('e', e);
       }
     },
 
     async getCategoryData() {
       try {
-        const data = await getCategory()
+        const data = await getCategory();
 
-        this.categoryData = data
+        this.categoryData = data;
         this.categoryOptions = data.map(item => ({
           value: item.id,
           label: item.name,
-        }))
+        }));
       } catch (e) {
-        console.log('e', e)
+        console.log('e', e);
       }
     },
   },
-})
+});

@@ -1,8 +1,8 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router';
 
-import Main from '@/views/Main/Main.vue'
-import Search from '@/views/Search.vue'
-import Setting from '@/views/Setting/Setting.vue'
+import Main from '@/views/Main/Main.vue';
+import Search from '@/views/Search/Search.vue';
+import Setting from '@/views/Setting/Setting.vue';
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -12,6 +12,6 @@ export const router = createRouter({
     { path: '/search', name: 'Search', component: Search },
     { path: '/setting', name: 'Setting', component: Setting },
   ],
-})
+});
 
-export default router
+export default router;

@@ -1,9 +1,9 @@
-use crate::models::app_config_state::AppConfigState;
 use base64::Engine;
 use scraper::{Html, Selector};
-use std::sync::Mutex;
-use tauri::{State, Url};
+use std::time::Duration;
+use tauri::{AppHandle, Url};
 use tauri_plugin_http::reqwest::{self, redirect, Client, Proxy};
+use tauri_plugin_pinia::ManagerExt;
 use ua_generator::ua::spoof_ua;
 
 #[derive(serde::Serialize)]
@@ -15,24 +15,37 @@ pub struct WebsiteInfo {
 #[tauri::command]
 pub async fn get_website_info(
     url: String,
-    state: State<'_, Mutex<AppConfigState>>,
+    // state: State<'_, Mutex<AppConfigState>>,
+    app: AppHandle,
 ) -> Result<WebsiteInfo, String> {
-    let (proxy, proxy_host, proxy_username, proxy_password) = {
-        let guard = state.lock().unwrap();
-        (
-            guard.proxy,
-            guard.proxy_host.clone(),
-            guard.proxy_username.clone(),
-            guard.proxy_password.clone(),
-        )
-    };
+    // let (proxy, proxy_host, proxy_username, proxy_password) = {
+    //     let guard = state.lock().unwrap();
+    //     (
+    //         guard.proxy,
+    //         guard.proxy_host.clone(),
+    //         guard.proxy_username.clone(),
+    //         guard.proxy_password.clone(),
+    //     )
+    // };
+
+    let proxy = app.pinia().get::<bool>("appConfig", "proxy").unwrap();
+    let proxy_host = app.pinia().get::<String>("appConfig", "proxyHost").unwrap();
+    let proxy_username = app
+        .pinia()
+        .get::<String>("appConfig", "proxyUsername")
+        .unwrap();
+    let proxy_password = app
+        .pinia()
+        .get::<String>("appConfig", "proxyPassword")
+        .unwrap();
 
     // 解析基础URL，用于后续的相对路径处理
     let base_url = Url::parse(&url).map_err(|e| format!("无效的URL: {}", e))?;
 
     let mut client_builder = Client::builder()
         .redirect(redirect::Policy::limited(10))
-        .cookie_store(true);
+        .cookie_store(true)
+        .timeout(Duration::from_secs(10));
 
     if proxy && !proxy_host.is_empty() {
         // 如果有用户名密码 → http://user:pass@host
