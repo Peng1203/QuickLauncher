@@ -31,10 +31,12 @@ export const useAppConfigStore = defineStore(
       proxyUsername: '',
       proxyPassword: '',
 
-      // mainWindowPosition: { x: 0, y: 0 },
       mainWindowPositionX: 0,
       mainWindowPositionY: 0,
       mainWindowGlobalShortcutKey: '',
+
+      settingWindowPositionX: 0,
+      settingWindowPositionY: 0,
 
       language: 'zh-CN',
 
@@ -60,13 +62,14 @@ export const useAppConfigStore = defineStore(
       autoStart: true,
       saveInterval: 1000,
       saveStrategy: 'debounce',
+
       hooks: {
         beforeBackendSync: (state: any) => {
           // 初始化钩子 在rust端之前调用
           console.log(
             `%c beforeBackendSync ----`,
             'color: #fff;background-color: #000;font-size: 18px',
-            state,
+            state
           );
           saveAppConfig(state);
 
@@ -75,5 +78,6 @@ export const useAppConfigStore = defineStore(
       },
       saveOnChange: true,
     },
-  },
+    persist: true,
+  }
 );

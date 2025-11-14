@@ -56,9 +56,9 @@ import ListItem from '@/components/ListItem.vue';
 import OperationLaunchModal from '@/components/OperationLaunchModal.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
+import { useLoadConfig } from '@/composables/useLoadConfig';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
-
 import { EventBus } from '@/utils/eventBus';
 import Sidebar from './components/Sidebar.vue';
 
@@ -89,7 +89,7 @@ currentWindow.onDragDropEvent(async e => {
         hotkey: '',
         hotkey_global: 0,
         keywords: '',
-        start_dir: '',
+        start_dir: fileInfo.start_dir,
         remarks: fileInfo.remarks || '',
         args: fileInfo.args || '',
         run_as_admin: 0,
@@ -145,11 +145,12 @@ watch(
     // eslint-disable-next-line no-useless-return
     if (!val.length) return;
   },
-  { deep: true, immediate: true },
+  { deep: true, immediate: true }
 );
 
-useAppConfigActions().initMainWindowShortcutKey();
+useLoadConfig();
 
+useAppConfigActions().initMainWindowShortcutKey();
 // watchImmediate(
 //   'C:\\Users\\Mayn\\Desktop\\FTTH APP截图',
 //   event => {

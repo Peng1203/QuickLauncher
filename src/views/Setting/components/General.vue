@@ -50,7 +50,7 @@
     <n-form-item>
       <n-checkbox
         v-model:checked="appConfigStore.center"
-        @update-checked="setWindowCenter"
+        @update-checked="setMainWindowCenter"
       >
         居中显示
       </n-checkbox>
@@ -68,6 +68,7 @@
         @keydown.prevent="handleKeydown"
         @blur="handleBlur"
         @focus="shortcutKeyInputStatus = 'success'"
+        @clear="handleClear"
       />
       <!-- @input="handleChange" -->
     </n-form-item>
@@ -110,7 +111,7 @@ const { message } = useNaiveUiApi();
 const { appConfigStore } = useAppConfig();
 const {
   setAlwaysOnTop, //
-  setWindowCenter,
+  setMainWindowCenter,
   setAutoStart,
   registerMainWindowShortcutKey,
 } = useAppConfigActions();
@@ -178,6 +179,11 @@ async function registerShortcutKey(key: string) {
 async function registerPresetShortcutKey(key: string) {
   shortcutKey.value = key;
   await registerShortcutKey(key);
+}
+
+function handleClear() {
+  handleUnRegisterShortcutKey();
+  appConfigStore.mainWindowGlobalShortcutKey = '';
 }
 </script>
 

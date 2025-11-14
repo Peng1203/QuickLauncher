@@ -52,8 +52,10 @@ import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
 import { AppEvent } from '@/constant';
 
-const { appConfigStore } = useAppConfig();
-const { setAlwaysOnTop, setWindowCenter, setAutoStart } = useAppConfigActions();
+const { appConfigStore, settingWindowPositionX, settingWindowPositionY } =
+  useAppConfig();
+const { setAlwaysOnTop, setMainWindowCenter, setAutoStart } =
+  useAppConfigActions();
 
 const cuurrentWindow = getCurrentWebviewWindow();
 
@@ -77,7 +79,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.onTop}
           v-model:checked={appConfigStore.onTop}
           onUpdate-checked={setAlwaysOnTop}
-        />,
+        />
       ),
   },
   {
@@ -92,8 +94,8 @@ const options: DropdownMixedOption[] = [
           label="居中显示"
           default-checked={appConfigStore.center}
           v-model:checked={appConfigStore.center}
-          onUpdate-checked={setWindowCenter}
-        />,
+          onUpdate-checked={setMainWindowCenter}
+        />
       ),
   },
   {
@@ -108,7 +110,7 @@ const options: DropdownMixedOption[] = [
           label="静默启动"
           default-checked={appConfigStore.silentStart}
           v-model:checked={appConfigStore.silentStart}
-        />,
+        />
       ),
   },
   {
@@ -124,7 +126,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.autoStart}
           v-model:checked={appConfigStore.autoStart}
           onUpdate-checked={setAutoStart}
-        />,
+        />
       ),
   },
 
@@ -142,8 +144,15 @@ async function handleToggleSettingWindowVisible() {
   if (visbile) {
     settingWindow?.hide();
   } else {
-    const x = appConfigStore.mainWindowPositionX + 100;
-    const y = appConfigStore.mainWindowPositionY + 50;
+    const x =
+      settingWindowPositionX.value > 0
+        ? settingWindowPositionX.value
+        : appConfigStore.mainWindowPositionX + 100;
+    const y =
+      settingWindowPositionY.value > 0
+        ? settingWindowPositionY.value
+        : appConfigStore.mainWindowPositionY + 50;
+
     // 将设置窗口置于 当前主窗口之间展示
     settingWindow?.setPosition(new LogicalPosition(x, y));
     await settingWindow?.setAlwaysOnTop(appConfigStore.onTop);

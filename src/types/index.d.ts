@@ -64,7 +64,14 @@ declare global {
 
   type FileInfo = Pick<
     LaunchItem,
-    'name' | 'path' | 'icon' | 'type' | 'extension' | 'args' | 'remarks'
+    | 'name'
+    | 'path'
+    | 'icon'
+    | 'type'
+    | 'extension'
+    | 'args'
+    | 'remarks'
+    | 'start_dir'
   > & { size: number };
 
   // 应用配置状态
@@ -98,6 +105,9 @@ declare global {
     mainWindowPositionX: number;
     mainWindowPositionY: number;
     mainWindowGlobalShortcutKey: string;
+
+    settingWindowPositionX: number;
+    settingWindowPositionY: number;
 
     language: LanguageType;
 

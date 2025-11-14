@@ -7,6 +7,7 @@ pub struct FileInfo {
     pub extension: Option<String>,
     pub args: String,
     pub remarks: String,
+    pub start_dir: String,
     // pub created: Option<u64>,
     // pub modified: Option<u64>,
     pub r#type: String, // "file" or "directory" or "url"

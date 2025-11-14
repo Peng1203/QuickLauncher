@@ -673,6 +673,7 @@ function setForm(fileInfo: FileInfo) {
   form.value.extension = fileInfo.extension;
   form.value.args = fileInfo.args;
   form.value.remarks = fileInfo.remarks;
+  form.value.start_dir = fileInfo.start_dir;
 }
 
 async function handleSelectLaunch() {
@@ -746,6 +747,11 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
     if (!e.payload.paths.length) return;
     const path = e.payload.paths[0];
     const fileInfo = await getFileInfo(path);
+    console.log(
+      `%c fileInfo ----`,
+      'color: #fff;background-color: #000;font-size: 18px',
+      fileInfo
+    );
 
     // 当拖进来的启动项 不符合当前类型 则初始表单 并切换到对应的类型
     if (fileInfo.type !== form.value.type) {

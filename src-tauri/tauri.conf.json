@@ -52,7 +52,7 @@
         "center": true,
         "decorations": false,
         "resizable": false,
-        "skipTaskbar": true
+        "skipTaskbar": false
       }
     ],
     "security": {

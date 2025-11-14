@@ -8,8 +8,4 @@
   </n-message-provider>
 </template>
 
-<script setup lang="ts">
-import { useLoadConfig } from './composables/useLoadConfig';
-
-useLoadConfig();
-</script>
+<script setup lang="ts"></script>

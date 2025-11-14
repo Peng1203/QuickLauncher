@@ -27,6 +27,7 @@
           @keydown.prevent="handleKeydown"
           @blur="handleBlur"
           @focus="shortcutKeyInputStatus = 'success'"
+          @clear="handleClear"
         />
         <!-- @input="handleChange" -->
       </n-form-item>
@@ -153,8 +154,6 @@ async function handleUnRegisterShortcutKey() {
 
 async function registerShortcutKey(key: string) {
   // 取消注册之前在的快捷键 并注册新的快捷键
-  await handleUnRegisterShortcutKey();
-
   // 注册快捷键
   await registerSearchShortcutKey(key);
   appConfigStore.searchGlobalShortcutKey = key;
@@ -163,6 +162,11 @@ async function registerShortcutKey(key: string) {
 async function registerPresetShortcutKey(key: string) {
   shortcutKey.value = key;
   await registerShortcutKey(key);
+}
+
+function handleClear() {
+  handleUnRegisterShortcutKey();
+  appConfigStore.searchGlobalShortcutKey = '';
 }
 </script>
 
