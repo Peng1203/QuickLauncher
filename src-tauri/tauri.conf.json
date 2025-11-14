@@ -40,7 +40,7 @@
         "skipTaskbar": true,
         "transparent": true,
         "titleBarStyle": "Overlay",
-        "contentProtected": true
+        "contentProtected": false
       },
       {
         "title": "Setting",
