@@ -3,9 +3,11 @@
 use crate::models::app_config_state::AppConfigState;
 use commands::add_category::add_category;
 use commands::add_launch::add_launch;
+use commands::add_or_update_autocomplete::add_or_update_autocomplete;
 use commands::delete_launch::delete_launch;
 use commands::exe_command::exe_command;
 use commands::get_app_config::get_app_config;
+use commands::get_autocomplete::get_autocomplete;
 use commands::get_category::get_category;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
@@ -85,7 +87,9 @@ pub fn run() {
             set_app_config,
             update_category,
             get_local_icon_base64,
-            get_online_img_base64
+            get_online_img_base64,
+            add_or_update_autocomplete,
+            get_autocomplete
         ])
         .setup(|app| {
             // 初始化数据库连接

@@ -42,6 +42,7 @@ fn create_tables(conn: &Connection) -> Result<()> {
     )?;
 
     // TODO 创建搜索记录表
+    create_autocomplete_table(conn)?;
     // conn.execute(
     //     "CREATE TABLE IF NOT EXISTS search_history (
     //         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,6 +158,36 @@ fn create_launch_items_table(conn: &Connection) -> Result<()> {
             println!("✅ Added missing column '{}' to launch_items", col);
         }
     }
+
+    Ok(())
+}
+
+// 创建自动补全表
+fn create_autocomplete_table(conn: &Connection) -> Result<()> {
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS autocomplete_history (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          query TEXT NOT NULL UNIQUE,
+          usage_count INTEGER DEFAULT 1,
+          last_used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          launch_item_id INTEGER,
+          FOREIGN KEY (launch_item_id) REFERENCES launch_items(id)
+        );",
+        [],
+    )?;
+
+    // 创建索引以提升查询性能
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_autocomplete_query ON autocomplete_history(query);",
+        [],
+    )?;
+
+    // 创建复合索引以优化按使用频率排序的查询
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_autocomplete_usage_count 
+         ON autocomplete_history(usage_count DESC, last_used_at DESC);",
+        [],
+    )?;
 
     Ok(())
 }

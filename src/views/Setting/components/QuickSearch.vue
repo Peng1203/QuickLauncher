@@ -70,25 +70,37 @@
       <!-- TODO -->
       <h3>历史记录</h3>
       <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.searchLostFocusHide"
-          size="small"
-        >
+        <n-checkbox v-model:checked="appConfigStore.showHistory" size="small">
           显示
         </n-checkbox>
         <!-- 排序条件 -->
       </n-form-item>
 
-      <!-- TODO -->
       <h3>自动补全</h3>
       <n-form-item>
         <n-checkbox
-          v-model:checked="appConfigStore.searchLostFocusHide"
+          v-model:checked="appConfigStore.enableAutocomplete"
           size="small"
         >
           启动
         </n-checkbox>
       </n-form-item>
+      <n-form-item>
+        <n-checkbox
+          v-model:checked="appConfigStore.enableAutocompleteFrequencyFilter"
+          size="small"
+        >
+          只使用输入次数 ≥3 的记录作为自动补全候选项
+        </n-checkbox>
+      </n-form-item>
+      <!-- <n-form-item>
+        <n-radio-group v-model:value="appConfigStore.autocompleteMatchMode">
+          <n-space>
+            <n-radio value="prefix">前缀匹配</n-radio>
+            <n-radio value="contains">包含匹配</n-radio>
+          </n-space>
+        </n-radio-group>
+      </n-form-item> -->
     </n-form>
   </div>
 </template>

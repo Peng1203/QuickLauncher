@@ -1,8 +1,10 @@
 pub mod add_category;
 pub mod add_launch;
+pub mod add_or_update_autocomplete;
 pub mod delete_launch;
 pub mod exe_command;
 pub mod get_app_config;
+pub mod get_autocomplete;
 pub mod get_category;
 pub mod get_file_info;
 pub mod get_launch;

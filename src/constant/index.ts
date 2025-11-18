@@ -53,6 +53,9 @@ export enum InvokeMethod {
 
   GET_LOCAL_ICON_BASE64 = 'get_local_icon_base64',
   GET_ONLINE_IMG_BASE64 = 'get_online_img_base64',
+
+  ADD_OR_UPDATE_AUTOCOMPLETE = 'add_or_update_autocomplete',
+  GET_AUTOCOMPLETE = 'get_autocomplete',
 }
 
 export enum AppEvent {
@@ -76,4 +79,9 @@ export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
 export enum WebSearchOpenModel {
   KEY_SPACE = 0,
   COLON_KEY_SPACE = 1,
+}
+
+export enum AutocompleteMatchMode {
+  Prefix = 'prefix',
+  Contains = 'contains',
 }

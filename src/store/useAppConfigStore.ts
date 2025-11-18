@@ -46,6 +46,11 @@ export const useAppConfigStore = defineStore(
 
       webSearchOpenModel: 0,
       webSearchSourceList: [],
+
+      showHistory: false,
+      enableAutocomplete: true,
+      autocompleteMatchMode: 'prefix',
+      enableAutocompleteFrequencyFilter: true,
     }),
     actions: {
       loadConfig(initData: AppConfigState) {

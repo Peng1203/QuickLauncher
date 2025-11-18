@@ -214,3 +214,17 @@ export function getLocalIconBase64(path: string): Promise<string> {
 export function getOnlineImgBase64(url: string): Promise<string> {
   return invoke<string>(InvokeMethod.GET_ONLINE_IMG_BASE64, { url });
 }
+
+export function addOrUpdateAutocompleteRecord(
+  query: string,
+  launchItemId?: number
+): Promise<string> {
+  return invoke<string>(InvokeMethod.ADD_OR_UPDATE_AUTOCOMPLETE, {
+    query,
+    launchItemId,
+  });
+}
+
+export function getAutocomplete(keyword: string) {
+  return invoke<string[]>(InvokeMethod.GET_AUTOCOMPLETE, { keyword });
+}

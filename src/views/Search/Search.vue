@@ -1,35 +1,124 @@
 <template>
   <!-- border border-gray-100 -->
   <!-- TODO 根据启动历史 tab进行智能补全键操作 -->
-  <n-input
-    ref="searchInputRef"
-    v-model:value="keyword"
-    tabindex="-1"
-    type="text"
-    size="medium"
-    class="w-full h-full max-h-[45px] resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-white shadow-none rounded-[10px]"
-    :class="hasResult ? '!border-b-0 !rounded-b-none' : ''"
-    :placeholder="placeholder"
-    @blur="handleBlur"
-    @keydown="handleKeydown"
-  >
-    <!-- @keydown.up -->
-    <template #prefix>
-      <!-- {{ keyword }} -->
-      <!-- {{ selectedIndex }} -->
-      <!-- {{ selectedIndex }}--- {{ resultList.length }}--{{ hasResult }} -->
-      <template v-if="isWebSearch">
-        <n-avatar
-          v-if="searchSourch!.icon"
-          class="!bg-transparent"
-          :size="22"
-          :src="searchSourch!.icon"
-        />
-        <n-icon v-else :component="GlobeOutline" size="22" />
+  <label class="input-container max-h-[45px]">
+    <n-input
+      ref="searchInputRef"
+      v-model:value="keyword"
+      tabindex="-1"
+      type="text"
+      size="medium"
+      class="w-full h-full max-h-[45px] resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-white shadow-none rounded-[10px]"
+      :class="hasResult ? '!border-b-0 !rounded-b-none' : ''"
+      :placeholder="placeholder"
+      @blur="handleBlur"
+      @keydown="handleKeydown"
+    >
+      <!-- @keydown.up -->
+      <template #prefix>
+        <!-- {{ keyword }} -->
+        <!-- {{ selectedIndex }} -->
+        <!-- {{ selectedIndex }}--- {{ resultList.length }}--{{ hasResult }} -->
+        <template v-if="isWebSearch">
+          <n-avatar
+            v-if="searchSourch!.icon"
+            class="!bg-transparent"
+            :size="22"
+            :src="searchSourch!.icon"
+          />
+          <n-icon v-else :component="GlobeOutline" size="22" />
+        </template>
+        <n-icon v-else :component="SearchOutline" size="22" />
       </template>
-      <n-icon v-else :component="SearchOutline" size="22" />
-    </template>
-  </n-input>
+    </n-input>
+    <!-- v-show="keyword.length" && currentAutocompleteSuggestion !== keyword -->
+    <div v-if="autocompleteList.length" class="suggestion-con">
+      <span class="suggestion-text">
+        {{ currentAutocompleteSuggestion }}
+      </span>
+
+      <div class="flex items-center gap-5 mr-3">
+        <span
+          v-show="!(autocompleteList.length === 1)"
+          class="flex items-center"
+        >
+          <svg
+            width="40"
+            height="24"
+            viewBox="0 0 40 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <!-- 背景矩形 -->
+            <rect
+              x="0"
+              y="0"
+              width="40"
+              height="24"
+              rx="4"
+              ry="4"
+              fill="#f9f9f9"
+              stroke="#ccc"
+              stroke-width="1"
+            />
+
+            <!-- Tab 文本 -->
+            <text
+              x="50%"
+              y="50%"
+              alignment-baseline="middle"
+              text-anchor="middle"
+              font-size="12"
+              font-family="Arial, sans-serif"
+              fill="#000"
+            >
+              Tab
+            </text>
+          </svg>
+          <span class="text-xs ml-1">切换</span>
+        </span>
+
+        <span
+          v-show="currentAutocompleteSuggestion !== keyword"
+          class="flex items-center"
+        >
+          <svg
+            width="40"
+            height="24"
+            viewBox="0 0 40 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <!-- 背景矩形 -->
+            <rect
+              x="0"
+              y="0"
+              width="40"
+              height="24"
+              rx="4"
+              ry="4"
+              fill="#f9f9f9"
+              stroke="#ccc"
+              stroke-width="1"
+            />
+
+            <!-- 横线（箭杆） -->
+            <line
+              x1="10"
+              y1="12"
+              x2="28"
+              y2="12"
+              stroke="#333"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+
+            <!-- 右箭头三角 -->
+            <polygon points="26,8 36,12 26,16" fill="#333" />
+          </svg>
+          <span class="text-xs ml-1">补全</span>
+        </span>
+      </div>
+    </div>
+  </label>
 
   <ul
     v-if="hasResult"
@@ -88,7 +177,12 @@ import {
 import { fetch } from '@tauri-apps/plugin-http';
 import { GlobeOutline, SearchOutline } from '@vicons/ionicons5';
 import { nextTick, ref } from 'vue';
-import { exeCommand, searchLaunch } from '@/api';
+import {
+  addOrUpdateAutocompleteRecord,
+  exeCommand,
+  getAutocomplete,
+  searchLaunch,
+} from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
 import { useLaunchAction } from '@/composables/useLaunchAction';
@@ -119,6 +213,19 @@ const selectedIndex = ref(0);
 const searchModel = ref<0 | 1>(0);
 const isWebSearch = computed(() => searchModel.value === 1);
 
+const autocompleteList = ref<string[]>([]);
+const autocompleteIndex = ref<number>(0);
+const currentAutocompleteSuggestion = computed(
+  () => autocompleteList.value[autocompleteIndex.value]
+);
+
+function handleChangeCurrentAutocomplete() {
+  if (autocompleteList.value.length === 1) return;
+  else if (autocompleteList.value.length - 1 === autocompleteIndex.value)
+    return (autocompleteIndex.value = 0);
+  autocompleteIndex.value++;
+}
+
 function handleKeydown(e: KeyboardEvent) {
   const reultCount = resultList.value.length;
   const minIndex = 0;
@@ -137,6 +244,10 @@ function handleKeydown(e: KeyboardEvent) {
       !keyword.value.length &&
       handleToggleSearchModel(0);
       break;
+    case 9: // Tab 按键 切换补全建议
+      if (autocompleteList.value.length) handleChangeCurrentAutocomplete();
+      e.preventDefault();
+      break;
     case 13:
       handleEnter();
       break;
@@ -147,11 +258,15 @@ function handleKeydown(e: KeyboardEvent) {
     case 32: // 空格键盘 判断是否呼出网络搜索
       !isWebSearch.value && handleOpenWebSearch();
       break;
-    case 38:
+    case 38: // 上移动按键
       if (selectedIndex.value === minIndex && reultCount)
         selectedIndex.value = reultCount - 1;
       else selectedIndex.value > 0 && selectedIndex.value--;
       e.preventDefault();
+      break;
+    case 39: // 补全提示 补全关键字
+      if (autocompleteList.value.length)
+        keyword.value = currentAutocompleteSuggestion.value;
       break;
     case 40:
       if (selectedIndex.value === maxIndex && reultCount)
@@ -166,8 +281,6 @@ const searchSourch = ref<WebSearchSource>();
 async function handleOpenWebSearch() {
   setTimeout(() => {
     if (!keyword.value.trim()) return;
-    console.log(' ------', appConfigStore.webSearchOpenModel, keyword.value);
-
     let flag = false;
     let key = '';
     if (appConfigStore.webSearchOpenModel === WebSearchOpenModel.KEY_SPACE) {
@@ -179,23 +292,12 @@ async function handleOpenWebSearch() {
       if (keyword.value.trim().substring(0, 1) === ':') flag = true;
       key = keyword.value.trim().substring(1, keyword.value.trim().length);
     }
-    console.log(
-      `%c flag ----`,
-      'color: #fff;background-color: #000;font-size: 18px',
-      flag,
-      appConfigStore.webSearchSourceList,
-    );
     if (!flag) return;
 
     const searchSource = appConfigStore.webSearchSourceList.find(
-      ({ keywords }) => keywords === key,
+      ({ keywords }) => keywords === key
     );
 
-    console.log(
-      `%c searchSource ----`,
-      'color: #fff;background-color: #000;font-size: 18px',
-      searchSource,
-    );
     if (!searchSource) return;
     searchSourch.value = searchSource;
     nextTick(() => {
@@ -210,6 +312,8 @@ async function handleEnter() {
   // 根据搜索模式调用不同的执行接口
   if (!isWebSearch.value) await handleEnterLaunch();
   else await handleEnterWebSearch();
+
+  // 添加不全记录
 
   handleClose();
 }
@@ -230,12 +334,15 @@ async function handleEnterLaunch() {
    */
   if (!resultList.value.length) {
     await exeCommand(keyword.value);
+    addOrUpdateAutocompleteRecord(keyword.value);
   } else {
     const item = resultList.value[selectedIndex.value];
     if (!item) return;
     // 执行启动
     await runLaunch(item.id);
     // TODO 根据返回结果进行统计 对应次数
+
+    addOrUpdateAutocompleteRecord(keyword.value, item.id);
   }
 }
 
@@ -245,7 +352,7 @@ async function handleEnterWebSearch() {
   const keywordStr =
     searchSourch.value?.searchApi?.replace(
       '{w}',
-      item ? item.name : keyword.value,
+      item ? item.name : keyword.value
     ) || '';
 
   await exeCommand(keywordStr!);
@@ -285,7 +392,7 @@ async function searchSuggestion(): Promise<SearchLauncItem[]> {
       'fetch',
       'searchSourch',
       'keyword',
-      `"use strict"; return (async () => { ${userCode} })();`,
+      `"use strict"; return (async () => { ${userCode} })();`
     );
     const result = await fn(fetch, searchSourch.value, keyword.value);
     return result;
@@ -342,31 +449,52 @@ const searchWindowHeight = computed(() => {
   if (!resultList.value.length) return SEARCH_INPUT_HEIGHT;
 
   // 结果列表总高度 + 1像素的的顶部边框高度
-  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT + 1;
+  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT;
 
   return resultsHeight + SEARCH_INPUT_HEIGHT >
     appConfigStore.searchWindowMaxHeight
     ? appConfigStore.searchWindowMaxHeight
     : resultsHeight + SEARCH_INPUT_HEIGHT + 1;
 });
-
+let searchRequestId = 0;
 watch(
   () => keyword.value,
   async keyword => {
+    const currentId = ++searchRequestId;
+
+    autocompleteIndex.value = 0;
+    autocompleteList.value = [];
+
     if (!keyword.trim()) {
       selectedIndex.value = 0;
       resultList.value = [];
-    } else {
-      // 根据当前搜索模式 调用不同的搜索接口
-      let launchs: SearchLauncItem[] = [];
-      if (isWebSearch.value) launchs = await searchSuggestion();
-      else launchs = await searchLaunch(keyword);
-      resultList.value = launchs;
+      return current.setSize(
+        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value)
+      );
     }
-    current.setSize(
-      new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value),
-    );
-  },
+
+    // 根据当前搜索模式 调用不同的搜索接口
+    let launchs: SearchLauncItem[] = [];
+    if (isWebSearch.value) {
+      launchs = await searchSuggestion();
+    } else {
+      if (appConfigStore.enableAutocomplete) {
+        getAutocomplete(keyword).then(res => {
+          if (currentId === searchRequestId) {
+            autocompleteList.value = res;
+          }
+        });
+      }
+      launchs = await searchLaunch(keyword);
+    }
+    resultList.value = launchs;
+
+    if (currentId === searchRequestId) {
+      current.setSize(
+        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value)
+      );
+    }
+  }
 );
 
 function handleBlur() {
@@ -384,7 +512,7 @@ EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 /* ::v-deep(.n-input) { */
 .n-input {
   /* 移除移入移出是边框变化 */
@@ -400,7 +528,7 @@ EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
 
   --n-border-focus: 0px !important;
 
-  border-radius: 10px;
+  border-radius: 5px;
   border: none !important;
   /* border-color: !important; */
 }
@@ -409,11 +537,40 @@ EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
   font-size: 14px !important;
   margin-left: 5px;
 }
+.input-container {
+  width: 100%;
+  height: 45px;
+  position: relative;
+  display: block;
+}
+
+.suggestion-con {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 45px;
+  font-size: 20px;
+  opacity: 0.3;
+  cursor: text;
+  /* z-index: -1; */
+  .suggestion-text {
+    // position: absolute;
+    // left: 38px;
+    // top: 7px;
+    margin-left: 38px;
+    width: fit-content;
+  }
+}
 
 .search-container {
   /* max-height: calc(v-bind(searchWindowHeight + 'px') - v-bind(SEARCH_INPUT_HEIGHT + 'px')); */
-  border-top: 0.5px solid;
   box-sizing: border-box;
+  border-top: 0.5px solid;
+  border-radius: 0 0 5px 5px;
 }
 
 ul:focus-visible {
