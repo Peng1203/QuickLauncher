@@ -76,6 +76,8 @@ declare global {
 
   // 应用配置状态
   interface AppConfigState {
+    /** 保存flag */
+    saveFlag: boolean;
     /** 静默启动 */
     silentStart: boolean;
     /** 开机自启 */

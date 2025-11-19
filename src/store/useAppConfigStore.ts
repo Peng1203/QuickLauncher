@@ -12,6 +12,7 @@ export const useAppConfigStore = defineStore(
   //
   {
     state: (): AppConfigState => ({
+      saveFlag: true,
       silentStart: true,
       autoStart: false,
       onTop: true,

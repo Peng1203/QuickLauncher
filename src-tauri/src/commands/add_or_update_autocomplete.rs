@@ -3,7 +3,6 @@ use rusqlite::{params, Result};
 
 #[tauri::command]
 pub fn add_or_update_autocomplete(query: &str, launch_item_id: Option<i32>) -> Result<(), String> {
-    dbg!(&query, &launch_item_id);
     let conn = db::connection::get_conn().lock().unwrap();
 
     // 先尝试更新已有记录

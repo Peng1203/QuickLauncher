@@ -3,7 +3,11 @@ import { useAppConfig } from './useAppConfig';
 import { useAppConfigActions } from './useAppConfigActions';
 
 export async function useLoadConfig() {
-  const { autoStart } = useAppConfig();
+  const { autoStart, saveFlag } = useAppConfig();
+  // 初始化加载时立即保存一遍数据 防止后端获取时 拿不到新添加的属性
+  // await $tauri.saveAllNow();
+  setTimeout(() => (saveFlag.value = !saveFlag.value), 100);
+
   const {
     setAlwaysOnTop,
     setMainWindowCenter,
