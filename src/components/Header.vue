@@ -141,7 +141,11 @@ async function handleToggleSettingWindowVisible() {
   const settingWindow = await WebviewWindow.getByLabel('setting');
 
   const visbile = await settingWindow?.isVisible();
-  if (visbile) {
+  const focus = await settingWindow?.isFocused();
+
+  if (visbile && !focus) {
+    settingWindow?.setFocus();
+  } else if (visbile && focus) {
     settingWindow?.hide();
   } else {
     const x =
@@ -157,6 +161,7 @@ async function handleToggleSettingWindowVisible() {
     settingWindow?.setPosition(new LogicalPosition(x, y));
     await settingWindow?.setAlwaysOnTop(appConfigStore.onTop);
     settingWindow?.show();
+    settingWindow?.setFocus();
   }
 }
 

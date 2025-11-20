@@ -78,11 +78,20 @@ export function useAppConfigActions() {
     if (!shortcutKey.trim()) return;
     await register(shortcutKey, async e => {
       const mainWindow = await getMainWindow();
-
       const visible = await mainWindow?.isVisible();
-
+      const focus = await mainWindow?.isFocused();
       if (e.state === 'Released') {
-        visible ? mainWindow?.hide() : mainWindow?.show();
+        if (visible && !focus) {
+          // 当窗口可见时 但不是在最顶层
+          mainWindow?.setFocus();
+        } else if (visible && focus) {
+          // 当窗口可见是 且在最顶层时
+          mainWindow?.hide();
+        } else {
+          // 当窗口不可见时
+          mainWindow?.setFocus();
+          mainWindow?.show();
+        }
       }
     });
   };

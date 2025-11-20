@@ -21,8 +21,15 @@ pub fn create_tray(app: &App) {
             } => {
                 let app = tray.app_handle();
                 if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
+                    let visible = window.is_visible().unwrap();
+                    // let focus = window.is_focused().unwrap();
+
+                    if visible {
+                        let _ = window.hide();
+                    } else {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
                 } else {
                     let main_window_position_x = app
                         .pinia()
@@ -97,6 +104,6 @@ pub fn create_tray(app: &App) {
             }
             _ => {}
         })
-        .show_menu_on_left_click(true)
+        .show_menu_on_left_click(false)
         .build(app);
 }
