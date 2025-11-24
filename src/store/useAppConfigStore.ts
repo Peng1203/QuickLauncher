@@ -45,6 +45,7 @@ export const useAppConfigStore = defineStore(
       searchLostFocusHide: false,
       searchHideAfterOpen: true,
 
+      enableWebSearch: true,
       webSearchOpenModel: 0,
       webSearchSourceList: [],
 
@@ -52,6 +53,11 @@ export const useAppConfigStore = defineStore(
       enableAutocomplete: true,
       autocompleteMatchMode: 'prefix',
       enableAutocompleteFrequencyFilter: true,
+
+      enableTranslation: true,
+      BDTranslationAppid: '',
+      BDTranslationKey: '',
+      BDTranslationTo: 'en',
     }),
     actions: {
       loadConfig(initData: AppConfigState) {

@@ -8,13 +8,21 @@
       :label-width="160"
       :show-feedback="false"
     >
+      <h3>启动</h3>
+      <n-form-item>
+        <n-checkbox
+          v-model:checked="appConfigStore.enableWebSearch"
+          size="small"
+        >
+          启用网络搜索
+        </n-checkbox>
+      </n-form-item>
       <h3>呼出方式</h3>
       <n-form-item>
         <div class="w-full">
           <!-- @ts-ignore -->
           <n-select
             v-model:value="appConfigStore.webSearchOpenModel"
-            class="!w-[90%]"
             :options="(options as any)"
           />
           <p class="text-[12px] leading-3.5 text-gray-500 mt-1">
@@ -41,7 +49,7 @@
         <n-icon
           title="重置搜索源"
           size="18"
-          class="cursor-pointer ml-2"
+          class="cursor-pointer mr-2"
           @click="handleResetWebSource"
         >
           <RefreshOutline />
@@ -435,6 +443,10 @@ function formInit() {
 </script>
 
 <style scoped>
+.n-form-item {
+  width: 90%;
+  padding-left: 8px;
+}
 ::v-deep(.n-data-table .n-data-table-td) {
   background-color: initial !important;
 }

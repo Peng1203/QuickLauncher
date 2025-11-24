@@ -120,6 +120,7 @@ declare global {
     /** 打开后隐藏 */
     searchHideAfterOpen: boolean;
 
+    enableWebSearch: boolean;
     /** 网络搜索打开呼出方式 0 */
     webSearchOpenModel: WebSearchOpenModel;
     webSearchSourceList: WebSearchSource[];
@@ -129,6 +130,13 @@ declare global {
     autocompleteMatchMode: 'prefix' | 'contains';
     // 是否过滤掉使用次数过低的历史记录，仅保留高频记录用于自动补全
     enableAutocompleteFrequencyFilter: boolean;
+
+    enableTranslation: boolean;
+    /** 百度翻译api app id */
+    BDTranslationAppid: string;
+    /** 百度翻译api 密钥 */
+    BDTranslationKey: string;
+    BDTranslationTo: string;
   }
 
   type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja';

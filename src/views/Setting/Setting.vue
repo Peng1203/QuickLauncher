@@ -42,6 +42,7 @@ import { useAppConfig } from '@/composables/useAppConfig';
 import GeneralPane from './components/General.vue';
 import NetworkPane from './components/Network.vue';
 import QuickSearchPane from './components/QuickSearch.vue';
+import Translation from './components/Translation.vue';
 import WebSearchPane from './components/WebSearch.vue';
 
 const { appConfigStore } = useAppConfig();
@@ -51,10 +52,11 @@ const settingTabs = [
   { label: '常 规', value: 'general', contentComponent: GeneralPane },
   { label: '快速搜索', value: 'q_search', contentComponent: QuickSearchPane },
   { label: '网络搜索', value: 'n_search', contentComponent: WebSearchPane },
+  { label: '翻 译', value: 'translation', contentComponent: Translation },
   { label: '网 络', value: 'network', contentComponent: NetworkPane },
 ];
 
-const activeTab = ref(settingTabs[0].value);
+const activeTab = ref(settingTabs[3].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 

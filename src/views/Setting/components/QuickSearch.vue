@@ -11,7 +11,7 @@
       <h3>启动</h3>
       <n-form-item>
         <n-checkbox v-model:checked="appConfigStore.enableSearch" size="small">
-          启动快速搜索
+          启用快速搜索
         </n-checkbox>
       </n-form-item>
 
