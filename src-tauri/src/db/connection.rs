@@ -170,8 +170,7 @@ fn create_autocomplete_table(conn: &Connection) -> Result<()> {
           query TEXT NOT NULL UNIQUE,
           usage_count INTEGER DEFAULT 1,
           last_used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          launch_item_id INTEGER,
-          FOREIGN KEY (launch_item_id) REFERENCES launch_items(id)
+          launch_item_id INTEGER
         );",
         [],
     )?;
