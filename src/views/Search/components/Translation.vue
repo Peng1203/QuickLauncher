@@ -50,7 +50,7 @@
 
     <div class="suggestion-con">
       <div class="flex items-center gap-5 mr-3">
-        <span class="flex items-center">
+        <span class="flex items-center select-none">
           <svg
             width="40"
             height="24"
@@ -86,7 +86,7 @@
           <span class="text-xs ml-1">切换翻译语言</span>
         </span>
 
-        <span class="flex items-center">
+        <span class="flex items-center select-none">
           <svg
             width="40"
             height="24"

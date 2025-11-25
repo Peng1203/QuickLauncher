@@ -46,7 +46,7 @@
         <div class="flex items-center gap-5 mr-3">
           <span
             v-show="!(autocompleteList.length === 1)"
-            class="flex items-center"
+            class="flex items-center select-none"
           >
             <svg
               width="40"
@@ -85,7 +85,7 @@
 
           <span
             v-show="currentAutocompleteSuggestion !== keyword"
-            class="flex items-center"
+            class="flex items-center select-none"
           >
             <svg
               width="40"
