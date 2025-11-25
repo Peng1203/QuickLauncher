@@ -24,7 +24,7 @@ use commands::set_app_config::set_app_config;
 use commands::update_category::update_category;
 use commands::update_launch::update_launch;
 use std::sync::Mutex;
-use tauri::Manager;
+use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 
 use tray::create_tray;
@@ -92,6 +92,25 @@ pub fn run() {
             get_autocomplete
         ])
         .setup(|app| {
+            let main_window = app.get_webview_window("main").unwrap();
+            let search_window = app.get_webview_window("search").unwrap();
+            let setting_window = app.get_webview_window("setting").unwrap();
+
+            main_window.on_window_event(|event| {
+                if let WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                }
+            });
+            search_window.on_window_event(|event| {
+                if let WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                }
+            });
+            setting_window.on_window_event(|event| {
+                if let WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                }
+            });
             // 初始化数据库连接
             // let app_data_dir = app.path().app_data_dir()?;
 
