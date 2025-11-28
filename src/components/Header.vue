@@ -1,7 +1,7 @@
 <template>
-  <header
+  <n-layout-header
     :data-tauri-drag-region="!appConfigStore.center"
-    class="fixed top-0 left-0 right-0 h-8 bg-white flex items-center justify-between px-2 border-b-1 border-gray-200 z-10"
+    class="h-8 bg-white flex items-center justify-between px-2 border-b-1 border-gray-200 z-10"
   >
     <span class="text-gray-700">Quick Launcher</span>
     <!-- 右侧操作 -->
@@ -36,7 +36,7 @@
         <CloseOutline />
       </n-icon>
     </div>
-  </header>
+  </n-layout-header>
 </template>
 
 <script setup lang="tsx">

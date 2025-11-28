@@ -53,6 +53,24 @@
         "decorations": false,
         "resizable": false,
         "skipTaskbar": false
+      },
+      {
+        "title": "TransparentDrag",
+        "label": "transparentDrag",
+        "width": 600,
+        "height": 560,
+        "url": "/#/transparentDrag",
+        "skipTaskbar": true,
+        "transparent": true,
+        "decorations": false,
+        "resizable": false,
+        "alwaysOnTop": true,
+        "shadow": false,
+        "focus": false,
+        "visible": false,
+        "backgroundColor": null,
+        "dragDropEnabled": true,
+        "contentProtected": true
       }
     ],
     "security": {

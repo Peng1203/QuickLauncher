@@ -1,7 +1,12 @@
 <template>
-  <aside
+  <!-- !w-48 -->
+  <n-layout-sider
+    collapse-mode="width"
+    :collapsed-width="120"
+    :width="192"
+    :show-collapsed-content="true"
     tabindex="-1"
-    class="fixed top-8 left-0 bottom-0 w-48 bg-white border-r border-gray-200 flex flex-col py-3 px-2 z-10"
+    class="w-48 bg-white border-r border-gray-200 flex flex-col py-3 px-2 z-10"
     @contextmenu.prevent.stop="handleShowCategoryContextMenu"
   >
     <nav class="flex-1 flex flex-col gap-1">
@@ -38,7 +43,7 @@
       </button>
       <!-- <button @click="unregisterAll()" >取消所有快捷键</button> -->
     </nav>
-  </aside>
+  </n-layout-sider>
 
   <!-- 新建/编辑 分类菜单 -->
   <CategoryContextMenu
@@ -79,7 +84,7 @@ function handleOpenAddCategory() {
   console.log(
     `%c 121 ----`,
     'color: #fff;background-color: #000;font-size: 18px',
-    121,
+    121
   );
 }
 

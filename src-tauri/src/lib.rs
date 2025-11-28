@@ -95,6 +95,7 @@ pub fn run() {
             let main_window = app.get_webview_window("main").unwrap();
             let search_window = app.get_webview_window("search").unwrap();
             let setting_window = app.get_webview_window("setting").unwrap();
+            let transparent_drag_window = app.get_webview_window("transparentDrag").unwrap();
 
             main_window.on_window_event(|event| {
                 if let WindowEvent::CloseRequested { api, .. } = event {
@@ -107,6 +108,11 @@ pub fn run() {
                 }
             });
             setting_window.on_window_event(|event| {
+                if let WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                }
+            });
+            transparent_drag_window.on_window_event(|event| {
                 if let WindowEvent::CloseRequested { api, .. } = event {
                     api.prevent_close();
                 }
@@ -127,6 +133,9 @@ pub fn run() {
                 // 只有开发模式下执行
                 if let Some(main_window) = app.get_webview_window("main") {
                     main_window.open_devtools();
+                }
+                if let Some(transparent_drag_window) = app.get_webview_window("transparentDrag") {
+                    transparent_drag_window.open_devtools();
                 }
             }
 

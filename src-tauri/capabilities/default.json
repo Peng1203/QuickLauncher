@@ -13,6 +13,7 @@
     "core:window:allow-set-always-on-top",
     "core:window:allow-center",
     "core:window:allow-set-position",
+    "core:window:allow-set-ignore-cursor-events",
 
     "opener:default",
 

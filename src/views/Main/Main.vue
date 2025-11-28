@@ -1,19 +1,29 @@
 <template>
-  <div class="h-screen bg-white">
-    <!-- 顶部固定自定义拖拽导航栏 -->
+  <n-layout class="w-full h-full">
     <Header />
 
-    <!-- 左侧分类栏 -->
-    <Sidebar />
+    <n-layout
+      has-sider
+      style="height: calc(600px - 32px)"
+      class="container-layout"
+    >
+      <Sidebar />
 
-    <!-- 右侧启动项区域 -->
-    <main tabindex="-1" class="pl-48 pt-8 h-screen overflow-auto">
-      <div
-        class="w-full h-full max-w-5xl mx-auto p-1"
-        @contextmenu.prevent.stop="handleShowListContextMenu"
+      <n-layout-content
+        ref="launchListContainerRef"
+        tabindex="-1"
+        class="overflow-auto m-1"
       >
         <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
-        <div v-if="launchData.length" class="grid grid-cols-6">
+        <VueDraggable
+          v-if="launchData.length"
+          v-model="launchData"
+          :animation="150"
+          ghost-class="ghost"
+          group="people"
+          class="grid grid-cols-6 draggable"
+          @contextmenu.prevent.stop="handleShowListContextMenu"
+        >
           <ListItem
             v-for="item in launchData"
             :key="item.id"
@@ -22,7 +32,7 @@
             :icon="item.icon!"
             :name="item.name"
           />
-        </div>
+        </VueDraggable>
 
         <div
           v-else
@@ -30,8 +40,8 @@
         >
           拖动文件到该区域
         </div>
-      </div>
-    </main>
+      </n-layout-content>
+    </n-layout>
 
     <!-- 启动项列表 空白处右键菜单 -->
     <ListContextMenu
@@ -43,13 +53,18 @@
     <OperationLaunchModal v-model="launchModalStatus" />
 
     <OperationCategoryModal v-model="categoryModalStatus" />
-  </div>
+  </n-layout>
 </template>
 
 <script setup lang="ts">
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { LogicalPosition } from '@tauri-apps/api/dpi';
+import {
+  getCurrentWebviewWindow,
+  WebviewWindow,
+} from '@tauri-apps/api/webviewWindow';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
+import { VueDraggable } from 'vue-draggable-plus';
 import { addLaunch, getFileInfo } from '@/api';
 import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
@@ -71,6 +86,7 @@ const launchModalStatus = ref(false);
 const categoryModalStatus = ref(false);
 
 const currentWindow = getCurrentWebviewWindow();
+const transparentDragWindow = ref<WebviewWindow | null>(null);
 
 currentWindow.onDragDropEvent(async e => {
   // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
@@ -165,4 +181,49 @@ useAppConfigActions().initMainWindowShortcutKey();
 //     appConfigStore[key] = val.payload[key]
 //   }
 // })
+
+const launchListContainerRef = useTemplateRef('launchListContainerRef');
+function showTransparentDragWindow() {
+  transparentDragWindow.value?.show();
+  transparentDragWindow.value?.setPosition(
+    new LogicalPosition(
+      appConfigStore.mainWindowPositionX + 192 + 12,
+      appConfigStore.mainWindowPositionY + 32 + 4
+    )
+  );
+}
+
+onMounted(async () => {
+  transparentDragWindow.value = await WebviewWindow.getByLabel(
+    'transparentDrag'
+  );
+
+  // launchListContainerRef.value?.$el?.addEventListener(
+  //   'dragenter',
+  //   showTransparentDragWindow
+  // );
+
+  window.addEventListener('dragover', e => {
+    e.preventDefault();
+  });
+
+  window.addEventListener('drop', e => {
+    e.preventDefault();
+  });
+});
+
+onUnmounted(() => {
+  launchListContainerRef.value?.$el?.removeEventListener(
+    'dragenter',
+    showTransparentDragWindow
+  );
+});
 </script>
+
+<style scoped lang="scss">
+.container-layout {
+  ::v-deep(.n-layout-scroll-container:has(> aside)) {
+    overflow-y: hidden !important;
+  }
+}
+</style>
