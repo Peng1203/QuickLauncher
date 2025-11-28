@@ -407,7 +407,7 @@ async function handleEnterWebSearch() {
   const keywordStr =
     searchSourch.value?.searchApi?.replace(
       '{w}',
-      item ? item.name : keyword.value
+      encodeURI(item ? item.name : keyword.value)
     ) || '';
 
   await exeCommand(keywordStr!);
