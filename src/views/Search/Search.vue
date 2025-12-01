@@ -141,7 +141,7 @@
       /> -->
         <li
           :ref="el => (itemRefs[index] = el as any)"
-          class="flex items-center h-[48px] px-4 py-2 cursor-pointer"
+          class="flex items-center justify-between h-[48px] px-4 py-2 cursor-pointer"
           :class="[
             index === selectedIndex ? 'bg-[#f5f5f5]' : 'hover:bg-gray-100',
           ]"
@@ -153,19 +153,44 @@
           "
         >
           <!-- @mouseenter="selectedIndex = index" -->
-          <img
-            v-if="!isWebSearchModel"
-            :src="item.icon || ''"
-            alt="icon"
-            class="!m-2 object-contain pointer-events-none w-8"
-          />
+          <div class="flex items-center">
+            <img
+              v-if="!isWebSearchModel"
+              :src="item.icon || ''"
+              alt="icon"
+              class="!m-2 object-contain pointer-events-none w-8"
+            />
 
-          <span class="!ml-0.5">{{ item.name }}</span>
+            <span class="!ml-0.5">{{ item.name }}</span>
+          </div>
 
           <!-- TODO 个性化控制 分类是否显示 -->
-          <span v-if="item.category_name" class="!ml-3">
+          <!-- <span v-if="item.category_name" class="!ml-3">
             （{{ item.category_name }}）
-          </span>
+          </span> -->
+
+          <div
+            v-if="appConfigStore.showCategory"
+            class="flex items-end space-x-1"
+          >
+            <n-tag
+              v-if="item.category_name"
+              bordered
+              size="small"
+              type="default"
+            >
+              {{ item.category_name }}
+            </n-tag>
+
+            <n-tag
+              v-if="appConfigStore.showSubCategory && item.subcategory_name"
+              bordered
+              size="tiny"
+              type="default"
+            >
+              {{ item.subcategory_name }}
+            </n-tag>
+          </div>
         </li>
       </template>
     </ul>
@@ -219,7 +244,16 @@ const itemRefs = ref<HTMLElement[]>([]);
 // 选中启动光标
 const selectedIndex = ref(0);
 
-const searchModel = ref<0 | 1 | 2>(0);
+const SEARCH_MODEL = {
+  DEFAULT_MODEL: 0,
+  SEARCH_MODEL: 1,
+  TRANSLATION_MODEL: 2,
+} as const;
+
+type SearchModelType = (typeof SEARCH_MODEL)[keyof typeof SEARCH_MODEL];
+
+const searchModel = ref<SearchModelType>(0);
+const isWebDefaultModel = computed(() => searchModel.value === 0);
 const isWebSearchModel = computed(() => searchModel.value === 1);
 const isTranslationModel = computed(() => searchModel.value === 2);
 
@@ -288,7 +322,7 @@ function handleKeydown(e: KeyboardEvent) {
         ) {
           translationRef.value?.handleCloseChangeTranslationLanguage();
         } else {
-          handleToggleSearchModel(0);
+          handleToggleSearchModel(SEARCH_MODEL.DEFAULT_MODEL);
           // 处于翻译模式下需要多进行一次判断 判断是否处于语言切换操作中
           translationRef.value?.handleClose();
           nextTick(() => {
@@ -296,11 +330,17 @@ function handleKeydown(e: KeyboardEvent) {
           });
         }
       } else {
-        handleClose();
+        handleClose(true);
       }
       break;
     case 32: // 空格键盘 判断是否呼出网络搜索
-      if (spaceCounter.value === 3) handleToggleSearchModel(2);
+      if (
+        isWebDefaultModel.value &&
+        appConfigStore.enableTranslation &&
+        spaceCounter.value === 3
+      ) {
+        handleToggleSearchModel(SEARCH_MODEL.TRANSLATION_MODEL);
+      }
       // prettier-ignore
       appConfigStore.enableWebSearch && !isWebSearchModel.value && handleOpenWebSearch();
       break;
@@ -357,7 +397,7 @@ async function handleOpenWebSearch() {
     if (!searchSource) return;
     searchSourch.value = searchSource;
     nextTick(() => {
-      handleToggleSearchModel(1);
+      handleToggleSearchModel(SEARCH_MODEL.SEARCH_MODEL);
     });
   }, 50);
 }
@@ -415,7 +455,7 @@ async function handleEnterWebSearch() {
 
 const tranStr = ref<string>('');
 
-function handleToggleSearchModel(newModel: 0 | 1 | 2) {
+function handleToggleSearchModel(newModel: SearchModelType) {
   // 当切换的为 翻译模式 记录当前输入框字符串
   if (newModel === 2) tranStr.value = keyword.value;
   searchModel.value = newModel;
@@ -461,7 +501,7 @@ async function searchSuggestion(): Promise<SearchLauncItem[]> {
   return result;
 }
 
-function handleClose() {
+function handleClose(isEscClose: boolean = false) {
   searchModel.value = 0;
   // 清空输入框
   keyword.value = '';
@@ -470,7 +510,9 @@ function handleClose() {
   placeholder.value = placeTip;
   // 隐藏搜索窗口
   // current.setSize(new LogicalSize(600, 45))
-  current.hide();
+  if (appConfigStore.searchHideAfterOpen || isEscClose) {
+    current.hide();
+  }
 }
 
 async function handleShow() {

@@ -90,6 +90,16 @@
       </n-button>
     </div>
 
+    <h3>操作</h3>
+    <n-form-item>
+      <n-checkbox
+        v-model:checked="appConfigStore.confirmBeforeDelete"
+        size="small"
+      >
+        删除启动项二次确认
+      </n-checkbox>
+    </n-form-item>
+
     <!-- TODO 勿扰模式 -->
   </n-form>
 </template>

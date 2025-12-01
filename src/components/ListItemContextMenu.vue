@@ -30,6 +30,7 @@ import { ask } from '@tauri-apps/plugin-dialog';
 import { useMessage } from 'naive-ui';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { deleteLaunch, openPath, runLaunchAsAdmin } from '@/api';
+import { useAppConfig } from '@/composables/useAppConfig';
 import { AppEvent, MENU_WIDTH } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 
@@ -53,6 +54,7 @@ const emit = defineEmits(['close', 'rename']);
 const visible = defineModel<boolean>();
 
 const message = useMessage();
+const { appConfigStore } = useAppConfig();
 
 function handleClick(item: MenuAction) {
   item.onClick();
@@ -84,12 +86,14 @@ const menuItems = ref<MenuAction[]>([
   {
     label: '删除',
     onClick: async () => {
-      // TODO 用户配置关闭 二次确认
-      const answer = await ask(`是否删除 ${props.itemName} ?`, {
-        title: '删 除',
-        kind: 'warning',
-      });
-      if (!answer) return;
+      if (appConfigStore.confirmBeforeDelete) {
+        const answer = await ask(`是否删除 ${props.itemName} ?`, {
+          title: '删 除',
+          kind: 'warning',
+        });
+        if (!answer) return;
+      }
+
       await deleteLaunch(props.item.id);
 
       EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);

@@ -58,6 +58,11 @@ export const useAppConfigStore = defineStore(
       BDTranslationAppid: '',
       BDTranslationKey: '',
       BDTranslationTo: 'en',
+
+      showCategory: true,
+      showSubCategory: true,
+
+      confirmBeforeDelete: true,
     }),
     actions: {
       loadConfig(initData: AppConfigState) {

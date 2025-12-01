@@ -134,9 +134,9 @@ pub fn run() {
                 if let Some(main_window) = app.get_webview_window("main") {
                     main_window.open_devtools();
                 }
-                if let Some(transparent_drag_window) = app.get_webview_window("transparentDrag") {
-                    transparent_drag_window.open_devtools();
-                }
+                // if let Some(transparent_drag_window) = app.get_webview_window("transparentDrag") {
+                //     transparent_drag_window.open_devtools();
+                // }
             }
 
             // 创建系统托盘

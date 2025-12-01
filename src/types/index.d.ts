@@ -137,6 +137,11 @@ declare global {
     /** 百度翻译api 密钥 */
     BDTranslationKey: string;
     BDTranslationTo: string;
+
+    showCategory: boolean;
+    showSubCategory: boolean;
+
+    confirmBeforeDelete: boolean;
   }
 
   type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja';

@@ -57,11 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { LogicalPosition } from '@tauri-apps/api/dpi';
-import {
-  getCurrentWebviewWindow,
-  WebviewWindow,
-} from '@tauri-apps/api/webviewWindow';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus';
@@ -86,7 +82,6 @@ const launchModalStatus = ref(false);
 const categoryModalStatus = ref(false);
 
 const currentWindow = getCurrentWebviewWindow();
-const transparentDragWindow = ref<WebviewWindow | null>(null);
 
 currentWindow.onDragDropEvent(async e => {
   // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
@@ -182,42 +177,17 @@ useAppConfigActions().initMainWindowShortcutKey();
 //   }
 // })
 
-const launchListContainerRef = useTemplateRef('launchListContainerRef');
-function showTransparentDragWindow() {
-  transparentDragWindow.value?.show();
-  transparentDragWindow.value?.setPosition(
-    new LogicalPosition(
-      appConfigStore.mainWindowPositionX + 192 + 12,
-      appConfigStore.mainWindowPositionY + 32 + 4
-    )
-  );
-}
-
-onMounted(async () => {
-  transparentDragWindow.value = await WebviewWindow.getByLabel(
-    'transparentDrag'
-  );
-
-  // launchListContainerRef.value?.$el?.addEventListener(
-  //   'dragenter',
-  //   showTransparentDragWindow
-  // );
-
-  window.addEventListener('dragover', e => {
-    e.preventDefault();
-  });
-
-  window.addEventListener('drop', e => {
-    e.preventDefault();
-  });
-});
-
-onUnmounted(() => {
-  launchListContainerRef.value?.$el?.removeEventListener(
-    'dragenter',
-    showTransparentDragWindow
-  );
-});
+// const transparentDragWindow = ref<WebviewWindow | null>(null);
+// const launchListContainerRef = useTemplateRef('launchListContainerRef');
+// function showTransparentDragWindow() {
+//   transparentDragWindow.value?.show();
+//   transparentDragWindow.value?.setPosition(
+//     new LogicalPosition(
+//       appConfigStore.mainWindowPositionX + 192 + 12,
+//       appConfigStore.mainWindowPositionY + 32 + 4
+//     )
+//   );
+// }
 </script>
 
 <style scoped lang="scss">

@@ -56,7 +56,7 @@ const settingTabs = [
   { label: '网 络', value: 'network', contentComponent: NetworkPane },
 ];
 
-const activeTab = ref(settingTabs[3].value);
+const activeTab = ref(settingTabs[1].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 

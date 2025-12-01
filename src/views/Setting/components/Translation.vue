@@ -11,7 +11,7 @@
       <h3>启动</h3>
       <n-form-item>
         <n-checkbox
-          v-model:checked="appConfigStore.enableWebSearch"
+          v-model:checked="appConfigStore.enableTranslation"
           size="small"
         >
           启用翻译
@@ -38,13 +38,15 @@
           <n-select
             v-model:value="appConfigStore.BDTranslationTo"
             placeholder=""
-            :options="BAIDU_TRANSLATION_TO as any"
+            :options="(BAIDU_TRANSLATION_TO as any)"
           />
         </n-form-item>
 
         <n-form-item label="APP ID" class="mt-1 w-[90%]" required>
           <n-input
             v-model:value="appConfigStore.BDTranslationAppid"
+            show-password-toggle
+            type="password"
             placeholder="通过百度Api文档教程注册获取"
           />
         </n-form-item>
@@ -52,6 +54,8 @@
         <n-form-item label="密钥" class="mt-1 w-[90%]" required>
           <n-input
             v-model:value="appConfigStore.BDTranslationKey"
+            show-password-toggle
+            type="password"
             placeholder="通过百度Api文档教程注册获取"
           />
         </n-form-item>

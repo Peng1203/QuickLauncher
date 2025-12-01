@@ -63,17 +63,28 @@
           v-model:checked="appConfigStore.searchHideAfterOpen"
           size="small"
         >
-          Enter后隐藏
+          启动后隐藏
         </n-checkbox>
       </n-form-item>
 
-      <!-- TODO -->
-      <h3>历史记录</h3>
+      <h3>分类</h3>
       <n-form-item>
-        <n-checkbox v-model:checked="appConfigStore.showHistory" size="small">
-          显示
+        <n-checkbox
+          v-model:checked="appConfigStore.showCategory"
+          size="small"
+          @change="handleShowCategory"
+        >
+          展示
         </n-checkbox>
-        <!-- 排序条件 -->
+      </n-form-item>
+      <n-form-item>
+        <n-checkbox
+          v-model:checked="appConfigStore.showSubCategory"
+          size="small"
+          :disabled="!appConfigStore.showCategory"
+        >
+          子分类展示
+        </n-checkbox>
       </n-form-item>
 
       <h3>自动补全</h3>
@@ -101,6 +112,15 @@
           </n-space>
         </n-radio-group>
       </n-form-item> -->
+
+      <!-- TODO -->
+      <h3>历史记录</h3>
+      <n-form-item>
+        <n-checkbox v-model:checked="appConfigStore.showHistory" size="small">
+          显示
+        </n-checkbox>
+        <!-- 排序条件 -->
+      </n-form-item>
     </n-form>
   </div>
 </template>
@@ -179,6 +199,16 @@ async function registerPresetShortcutKey(key: string) {
 function handleClear() {
   handleUnRegisterShortcutKey();
   appConfigStore.searchGlobalShortcutKey = '';
+}
+
+function handleShowCategory(val: boolean) {
+  console.log(
+    `%c val ----`,
+    'color: #fff;background-color: #000;font-size: 18px',
+    val
+  );
+
+  if (!val) appConfigStore.showSubCategory = false;
 }
 </script>
 
