@@ -72,8 +72,9 @@
         <n-checkbox
           v-model:checked="appConfigStore.showCategory"
           size="small"
-          @change="handleShowCategory"
+          @update-checked="handleShowCategory"
         >
+          <!-- @change="" -->
           展示
         </n-checkbox>
       </n-form-item>

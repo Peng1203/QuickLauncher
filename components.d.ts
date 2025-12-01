@@ -48,6 +48,5 @@ declare module 'vue' {
     OperationLaunchModal: typeof import('./src/components/OperationLaunchModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TransparentWindow: typeof import('./src/components/TransparentWindow.vue')['default']
   }
 }

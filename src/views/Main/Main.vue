@@ -13,6 +13,7 @@
         ref="launchListContainerRef"
         tabindex="-1"
         class="overflow-auto m-1"
+        @contextmenu.prevent.stop="handleShowListContextMenu"
       >
         <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
         <VueDraggable
@@ -22,7 +23,6 @@
           ghost-class="ghost"
           group="people"
           class="grid grid-cols-6 draggable"
-          @contextmenu.prevent.stop="handleShowListContextMenu"
         >
           <ListItem
             v-for="item in launchData"
