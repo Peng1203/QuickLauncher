@@ -1,14 +1,14 @@
 <template>
   <div
-    class="item flex flex-col items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded pt-0.5 pb-0.5"
+    class="item flex flex-col items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded"
     :title="item.remarks || name"
     :style="
-      activeItem?.id === item.id
+      activeItemIds.includes(item.id) // activeItems?.id === item.id
         ? { backgroundColor: '#f5f5f5 !important' }
         : {}
     "
     tabindex="0"
-    @click="handleActive"
+    @click="handleActive($event)"
     @dblclick="handleRun"
     @keydown="handleKeydown"
     @contextmenu.prevent.stop="handleShowContextMenu"
@@ -16,17 +16,18 @@
     <img
       :src="icon"
       alt="icon"
-      class="object-contain pointer-events-none w-8"
+      class="object-contain pointer-events-none w-8 mt-0.5"
     />
     <!-- v-if="!isEdit" -->
     <!-- {{ isEdit }} -->
 
     <span
       ref="nameRef"
-      :contenteditable="isEdit && activeItem?.id === item.id"
+      :contenteditable="isEdit && activeItemIds.includes(item.id)"
       class="text-xs text-center text-black px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal max-2-lines"
     >
       {{ name }}
+
       <!-- -- {{ newName }} -->
     </span>
 
@@ -34,6 +35,7 @@
     <LaunchItemContextMenu
       v-model="menuVisible"
       :item="item"
+      :selectedIds="activeItemIds"
       :position="menuPosition"
       :item-path="item.path"
       :item-name="item.name"
@@ -58,7 +60,11 @@ const props = defineProps<{
 const { runLaunch } = useLaunchAction();
 
 // 鼠标单击选中的项
-const activeItem = defineModel<LaunchItem>();
+const activeItems = defineModel<LaunchItem[]>();
+const activeItemIds = computed(() => {
+  if (!activeItems.value || !activeItems.value.length) return [];
+  return activeItems.value?.map(item => item.id);
+});
 
 const isEdit = ref<boolean>(false);
 const newName = ref<string>(props.name);
@@ -74,7 +80,7 @@ function handleKeydown(e: KeyboardEvent) {
     `%c keyCode ----`,
     'color: #fff;background-color: #000;font-size: 18px',
     keyCode,
-    key,
+    key
   );
   switch (key) {
     case 'F2': // 113
@@ -132,25 +138,48 @@ async function saveEditName(newName: string) {
 
 const menuVisible = ref(false);
 const menuPosition = ref({ x: 0, y: 0 });
-
+const isSelected = computed(() => !!((activeItems.value?.length || 0) > 1));
 function handleShowContextMenu(e: MouseEvent) {
   // 先关闭其他菜单 再打开当前菜单
   EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 
   setTimeout(() => {
     nextTick(() => {
+      // 判断是否处于复选状态
       menuVisible.value = true;
       menuPosition.value = { x: e.clientX, y: e.clientY };
-
-      // 选中当前菜单
-      activeItem.value = props.item;
+      if (isSelected.value) {
+        console.log(
+          `%c isSelected ----`,
+          'color: #fff;background-color: #000;font-size: 18px',
+          isSelected.value
+        );
+      } else {
+        // 选中当前菜单
+        activeItems.value = [props.item];
+      }
     });
   }, 100);
 }
 
-function handleActive() {
+function handleActive(e?: PointerEvent) {
+  // 当用户同时按下ctrl + 点击时为复选操作
   isEdit.value = false;
-  activeItem.value = props.item;
+  if (e?.ctrlKey) {
+    // 判断当前按下的启动项是否已经在复选列表中 如果存在则从复选列表中移除
+    if (activeItemIds.value.includes(props.item.id)) {
+      const index = activeItems.value?.findIndex(
+        item => item.id === props.item.id
+      );
+
+      if (!index || index === -1) return;
+      activeItems.value?.splice(index, 1);
+    } else {
+      activeItems.value?.push(props.item);
+    }
+  } else {
+    activeItems.value = [props.item];
+  }
 }
 </script>
 

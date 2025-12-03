@@ -46,6 +46,7 @@ const props = defineProps<{
   item: LaunchItem;
   itemPath: string;
   itemName: string;
+  selectedIds: number[];
   extraItems?: MenuAction[];
 }>();
 
@@ -55,7 +56,7 @@ const visible = defineModel<boolean>();
 
 const message = useMessage();
 const { appConfigStore } = useAppConfig();
-
+const selected = computed(() => !!((props.selectedIds?.length || 0) > 1));
 function handleClick(item: MenuAction) {
   item.onClick();
   handleCloseMenu();
@@ -66,11 +67,14 @@ const menuItems = ref<MenuAction[]>([
   {
     label: '以管理员身份运行',
     onClick: () => runLaunchAsAdmin(props.item.id),
-    itemVisible: () => ['exe'].includes(props.item?.extension || ''),
+    itemVisible: () =>
+      !selected.value && ['exe'].includes(props.item?.extension || ''),
   },
   {
     label: '打开所在位置',
     onClick: async () => openPath(props.item.path),
+    itemVisible: () =>
+      !selected.value && ['file', 'directory'].includes(props.item.type),
   },
   {
     label: '复制路径',
@@ -78,24 +82,27 @@ const menuItems = ref<MenuAction[]>([
       await writeText(props.itemPath);
       message.success('复制成功');
     },
+    itemVisible: () => !selected.value,
   },
   {
     label: '重命名',
     onClick: () => emit('rename'),
+    itemVisible: () => !selected.value,
   },
   {
     label: '删除',
     onClick: async () => {
       if (appConfigStore.confirmBeforeDelete) {
-        const answer = await ask(`是否删除 ${props.itemName} ?`, {
+        const tip = selected.value
+          ? `是否批量删除选中的 ${props.selectedIds.length} 个启动项 ?`
+          : `是否删除 ${props.itemName} ?`;
+        const answer = await ask(tip, {
           title: '删 除',
           kind: 'warning',
         });
         if (!answer) return;
       }
-
-      await deleteLaunch(props.item.id);
-
+      await Promise.all(props.selectedIds.map(id => deleteLaunch(id)));
       EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
     },
   },
@@ -104,6 +111,7 @@ const menuItems = ref<MenuAction[]>([
     onClick: () => {
       EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
     },
+    itemVisible: () => !selected.value,
   },
   // {
   //   label: '设置开机启动',

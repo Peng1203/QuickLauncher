@@ -436,7 +436,6 @@ async function handleEnterLaunch() {
     // 执行启动
     await runLaunch(item.id);
     // TODO 根据返回结果进行统计 对应次数
-
     addOrUpdateAutocompleteRecord(keyword.value, item.id);
   }
 }

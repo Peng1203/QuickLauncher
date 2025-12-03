@@ -43,7 +43,6 @@ pub fn run_launch(id: i32) -> Result<(), String> {
                 arg.split_whitespace()
                     .for_each(|a| args.push(a.to_string()));
             }
-            dbg!(&args);
 
             if let Err(e) = Command::new("cmd")
                 .creation_flags(0x08000000)
@@ -76,7 +75,6 @@ pub fn run_launch(id: i32) -> Result<(), String> {
         }
     } else if launch_item.r#type == "url" {
         // 处理URL类型，使用默认浏览器打开
-        // TODO 可通过参数指定浏览器
         let mut url_args = vec!["/C".to_string(), "start".to_string(), "".to_string()];
         // "".to_string(),
 
@@ -86,8 +84,6 @@ pub fn run_launch(id: i32) -> Result<(), String> {
         }
 
         url_args.push(launch_item.path.to_string());
-
-        dbg!(&url_args);
 
         // .current_dir("C:\\Windows\\System32")
         if let Err(e) = Command::new("cmd")
@@ -101,6 +97,18 @@ pub fn run_launch(id: i32) -> Result<(), String> {
     }
 
     // TODO 记录启动次数和最后启动时间
+    //     let update_sql = r#"
+    //     UPDATE launch_items
+    //     SET
+    //         launch_count = launch_count + 1,
+    //         last_used_at = DATETIME('now'),
+    //         updated_at = DATETIME('now')
+    //     WHERE id = ?
+    // "#;
+    // if let Err(e) = conn.execute(update_sql, params![id]) {
+    //     log::error!("更新启动记录失败: {}", e);
+    //     return Err(format!("更新启动记录失败: {}", e));
+    // }
 
     Ok(())
 }

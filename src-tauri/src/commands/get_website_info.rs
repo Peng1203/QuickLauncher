@@ -77,9 +77,14 @@ pub async fn get_website_info(
         .await
         .map_err(|e| format!("获取文本失败: {}", e))?;
 
+    dbg!(&resp);
     // 解析 HTML
     let (title, icon_url) = {
         let document = Html::parse_document(&resp);
+
+        // TODO 处理 meta 刷新重定向
+        // let selector = Selector::parse(r#"meta[http-equiv="refresh" i]"#).unwrap();
+        // let refresh_meta = document.select(&selector).next();
 
         // 获取 title
         let title_selector = Selector::parse("title").unwrap();
@@ -102,9 +107,6 @@ pub async fn get_website_info(
         let icon_url = process_icon_path(&icon_path.unwrap_or_default(), &base_url);
         (title, icon_url)
     };
-    // TODO 处理 meta 刷新重定向
-    // let selector = Selector::parse(r#"meta[http-equiv="refresh" i]"#).unwrap();
-    // let refresh_meta = document.select(&selector).next();
 
     // 将 icon 转换为 base64
     let icon_base64 = icon_to_base64(client, icon_url).await;

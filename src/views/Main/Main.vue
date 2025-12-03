@@ -22,7 +22,7 @@
           :animation="150"
           ghost-class="ghost"
           group="people"
-          class="grid grid-cols-6 draggable"
+          class="grid grid-cols-6 draggable gap-0.5"
         >
           <ListItem
             v-for="item in launchData"
@@ -146,7 +146,7 @@ function handleShowListContextMenu(e: MouseEvent) {
   }, 100);
 }
 
-const activeItem = ref<LaunchItem>();
+const activeItem = ref<LaunchItem[]>([]);
 
 EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData);
 

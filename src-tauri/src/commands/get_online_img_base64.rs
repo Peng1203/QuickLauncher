@@ -23,8 +23,6 @@ pub async fn get_online_img_base64(url: String, app: AppHandle) -> Result<String
     // 解析基础URL，用于后续的相对路径处理
     let base_url = Url::parse(&url).map_err(|e| format!("无效的URL: {}", e))?;
 
-    dbg!(&base_url);
-
     let mut client_builder = Client::builder()
         .redirect(redirect::Policy::limited(10))
         .cookie_store(true)
