@@ -77,7 +77,6 @@ pub async fn get_website_info(
         .await
         .map_err(|e| format!("获取文本失败: {}", e))?;
 
-    dbg!(&resp);
     // 解析 HTML
     let (title, icon_url) = {
         let document = Html::parse_document(&resp);
@@ -108,8 +107,13 @@ pub async fn get_website_info(
         (title, icon_url)
     };
 
-    // 将 icon 转换为 base64
-    let icon_base64 = icon_to_base64(client, icon_url).await;
+    let icon_base64: Option<String>;
+    if icon_url.starts_with("data:image/") {
+        icon_base64 = Some(icon_url);
+    } else {
+        // 将 icon 转换为 base64
+        icon_base64 = icon_to_base64(client, icon_url).await;
+    }
 
     Ok(WebsiteInfo {
         title,
@@ -140,8 +144,8 @@ async fn icon_to_base64(client: Client, url: String) -> Option<String> {
                         return None;
                     }
 
-                    // 限制文件大小1MB
-                    if bytes.len() > 1024 * 1024 {
+                    // 限制文件大小3MB
+                    if bytes.len() > 1024 * 1024 * 3 {
                         log::warn!("Icon file too large ({}KB): {}", bytes.len() / 1024, url);
                         return None;
                     }
@@ -164,6 +168,11 @@ async fn icon_to_base64(client: Client, url: String) -> Option<String> {
 }
 
 fn process_icon_path(icon_path: &str, base_url: &Url) -> String {
+    // 当icon_path为base64时，直接返回
+    if icon_path.starts_with("data:image/") {
+        return icon_path.to_string();
+    }
+
     // 如果已经是完整的URL，直接返回
     if icon_path.starts_with("http://") || icon_path.starts_with("https://") {
         return icon_path.to_string();

@@ -30,7 +30,7 @@
 import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 
-const activeItem = ref<LaunchItem>();
+const activeItem = ref<LaunchItem[]>();
 
 const dataList = ref();
 

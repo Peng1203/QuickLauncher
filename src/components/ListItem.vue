@@ -35,7 +35,7 @@
     <LaunchItemContextMenu
       v-model="menuVisible"
       :item="item"
-      :selectedIds="activeItemIds"
+      :selected-ids="activeItemIds"
       :position="menuPosition"
       :item-path="item.path"
       :item-name="item.name"

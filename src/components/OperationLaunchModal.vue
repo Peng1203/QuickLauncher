@@ -59,6 +59,117 @@
                       :src="form.icon || ''"
                     />
                   </n-col>
+                  <n-col
+                    v-else-if="sItem.slot === 'selectIconSlot'"
+                    :span="(sItem.span as any)"
+                    class="!flex justify-start items-end"
+                  >
+                    <div class="flex items-end gap-2">
+                      <!-- <n-input v-model:value="sourceForm.icon" placeholder="" /> -->
+
+                      <n-button
+                        size="tiny"
+                        type="default"
+                        title="选择本地图标"
+                        @click="handleGetLocalFileIcon"
+                      >
+                        <template #icon>
+                          <n-icon>
+                            <ArrowUp />
+                          </n-icon>
+                        </template>
+                      </n-button>
+
+                      <n-tooltip placement="bottom" trigger="click">
+                        <template #trigger>
+                          <n-button size="tiny" type="default" title="网络图片">
+                            <template #icon>
+                              <n-icon>
+                                <LinkOutline />
+                              </n-icon>
+                            </template>
+                          </n-button>
+                        </template>
+                        <div class="text-gray-700">输入网络图片地址</div>
+
+                        <n-input-group>
+                          <n-input
+                            v-model:value="onlineImgUrl"
+                            placeholder=""
+                          />
+                          <n-button
+                            type="info"
+                            :loading="onlineImgUrlLoading"
+                            :disabled="!onlineImgUrl.length"
+                            @click="handleGetOnlineImg"
+                          >
+                            获 取
+                          </n-button>
+                        </n-input-group>
+                      </n-tooltip>
+
+                      <n-tooltip
+                        placement="bottom"
+                        trigger="click"
+                        title="网站图标"
+                      >
+                        <template #trigger>
+                          <n-button size="tiny" type="default">
+                            <template #icon>
+                              <n-icon>
+                                <GlobeOutline />
+                              </n-icon>
+                            </template>
+                          </n-button>
+                        </template>
+                        <div class="text-gray-700">输入网站地址</div>
+                        <n-input-group>
+                          <n-input v-model:value="webSiteUrl" placeholder="" />
+                          <n-button
+                            type="info"
+                            :loading="webSiteUrlLoading"
+                            :disabled="!webSiteUrl.length"
+                            @click="handleGetWebSiteUrl"
+                          >
+                            获 取
+                          </n-button>
+                        </n-input-group>
+                      </n-tooltip>
+
+                      <n-tooltip
+                        placement="top"
+                        trigger="click"
+                        title="SVG 图标"
+                      >
+                        <template #trigger>
+                          <n-button size="tiny" type="default">
+                            <template #icon>
+                              <n-icon>
+                                <CodeOutline />
+                              </n-icon>
+                            </template>
+                          </n-button>
+                        </template>
+
+                        <div class="w-[200px]">
+                          <div class="text-gray-700">输入 SVG 代码</div>
+                          <n-input
+                            v-model:value="svgStr"
+                            type="textarea"
+                            placeholder=""
+                            :autosize="{ minRows: 3, maxRows: 5 }"
+                          />
+                          <n-button
+                            type="info"
+                            class="!mt-1"
+                            @click="handleGetSvgBase64"
+                          >
+                            获 取
+                          </n-button>
+                        </div>
+                      </n-tooltip>
+                    </div>
+                  </n-col>
 
                   <n-col
                     v-else-if="sItem.slot === 'pathSlot'"
@@ -324,7 +435,11 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
 import {
   AlertCircleOutline,
+  ArrowUp,
   Close,
+  CodeOutline,
+  GlobeOutline,
+  LinkOutline,
   LogoChrome,
   LogoEdge,
   LogoFirefox,
@@ -332,7 +447,14 @@ import {
 } from '@vicons/ionicons5';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
+import {
+  addLaunch,
+  getFileInfo,
+  getLocalIconBase64,
+  getOnlineImgBase64,
+  getWebsiteInfo,
+  updateLaunch,
+} from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
@@ -375,6 +497,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
   file: [
     { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
     { prop: 'name', label: '名称', span: 17 },
+    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
     {
       prop: 'path',
       label: '路径',
@@ -414,6 +537,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
   directory: [
     { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
     { prop: 'name', label: '名称', span: 17 },
+    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
     {
       prop: 'path',
       label: '路径',
@@ -439,6 +563,7 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
   url: [
     { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
     { prop: 'name', label: '名称', span: 17 },
+    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
     {
       prop: 'path',
       label: '网址',
@@ -719,6 +844,68 @@ async function handleConfirm() {
   handleClose();
 }
 
+async function handleGetLocalFileIcon() {
+  const path = await open({
+    title: '选择图标',
+    multiple: false,
+    directory: false,
+  });
+  if (!path) return;
+  const base64 = await getLocalIconBase64(path);
+  form.value.icon = base64;
+}
+
+const onlineImgUrl = ref<string>('');
+const onlineImgUrlLoading = ref<boolean>(false);
+async function handleGetOnlineImg() {
+  try {
+    onlineImgUrlLoading.value = true;
+    if (
+      !(
+        onlineImgUrl.value.includes('http://') ||
+        onlineImgUrl.value.includes('https://')
+      )
+    ) {
+      onlineImgUrl.value = `https://${onlineImgUrl.value}`;
+    }
+    const base64 = await getOnlineImgBase64(onlineImgUrl.value);
+    form.value.icon = base64;
+  } catch (e) {
+    message.error(e as string);
+  } finally {
+    onlineImgUrlLoading.value = false;
+  }
+}
+
+const webSiteUrl = ref<string>('');
+const webSiteUrlLoading = ref<boolean>(false);
+async function handleGetWebSiteUrl() {
+  try {
+    webSiteUrlLoading.value = true;
+    if (
+      !(
+        webSiteUrl.value.includes('http://') ||
+        webSiteUrl.value.includes('https://')
+      )
+    ) {
+      webSiteUrl.value = `https://${webSiteUrl.value}`;
+    }
+    const { icon }: any = await getWebsiteInfo(webSiteUrl.value);
+    form.value.icon = icon;
+  } catch (e) {
+    message.error(e as string);
+  } finally {
+    webSiteUrlLoading.value = false;
+  }
+}
+
+const svgStr = ref<string>('');
+async function handleGetSvgBase64() {
+  if (!svgStr.value.trim()) return;
+  const base64 = btoa(unescape(encodeURIComponent(svgStr.value)));
+  form.value.icon = `data:image/svg+xml;base64,${base64}`;
+}
+
 const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'));
 
 // 打开对话框
@@ -747,11 +934,6 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
     if (!e.payload.paths.length) return;
     const path = e.payload.paths[0];
     const fileInfo = await getFileInfo(path);
-    console.log(
-      `%c fileInfo ----`,
-      'color: #fff;background-color: #000;font-size: 18px',
-      fileInfo
-    );
 
     // 当拖进来的启动项 不符合当前类型 则初始表单 并切换到对应的类型
     if (fileInfo.type !== form.value.type) {
