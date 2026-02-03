@@ -84,7 +84,7 @@ function handleOpenAddCategory() {
   console.log(
     `%c 121 ----`,
     'color: #fff;background-color: #000;font-size: 18px',
-    121
+    121,
   );
 }
 
@@ -107,6 +107,7 @@ const itemMenuVisible = ref<boolean>(false);
 const activeItem = ref<CategoryItem>();
 function handleShowCategoryItemContextMenu(e: MouseEvent, item: CategoryItem) {
   EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
+  itemMenuVisible.value = false;
 
   setTimeout(() => {
     nextTick(() => {

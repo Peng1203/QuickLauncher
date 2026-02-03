@@ -8,7 +8,13 @@
       :label-width="160"
       :show-feedback="false"
     >
-      <h3>启动</h3>
+      <div class="flex items-center justify-between">
+        <h3 class="!mt-[0]">启动</h3>
+
+        <OpenDemoVideo
+          video-url="https://www.bilibili.com/video/BV1fnFKzAEC4"
+        />
+      </div>
       <n-form-item>
         <n-checkbox
           v-model:checked="appConfigStore.enableTranslation"
@@ -21,7 +27,7 @@
       <n-form-item>
         <div class="w-full">
           <!-- @ts-ignore -->
-          <n-select v-model:value="openModel" :options="(options as any)" />
+          <n-select v-model:value="openModel" :options="options as any" />
         </div>
       </n-form-item>
 
@@ -38,7 +44,7 @@
           <n-select
             v-model:value="appConfigStore.BDTranslationTo"
             placeholder=""
-            :options="(BAIDU_TRANSLATION_TO as any)"
+            :options="BAIDU_TRANSLATION_TO as any"
           />
         </n-form-item>
 
@@ -72,6 +78,7 @@
 
 <script setup lang="ts">
 import { exeCommand } from '@/api';
+import OpenDemoVideo from '@/components/OpenDemoVideo.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { BAIDU_TRANSLATION_TO } from '@/constant';
 

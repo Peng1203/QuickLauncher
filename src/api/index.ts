@@ -114,6 +114,18 @@ export function getLaunchs<T = LaunchItem>(categoryId: number = -1) {
 }
 
 /**
+ * @description 通过id获取启动项
+ * @author Peng
+ *
+ * @template T=LaunchItem
+ * @param {number} id 启动项 ID
+ * @returns {Promise<T>} 启动项
+ */
+export function getLaunchByID<T = LaunchItem>(id: number) {
+  return invoke<T>(InvokeMethod.GET_LAUNCH_BY_ID, { id });
+}
+
+/**
  * @description 执行命令行
  * @author Peng
  *
@@ -217,7 +229,7 @@ export function getOnlineImgBase64(url: string): Promise<string> {
 
 export function addOrUpdateAutocompleteRecord(
   query: string,
-  launchItemId?: number
+  launchItemId?: number,
 ): Promise<string> {
   return invoke<string>(InvokeMethod.ADD_OR_UPDATE_AUTOCOMPLETE, {
     query,

@@ -15,6 +15,10 @@ pub fn run_launch(id: i32) -> Result<(), String> {
 
     let row = stmt.query_row(params![id], LaunchItem::from_row);
 
+    // 当 没有查询到对应的启动项时，返回错误
+    if let Err(e) = &row {
+        return Err(format!("查询启动项失败: {}", e));
+    }
     let launch_item = row.unwrap();
     // println!("名称：{}", launch_item);
 

@@ -26,42 +26,35 @@ fn connect_db(date_dir: PathBuf) -> Result<Connection> {
 
 // 创建数据库表
 fn create_tables(conn: &Connection) -> Result<()> {
+    create_categories_table(conn)?;
+
     create_launch_items_table(conn)?;
 
-    // 创建分类表
+    create_launch_history_table(conn)?;
+
+    create_autocomplete_table(conn)?;
+
+    create_configs_table(conn)?;
+
+    Ok(())
+}
+
+// 创建分类表
+fn create_categories_table(conn: &Connection) -> Result<()> {
     conn.execute(
         "CREATE TABLE IF NOT EXISTS categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL UNIQUE,
           parent_id INTEGER NOT NULL DEFAULT 0,
           association_directory TEXT,
+          exclude INTEGER NOT NULL DEFAULT 0 CHECK (exclude IN (0, 1)),
+          layout TEXT DEFAULT 'list' CHECK (layout IN ('list', 'grid')),
+          icon TEXT,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );",
         [],
     )?;
-
-    // TODO 创建搜索记录表
-    create_autocomplete_table(conn)?;
-    // conn.execute(
-    //     "CREATE TABLE IF NOT EXISTS search_history (
-    //         id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //         query TEXT NOT NULL,
-    //         timestamp TEXT NOT NULL
-    //     )",
-    //     [],
-    // )?;
-
-    // 创建配置表
-    conn.execute(
-        "CREATE TABLE IF NOT EXISTS configs (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL UNIQUE,
-          data TEXT NOT NULL
-        );",
-        [],
-    )?;
-
     Ok(())
 }
 
@@ -162,6 +155,36 @@ fn create_launch_items_table(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+// 创建启动历史表
+fn create_launch_history_table(conn: &Connection) -> Result<()> {
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS launch_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            launch_item_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            path TEXT NOT NULL,
+            status TEXT NOT NULL CHECK (status IN ('success', 'failure')),
+            message TEXT,
+            started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            ended_at DATETIME,
+            FOREIGN KEY (launch_item_id) REFERENCES launch_items(id) ON DELETE CASCADE
+        );",
+        [],
+    )?;
+
+    // 创建索引，加速查询
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_launch_history_item ON launch_history(launch_item_id);",
+        [],
+    )?;
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_launch_history_started_at ON launch_history(started_at);",
+        [],
+    )?;
+
+    Ok(())
+}
+
 // 创建自动补全表
 fn create_autocomplete_table(conn: &Connection) -> Result<()> {
     conn.execute(
@@ -191,6 +214,18 @@ fn create_autocomplete_table(conn: &Connection) -> Result<()> {
     Ok(())
 }
 
+// 创建配置表
+fn create_configs_table(conn: &Connection) -> Result<()> {
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS configs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL UNIQUE,
+          data TEXT NOT NULL
+        );",
+        [],
+    )?;
+    Ok(())
+}
 // app_data_dir: PathBuf
 // 初始化数据库
 pub fn init_db() -> Result<()> {

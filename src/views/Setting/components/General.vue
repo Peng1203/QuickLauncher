@@ -7,7 +7,7 @@
     :label-width="160"
     :show-feedback="false"
   >
-    <h3>系统</h3>
+    <h3 class="!mt-[0]">系统</h3>
     <n-form-item>
       <n-checkbox
         v-model:checked="appConfigStore.autoStart"
@@ -34,7 +34,7 @@
         v-model:value="appConfigStore.language"
         size="small"
         placeholder="Select"
-        :options="(languageOptions as any)"
+        :options="languageOptions as any"
       />
     </n-form-item>
 
@@ -138,12 +138,12 @@ const shortcutKey = ref('');
 watch(
   () => appConfigStore.mainWindowGlobalShortcutKey,
   val => (shortcutKey.value = val),
-  { immediate: true }
+  { immediate: true },
 );
 function handleKeydown(e: KeyboardEvent) {
   const keyValue = getShortcutKey(
     e,
-    appConfigStore.mainWindowGlobalShortcutKey
+    appConfigStore.mainWindowGlobalShortcutKey,
   );
 
   shortcutKey.value = keyValue;
@@ -162,7 +162,7 @@ async function handleBlur() {
 
   const checkVal = await checkShortcutKey(
     shortcutKey.value,
-    appConfigStore.mainWindowGlobalShortcutKey
+    appConfigStore.mainWindowGlobalShortcutKey,
   );
   if (!checkVal) {
     message.warning('快捷键被占用');

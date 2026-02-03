@@ -10,14 +10,20 @@ pub fn update_category(item: CategoryItem) -> Result<(), String> {
     let rows_affected = conn
         .execute(
             "UPDATE categories SET 
-        name = ?1, 
-        parent_id = ?2, 
-        association_directory = ?3
-        WHERE id = ?4",
+        name = ?, 
+        parent_id = ?, 
+        association_directory = ?,
+        exclude = ?,
+        layout = ?,
+        icon = ?
+        WHERE id = ?",
             params![
                 item.name,
                 item.parent_id,
                 item.association_directory.clone().unwrap(),
+                item.exclude.clone().unwrap(),
+                item.layout.clone().unwrap(),
+                item.icon.clone().unwrap(),
                 item.id
             ],
         )

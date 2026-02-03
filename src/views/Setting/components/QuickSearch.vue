@@ -8,7 +8,7 @@
       :label-width="160"
       :show-feedback="false"
     >
-      <h3>启动</h3>
+      <h3 class="!mt-[0]">启动</h3>
       <n-form-item>
         <n-checkbox v-model:checked="appConfigStore.enableSearch" size="small">
           启用快速搜索
@@ -66,6 +66,17 @@
           启动后隐藏
         </n-checkbox>
       </n-form-item>
+
+      <n-form-item>
+        <n-checkbox
+          v-model:checked="appConfigStore.searchOpenOnMouseDisplay"
+          size="small"
+        >
+          跟随鼠标所在屏幕显示
+        </n-checkbox>
+      </n-form-item>
+
+      <!--  -->
 
       <h3>分类</h3>
       <n-form-item>
@@ -148,7 +159,7 @@ const shortcutKey = ref('');
 watch(
   () => appConfigStore.searchGlobalShortcutKey,
   val => (shortcutKey.value = val),
-  { immediate: true }
+  { immediate: true },
 );
 
 function handleKeydown(e: KeyboardEvent) {
@@ -170,7 +181,7 @@ async function handleBlur() {
 
   const checkVal = await checkShortcutKey(
     shortcutKey.value,
-    appConfigStore.searchGlobalShortcutKey
+    appConfigStore.searchGlobalShortcutKey,
   );
   if (!checkVal) {
     message.warning('快捷键被占用');
@@ -206,7 +217,7 @@ function handleShowCategory(val: boolean) {
   console.log(
     `%c val ----`,
     'color: #fff;background-color: #000;font-size: 18px',
-    val
+    val,
   );
 
   if (!val) appConfigStore.showSubCategory = false;

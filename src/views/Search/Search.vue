@@ -151,6 +151,7 @@
               handleEnter();
             }
           "
+          @contextmenu.prevent.stop="handleShowContextMenu($event, item.id)"
         >
           <!-- @mouseenter="selectedIndex = index" -->
           <div class="flex items-center">
@@ -164,7 +165,6 @@
             <span class="!ml-0.5">{{ item.name }}</span>
           </div>
 
-          <!-- TODO 个性化控制 分类是否显示 -->
           <!-- <span v-if="item.category_name" class="!ml-3">
             （{{ item.category_name }}）
           </span> -->
@@ -194,6 +194,20 @@
         </li>
       </template>
     </ul>
+
+    <!-- 启动项右击菜单 -->
+    <LaunchItemContextMenu
+      v-model="menuVisible"
+      type="SearchLaunchList"
+      style="transform: scale(0.85)"
+      li-style="padding-top: 4px; padding-bottom: 4px;"
+      :viewport-margin="0"
+      :item="itemDetail!"
+      :selected-ids="[]"
+      :position="menuPosition"
+      :item-path="itemDetail!.path"
+      :item-name="itemDetail!.name"
+    />
   </template>
 
   <!-- </div> -->
@@ -201,6 +215,7 @@
 
 <script setup lang="ts">
 import {
+  availableMonitors,
   cursorPosition,
   getCurrentWindow,
   LogicalPosition,
@@ -213,11 +228,14 @@ import {
   addOrUpdateAutocompleteRecord,
   exeCommand,
   getAutocomplete,
+  getLaunchByID,
   searchLaunch,
 } from '@/api';
+import LaunchItemContextMenu from '@/components/ListItemContextMenu.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
 import { useLaunchAction } from '@/composables/useLaunchAction';
+import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import {
   AppEvent,
   SEARCH_INPUT_HEIGHT,
@@ -243,6 +261,7 @@ const current = getCurrentWindow();
 const itemRefs = ref<HTMLElement[]>([]);
 // 选中启动光标
 const selectedIndex = ref(0);
+const searchFlag = ref(false);
 
 const SEARCH_MODEL = {
   DEFAULT_MODEL: 0,
@@ -252,6 +271,7 @@ const SEARCH_MODEL = {
 
 type SearchModelType = (typeof SEARCH_MODEL)[keyof typeof SEARCH_MODEL];
 
+const menuVisible = ref(false);
 const searchModel = ref<SearchModelType>(0);
 const isWebDefaultModel = computed(() => searchModel.value === 0);
 const isWebSearchModel = computed(() => searchModel.value === 1);
@@ -260,7 +280,7 @@ const isTranslationModel = computed(() => searchModel.value === 2);
 const autocompleteList = ref<string[]>([]);
 const autocompleteIndex = ref<number>(0);
 const currentAutocompleteSuggestion = computed(
-  () => autocompleteList.value[autocompleteIndex.value]
+  () => autocompleteList.value[autocompleteIndex.value],
 );
 
 function handleChangeCurrentAutocomplete() {
@@ -291,7 +311,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
 
   switch (keyCode) {
-    case 8:
+    case 8: // Backspace 键
       // prettier-ignore
       // isWebSearchModel.value &&
       // !keyword.value.length &&
@@ -305,15 +325,14 @@ function handleKeydown(e: KeyboardEvent) {
       }
       e.preventDefault();
       break;
-    case 13:
+    case 13: // Enter 键
       if (isTranslationModel.value) {
         translationRef.value?.handleEnter();
       } else {
-        handleEnter();
+        searchFlag.value && handleEnter();
       }
       break;
-    case 27:
-      // Esc 键 关闭搜索窗口
+    case 27: // Esc 键 关闭搜索窗口
       // 当处于 web 搜索模式或者翻译模式时 按下esc 退出当前模式回到 快速搜索模式
       if (isWebSearchModel.value || isTranslationModel.value) {
         if (
@@ -359,7 +378,7 @@ function handleKeydown(e: KeyboardEvent) {
       if (autocompleteList.value.length)
         keyword.value = currentAutocompleteSuggestion.value;
       break;
-    case 40:
+    case 40: // 下移动按键 用于切换选中项
       if (isTranslationModel.value) {
         translationRef.value?.handleKeyDown();
       } else {
@@ -391,7 +410,7 @@ async function handleOpenWebSearch() {
     if (!flag) return;
 
     const searchSource = appConfigStore.webSearchSourceList.find(
-      ({ keywords }) => keywords === key
+      ({ keywords }) => keywords === key,
     );
 
     if (!searchSource) return;
@@ -402,15 +421,26 @@ async function handleOpenWebSearch() {
   }, 50);
 }
 
+const { notification } = useNaiveUiApi();
+
 async function handleEnter() {
-  if (!keyword.value.trim()) return;
+  try {
+    if (!keyword.value.trim()) return;
 
-  // 根据搜索模式调用不同的执行接口
-  if (!isWebSearchModel.value) await handleEnterLaunch();
-  else await handleEnterWebSearch();
+    // 根据搜索模式调用不同的执行接口
+    if (!isWebSearchModel.value) await handleEnterLaunch();
+    else await handleEnterWebSearch();
 
-  // 添加不全记录
-  handleClose();
+    handleClose();
+  } catch (e) {
+    notification.error({
+      content: '启动失败',
+      meta: e as string,
+      duration: 3000,
+      keepAliveOnHover: true,
+    });
+    console.log('e', e);
+  }
 }
 
 async function handleEnterLaunch() {
@@ -446,7 +476,7 @@ async function handleEnterWebSearch() {
   const keywordStr =
     searchSourch.value?.searchApi?.replace(
       '{w}',
-      encodeURI(item ? item.name : keyword.value)
+      encodeURI(item ? item.name : keyword.value),
     ) || '';
 
   await exeCommand(keywordStr!);
@@ -490,7 +520,7 @@ async function searchSuggestion(): Promise<SearchLauncItem[]> {
       'fetch',
       'searchSourch',
       'keyword',
-      `"use strict"; return (async () => { ${userCode} })();`
+      `"use strict"; return (async () => { ${userCode} })();`,
     );
     const result = await fn(fetch, searchSourch.value, keyword.value);
     return result;
@@ -511,19 +541,27 @@ function handleClose(isEscClose: boolean = false) {
   // current.setSize(new LogicalSize(600, 45))
   if (appConfigStore.searchHideAfterOpen || isEscClose) {
     current.hide();
+    menuVisible.value = false;
   }
 }
 
 async function handleShow() {
-  // 当存在多个显示器时 将搜索窗口显示在鼠标停留的显示器上
-  const { x, y } = await cursorPosition();
-
-  // TODO 适配多显示器上下排版呼出
+  const monitors = await availableMonitors();
+  console.log('monitors  ------', monitors);
   // TODO 可作为个性化设置 搜索框呼出位置跟随鼠标 需要适配搜索结果显示位置 朝上或者朝下
-  // await current.setPosition(new LogicalPosition(x, y))
-  const { width } = await current.innerSize();
-  // 存在多个显示器时 鼠标边缘呼出适配
-  await current.setPosition(new LogicalPosition(x - width / 2, y));
+  if (appConfigStore.searchOpenOnMouseDisplay) {
+    // 存在多个显示器时 呼出窗口跟随随便所在窗口
+    const { x, y } = await cursorPosition();
+    const { width } = await current.innerSize();
+    await current.setPosition(new LogicalPosition(x - width / 2, y));
+  } else {
+    // const { width, height } = monitors[0].size;
+    // console.log('width ------', width);
+    // console.log('height ------', height);
+
+    await current.setPosition(new LogicalPosition(1, 1));
+  }
+
   await current.center();
 
   // 显示搜索窗口
@@ -567,7 +605,7 @@ watch(
       selectedIndex.value = 0;
       resultList.value = [];
       return current.setSize(
-        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value)
+        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value),
       );
     }
 
@@ -584,15 +622,17 @@ watch(
         });
       }
       launchs = await searchLaunch(keyword);
+      // 当完成过一次搜索时 设置搜索标志位为 true 避免用户按的太快导致搜索结果没有出来执行后报错
+      if (!searchFlag.value) searchFlag.value = true;
     }
     resultList.value = launchs;
 
     if (currentId === searchRequestId) {
       current.setSize(
-        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value)
+        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value),
       );
     }
-  }
+  },
 );
 
 function handleBlur() {
@@ -608,6 +648,34 @@ EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
   const windowVisible = await current.isVisible();
   windowVisible ? handleClose() : handleShow();
 });
+
+const menuPosition = ref({ x: 0, y: 0 });
+const itemDetail = ref<LaunchItem>({
+  id: 0,
+  name: '',
+  path: '',
+  type: 'file',
+  created_at: '',
+  updated_at: '',
+  launch_count: 0,
+  failure_count: 0,
+});
+async function handleShowContextMenu(e: MouseEvent, id: number) {
+  const detail = await getLaunchByID(id);
+  if (!detail) {
+    return notification.error({
+      content: '查询失败',
+      meta: '未找到启动项详情',
+      duration: 3000,
+      keepAliveOnHover: true,
+    });
+  }
+  itemDetail.value = detail;
+  nextTick(() => {
+    menuVisible.value = true;
+    menuPosition.value = { x: e.clientX, y: e.clientY };
+  });
+}
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);

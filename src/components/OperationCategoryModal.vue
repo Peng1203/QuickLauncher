@@ -14,7 +14,11 @@
       :title="isEdit ? '编辑分类' : '新建分类'"
     >
       <template #header-extra>
-        <n-icon size="20" class="cursor-pointer" @click="handleClose">
+        <n-icon
+          size="20"
+          class="cursor-pointer"
+          @click="handleClose"
+        >
           <Close />
         </n-icon>
       </template>
@@ -28,8 +32,28 @@
         label-placement="left"
       >
         <n-row>
+          <!-- {{ form }} -->
           <n-col span="22">
-            <n-form-item label="名称" path="name">
+            <n-form-item
+              label=" "
+              path="name"
+              class="!flex justify-start items-end"
+            >
+              <n-avatar
+                size="large"
+                :style="form.icon ? 'background-color: transparent' : ''"
+                :src="form.icon || ''"
+              />
+
+              <IconPicker v-model="form.icon!" />
+            </n-form-item>
+          </n-col>
+
+          <n-col span="22">
+            <n-form-item
+              label="名称"
+              path="name"
+            >
               <n-input
                 v-model:value="form.name"
                 placeholder=""
@@ -40,13 +64,19 @@
           </n-col>
 
           <n-col span="22">
-            <n-form-item label="关联目录" path="association_directory">
+            <n-form-item
+              label="关联目录"
+              path="association_directory"
+            >
               <n-input
                 v-model:value="form.association_directory"
+                tabindex="1"
                 placeholder=""
                 type="textarea"
+                readonly
                 :theme-overrides="inputTheme"
               />
+              <!-- @click="handleSelectDir" -->
             </n-form-item>
             <n-button
               style="margin-left: 80px"
@@ -54,13 +84,26 @@
               size="small"
               color="lightgray"
               text-color="gary"
+              :disabled="isEdit"
               @click="handleSelectDir"
             >
               选 择
             </n-button>
-            <span class="ml-1 text-gray-400">
-              *关联指定目录后无法操作该分类下的启动项只能作为搜索结果
-            </span>
+            <span class="ml-1 text-gray-400">*关联指定目录后无法操作该分类下的启动项只能作为搜索结果</span>
+          </n-col>
+
+          <n-col span="22">
+            <!-- TODO -->
+            <n-form-item
+              label="搜索排除"
+              path="exclude"
+            >
+              <n-switch
+                v-model:value="form.exclude"
+                :checked-value="1"
+                :unchecked-value="0"
+              />
+            </n-form-item>
           </n-col>
         </n-row>
       </n-form>
@@ -75,7 +118,12 @@
           >
             确 认
           </n-button>
-          <n-button size="small" @click="handleClose">取 消</n-button>
+          <n-button
+            size="small"
+            @click="handleClose"
+          >
+            取 消
+          </n-button>
         </div>
       </template>
     </n-card>
@@ -87,6 +135,8 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { Close } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { addCategory, updateCategory } from '@/api';
+import IconPicker from '@/components/IconPicker.vue';
+import { useFormState } from '@/composables/useFormState';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
@@ -102,16 +152,14 @@ const inputTheme = {
 
 const modalStatus = defineModel<boolean>({ default: false });
 
-const form = ref<NewCategoryItem>({
+const { form, initForm, setForm } = useFormState<NewCategoryItem>({
+  icon: '',
   name: '',
   parent_id: 0,
   association_directory: '',
+  exclude: 0,
+  layout: 'list',
 });
-function initForm() {
-  form.value.name = '';
-  form.value.parent_id = 0;
-  form.value.association_directory = '';
-}
 
 function handleClose() {
   modalStatus.value = false;
@@ -123,8 +171,10 @@ async function handleSelectDir() {
     multiple: false,
     directory: true,
   });
-
-  form.value.association_directory = path!;
+  if (!path) return;
+  form.value.association_directory = path;
+  const arr = path.split('\\');
+  form.value.name = arr[arr.length - 1];
 }
 
 const isEdit = ref<boolean>(false);
@@ -149,22 +199,14 @@ async function handleConfirm() {
 }
 
 // 打开对话框
-EventBus.listen<typeof editItem.value>(
-  AppEvent.OPEN_OPERATION_CATEGORY,
-  val => {
-    isEdit.value = !!val;
-    editItem.value = val;
+EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, val => {
+  isEdit.value = !!val;
+  editItem.value = val;
 
-    if (val) {
-      for (const key in form.value) {
-        // @ts-ignore
-        form.value[key] = val[key];
-      }
-    }
+  if (val) setForm(val);
 
-    modalStatus.value = true;
-  }
-);
+  modalStatus.value = true;
+});
 </script>
 
 <style scoped>
@@ -174,7 +216,7 @@ EventBus.listen<typeof editItem.value>(
 
 .n-card {
   width: 600px;
-  height: 250px;
+  height: 350px;
 }
 
 .n-col {
@@ -187,9 +229,9 @@ EventBus.listen<typeof editItem.value>(
   padding: 0;
 }
 
-::v-deep(.n-card__content) {
+/* ::v-deep(.n-card__content) {
   max-height: 200px;
-}
+} */
 
 ::v-deep(.n-input) {
   transition: none !important;
@@ -201,5 +243,10 @@ EventBus.listen<typeof editItem.value>(
 
 ::v-deep(.n-input-wrapper) {
   resize: none !important;
+}
+::v-deep(.n-form-item-blank) {
+  display: flex;
+  align-items: end;
+  gap: 10px;
 }
 </style>

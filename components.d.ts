@@ -8,9 +8,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BrowserPicker: typeof import('./src/components/BrowserPicker.vue')['default']
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
     CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
+    DemoVideoDialog: typeof import('./src/components/DemoVideoDialog.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
+    IconPicker: typeof import('./src/components/IconPicker.vue')['default']
+    IconSelectron: typeof import('./src/components/IconSelectron.vue')['default']
     LaunchItem: typeof import('./src/components/LaunchItem.vue')['default']
     ListContextMenu: typeof import('./src/components/ListContextMenu.vue')['default']
     ListItem: typeof import('./src/components/ListItem.vue')['default']
@@ -34,9 +38,11 @@ declare module 'vue' {
     NLayoutContent: typeof import('naive-ui')['NLayoutContent']
     NLayoutHeader: typeof import('naive-ui')['NLayoutHeader']
     NLayoutSider: typeof import('naive-ui')['NLayoutSider']
+    NMenu: typeof import('naive-ui')['NMenu']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
     NModal: typeof import('naive-ui')['NModal']
     NModalProvider: typeof import('naive-ui')['NModalProvider']
+    NNotificationProvider: typeof import('naive-ui')['NNotificationProvider']
     NRow: typeof import('naive-ui')['NRow']
     NSelect: typeof import('naive-ui')['NSelect']
     NSwitch: typeof import('naive-ui')['NSwitch']
@@ -44,6 +50,7 @@ declare module 'vue' {
     NTabs: typeof import('naive-ui')['NTabs']
     NTag: typeof import('naive-ui')['NTag']
     NTooltip: typeof import('naive-ui')['NTooltip']
+    OpenDemoVideo: typeof import('./src/components/OpenDemoVideo.vue')['default']
     OperationCategoryModal: typeof import('./src/components/OperationCategoryModal.vue')['default']
     OperationLaunchModal: typeof import('./src/components/OperationLaunchModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

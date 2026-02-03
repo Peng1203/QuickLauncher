@@ -11,6 +11,7 @@ use commands::get_autocomplete::get_autocomplete;
 use commands::get_category::get_category;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
+use commands::get_launch_by_id::get_launch_by_id;
 use commands::get_local_icon_base64::get_local_icon_base64;
 use commands::get_online_img_base64::get_online_img_base64;
 use commands::get_website_info::get_website_info;
@@ -72,6 +73,7 @@ pub fn run() {
             run_launch_as_admin,
             add_launch,
             get_launch,
+            get_launch_by_id,
             search_launch,
             rename_launch,
             delete_launch,
@@ -89,7 +91,7 @@ pub fn run() {
             get_local_icon_base64,
             get_online_img_base64,
             add_or_update_autocomplete,
-            get_autocomplete
+            get_autocomplete,
         ])
         .setup(|app| {
             let main_window = app.get_webview_window("main").unwrap();

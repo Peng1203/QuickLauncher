@@ -15,6 +15,7 @@
         class="overflow-auto m-1"
         @contextmenu.prevent.stop="handleShowListContextMenu"
       >
+        <!-- {{ isConrrelationDir }} -->
         <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
         <VueDraggable
           v-if="launchData.length"
@@ -31,6 +32,7 @@
             :item="item"
             :icon="item.icon!"
             :name="item.name"
+            :active-category-item="activeCategoryItem!"
           />
         </VueDraggable>
 
@@ -38,7 +40,7 @@
           v-else
           class="w-full h-full flex items-center justify-center text-gray-500 text-lg"
         >
-          拖动文件到该区域
+          {{ isConrrelationDir ? '空文件夹' : '拖动文件到该区域' }}
         </div>
       </n-layout-content>
     </n-layout>
@@ -67,6 +69,7 @@ import ListItem from '@/components/ListItem.vue';
 import OperationLaunchModal from '@/components/OperationLaunchModal.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
+import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { useLoadConfig } from '@/composables/useLoadConfig';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
@@ -78,12 +81,16 @@ const { launchData, activeCategory, categoryData } = storeToRefs(store);
 
 const { appConfigStore } = useAppConfig();
 
+const { isConrrelationDir, activeCategoryItem } = useCategoryCorrelationDir();
+
 const launchModalStatus = ref(false);
 const categoryModalStatus = ref(false);
 
 const currentWindow = getCurrentWebviewWindow();
 
 currentWindow.onDragDropEvent(async e => {
+  // 防止在关联目录分类下手动拖拽添加启动项
+  if (isConrrelationDir.value) return;
   // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
   if (launchModalStatus.value || categoryModalStatus.value) return;
   // TODO 分类对话框打开
@@ -156,12 +163,13 @@ watch(
     // eslint-disable-next-line no-useless-return
     if (!val.length) return;
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
 useLoadConfig();
 
 useAppConfigActions().initMainWindowShortcutKey();
+
 // watchImmediate(
 //   'C:\\Users\\Mayn\\Desktop\\FTTH APP截图',
 //   event => {

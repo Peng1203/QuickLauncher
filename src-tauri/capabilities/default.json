@@ -33,8 +33,11 @@
     "clipboard-manager:allow-write-text",
 
     "fs:default",
-    "fs:deny-watch",
-    "fs:deny-unwatch",
+    "fs:allow-watch",
+    {
+      "identifier": "fs:scope",
+      "allow": ["$DESKTOP", "$DESKTOP/*", "$DESKTOP/**/*", { "path": "/**/*" }]
+    },
 
     "http:allow-fetch",
     {
@@ -42,14 +45,7 @@
       "allow": [{ "url": "https://*/*" }, { "url": "http://*/*" }],
       "deny": [{ "url": "https://private.tauri.app" }]
     },
-    {
-      "identifier": "fs:allow-watch",
-      "allow": [{ "path": "**/*" }]
-    },
-    {
-      "identifier": "fs:allow-unwatch",
-      "allow": [{ "path": "**/*" }]
-    },
+
     "pinia:default",
     "core:event:default"
   ]

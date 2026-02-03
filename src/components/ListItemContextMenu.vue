@@ -14,6 +14,7 @@
       <template v-for="menu in menuItems" :key="menu.label">
         <li
           v-if="menu?.itemVisible === undefined ? true : menu.itemVisible()"
+          :style="liStyle"
           class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
           @click="handleClick(menu)"
         >
@@ -41,14 +42,23 @@ export interface MenuAction {
 }
 
 // visible: boolean
-const props = defineProps<{
-  position: { x: number; y: number };
-  item: LaunchItem;
-  itemPath: string;
-  itemName: string;
-  selectedIds: number[];
-  extraItems?: MenuAction[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    position: { x: number; y: number };
+    item: LaunchItem;
+    itemPath: string;
+    itemName: string;
+    selectedIds: number[];
+    extraItems?: MenuAction[];
+    type?: 'LaunchList' | 'SearchLaunchList';
+    viewportMargin?: number;
+    liStyle?: string;
+  }>(),
+  {
+    type: 'LaunchList',
+    viewportMargin: 5,
+  },
+);
 
 const emit = defineEmits(['close', 'rename']);
 
@@ -87,7 +97,7 @@ const menuItems = ref<MenuAction[]>([
   {
     label: '重命名',
     onClick: () => emit('rename'),
-    itemVisible: () => !selected.value,
+    itemVisible: () => !selected.value && props.type !== 'SearchLaunchList',
   },
   {
     label: '删除',
@@ -105,10 +115,12 @@ const menuItems = ref<MenuAction[]>([
       await Promise.all(props.selectedIds.map(id => deleteLaunch(id)));
       EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
     },
+    itemVisible: () => props.type !== 'SearchLaunchList',
   },
   {
     label: '编辑',
     onClick: () => {
+      console.log('props.item', { ...props.item });
       EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
     },
     itemVisible: () => !selected.value,
@@ -141,7 +153,7 @@ function handleOutsideClick(e: MouseEvent) {
 }
 
 // 菜单距离窗口边的距离
-const VIEWPORT_MARGIN = 5;
+const VIEWPORT_MARGIN = props.viewportMargin;
 
 // 计算出菜单出现的 x y 位置
 const calcPosition = computed(() => {

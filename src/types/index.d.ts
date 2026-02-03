@@ -119,6 +119,8 @@ declare global {
     searchLostFocusHide: boolean;
     /** 打开后隐藏 */
     searchHideAfterOpen: boolean;
+    /** 跟随鼠标所在屏幕显示 */
+    searchOpenOnMouseDisplay: boolean;
 
     enableWebSearch: boolean;
     /** 网络搜索打开呼出方式 0 */
@@ -158,6 +160,9 @@ declare global {
     name: string;
     parent_id: number;
     association_directory?: string | null;
+    exclude: 0 | 1;
+    layout: 'list' | 'grid';
+    icon: string | null;
     created_at: string;
     updated_at: string;
   }

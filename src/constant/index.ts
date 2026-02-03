@@ -33,6 +33,7 @@ export enum InvokeMethod {
 
   ADD_LAUNCH = 'add_launch',
   GET_LAUNCH = 'get_launch',
+  GET_LAUNCH_BY_ID = 'get_launch_by_id',
   RUN_LAUNCH = 'run_launch',
   RUN_LAUNCH_AS_ADMIN = 'run_launch_as_admin',
   SEARCH_LAUNCH = 'search_launch',

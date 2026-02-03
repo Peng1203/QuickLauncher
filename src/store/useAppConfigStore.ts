@@ -44,6 +44,7 @@ export const useAppConfigStore = defineStore(
       enableSearch: true,
       searchLostFocusHide: false,
       searchHideAfterOpen: true,
+      searchOpenOnMouseDisplay: true,
 
       enableWebSearch: true,
       webSearchOpenModel: 0,
@@ -86,7 +87,7 @@ export const useAppConfigStore = defineStore(
           console.log(
             `%c beforeBackendSync ----`,
             'color: #fff;background-color: #000;font-size: 18px',
-            state
+            state,
           );
           saveAppConfig(state);
 
@@ -96,5 +97,5 @@ export const useAppConfigStore = defineStore(
       saveOnChange: true,
     },
     persist: true,
-  }
+  },
 );

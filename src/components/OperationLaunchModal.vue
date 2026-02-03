@@ -54,8 +54,8 @@
                     class="!flex justify-start items-end"
                   >
                     <n-avatar
-                      :style="form.icon ? 'background-color: transparent' : ''"
                       size="large"
+                      :style="form.icon ? 'background-color: transparent' : ''"
                       :src="form.icon || ''"
                     />
                   </n-col>
@@ -64,111 +64,7 @@
                     :span="(sItem.span as any)"
                     class="!flex justify-start items-end"
                   >
-                    <div class="flex items-end gap-2">
-                      <!-- <n-input v-model:value="sourceForm.icon" placeholder="" /> -->
-
-                      <n-button
-                        size="tiny"
-                        type="default"
-                        title="选择本地图标"
-                        @click="handleGetLocalFileIcon"
-                      >
-                        <template #icon>
-                          <n-icon>
-                            <ArrowUp />
-                          </n-icon>
-                        </template>
-                      </n-button>
-
-                      <n-tooltip placement="bottom" trigger="click">
-                        <template #trigger>
-                          <n-button size="tiny" type="default" title="网络图片">
-                            <template #icon>
-                              <n-icon>
-                                <LinkOutline />
-                              </n-icon>
-                            </template>
-                          </n-button>
-                        </template>
-                        <div class="text-gray-700">输入网络图片地址</div>
-
-                        <n-input-group>
-                          <n-input
-                            v-model:value="onlineImgUrl"
-                            placeholder=""
-                          />
-                          <n-button
-                            type="info"
-                            :loading="onlineImgUrlLoading"
-                            :disabled="!onlineImgUrl.length"
-                            @click="handleGetOnlineImg"
-                          >
-                            获 取
-                          </n-button>
-                        </n-input-group>
-                      </n-tooltip>
-
-                      <n-tooltip
-                        placement="bottom"
-                        trigger="click"
-                        title="网站图标"
-                      >
-                        <template #trigger>
-                          <n-button size="tiny" type="default">
-                            <template #icon>
-                              <n-icon>
-                                <GlobeOutline />
-                              </n-icon>
-                            </template>
-                          </n-button>
-                        </template>
-                        <div class="text-gray-700">输入网站地址</div>
-                        <n-input-group>
-                          <n-input v-model:value="webSiteUrl" placeholder="" />
-                          <n-button
-                            type="info"
-                            :loading="webSiteUrlLoading"
-                            :disabled="!webSiteUrl.length"
-                            @click="handleGetWebSiteUrl"
-                          >
-                            获 取
-                          </n-button>
-                        </n-input-group>
-                      </n-tooltip>
-
-                      <n-tooltip
-                        placement="top"
-                        trigger="click"
-                        title="SVG 图标"
-                      >
-                        <template #trigger>
-                          <n-button size="tiny" type="default">
-                            <template #icon>
-                              <n-icon>
-                                <CodeOutline />
-                              </n-icon>
-                            </template>
-                          </n-button>
-                        </template>
-
-                        <div class="w-[200px]">
-                          <div class="text-gray-700">输入 SVG 代码</div>
-                          <n-input
-                            v-model:value="svgStr"
-                            type="textarea"
-                            placeholder=""
-                            :autosize="{ minRows: 3, maxRows: 5 }"
-                          />
-                          <n-button
-                            type="info"
-                            class="!mt-1"
-                            @click="handleGetSvgBase64"
-                          >
-                            获 取
-                          </n-button>
-                        </div>
-                      </n-tooltip>
-                    </div>
+                    <IconPicker v-model="form.icon!" />
                   </n-col>
 
                   <n-col
@@ -289,41 +185,24 @@
 
                           <n-tooltip trigger="hover">
                             <template #trigger>
-                              <n-icon
-                                size="16"
-                                class="cursor-pointer"
-                                @click="handleClose"
-                              >
+                              <n-icon size="16" class="cursor-pointer">
+                                <!-- @click="handleClose" -->
                                 <AlertCircleOutline />
                               </n-icon>
                             </template>
-                            按照以下格式添加自定义浏览器
-                            <br />
-                            浏览器名称=浏览器exe文件地址
-                            <br />
-                            例: QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
+                            <span style="color: #666">
+                              按照以下格式添加自定义浏览器
+                              <br />
+                              浏览器名称=浏览器exe文件地址
+                              <br />
+                              例:
+                              QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
+                            </span>
                           </n-tooltip>
                         </div>
                       </template>
-                      <!--           @change="handleChangeOpenBrowser"
-                        @click="handleChangeOpenBrowser" -->
-                      <n-dynamic-tags
-                        v-model:value="(browserOptions as any)"
-                        size="small"
-                        :render-tag="handleRenderBrowserTag"
-                        @create="handleCreateBrowserOption"
-                      />
 
-                      <n-button
-                        class="!ml-2"
-                        size="tiny"
-                        title="重置默认选项"
-                        @click="handleSetDefaultBrowserOptions"
-                      >
-                        <n-icon size="16">
-                          <RefreshOutline />
-                        </n-icon>
-                      </n-button>
+                      <BrowerPicker v-model="(form.args as string)" />
                     </n-form-item>
                   </n-col>
 
@@ -358,7 +237,7 @@
                         size="small"
                       />
                       <span class="ml-2 text-gray-400">
-                        用于搜索返回展示的优先级 数字越小越靠前
+                        用于搜索返回展示的优先级 数字越大越靠前
                       </span>
                     </n-form-item>
                   </n-col>
@@ -369,7 +248,7 @@
                     :span="(sItem.span as any)"
                   >
                     <n-form-item :label="sItem.label" :path="sItem.prop">
-                      <!-- TODO 分类切换 重置子分类 -->
+                      <!-- TODO 使用级联选择器 -->
                       <!-- {{ form }} -->
                       <n-select
                         v-model:value="form.category_id"
@@ -433,33 +312,17 @@
 <script setup lang="tsx">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
-import {
-  AlertCircleOutline,
-  ArrowUp,
-  Close,
-  CodeOutline,
-  GlobeOutline,
-  LinkOutline,
-  LogoChrome,
-  LogoEdge,
-  LogoFirefox,
-  RefreshOutline,
-} from '@vicons/ionicons5';
+import { AlertCircleOutline, Close } from '@vicons/ionicons5';
 import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
-import {
-  addLaunch,
-  getFileInfo,
-  getLocalIconBase64,
-  getOnlineImgBase64,
-  getWebsiteInfo,
-  updateLaunch,
-} from '@/api';
+import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
+import BrowerPicker from '@/components/BrowserPicker.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
+import IconPicker from './IconPicker.vue';
 
 // 表单字段 schema 类型
 interface FieldSchema {
@@ -589,27 +452,6 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
   ],
 };
 
-const LOCAL_BROWSER_KEY = 'local_browser_key';
-
-const defaultBrowserOptions = ref([
-  {
-    label: '默认',
-    value: '',
-  },
-  {
-    label: 'Chrome',
-    value: 'chrome',
-  },
-  {
-    label: 'Edge',
-    value: 'msedge',
-  },
-  {
-    label: 'Firefox',
-    value: 'firefox',
-  },
-]);
-
 const form = ref<NewLaunchItem>({
   name: '',
   path: '',
@@ -645,89 +487,6 @@ const inputTheme = {
   borderHover: 'inherit',
 };
 
-// 浏览器选择
-const baseBrowserOptions = ref<OptionItem[]>(
-  localStorage.getItem(LOCAL_BROWSER_KEY)
-    ? JSON.parse(localStorage.getItem(LOCAL_BROWSER_KEY) as any)
-    : defaultBrowserOptions.value
-);
-
-const browserOptions = computed<OptionItem[]>({
-  get: () => baseBrowserOptions.value,
-  set: val =>
-    (baseBrowserOptions.value = val.filter(item => item.value !== undefined)),
-});
-
-function handleSetDefaultBrowserOptions() {
-  baseBrowserOptions.value = JSON.parse(
-    JSON.stringify(defaultBrowserOptions.value)
-  );
-  saveBrowserOption();
-}
-
-function saveBrowserOption() {
-  nextTick(() => {
-    localStorage.setItem(
-      LOCAL_BROWSER_KEY,
-      JSON.stringify(baseBrowserOptions.value)
-    );
-  });
-}
-
-function handleCreateBrowserOption(newTag: string) {
-  const [label, value] = newTag.split('=');
-
-  if (!value || !label) message.warning('输入信息有误');
-  else saveBrowserOption();
-
-  return {
-    label,
-    value,
-  };
-}
-
-function handleDeleteBrowserOption(item: OptionItem) {
-  // 当删除的是当前选中的浏览器 则重置为默认
-  if (form.value.args === item.value) form.value.args = '';
-  // baseBrowserOptions.value
-  const delIndex = baseBrowserOptions.value.findIndex(
-    tag => tag.value === item.value
-  );
-  baseBrowserOptions.value.splice(delIndex, 1);
-  // 持久化保存到本地
-  saveBrowserOption();
-}
-
-const browserIcons: Record<string, any> = {
-  chrome: LogoChrome,
-  msedge: LogoEdge,
-  firefox: LogoFirefox,
-};
-
-function handleRenderBrowserTag(tag: OptionItem, index: number) {
-  const IconComponent = browserIcons[tag.value as string];
-
-  const NIcon = (
-    <n-icon size="16" style={{ paddingTop: '1px' }}>
-      <IconComponent />
-    </n-icon>
-  );
-
-  return (
-    <n-tag
-      size="small"
-      closable={index !== 0}
-      style="cursor: pointer;"
-      title={tag.value}
-      type={form.value.args === tag.value ? 'info' : ''}
-      onClick={() => (form.value.args = tag.value as any)}
-      onClose={() => handleDeleteBrowserOption(tag)}
-    >
-      {IconComponent ? NIcon : tag.label}
-    </n-tag>
-  );
-}
-
 const urlInfoLoading = ref(false);
 
 function handleClose() {
@@ -739,7 +498,7 @@ function handleClose() {
 async function getUrlInfo() {
   try {
     if (!form.value.path.trim()) return;
-    // TODO 优化 输入的url进行补全
+
     if (
       !(
         form.value.path.includes('http://') ||
@@ -833,7 +592,7 @@ async function handleConfirm() {
       JSON.stringify({
         ...editItem.value,
         ...form.value,
-      })
+      }),
     );
     // TODO 错误处理
     await updateLaunch(item);
@@ -842,68 +601,6 @@ async function handleConfirm() {
   }
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
   handleClose();
-}
-
-async function handleGetLocalFileIcon() {
-  const path = await open({
-    title: '选择图标',
-    multiple: false,
-    directory: false,
-  });
-  if (!path) return;
-  const base64 = await getLocalIconBase64(path);
-  form.value.icon = base64;
-}
-
-const onlineImgUrl = ref<string>('');
-const onlineImgUrlLoading = ref<boolean>(false);
-async function handleGetOnlineImg() {
-  try {
-    onlineImgUrlLoading.value = true;
-    if (
-      !(
-        onlineImgUrl.value.includes('http://') ||
-        onlineImgUrl.value.includes('https://')
-      )
-    ) {
-      onlineImgUrl.value = `https://${onlineImgUrl.value}`;
-    }
-    const base64 = await getOnlineImgBase64(onlineImgUrl.value);
-    form.value.icon = base64;
-  } catch (e) {
-    message.error(e as string);
-  } finally {
-    onlineImgUrlLoading.value = false;
-  }
-}
-
-const webSiteUrl = ref<string>('');
-const webSiteUrlLoading = ref<boolean>(false);
-async function handleGetWebSiteUrl() {
-  try {
-    webSiteUrlLoading.value = true;
-    if (
-      !(
-        webSiteUrl.value.includes('http://') ||
-        webSiteUrl.value.includes('https://')
-      )
-    ) {
-      webSiteUrl.value = `https://${webSiteUrl.value}`;
-    }
-    const { icon }: any = await getWebsiteInfo(webSiteUrl.value);
-    form.value.icon = icon;
-  } catch (e) {
-    message.error(e as string);
-  } finally {
-    webSiteUrlLoading.value = false;
-  }
-}
-
-const svgStr = ref<string>('');
-async function handleGetSvgBase64() {
-  if (!svgStr.value.trim()) return;
-  const base64 = btoa(unescape(encodeURIComponent(svgStr.value)));
-  form.value.icon = `data:image/svg+xml;base64,${base64}`;
 }
 
 const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'));

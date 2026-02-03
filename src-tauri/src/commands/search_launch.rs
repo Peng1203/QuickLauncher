@@ -62,7 +62,7 @@ pub fn search_launch(keyword: &str) -> Result<Vec<SearchLaunchItem>, String> {
                  OR li.pinyin_abbr LIKE ?1
                  OR li.keywords LIKE ?1
                )
-             ORDER BY li.order_index ASC",
+             ORDER BY li.order_index DESC",
         )
         .map_err(|e| format!("准备查询语句失败: {}", e))?;
 

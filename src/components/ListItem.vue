@@ -55,6 +55,7 @@ const props = defineProps<{
   icon: string;
   name: string;
   item: LaunchItem;
+  activeCategoryItem?: CategoryItem;
 }>();
 
 const { runLaunch } = useLaunchAction();
@@ -80,7 +81,7 @@ function handleKeydown(e: KeyboardEvent) {
     `%c keyCode ----`,
     'color: #fff;background-color: #000;font-size: 18px',
     keyCode,
-    key
+    key,
   );
   switch (key) {
     case 'F2': // 113
@@ -140,6 +141,7 @@ const menuVisible = ref(false);
 const menuPosition = ref({ x: 0, y: 0 });
 const isSelected = computed(() => !!((activeItems.value?.length || 0) > 1));
 function handleShowContextMenu(e: MouseEvent) {
+  // if (props.activeCategoryItem?.association_directory) return;
   // 先关闭其他菜单 再打开当前菜单
   EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 
@@ -152,7 +154,7 @@ function handleShowContextMenu(e: MouseEvent) {
         console.log(
           `%c isSelected ----`,
           'color: #fff;background-color: #000;font-size: 18px',
-          isSelected.value
+          isSelected.value,
         );
       } else {
         // 选中当前菜单
@@ -169,7 +171,7 @@ function handleActive(e?: PointerEvent) {
     // 判断当前按下的启动项是否已经在复选列表中 如果存在则从复选列表中移除
     if (activeItemIds.value.includes(props.item.id)) {
       const index = activeItems.value?.findIndex(
-        item => item.id === props.item.id
+        item => item.id === props.item.id,
       );
 
       if (!index || index === -1) return;

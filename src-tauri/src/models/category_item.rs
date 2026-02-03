@@ -6,6 +6,9 @@ pub struct CategoryItem {
     pub name: String,
     pub parent_id: i32,
     pub association_directory: Option<String>,
+    pub exclude: Option<i32>,
+    pub layout: Option<String>,
+    pub icon: Option<String>,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -13,12 +16,15 @@ pub struct CategoryItem {
 impl CategoryItem {
     pub fn from_row(row: &Row) -> Result<Self> {
         Ok(Self {
-            id: row.get(0)?,
-            name: row.get(1)?,
-            parent_id: row.get(2)?,
-            association_directory: row.get(3)?,
-            created_at: row.get(4)?,
-            updated_at: row.get(5)?,
+            id: row.get("id")?,
+            name: row.get("name")?,
+            parent_id: row.get("parent_id")?,
+            association_directory: row.get("association_directory")?,
+            exclude: row.get("exclude")?,
+            layout: row.get("layout")?,
+            icon: row.get("icon")?,
+            created_at: row.get("created_at")?,
+            updated_at: row.get("updated_at")?,
         })
     }
 }
@@ -28,4 +34,7 @@ pub struct NewCategoryItem {
     pub name: String,
     pub parent_id: i32,
     pub association_directory: String,
+    pub exclude: i32,
+    pub layout: String,
+    pub icon: String,
 }

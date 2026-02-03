@@ -8,7 +8,13 @@
       :label-width="160"
       :show-feedback="false"
     >
-      <h3>启动</h3>
+      <div class="flex items-center justify-between">
+        <h3 class="!mt-[0]">启动</h3>
+
+        <OpenDemoVideo
+          video-url="https://www.bilibili.com/video/BV1c7FKzKEc3"
+        />
+      </div>
       <n-form-item>
         <n-checkbox
           v-model:checked="appConfigStore.enableWebSearch"
@@ -49,7 +55,7 @@
         <n-icon
           title="重置搜索源"
           size="18"
-          class="cursor-pointer mr-2"
+          class="cursor-pointer mr-3"
           @click="handleResetWebSource"
         >
           <RefreshOutline />
@@ -379,7 +385,7 @@ async function handleConfirm() {
 
 function handleSaveEdit() {
   const editSource = webSearchSourceList.value.find(
-    item => item.id === sourceForm.value.id
+    item => item.id === sourceForm.value.id,
   );
   if (!editSource) return;
   for (const key in sourceForm.value) {
@@ -391,7 +397,7 @@ function handleSaveEdit() {
 }
 function handleSaveAdd() {
   const exists = webSearchSourceList.value.some(
-    item => item.keywords === sourceForm.value.keywords
+    item => item.keywords === sourceForm.value.keywords,
   );
 
   if (exists) return message.warning('已存在相同关键字');
@@ -411,7 +417,7 @@ function handleCancel() {
 
 function handleDel() {
   const index = webSearchSourceList.value.findIndex(
-    item => item.id === sourceForm.value.id
+    item => item.id === sourceForm.value.id,
   );
 
   if (index === -1) return;

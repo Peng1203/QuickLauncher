@@ -8,7 +8,7 @@
       :label-width="160"
       :show-feedback="false"
     >
-      <h3>代理</h3>
+      <h3 class="!mt-[0]">代理</h3>
       <n-form-item>
         <n-checkbox v-model:checked="appConfigStore.proxy" size="small">
           使用代理
