@@ -29,18 +29,10 @@ declare global {
 
   type NewLaunchItem = Omit<
     LaunchItem,
-    | 'id'
-    | 'last_used_at'
-    | 'created_at'
-    | 'updated_at'
-    | 'launch_count'
-    | 'failure_count'
+    'id' | 'last_used_at' | 'created_at' | 'updated_at' | 'launch_count' | 'failure_count'
   >;
 
-  type SearchLauncItem = Pick<
-    LaunchItem,
-    'id' | 'name' | 'icon' | 'category_id' | 'subcategory_id'
-  > & {
+  type SearchLauncItem = Pick<LaunchItem, 'id' | 'name' | 'icon' | 'category_id' | 'subcategory_id'> & {
     category_name: string;
     subcategory_name: string;
   };
@@ -64,14 +56,7 @@ declare global {
 
   type FileInfo = Pick<
     LaunchItem,
-    | 'name'
-    | 'path'
-    | 'icon'
-    | 'type'
-    | 'extension'
-    | 'args'
-    | 'remarks'
-    | 'start_dir'
+    'name' | 'path' | 'icon' | 'type' | 'extension' | 'args' | 'remarks' | 'start_dir'
   > & { size: number };
 
   // 应用配置状态
@@ -160,6 +145,7 @@ declare global {
     name: string;
     parent_id: number;
     association_directory?: string | null;
+    /** 0不排除 1排除 */
     exclude: 0 | 1;
     layout: 'list' | 'grid';
     icon: string | null;

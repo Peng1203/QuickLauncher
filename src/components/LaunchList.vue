@@ -15,18 +15,15 @@
       group="people"
       class="grid grid-cols-6 draggable gap-0.5"
     >
-      <template
+      <ListItem
         v-for="item in launchData"
         :key="item.id"
-      >
-        <ListItem
-          v-model="activeItem"
-          :item="item"
-          :icon="item.icon!"
-          :name="item.name"
-          :active-category-item="activeCategoryItem!"
-        />
-      </template>
+        v-model="activeItem"
+        :item="item"
+        :icon="item.icon!"
+        :name="item.name"
+        :active-category-item="activeCategoryItem!"
+      />
     </VueDraggable>
 
     <div
@@ -35,7 +32,6 @@
     >
       {{ isConrrelationDir ? '空文件夹' : '拖动文件到该区域' }}
     </div>
-    <!-- {{ categoryModalStatus }} -->
   </n-layout-content>
 
   <!-- 启动项列表 空白处右键菜单 -->
@@ -43,9 +39,6 @@
     v-model="contextMenuVisible"
     :position="contextMenuPosition"
   />
-
-  <!-- 新增/编辑 启动项 -->
-  <OperationLaunchModal v-model="launchModalStatus" />
 </template>
 
 <script setup lang="ts">
@@ -56,27 +49,25 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { addLaunch, getFileInfo } from '@/api';
 import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
-import OperationLaunchModal from '@/components/OperationLaunchModal.vue';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
-const props = defineProps<{
-  categoryModalStatus: boolean;
-}>();
 const store = useStore();
 const { launchData, activeCategory } = storeToRefs(store);
+
 const { isConrrelationDir, activeCategoryItem } = useCategoryCorrelationDir();
+
 const launchModalStatus = ref(false);
+const categoryModalStatus = ref(false);
 const currentWindow = getCurrentWebviewWindow();
 
 currentWindow.onDragDropEvent(async e => {
   // 防止在关联目录分类下手动拖拽添加启动项
   if (isConrrelationDir.value) return;
   // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
-  if (launchModalStatus.value || props.categoryModalStatus) return;
-
+  if (launchModalStatus.value || categoryModalStatus.value) return;
   // TODO 分类对话框打开
   if (e.payload.type === 'drop') {
     const addLaunchTasks = (e.payload.paths ?? []).map(async path => {
@@ -101,10 +92,13 @@ currentWindow.onDragDropEvent(async e => {
         subcategory_id: null,
         extension: fileInfo.extension,
       };
+
+      // // 添加记录
       await addLaunch(item);
     });
 
     await Promise.all(addLaunchTasks);
+
     // 刷新列表
     store.getLaunchData();
   }
@@ -127,3 +121,5 @@ function handleShowListContextMenu(e: MouseEvent) {
   }, 100);
 }
 </script>
+
+<style scoped lang="scss"></style>

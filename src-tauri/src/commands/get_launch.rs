@@ -6,7 +6,7 @@ pub fn get_launch(category_id: i32) -> Result<Vec<LaunchItem>, String> {
     let conn = db::connection::get_conn().lock().unwrap();
 
     let sql = if category_id == -1 {
-        "SELECT * FROM launch_items"
+        "SELECT * FROM launch_items WHERE category_id IS NULL"
     } else {
         "SELECT * FROM launch_items WHERE category_id = ?1"
     };

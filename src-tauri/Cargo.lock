@@ -3970,6 +3970,7 @@ dependencies = [
  "tauri-plugin-process",
  "tauri-plugin-single-instance",
  "ua_generator",
+ "url",
  "windows-icons",
 ]
 

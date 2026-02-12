@@ -32,5 +32,10 @@ export const useStore = defineStore('main', {
         console.log('e', e);
       }
     },
+
+    async handleChangeCategory(id: number) {
+      this.activeCategory = id;
+      await this.getLaunchData(id);
+    },
   },
 });

@@ -11,7 +11,7 @@
       aria-modal="true"
       label-placement="left"
       :bordered="false"
-      :title="isEdit ? '编辑分类' : '新建分类'"
+      :title="isEdit ? `编辑${editItem?.name}分类` : '新建分类'"
     >
       <template #header-extra>
         <n-icon
@@ -113,6 +113,7 @@
           <n-button
             size="small"
             type="info"
+            :loading="loading"
             :disabled="!form.name"
             @click="handleConfirm"
           >
@@ -136,12 +137,18 @@ import { Close } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { addCategory, updateCategory } from '@/api';
 import IconPicker from '@/components/IconPicker.vue';
+import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { useFormState } from '@/composables/useFormState';
+import { useLoading } from '@/composables/useLoading';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
+import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
+const store = useStore();
+
 const { message } = useNaiveUiApi();
+const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch } = useCategoryCorrelationDir();
 
 const inputTheme = {
   borderFocus: 'inherit',
@@ -174,14 +181,17 @@ async function handleSelectDir() {
   if (!path) return;
   form.value.association_directory = path;
   const arr = path.split('\\');
-  form.value.name = arr[arr.length - 1];
+  form.value.name || (form.value.name = arr[arr.length - 1]);
 }
 
 const isEdit = ref<boolean>(false);
 
+const { loading, startLoading, stopLoading } = useLoading();
+
 const editItem = ref<CategoryItem>();
 async function handleConfirm() {
   try {
+    startLoading();
     if (isEdit.value) {
       const item = {
         ...editItem.value,
@@ -189,12 +199,21 @@ async function handleConfirm() {
       };
       await updateCategory(item);
     } else {
-      await addCategory(form.value);
+      const res = await addCategory(form.value);
+      // 如果有关联目录 创建该目录下的启动项
+      await handleCreateLaunchFromCategoryDir(res);
+      // 选中新创建的分类
+      store.handleChangeCategory(res.id);
+      // TODO 滚动到该分类
+
+      registerAllCategoryDirWatch();
     }
     EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST);
     handleClose();
   } catch (e) {
     message.error(e as string);
+  } finally {
+    stopLoading();
   }
 }
 

@@ -9,10 +9,7 @@ export const EventBus = {
   },
 
   // 监听事件
-  listen: async <T = unknown>(
-    event: AppEventName,
-    handler: (payload: T) => void,
-  ): Promise<UnlistenFn> => {
+  listen: async <T = unknown>(event: AppEventName, handler: (payload: T) => void): Promise<UnlistenFn> => {
     return listen<T>(event, e => handler(e.payload));
   },
 };

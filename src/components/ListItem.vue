@@ -45,8 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { renameLaunch } from '@/api';
-import { useLaunchAction } from '@/composables/useLaunchAction';
+import { renameLaunch, runLaunch } from '@/api';
 import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 import LaunchItemContextMenu from './ListItemContextMenu.vue';
@@ -57,8 +56,6 @@ const props = defineProps<{
   item: LaunchItem;
   activeCategoryItem?: CategoryItem;
 }>();
-
-const { runLaunch } = useLaunchAction();
 
 // 鼠标单击选中的项
 const activeItems = defineModel<LaunchItem[]>();
@@ -77,12 +74,7 @@ function handleRun() {
 function handleKeydown(e: KeyboardEvent) {
   const { keyCode, key } = e;
 
-  console.log(
-    `%c keyCode ----`,
-    'color: #fff;background-color: #000;font-size: 18px',
-    keyCode,
-    key,
-  );
+  console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key);
   switch (key) {
     case 'F2': // 113
       handleEditName();
@@ -151,11 +143,7 @@ function handleShowContextMenu(e: MouseEvent) {
       menuVisible.value = true;
       menuPosition.value = { x: e.clientX, y: e.clientY };
       if (isSelected.value) {
-        console.log(
-          `%c isSelected ----`,
-          'color: #fff;background-color: #000;font-size: 18px',
-          isSelected.value,
-        );
+        console.log(`%c isSelected ----`, 'color: #fff;background-color: #000;font-size: 18px', isSelected.value);
       } else {
         // 选中当前菜单
         activeItems.value = [props.item];
@@ -170,9 +158,7 @@ function handleActive(e?: PointerEvent) {
   if (e?.ctrlKey) {
     // 判断当前按下的启动项是否已经在复选列表中 如果存在则从复选列表中移除
     if (activeItemIds.value.includes(props.item.id)) {
-      const index = activeItems.value?.findIndex(
-        item => item.id === props.item.id,
-      );
+      const index = activeItems.value?.findIndex(item => item.id === props.item.id);
 
       if (!index || index === -1) return;
       activeItems.value?.splice(index, 1);

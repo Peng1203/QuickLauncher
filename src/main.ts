@@ -1,13 +1,12 @@
 import { createApp } from 'vue';
+import { setupApp } from './app/setupApp';
 import App from './App.vue';
-import { useWindowGuards } from './composables/useWindowGuards';
 import router from './router';
 import store from './store';
 import './styles/global.css';
 import './styles/tailwind.css';
 
-// 放入Main.ts 中的js 代码都会单独执行
-// 加载应用配置
-useWindowGuards();
+// 放入Main.ts中的js代码 每个窗口都会单独执行
+setupApp();
 
 createApp(App).use(router).use(store).mount('#app');

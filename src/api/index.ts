@@ -11,6 +11,17 @@ const { message } = createDiscreteApi(['message']);
  * @param {string} path
  * @returns {*}
  */
+export function openRevealManager(path: string) {
+  return invoke(InvokeMethod.REVEAL_IN_FILE_MANAGER, { path }).catch(e => message.error(e));
+}
+
+/**
+ * @description 打开文件或目录
+ * @author Peng
+ *
+ * @param {string} path
+ * @returns {*}
+ */
 export function openPath(path: string) {
   return invoke(InvokeMethod.OPEN_PATH, { path }).catch(e => message.error(e));
 }
@@ -185,11 +196,10 @@ export function getWebsiteInfo(url: string) {
  * @description 新建分类
  * @author Peng
  *
- * @template [T=NewCategoryItem]
- * @param {T} item
- * @returns {*}
+ * @param {NewCategoryItem} item
+ * @returns {Promise<CategoryItem>}
  */
-export function addCategory<T = NewCategoryItem>(item: T) {
+export function addCategory(item: NewCategoryItem): Promise<CategoryItem> {
   return invoke(InvokeMethod.ADD_CATEGORY, { item });
 }
 
@@ -215,6 +225,10 @@ export function getCategory() {
   return invoke<CategoryItem[]>(InvokeMethod.GET_CATEGORY);
 }
 
+export function deleteCategory(id: number) {
+  return invoke<CategoryItem[]>(InvokeMethod.DELETE_CATEGORY, { id });
+}
+
 export function setAppConfig(config: AppConfigState) {
   return invoke(InvokeMethod.SET_APP_CONFIG, { config });
 }
@@ -227,10 +241,7 @@ export function getOnlineImgBase64(url: string): Promise<string> {
   return invoke<string>(InvokeMethod.GET_ONLINE_IMG_BASE64, { url });
 }
 
-export function addOrUpdateAutocompleteRecord(
-  query: string,
-  launchItemId?: number,
-): Promise<string> {
+export function addOrUpdateAutocompleteRecord(query: string, launchItemId?: number): Promise<string> {
   return invoke<string>(InvokeMethod.ADD_OR_UPDATE_AUTOCOMPLETE, {
     query,
     launchItemId,
@@ -239,4 +250,8 @@ export function addOrUpdateAutocompleteRecord(
 
 export function getAutocomplete(keyword: string) {
   return invoke<string[]>(InvokeMethod.GET_AUTOCOMPLETE, { keyword });
+}
+
+export function getLaunchByNameAndCategory<T = LaunchItem>(name: string, categoryId: number): Promise<T | null> {
+  return invoke<T | null>(InvokeMethod.GET_LAUNCH_BY_NAME_AND_CATEGORY, { name, categoryId });
 }

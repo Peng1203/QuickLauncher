@@ -24,7 +24,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { ref } from 'vue';
+import { useContextMenuClose } from '@/composables/useContextMenuClose';
 import { AppEvent, MENU_WIDTH } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 
@@ -87,16 +88,17 @@ const calcPosition = computed(() => {
   return { x, y };
 });
 
-onMounted(() => {
-  EventBus.listen(AppEvent.CLOSE_CONTEXT_MENU, handleClose);
+useContextMenuClose(handleClose, handleOutsideClick);
+// onMounted(() => {
+//   EventBus.listen(AppEvent.CLOSE_CONTEXT_MENU, handleClose);
 
-  window.addEventListener('click', handleOutsideClick);
-  window.addEventListener('contextmenu', handleOutsideClick);
-  window.addEventListener('scroll', handleClose, true);
-});
-onUnmounted(() => {
-  window.removeEventListener('click', handleOutsideClick);
-  window.removeEventListener('contextmenu', handleOutsideClick);
-  window.removeEventListener('scroll', handleClose, true);
-});
+//   window.addEventListener('click', handleOutsideClick);
+//   window.addEventListener('contextmenu', handleOutsideClick);
+//   window.addEventListener('scroll', handleClose, true);
+// });
+// onUnmounted(() => {
+//   window.removeEventListener('click', handleOutsideClick);
+//   window.removeEventListener('contextmenu', handleOutsideClick);
+//   window.removeEventListener('scroll', handleClose, true);
+// });
 </script>

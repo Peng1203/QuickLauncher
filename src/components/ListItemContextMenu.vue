@@ -11,7 +11,10 @@
     @click.stop
   >
     <ul class="text-sm text-gray-700">
-      <template v-for="menu in menuItems" :key="menu.label">
+      <template
+        v-for="menu in menuItems"
+        :key="menu.label"
+      >
         <li
           v-if="menu?.itemVisible === undefined ? true : menu.itemVisible()"
           :style="liStyle"
@@ -30,7 +33,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ask } from '@tauri-apps/plugin-dialog';
 import { useMessage } from 'naive-ui';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { deleteLaunch, openPath, runLaunchAsAdmin } from '@/api';
+import { deleteLaunch, openRevealManager, runLaunchAsAdmin } from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { AppEvent, MENU_WIDTH } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
@@ -77,14 +80,12 @@ const menuItems = ref<MenuAction[]>([
   {
     label: '以管理员身份运行',
     onClick: () => runLaunchAsAdmin(props.item.id),
-    itemVisible: () =>
-      !selected.value && ['exe'].includes(props.item?.extension || ''),
+    itemVisible: () => !selected.value && ['exe'].includes(props.item?.extension || ''),
   },
   {
-    label: '打开所在位置',
-    onClick: async () => openPath(props.item.path),
-    itemVisible: () =>
-      !selected.value && ['file', 'directory'].includes(props.item.type),
+    label: `打开${props.item.type === 'file' ? '文件' : '目录'}所在位置`,
+    onClick: async () => openRevealManager(props.item.path),
+    itemVisible: () => !selected.value && ['file', 'directory'].includes(props.item.type),
   },
   {
     label: '复制路径',

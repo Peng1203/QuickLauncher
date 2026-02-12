@@ -25,6 +25,7 @@ export enum SearchWindow {
 
 export enum InvokeMethod {
   OPEN_PATH = 'open_path',
+  REVEAL_IN_FILE_MANAGER = 'reveal_in_file_manager',
 
   GET_APP_CONFIG = 'get_app_config',
   SAVE_APP_CONFIG = 'save_app_config',
@@ -41,9 +42,10 @@ export enum InvokeMethod {
   DELETE_LAUNCH = 'delete_launch',
   UPDATE_LAUNCH = 'update_launch',
 
+  GET_CATEGORY = 'get_category',
   ADD_CATEGORY = 'add_category',
   UPDATE_CATEGORY = 'update_category',
-  GET_CATEGORY = 'get_category',
+  DELETE_CATEGORY = 'delete_category',
 
   EXE_COMMAND = 'exe_command',
 
@@ -57,6 +59,9 @@ export enum InvokeMethod {
 
   ADD_OR_UPDATE_AUTOCOMPLETE = 'add_or_update_autocomplete',
   GET_AUTOCOMPLETE = 'get_autocomplete',
+
+  // 根据名称和分类获取启动项
+  GET_LAUNCH_BY_NAME_AND_CATEGORY = 'get_launch_by_name_and_category',
 }
 
 export enum AppEvent {

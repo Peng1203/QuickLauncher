@@ -17,6 +17,7 @@ use commands::get_online_img_base64::get_online_img_base64;
 use commands::get_website_info::get_website_info;
 use commands::open_path::open_path;
 use commands::rename_launch::rename_launch;
+use commands::reveal_in_file_manager::reveal_in_file_manager;
 use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
@@ -24,6 +25,7 @@ use commands::search_launch::search_launch;
 use commands::set_app_config::set_app_config;
 use commands::update_category::update_category;
 use commands::update_launch::update_launch;
+use commands::get_launch_by_name_and_category::get_launch_by_name_and_category;
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
@@ -82,7 +84,7 @@ pub fn run() {
             exe_command,
             save_app_config,
             get_app_config,
-            open_path,
+            reveal_in_file_manager,
             get_website_info,
             add_category,
             get_category,
@@ -92,6 +94,8 @@ pub fn run() {
             get_online_img_base64,
             add_or_update_autocomplete,
             get_autocomplete,
+            open_path,
+            get_launch_by_name_and_category
         ])
         .setup(|app| {
             let main_window = app.get_webview_window("main").unwrap();

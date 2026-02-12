@@ -32,13 +32,24 @@
               :size="22"
               :src="searchSourch!.icon"
             />
-            <n-icon v-else :component="GlobeOutline" size="22" />
+            <n-icon
+              v-else
+              :component="GlobeOutline"
+              size="22"
+            />
           </template>
-          <n-icon v-else :component="SearchOutline" size="22" />
+          <n-icon
+            v-else
+            :component="SearchOutline"
+            size="22"
+          />
         </template>
       </n-input>
       <!-- v-show="keyword.length" && currentAutocompleteSuggestion !== keyword -->
-      <div v-if="autocompleteList.length" class="suggestion-con">
+      <div
+        v-if="autocompleteList.length"
+        class="suggestion-con"
+      >
         <span class="suggestion-text">
           {{ currentAutocompleteSuggestion }}
         </span>
@@ -118,11 +129,94 @@
               />
 
               <!-- 右箭头三角 -->
-              <polygon points="26,8 36,12 26,16" fill="#333" />
+              <polygon
+                points="26,8 36,12 26,16"
+                fill="#333"
+              />
             </svg>
             <span class="text-xs ml-1">补全</span>
           </span>
         </div>
+      </div>
+
+      <div
+        v-show="resultList.length && !autocompleteList.length"
+        class="suggestion-con"
+      >
+        <span class="suggestion-text">
+          <!-- {{ currentAutocompleteSuggestion }} -->
+        </span>
+
+        <span class="flex items-center select-none mr-3">
+          <svg
+            width="40"
+            height="20"
+            viewBox="0 0 40 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <!-- 背景矩形 -->
+            <rect
+              x="0"
+              y="0"
+              width="40"
+              height="20"
+              rx="4"
+              ry="4"
+              fill="#f9f9f9"
+              stroke="#ccc"
+              stroke-width="1"
+            />
+
+            <!-- Tab 文本 -->
+            <text
+              x="50%"
+              y="50%"
+              alignment-baseline="middle"
+              text-anchor="middle"
+              font-size="12"
+              font-family="Arial, sans-serif"
+              fill="#000"
+            >
+              Ctrl
+            </text>
+          </svg>
+
+          <span>+</span>
+
+          <svg
+            width="30"
+            height="20"
+            viewBox="0 0 30 20"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <!-- 背景矩形 -->
+            <rect
+              x="0"
+              y="0"
+              width="30"
+              height="20"
+              rx="4"
+              ry="4"
+              fill="#f9f9f9"
+              stroke="#ccc"
+              stroke-width="1"
+            />
+
+            <!-- Tab 文本 -->
+            <text
+              x="50%"
+              y="55%"
+              alignment-baseline="middle"
+              text-anchor="middle"
+              font-size="12"
+              font-family="Arial, sans-serif"
+              fill="#000"
+            >
+              W
+            </text>
+          </svg>
+          <span class="text-xs ml-1">关闭候补</span>
+        </span>
       </div>
     </label>
 
@@ -134,7 +228,10 @@
         maxHeight: `calc(${searchWindowHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
       }"
     >
-      <template v-for="(item, index) of resultList" :key="item.id">
+      <template
+        v-for="(item, index) of resultList"
+        :key="item.id"
+      >
         <!-- <LaunchItem
         :icon="item.icon!"
         :name="item.name"
@@ -142,9 +239,7 @@
         <li
           :ref="el => (itemRefs[index] = el as any)"
           class="flex items-center justify-between h-[48px] px-4 py-2 cursor-pointer"
-          :class="[
-            index === selectedIndex ? 'bg-[#f5f5f5]' : 'hover:bg-gray-100',
-          ]"
+          :class="[index === selectedIndex ? 'bg-[#f5f5f5]' : 'hover:bg-gray-100']"
           @click="
             () => {
               selectedIndex = index;
@@ -229,12 +324,12 @@ import {
   exeCommand,
   getAutocomplete,
   getLaunchByID,
+  runLaunch,
   searchLaunch,
 } from '@/api';
 import LaunchItemContextMenu from '@/components/ListItemContextMenu.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
-import { useLaunchAction } from '@/composables/useLaunchAction';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import {
   AppEvent,
@@ -245,8 +340,6 @@ import {
 } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 import Translation from './components/Translation.vue';
-
-const { runLaunch } = useLaunchAction();
 
 const { appConfigStore } = useAppConfig();
 // prettier-ignore
@@ -279,14 +372,21 @@ const isTranslationModel = computed(() => searchModel.value === 2);
 
 const autocompleteList = ref<string[]>([]);
 const autocompleteIndex = ref<number>(0);
-const currentAutocompleteSuggestion = computed(
-  () => autocompleteList.value[autocompleteIndex.value],
-);
+const currentAutocompleteSuggestion = computed(() => autocompleteList.value[autocompleteIndex.value]);
+const searchWindowHeight = computed(() => {
+  if (!resultList.value.length) return SEARCH_INPUT_HEIGHT;
+
+  // 结果列表总高度 + 1像素的的顶部边框高度
+  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT;
+
+  return resultsHeight + SEARCH_INPUT_HEIGHT > appConfigStore.searchWindowMaxHeight
+    ? appConfigStore.searchWindowMaxHeight
+    : resultsHeight + SEARCH_INPUT_HEIGHT + 1;
+});
 
 function handleChangeCurrentAutocomplete() {
   if (autocompleteList.value.length === 1) return;
-  else if (autocompleteList.value.length - 1 === autocompleteIndex.value)
-    return (autocompleteIndex.value = 0);
+  else if (autocompleteList.value.length - 1 === autocompleteIndex.value) return (autocompleteIndex.value = 0);
   autocompleteIndex.value++;
 }
 
@@ -302,7 +402,7 @@ function handleKeydown(e: KeyboardEvent) {
   // Esc   keyCode=27 code=Escape
   // 上箭头 keyCode=38 code=ArrowUp
   // 下箭头 keyCode=40 code=ArrowDown
-  console.log('keyCode ------', keyCode);
+  console.log('keyCode ------', keyCode, e);
   // 连续按下3次空格 进入翻译模式
   if (keyCode === 32) {
     spaceCounter.value++;
@@ -335,10 +435,7 @@ function handleKeydown(e: KeyboardEvent) {
     case 27: // Esc 键 关闭搜索窗口
       // 当处于 web 搜索模式或者翻译模式时 按下esc 退出当前模式回到 快速搜索模式
       if (isWebSearchModel.value || isTranslationModel.value) {
-        if (
-          isTranslationModel.value &&
-          translationRef.value?.isChangeTranslationLanguage
-        ) {
+        if (isTranslationModel.value && translationRef.value?.isChangeTranslationLanguage) {
           translationRef.value?.handleCloseChangeTranslationLanguage();
         } else {
           handleToggleSearchModel(SEARCH_MODEL.DEFAULT_MODEL);
@@ -353,11 +450,7 @@ function handleKeydown(e: KeyboardEvent) {
       }
       break;
     case 32: // 空格键盘 判断是否呼出网络搜索
-      if (
-        isWebDefaultModel.value &&
-        appConfigStore.enableTranslation &&
-        spaceCounter.value === 3
-      ) {
+      if (isWebDefaultModel.value && appConfigStore.enableTranslation && spaceCounter.value === 3) {
         handleToggleSearchModel(SEARCH_MODEL.TRANSLATION_MODEL);
       }
       // prettier-ignore
@@ -367,27 +460,30 @@ function handleKeydown(e: KeyboardEvent) {
       if (isTranslationModel.value) {
         translationRef.value?.handleKeyUp();
       } else {
-        if (selectedIndex.value === minIndex && reultCount)
-          selectedIndex.value = reultCount - 1;
+        if (selectedIndex.value === minIndex && reultCount) selectedIndex.value = reultCount - 1;
         else selectedIndex.value > 0 && selectedIndex.value--;
       }
 
       e.preventDefault();
       break;
     case 39: // 补全提示 补全关键字
-      if (autocompleteList.value.length)
-        keyword.value = currentAutocompleteSuggestion.value;
+      if (autocompleteList.value.length) keyword.value = currentAutocompleteSuggestion.value;
       break;
     case 40: // 下移动按键 用于切换选中项
       if (isTranslationModel.value) {
         translationRef.value?.handleKeyDown();
       } else {
-        if (selectedIndex.value === maxIndex && reultCount)
-          selectedIndex.value = minIndex;
+        if (selectedIndex.value === maxIndex && reultCount) selectedIndex.value = minIndex;
         else selectedIndex.value < maxIndex && selectedIndex.value++;
       }
-
       e.preventDefault();
+      break;
+    case 87: // 关闭搜索建议 (ctrl + w)
+      if (e.ctrlKey) {
+        handleCloseSuggestion();
+        current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+      }
+
       break;
   }
 }
@@ -401,17 +497,13 @@ async function handleOpenWebSearch() {
     if (appConfigStore.webSearchOpenModel === WebSearchOpenModel.KEY_SPACE) {
       flag = true;
       key = keyword.value.trim();
-    } else if (
-      appConfigStore.webSearchOpenModel === WebSearchOpenModel.COLON_KEY_SPACE
-    ) {
+    } else if (appConfigStore.webSearchOpenModel === WebSearchOpenModel.COLON_KEY_SPACE) {
       if (keyword.value.trim().substring(0, 1) === ':') flag = true;
       key = keyword.value.trim().substring(1, keyword.value.trim().length);
     }
     if (!flag) return;
 
-    const searchSource = appConfigStore.webSearchSourceList.find(
-      ({ keywords }) => keywords === key,
-    );
+    const searchSource = appConfigStore.webSearchSourceList.find(({ keywords }) => keywords === key);
 
     if (!searchSource) return;
     searchSourch.value = searchSource;
@@ -473,11 +565,7 @@ async function handleEnterLaunch() {
 async function handleEnterWebSearch() {
   const item = resultList.value[selectedIndex.value];
 
-  const keywordStr =
-    searchSourch.value?.searchApi?.replace(
-      '{w}',
-      encodeURI(item ? item.name : keyword.value),
-    ) || '';
+  const keywordStr = searchSourch.value?.searchApi?.replace('{w}', encodeURI(item ? item.name : keyword.value)) || '';
 
   await exeCommand(keywordStr!);
 }
@@ -489,8 +577,7 @@ function handleToggleSearchModel(newModel: SearchModelType) {
   if (newModel === 2) tranStr.value = keyword.value;
   searchModel.value = newModel;
   keyword.value = '';
-  resultList.value = [];
-  selectedIndex.value = 0;
+  handleCloseSuggestion();
   placeholder.value = newModel ? searchSourch.value?.desc || '' : placeTip;
 }
 
@@ -534,9 +621,8 @@ function handleClose(isEscClose: boolean = false) {
   searchModel.value = 0;
   // 清空输入框
   keyword.value = '';
-  resultList.value = [];
-  selectedIndex.value = 0;
   placeholder.value = placeTip;
+  handleCloseSuggestion();
   // 隐藏搜索窗口
   // current.setSize(new LogicalSize(600, 45))
   if (appConfigStore.searchHideAfterOpen || isEscClose) {
@@ -572,6 +658,11 @@ async function handleShow() {
   inputRef.value?.focus();
 }
 
+function handleCloseSuggestion() {
+  selectedIndex.value = 0;
+  resultList.value = [];
+}
+
 // const searchWindowHeight = ref<number>(300)
 // console.log('searchWindowHeight ------', searchWindowHeight.value)
 // 当使用箭头控制选项是 自动将预选项滚到可视窗口内
@@ -581,17 +672,6 @@ watch(selectedIndex, async newIndex => {
   el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 });
 
-const searchWindowHeight = computed(() => {
-  if (!resultList.value.length) return SEARCH_INPUT_HEIGHT;
-
-  // 结果列表总高度 + 1像素的的顶部边框高度
-  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT;
-
-  return resultsHeight + SEARCH_INPUT_HEIGHT >
-    appConfigStore.searchWindowMaxHeight
-    ? appConfigStore.searchWindowMaxHeight
-    : resultsHeight + SEARCH_INPUT_HEIGHT + 1;
-});
 let searchRequestId = 0;
 watch(
   () => keyword.value,
@@ -602,11 +682,8 @@ watch(
     autocompleteList.value = [];
 
     if (!keyword.trim()) {
-      selectedIndex.value = 0;
-      resultList.value = [];
-      return current.setSize(
-        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value),
-      );
+      handleCloseSuggestion();
+      return current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
     }
 
     // 根据当前搜索模式 调用不同的搜索接口
@@ -628,9 +705,7 @@ watch(
     resultList.value = launchs;
 
     if (currentId === searchRequestId) {
-      current.setSize(
-        new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value),
-      );
+      current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
     }
   },
 );

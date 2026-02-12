@@ -1,6 +1,7 @@
 use crate::models::launch_item::LaunchItem;
 use pinyin::ToPinyin;
 use std::{os::windows::process::CommandExt, process::Command};
+use url::Url;
 
 // 获取拼音的全拼和缩写
 pub fn get_pinyin_variants(name: &str) -> (String, String) {
@@ -55,4 +56,70 @@ pub fn run_as_admin(launch_item: LaunchItem) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+// 是否是网站
+pub fn is_valid_url(input: &str) -> bool {
+    // 1️⃣ 能直接解析成功（带协议）
+    if Url::parse(input).is_ok() {
+        return true;
+    }
+
+    const COMMON_TLDS: [&str; 43] = [
+        // 🌍 国际通用
+        ".com",
+        ".net",
+        ".org",
+        ".info",
+        ".biz",
+        ".xyz",
+        ".top",
+        ".site",
+        ".online",
+        ".club",
+        // 🧑‍💻 技术 / 创业 / 产品
+        ".io",
+        ".ai",
+        ".dev",
+        ".app",
+        ".tech",
+        ".cloud",
+        ".digital",
+        ".software",
+        ".tools",
+        // 🏢 商业 / 品牌
+        ".shop",
+        ".store",
+        ".company",
+        ".inc",
+        ".ltd",
+        ".group",
+        // 🌏 国家 & 地区（高频）
+        ".cn",
+        ".jp",
+        ".kr",
+        ".hk",
+        ".tw",
+        ".uk",
+        ".us",
+        ".de",
+        ".fr",
+        ".au",
+        ".ca",
+        ".sg",
+        // 🧩 复合后缀（非常常见）
+        ".co",
+        ".cc",
+        ".me",
+        ".tv",
+        ".co.jp",
+        ".co.uk",
+    ];
+
+    let lower = input.to_lowercase();
+
+    // 去掉 path / query 再判断后缀
+    let domain_part = lower.split('/').next().unwrap_or(&lower);
+
+    COMMON_TLDS.iter().any(|tld| domain_part.ends_with(tld))
 }

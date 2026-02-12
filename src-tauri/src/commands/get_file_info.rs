@@ -1,6 +1,7 @@
 use crate::models::file_info::FileInfo;
 use encoding_rs::GBK;
 use lnk_parser::LNKParser;
+use std::fmt::format;
 use std::fs;
 use std::path::Path;
 use windows_icons::get_icon_base64_by_path;
@@ -22,6 +23,7 @@ fn get_name(p: &Path) -> String {
 
 #[tauri::command]
 pub fn get_file_info(path: String) -> Result<FileInfo, String> {
+    dbg!(&path);
     let p = Path::new(&path);
     let metadata = fs::metadata(&p).map_err(|e| e.to_string())?;
 
@@ -77,14 +79,35 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     let name = get_name(p);
 
     // 提取扩展名（目录没有扩展名）
-    let extension = Path::new(&full_path)
-        .extension()
-        .map(|ext| ext.to_string_lossy().to_string());
+    let extension: Option<String> = if metadata.is_file() {
+        Path::new(&full_path)
+            .extension()
+            .map(|ext| ext.to_string_lossy().to_string())
+    } else {
+        None
+    };
+    // let extension = Path::new(&full_path)
+    //     .extension()
+    //     .map(|ext| ext.to_string_lossy().to_string());
 
     // dbg!(&extension.unwrap());
 
-    let base64 = get_icon_base64_by_path(&full_path).unwrap();
-    let icon = "data:image/png;base64,".to_string() + &base64;
+    // let base64 = get_icon_base64_by_path(&full_path).unwrap();
+    // let icon = "data:image/png;base64,".to_string() + &base64;
+    let icon = match get_icon_base64_by_path(&full_path) {
+        Ok(base64) if !base64.is_empty() => {
+            format!("data:image/png;base64,{}", base64)
+        }
+        Ok(_) => {
+            log::warn!("图标转换成功但内容为空: {}", full_path);
+            String::new()
+        }
+        Err(e) => {
+            log::error!("获取图标失败 {}: {}", full_path, e);
+            // String::new()
+            format!("data:image/svg+xml;base64,{}", "PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIHJ4PSIyMCIgZmlsbD0iI0VFRUVFRSIvPgogIDxwYXRoIGQ9Ik0zMiA5Nkw1NiA3Mkw3MiA4OEw5NiA2NEwxMTIgOTZWOTZIMzJaIiBmaWxsPSIjQkJCQkJCIi8+CiAgPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iMTAiIGZpbGw9IiNCQkJCQkIiLz4KPC9zdmc+")
+        }
+    };
 
     Ok(FileInfo {
         name,
