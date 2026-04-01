@@ -7,6 +7,8 @@ use crate::models::launch_item::NewLaunchItem;
 
 #[tauri::command]
 pub fn add_launch(item: NewLaunchItem) -> Result<(), String> {
+    dbg!(&item);
+
     let conn = db::connection::get_conn().lock().unwrap();
 
     let pinyin_value = get_pinyin_variants(&item.name);
@@ -14,11 +16,12 @@ pub fn add_launch(item: NewLaunchItem) -> Result<(), String> {
     let pinyin_abbr = pinyin_value.1;
 
     conn.execute(
-        "INSERT INTO launch_items 
-        (name, path, type, icon, pinyin_full, pinyin_abbr, extension, hotkey, hotkey_global, keywords, start_dir, remarks, args, run_as_admin, order_index, enabled, category_id, subcategory_id) VALUES 
-        (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18)", 
+        "INSERT INTO launch_items
+        (name, lnk_name, path, type, icon, pinyin_full, pinyin_abbr, extension, hotkey, hotkey_global, keywords, start_dir, remarks, args, run_as_admin, order_index, enabled, category_id, subcategory_id) VALUES
+        (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19)",
         params![
         item.name,
+        item.lnk_name,
         item.path,
         item.r#type,
         item.icon,
@@ -36,6 +39,6 @@ pub fn add_launch(item: NewLaunchItem) -> Result<(), String> {
         item.enabled,
         item.category_id,
         item.subcategory_id
-    ]).expect("Failed to insert new launch item");
+    ]).map_err(|e| format!("插入启动项失败: {}", e))?;
     Ok(())
 }

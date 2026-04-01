@@ -4,6 +4,7 @@ use rusqlite::{Result, Row};
 pub struct LaunchItem {
     pub id: i32,
     pub name: String,
+    pub lnk_name: Option<String>,
     pub path: String,
     pub r#type: String, // "type" 是关键字，需加 r#  file, directory, url 等
     pub icon: Option<String>,
@@ -34,6 +35,7 @@ impl LaunchItem {
         Ok(Self {
             id: row.get("id")?,
             name: row.get("name")?,
+            lnk_name: row.get("lnk_name")?,
             path: row.get("path")?,
             r#type: row.get("type")?,
             icon: row.get("icon")?,
@@ -64,6 +66,7 @@ impl LaunchItem {
 pub struct NewLaunchItem {
     pub name: String,
     pub path: String,
+    pub lnk_name: Option<String>,
     pub r#type: String,
     pub icon: String,
     pub hotkey: Option<String>,

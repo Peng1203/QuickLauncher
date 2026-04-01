@@ -2,9 +2,9 @@ use crate::common::utils::is_valid_url;
 use std::{os::windows::process::CommandExt, path::Path, process::Command};
 
 #[tauri::command]
-pub async fn exe_command(cmd: String) {
-    dbg!(&cmd);
-    let cmd = cmd.trim();
+pub async fn exe_command(command: String) {
+    dbg!(&command);
+    let cmd = command.trim();
 
     // 判断是否是一个本地路径
     if Path::new(cmd).exists() {

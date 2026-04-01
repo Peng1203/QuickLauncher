@@ -2,6 +2,13 @@ use crate::models::launch_item::LaunchItem;
 use pinyin::ToPinyin;
 use std::{os::windows::process::CommandExt, process::Command};
 use url::Url;
+use windows::Win32::Foundation::{POINT, RECT};
+use windows::Win32::Graphics::Gdi::{
+    GetMonitorInfoW, MonitorFromPoint, MonitorFromWindow, MONITORINFO, MONITOR_DEFAULTTONEAREST,
+};
+use windows::Win32::UI::WindowsAndMessaging::{
+    GetCursorPos, GetDesktopWindow, GetForegroundWindow, GetShellWindow, GetWindowRect,
+};
 
 // 获取拼音的全拼和缩写
 pub fn get_pinyin_variants(name: &str) -> (String, String) {
@@ -122,4 +129,91 @@ pub fn is_valid_url(input: &str) -> bool {
     let domain_part = lower.split('/').next().unwrap_or(&lower);
 
     COMMON_TLDS.iter().any(|tld| domain_part.ends_with(tld))
+}
+
+// #[tauri::command]
+// #[cfg(target_os = "windows")]
+// pub fn is_foreground_fullscreen() -> bool {
+//     use windows::Win32::Foundation::RECT;
+//     use windows::Win32::UI::WindowsAndMessaging::{
+//         GetDesktopWindow, GetForegroundWindow, GetShellWindow, GetWindowRect,
+//     };
+
+//     unsafe {
+//         let hwnd = GetForegroundWindow();
+//         let desktop = GetDesktopWindow();
+//         let shell = GetShellWindow();
+
+//         // 排除桌面和 shell 本身
+//         if hwnd == desktop || hwnd == shell {
+//             return false;
+//         }
+
+//         let mut app_rect = RECT::default();
+//         GetWindowRect(hwnd, &mut app_rect).ok();
+
+//         // 获取该窗口所在显示器的尺寸
+//         use windows::Win32::Graphics::Gdi::{
+//             GetMonitorInfoW, MonitorFromWindow, MONITORINFO, MONITOR_DEFAULTTONEAREST,
+//         };
+//         let monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+//         let mut monitor_info = MONITORINFO {
+//             cbSize: std::mem::size_of::<MONITORINFO>() as u32,
+//             ..Default::default()
+//         };
+//         GetMonitorInfoW(monitor, &mut monitor_info);
+
+//         let screen = monitor_info.rcMonitor;
+
+//         // 判断窗口是否覆盖整个显示器
+//         app_rect.left == screen.left
+//             && app_rect.top == screen.top
+//             && app_rect.right == screen.right
+//             && app_rect.bottom == screen.bottom
+//     }
+// }
+#[tauri::command]
+#[cfg(target_os = "windows")]
+pub fn is_foreground_fullscreen() -> bool {
+    unsafe {
+        let hwnd = GetForegroundWindow();
+        let desktop = GetDesktopWindow();
+        let shell = GetShellWindow();
+
+        if hwnd == desktop || hwnd == shell {
+            return false;
+        }
+
+        // 获取鼠标当前位置
+        let mut cursor_pos = POINT::default();
+        GetCursorPos(&mut cursor_pos);
+
+        // 通过鼠标位置找到对应的显示器
+        let cursor_monitor = MonitorFromPoint(cursor_pos, MONITOR_DEFAULTTONEAREST);
+
+        // 获取前台窗口所在的显示器
+        let mut app_rect = RECT::default();
+        GetWindowRect(hwnd, &mut app_rect).ok();
+        let window_monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+
+        // 前台窗口不在鼠标所在的显示器上，直接返回 false
+        if cursor_monitor != window_monitor {
+            return false;
+        }
+
+        // 获取鼠标所在显示器的尺寸
+        let mut monitor_info = MONITORINFO {
+            cbSize: std::mem::size_of::<MONITORINFO>() as u32,
+            ..Default::default()
+        };
+        GetMonitorInfoW(cursor_monitor, &mut monitor_info);
+
+        let screen = monitor_info.rcMonitor;
+
+        // 判断窗口是否覆盖整个显示器
+        app_rect.left == screen.left
+            && app_rect.top == screen.top
+            && app_rect.right == screen.right
+            && app_rect.bottom == screen.bottom
+    }
 }

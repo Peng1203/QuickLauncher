@@ -1,10 +1,13 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+use crate::common::utils::is_foreground_fullscreen;
 use crate::models::app_config_state::AppConfigState;
 use commands::add_category::add_category;
 use commands::add_launch::add_launch;
 use commands::add_or_update_autocomplete::add_or_update_autocomplete;
+use commands::delete_category::delete_category;
 use commands::delete_launch::delete_launch;
+use commands::delete_launch_by_category::delete_launch_by_category;
 use commands::exe_command::exe_command;
 use commands::get_app_config::get_app_config;
 use commands::get_autocomplete::get_autocomplete;
@@ -12,9 +15,11 @@ use commands::get_category::get_category;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
 use commands::get_launch_by_id::get_launch_by_id;
+use commands::get_launch_by_name_and_category::get_launch_by_name_and_category;
 use commands::get_local_icon_base64::get_local_icon_base64;
 use commands::get_online_img_base64::get_online_img_base64;
 use commands::get_website_info::get_website_info;
+use commands::open_file_with_lnk::open_file_with_lnk;
 use commands::open_path::open_path;
 use commands::rename_launch::rename_launch;
 use commands::reveal_in_file_manager::reveal_in_file_manager;
@@ -24,11 +29,12 @@ use commands::save_app_config::save_app_config;
 use commands::search_launch::search_launch;
 use commands::set_app_config::set_app_config;
 use commands::update_category::update_category;
+use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
-use commands::get_launch_by_name_and_category::get_launch_by_name_and_category;
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_prevent_default::Flags;
 
 use tray::create_tray;
 mod commands;
@@ -70,6 +76,11 @@ pub fn run() {
             let _ = main_window.show();
             let _ = main_window.set_focus();
         }))
+        .plugin(
+            tauri_plugin_prevent_default::Builder::new()
+                .with_flags(Flags::all())
+                .build(),
+        )
         .invoke_handler(tauri::generate_handler![
             run_launch,
             run_launch_as_admin,
@@ -90,12 +101,17 @@ pub fn run() {
             get_category,
             set_app_config,
             update_category,
+            update_category_ass_dir,
             get_local_icon_base64,
             get_online_img_base64,
             add_or_update_autocomplete,
             get_autocomplete,
             open_path,
-            get_launch_by_name_and_category
+            get_launch_by_name_and_category,
+            is_foreground_fullscreen,
+            open_file_with_lnk,
+            delete_launch_by_category,
+            delete_category
         ])
         .setup(|app| {
             let main_window = app.get_webview_window("main").unwrap();

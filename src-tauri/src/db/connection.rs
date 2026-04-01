@@ -45,7 +45,7 @@ fn create_categories_table(conn: &Connection) -> Result<()> {
         "CREATE TABLE IF NOT EXISTS categories (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT NOT NULL UNIQUE,
-          parent_id INTEGER NOT NULL DEFAULT 0,
+          parent_id INTEGER DEFAULT NULL,
           association_directory TEXT,
           exclude INTEGER NOT NULL DEFAULT 0 CHECK (exclude IN (0, 1)),
           layout TEXT DEFAULT 'list' CHECK (layout IN ('list', 'grid')),
@@ -55,6 +55,7 @@ fn create_categories_table(conn: &Connection) -> Result<()> {
         );",
         [],
     )?;
+    // FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
     Ok(())
 }
 
@@ -64,6 +65,7 @@ fn create_launch_items_table(conn: &Connection) -> Result<()> {
     let required_columns = vec![
         ("id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
         ("name", "TEXT NOT NULL"),
+        ("lnk_name", "TEXT"),
         ("path", "TEXT NOT NULL"),
         (
             "type",
@@ -113,6 +115,8 @@ fn create_launch_items_table(conn: &Connection) -> Result<()> {
     )",
         columns = columns_def
     );
+    // FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    // FOREIGN KEY (subcategory_id) REFERENCES categories(id) ON DELETE CASCADE
 
     conn.execute(&create_sql, [])?;
 
@@ -206,7 +210,7 @@ fn create_autocomplete_table(conn: &Connection) -> Result<()> {
 
     // 创建复合索引以优化按使用频率排序的查询
     conn.execute(
-        "CREATE INDEX IF NOT EXISTS idx_autocomplete_usage_count 
+        "CREATE INDEX IF NOT EXISTS idx_autocomplete_usage_count
          ON autocomplete_history(usage_count DESC, last_used_at DESC);",
         [],
     )?;

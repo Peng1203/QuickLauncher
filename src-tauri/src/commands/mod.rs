@@ -1,7 +1,9 @@
 pub mod add_category;
 pub mod add_launch;
 pub mod add_or_update_autocomplete;
+pub mod delete_category;
 pub mod delete_launch;
+pub mod delete_launch_by_category;
 pub mod exe_command;
 pub mod get_app_config;
 pub mod get_autocomplete;
@@ -13,6 +15,7 @@ pub mod get_launch_by_name_and_category;
 pub mod get_local_icon_base64;
 pub mod get_online_img_base64;
 pub mod get_website_info;
+pub mod open_file_with_lnk;
 pub mod open_path;
 pub mod rename_launch;
 pub mod reveal_in_file_manager;

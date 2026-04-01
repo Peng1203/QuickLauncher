@@ -1,7 +1,6 @@
 use crate::models::file_info::FileInfo;
 use encoding_rs::GBK;
 use lnk_parser::LNKParser;
-use std::fmt::format;
 use std::fs;
 use std::path::Path;
 use windows_icons::get_icon_base64_by_path;
@@ -31,6 +30,12 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     let mut args: String = "".to_string();
     let mut remarks: String = "".to_string();
     let mut working_dir: String = "".to_string();
+    let lnk_name = p
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or("")
+        .to_string();
+
     // 检查路径是否是 lnk 文件
     if p.extension().map_or(false, |ext| ext == "lnk") {
         // 解析 lnk 文件 并获取真正的路径
@@ -94,6 +99,7 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
 
     // let base64 = get_icon_base64_by_path(&full_path).unwrap();
     // let icon = "data:image/png;base64,".to_string() + &base64;
+    dbg!(&full_path);
     let icon = match get_icon_base64_by_path(&full_path) {
         Ok(base64) if !base64.is_empty() => {
             format!("data:image/png;base64,{}", base64)
@@ -105,12 +111,15 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
         Err(e) => {
             log::error!("获取图标失败 {}: {}", full_path, e);
             // String::new()
-            format!("data:image/svg+xml;base64,{}", "PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIHJ4PSIyMCIgZmlsbD0iI0VFRUVFRSIvPgogIDxwYXRoIGQ9Ik0zMiA5Nkw1NiA3Mkw3MiA4OEw5NiA2NEwxMTIgOTZWOTZIMzJaIiBmaWxsPSIjQkJCQkJCIi8+CiAgPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iMTAiIGZpbGw9IiNCQkJCQkIiLz4KPC9zdmc+")
+            let ico = get_icon_base64_by_path(&path)
+                .unwrap_or_else(|_| "PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPHJlY3Qgd2lkdGg9IjEyOCIgaGVpZ2h0PSIxMjgiIHJ4PSIyMCIgZmlsbD0iI0VFRUVFRSIvPgogIDxwYXRoIGQ9Ik0zMiA5Nkw1NiA3Mkw3MiA4OEw5NiA2NEwxMTIgOTZWOTZIMzJaIiBmaWxsPSIjQkJCQkJCIi8+CiAgPGNpcmNsZSBjeD0iNDgiIGN5PSI0OCIgcj0iMTAiIGZpbGw9IiNCQkJCQkIiLz4KPC9zdmc+".to_string());
+            format!("data:image/png;base64,{}", ico)
         }
     };
 
     Ok(FileInfo {
         name,
+        lnk_name: Some(lnk_name),
         path: full_path,
         extension,
         icon,

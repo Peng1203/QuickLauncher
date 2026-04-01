@@ -10,5 +10,6 @@ pub struct FileInfo {
     pub start_dir: String,
     // pub created: Option<u64>,
     // pub modified: Option<u64>,
+    pub lnk_name: Option<String>,
     pub r#type: String, // "file" or "directory" or "url"
 }
