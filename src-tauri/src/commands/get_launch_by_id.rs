@@ -1,22 +1,15 @@
-use crate::{db, models::launch_item::LaunchItem};
-use rusqlite::{params, Result};
+use entity::launch_items::{Entity as LaunchItems, Model};
+use sea_orm::{DatabaseConnection, EntityTrait};
+
+use crate::entity;
 
 #[tauri::command]
-pub fn get_launch_by_id(id: i32) -> Result<Option<LaunchItem>, String> {
-    let conn = db::connection::get_conn().lock().unwrap();
-
-    let mut stmt = conn
-        .prepare("SELECT * FROM launch_items WHERE id = ?1")
-        .map_err(|e| format!("准备查询语句失败：{}", e))?;
-
-    let mut rows = stmt
-        .query_map(params![id], LaunchItem::from_row)
-        .map_err(|e| format!("执行查询失败：{}", e))?;
-
-    if let Some(row) = rows.next() {
-        let item = row.map_err(|e| format!("解析数据失败：{}", e))?;
-        Ok(Some(item))
-    } else {
-        Ok(None) // 没查到
-    }
+pub async fn get_launch_by_id(
+    id: i32,
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<Option<Model>, String> {
+    LaunchItems::find_by_id(id)
+        .one(db.inner())
+        .await
+        .map_err(|e| format!("查询失败：{}", e))
 }

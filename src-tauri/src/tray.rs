@@ -6,9 +6,12 @@ use tauri::{
 use tauri_plugin_pinia::ManagerExt;
 
 pub fn create_tray(app: &App) {
+    let restart_i = MenuItem::with_id(app, "restart", "重 启", true, None::<&str>).unwrap();
+
     let settings_i = MenuItem::with_id(app, "settings", "设 置", true, None::<&str>).unwrap();
     let quit_i = MenuItem::with_id(app, "quit", "退 出", true, None::<&str>).unwrap();
-    let menu = Menu::with_items(app, &[&settings_i, &quit_i]).unwrap();
+    // let menu = Menu::with_items(app, &[&settings_i, &quit_i]).unwrap();
+    let menu = Menu::with_items(app, &[&settings_i, &restart_i, &quit_i]).unwrap();
 
     let _ = TrayIconBuilder::new()
         .tooltip("Quick Launcher")
@@ -101,6 +104,9 @@ pub fn create_tray(app: &App) {
             }
             "quit" => {
                 app.exit(0);
+            }
+            "restart" => {
+                app.restart();
             }
             _ => {}
         })

@@ -1,79 +1,70 @@
-use crate::{db, models::launch_item::SearchLaunchItem};
-use rusqlite::{params, Result};
-
-// #[tauri::command]
-// pub fn search_launch(keyword: &str) -> Result<Vec<SearchLaunchItem>, String> {
-//     let conn = db::connection::get_conn().lock().unwrap();
-
-//     let like_pattern = format!("%{}%", keyword);
-//     let mut stmt = conn
-//         .prepare(
-//             "SELECT id, name, icon, category_id, subcategory_id
-//             FROM launch_items
-//             WHERE enabled = 1
-//             AND (
-//               name LIKE ?1
-//               OR pinyin_full LIKE ?1
-//               OR pinyin_abbr LIKE ?1
-//               OR keywords LIKE ?1
-//             )
-//             ORDER BY order_index ASC",
-//         )
-//         .map_err(|e| format!("准备查询语句失败：{}", e))
-//         .unwrap();
-
-//     let rows = stmt.query_map(params![like_pattern], SearchLaunchItem::from_row);
-
-//     // 收集所有结果到一个向量中
-//     let mut items = Vec::new();
-//     for row in rows.unwrap() {
-//         let item = row.unwrap();
-//         items.push(item);
-//     }
-
-//     Ok(items)
-// }
+use crate::{entity, models::launch_item::SearchLaunchItem};
+use entity::{
+    categories::{Column as CColumn, Entity as Categories},
+    launch_items::{Column as LIColumn, Entity as LaunchItems},
+};
+use sea_orm::{
+    sea_query::{Alias, Expr},
+    ColumnTrait, Condition, DatabaseConnection, EntityTrait, JoinType, QueryFilter, QueryOrder,
+    QuerySelect,
+};
 
 #[tauri::command]
-pub fn search_launch(keyword: &str) -> Result<Vec<SearchLaunchItem>, String> {
-    let conn = db::connection::get_conn()
-        .lock()
-        .map_err(|e| format!("获取数据库连接失败: {}", e))?;
-
+pub async fn search_launch(
+    keyword: &str,
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<Vec<SearchLaunchItem>, String> {
     let like_pattern = format!("%{}%", keyword);
 
-    let mut stmt = conn
-        .prepare(
-            "SELECT 
-                li.id,
-                li.name,
-                li.icon,
-                li.category_id,
-                c1.name AS category_name,
-                li.subcategory_id,
-                c2.name AS subcategory_name
-             FROM launch_items li
-             LEFT JOIN categories c1 ON li.category_id = c1.id
-             LEFT JOIN categories c2 ON li.subcategory_id = c2.id
-             WHERE li.enabled = 1
-               AND (
-                 li.name LIKE ?1
-                 OR li.pinyin_full LIKE ?1
-                 OR li.pinyin_abbr LIKE ?1
-                 OR li.keywords LIKE ?1
-               )
-             ORDER BY li.order_index DESC",
+    let results = LaunchItems::find()
+        // LEFT JOIN categories c1 (category)
+        .join(
+            JoinType::LeftJoin,
+            LaunchItems::belongs_to(Categories)
+                .from(LIColumn::CategoryId)
+                .to(CColumn::Id)
+                .into(),
         )
-        .map_err(|e| format!("准备查询语句失败: {}", e))?;
+        // LEFT JOIN categories c2 (subcategory) —— 手动 alias
+        .join_as(
+            JoinType::LeftJoin,
+            LaunchItems::belongs_to(Categories)
+                .from(LIColumn::SubcategoryId)
+                .to(CColumn::Id)
+                .into(),
+            "c2",
+        )
+        // 只选择需要的字段
+        .select_only()
+        .column(LIColumn::Id)
+        .column(LIColumn::Name)
+        .column(LIColumn::Icon)
+        .column(LIColumn::CategoryId)
+        .column(LIColumn::SubcategoryId)
+        // category_name
+        .column_as(CColumn::Name, "category_name")
+        // subcategory_name（来自 c2）
+        .column_as(
+            Expr::col((Alias::new("c2"), CColumn::Name)),
+            "subcategory_name",
+        )
+        // WHERE enabled = 1
+        .filter(LIColumn::Enabled.eq(1))
+        // 模糊搜索（OR）
+        .filter(
+            Condition::any()
+                .add(LIColumn::Name.like(&like_pattern))
+                .add(LIColumn::PinyinFull.like(&like_pattern))
+                .add(LIColumn::PinyinAbbr.like(&like_pattern))
+                .add(LIColumn::Keywords.like(&like_pattern)),
+        )
+        // ORDER BY
+        .order_by_desc(LIColumn::OrderIndex)
+        // 映射到自定义结构体
+        .into_model::<SearchLaunchItem>()
+        .all(db.inner())
+        .await
+        .map_err(|e| format!("查询失败: {}", e))?;
 
-    let rows = stmt
-        .query_map(params![like_pattern], SearchLaunchItem::from_row)
-        .map_err(|e| format!("执行查询失败: {}", e))?;
-
-    let mut items = Vec::new();
-    for row in rows {
-        items.push(row.map_err(|e| format!("读取行失败: {}", e))?);
-    }
-
-    Ok(items)
+    Ok(results)
 }

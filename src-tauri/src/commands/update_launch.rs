@@ -1,65 +1,57 @@
-use rusqlite::params;
+use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set};
 
-use crate::common::utils::get_pinyin_variants;
-use crate::db;
-use crate::models::launch_item::LaunchItem;
+use crate::{
+    common::utils::get_pinyin_variants, entity::launch_items, models::launch_item::LaunchItemDto,
+};
 
 #[tauri::command]
-pub fn update_launch(item: LaunchItem) -> Result<(), String> {
-    let conn = db::connection::get_conn().lock().unwrap();
+pub async fn update_launch(
+    item: LaunchItemDto,
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<(), String> {
+    // ✅ 1. 先查是否存在
+    let model = launch_items::Entity::find_by_id(item.id)
+        .one(db.inner())
+        .await
+        .map_err(|e| format!("查询失败: {}", e))?;
 
-    let pinyin_value = get_pinyin_variants(&item.name);
-    let pinyin_full = pinyin_value.0;
-    let pinyin_abbr = pinyin_value.1;
+    let model = match model {
+        Some(m) => m,
+        None => return Err("No launch item found with the specified ID".to_string()),
+    };
 
-    let rows_affected = conn
-        .execute(
-            "UPDATE launch_items SET 
-        name = ?1, 
-        path = ?2, 
-        type = ?3, 
-        icon = ?4, 
-        pinyin_full = ?5, 
-        pinyin_abbr = ?6, 
-        extension = ?7, 
-        hotkey = ?8, 
-        hotkey_global = ?9, 
-        keywords = ?10, 
-        start_dir = ?11, 
-        remarks = ?12, 
-        args = ?13, 
-        run_as_admin = ?14, 
-        order_index = ?15, 
-        enabled = ?16, 
-        category_id = ?17 
-        WHERE id = ?18",
-            params![
-                item.name,
-                item.path,
-                item.r#type,
-                item.icon,
-                pinyin_full,
-                pinyin_abbr,
-                item.extension,
-                item.hotkey,
-                item.hotkey_global,
-                item.keywords,
-                item.start_dir,
-                item.remarks,
-                item.args,
-                item.run_as_admin,
-                item.order_index,
-                item.enabled,
-                item.category_id,
-                item.id // WHERE 条件中的 id
-            ],
-        )
-        .map_err(|e| format!("Failed to update launch item: {}", e))?;
+    // ✅ 2. 拼音生成（业务逻辑）
+    let (pinyin_full, pinyin_abbr) = get_pinyin_variants(&item.name);
 
-    // 检查是否有记录被更新
-    if rows_affected == 0 {
-        return Err("No launch item found with the specified ID".to_string());
-    }
+    // ✅ 3. 转 ActiveModel
+    let mut active: launch_items::ActiveModel = model.into();
+
+    // ✅ 4. 赋值（等价 SQL SET）
+    active.name = Set(item.name);
+    active.path = Set(item.path);
+    active.r#type = Set(item.r#type);
+    active.icon = Set(item.icon);
+
+    active.pinyin_full = Set(Some(pinyin_full));
+    active.pinyin_abbr = Set(Some(pinyin_abbr));
+
+    active.extension = Set(item.extension);
+    active.hotkey = Set(item.hotkey);
+    active.hotkey_global = Set(item.hotkey_global);
+    active.keywords = Set(item.keywords);
+    active.start_dir = Set(item.start_dir);
+    active.remarks = Set(item.remarks);
+    active.args = Set(item.args);
+    active.run_as_admin = Set(item.run_as_admin);
+    active.order_index = Set(item.order_index);
+    active.enabled = Set(item.enabled);
+    active.category_id = Set(item.category_id);
+
+    // ✅ 5. 执行更新
+    active
+        .update(db.inner())
+        .await
+        .map_err(|e| format!("更新失败: {}", e))?;
 
     Ok(())
 }

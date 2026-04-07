@@ -1,23 +1,18 @@
-use crate::{db, models::launch_item::LaunchItem};
-use rusqlite::{params, Result};
+use entity::launch_items::{Column, Entity as LaunchItems, Model};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+
+use crate::entity;
 
 #[tauri::command]
-pub fn get_launch_by_name_and_category(
+pub async fn get_launch_by_name_and_category(
     category_id: i32,
     name: String,
-) -> Result<Option<LaunchItem>, String> {
-    let conn = db::connection::get_conn().lock().unwrap();
-
-    let sql = r#"
-        SELECT * FROM launch_items
-        WHERE category_id = ?1
-        AND name = ?2
-        LIMIT 1
-    "#;
-
-    match conn.query_row(sql, params![category_id, name], LaunchItem::from_row) {
-        Ok(item) => Ok(Some(item)),
-        Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
-        Err(e) => Err(format!("查询失败: {}", e)),
-    }
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<Option<Model>, String> {
+    LaunchItems::find()
+        .filter(Column::CategoryId.eq(category_id))
+        .filter(Column::Name.eq(name))
+        .one(db.inner())
+        .await
+        .map_err(|e| format!("查询失败: {}", e))
 }

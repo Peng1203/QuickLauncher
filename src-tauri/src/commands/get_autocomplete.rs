@@ -1,12 +1,17 @@
-use crate::db;
-use rusqlite::{params, Result};
+use entity::autocomplete_history::{Column, Entity as AutocompleteHistory};
+use sea_orm::sea_query::Expr;
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
 use tauri::AppHandle;
 use tauri_plugin_pinia::ManagerExt;
 
-#[tauri::command]
-pub fn get_autocomplete(keyword: &str, app: AppHandle) -> Result<Vec<String>, String> {
-    let conn = db::connection::get_conn().lock().unwrap();
+use crate::entity;
 
+#[tauri::command]
+pub async fn get_autocomplete(
+    keyword: &str,
+    app: AppHandle,
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<Vec<String>, String> {
     let mode = app
         .pinia()
         .get::<String>("appConfig", "autocompleteMatchMode")
@@ -20,95 +25,36 @@ pub fn get_autocomplete(keyword: &str, app: AppHandle) -> Result<Vec<String>, St
     let keyword_pattern = match mode.as_str() {
         "prefix" => format!("{}*", keyword),
         "contains" => format!("*{}*", keyword),
-        _ => format!("{}*", keyword), // 默认 prefix
+        _ => format!("{}*", keyword),
     };
+
     let limit_value = 5;
-
     const MIN_USAGE_COUNT: i32 = 3;
-    // 根据是否开启频率过滤选择不同 SQL
-    let sql = if enable_filter {
-        r#"
-        SELECT query
-        FROM autocomplete_history
-        WHERE query GLOB ?
-          AND usage_count >= ?
-        ORDER BY usage_count DESC, last_used_at DESC
-        LIMIT ?
-        "#
-    } else {
-        r#"
-        SELECT query
-        FROM autocomplete_history
-        WHERE query GLOB ?
-        ORDER BY usage_count DESC, last_used_at DESC
-        LIMIT ?
-        "#
-    };
 
-    let mut stmt = conn.prepare(sql).map_err(|e| e.to_string())?;
+    // 构建查询
+    let mut query = AutocompleteHistory::find()
+        .select_only()
+        .column(Column::Query)
+        .order_by_desc(Column::UsageCount)
+        .order_by_desc(Column::LastUsedAt)
+        .limit(limit_value);
 
-    let mapper = |row: &rusqlite::Row| {
-        let query: String = row.get(0)?;
-        Ok(query)
-    };
+    // 👇 GLOB 条件（核心）
+    query = query.filter(Expr::cust_with_values(
+        "query GLOB ?",
+        [keyword_pattern.clone()],
+    ));
 
-    let rows = if enable_filter {
-        stmt.query_map(
-            params![keyword_pattern, MIN_USAGE_COUNT, limit_value],
-            mapper,
-        )
-    } else {
-        stmt.query_map(params![keyword_pattern, limit_value], mapper)
-    }
-    .map_err(|e| e.to_string())?;
-
-    // let mut stmt = conn
-    //     .prepare(
-    //         "SELECT query
-    //          FROM autocomplete_history
-    //          WHERE query GLOB ?
-    //          ORDER BY usage_count DESC, last_used_at DESC
-    //          LIMIT ?",
-    //     )
-    //     .map_err(|e| e.to_string())?;
-
-    // let rows = stmt
-    //     .query_map(params![keyword_pattern, limit_value], |row| {
-    //         let query: String = row.get(0)?;
-    //         Ok(query)
-    //     })
-    //     .map_err(|e| e.to_string())?;
-
-    let mut results = Vec::new();
-    for r in rows {
-        results.push(r.map_err(|e| e.to_string())?);
+    // 👇 频率过滤
+    if enable_filter {
+        query = query.filter(Column::UsageCount.gte(MIN_USAGE_COUNT));
     }
 
-    // models::autocomplete_item::AutocompleteItem
-    // let mut stmt = conn
-    //     .prepare(
-    //         "SELECT id, query, usage_count, last_used_at, launch_item_id
-    //          FROM autocomplete_history
-    //          WHERE query GLOB ?
-    //          ORDER BY usage_count DESC, last_used_at DESC
-    //          LIMIT ?",
-    //     )
-    //     .map_err(|e| e.to_string())?;
-    // let rows = stmt
-    //     .query_map(params![keyword_pattern, limit_value], |row| {
-    //         Ok(AutocompleteItem {
-    //             id: row.get(0)?,
-    //             query: row.get(1)?,
-    //             usage_count: row.get(2)?,
-    //             last_used_at: row.get(3)?,
-    //             launch_item_id: row.get(4)?,
-    //         })
-    //     })
-    //     .map_err(|e| e.to_string())?;
-    // let mut results = Vec::new();
-    // for r in rows {
-    //     results.push(r.map_err(|e| e.to_string())?);
-    // }
+    let rows = query
+        .into_tuple::<String>()
+        .all(db.inner())
+        .await
+        .map_err(|e| e.to_string())?;
 
-    Ok(results)
+    Ok(rows)
 }

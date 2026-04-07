@@ -22,6 +22,7 @@ use commands::get_website_info::get_website_info;
 use commands::open_file_with_lnk::open_file_with_lnk;
 use commands::open_path::open_path;
 use commands::rename_launch::rename_launch;
+use commands::restart_app::restart_app;
 use commands::reveal_in_file_manager::reveal_in_file_manager;
 use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
@@ -40,14 +41,12 @@ use tray::create_tray;
 mod commands;
 mod common;
 mod db;
+mod entity;
 mod models;
 mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // 创建数据库连接 并放入线程池中共享
-    let _ = db::connection::init_db();
-
     tauri::Builder::default()
         .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_fs::init())
@@ -111,9 +110,15 @@ pub fn run() {
             is_foreground_fullscreen,
             open_file_with_lnk,
             delete_launch_by_category,
-            delete_category
+            delete_category,
+            restart_app
         ])
         .setup(|app| {
+            let db = tauri::async_runtime::block_on(async {
+                db::connection::init_db(app).await.unwrap()
+            });
+            app.manage(db);
+
             let main_window = app.get_webview_window("main").unwrap();
             let search_window = app.get_webview_window("search").unwrap();
             let setting_window = app.get_webview_window("setting").unwrap();
@@ -139,13 +144,6 @@ pub fn run() {
                     api.prevent_close();
                 }
             });
-            // 初始化数据库连接
-            // let app_data_dir = app.path().app_data_dir()?;
-
-            // dbg!(app_data_dir.to_str());
-            // let conn = db::connection::init_db(app_data_dir)?;
-            // // 将数据库连接存储在应用状态中
-            // app.manage(Mutex::new(conn));
 
             // 初始化应用配置
             app.manage(Mutex::new(AppConfigState::default()));

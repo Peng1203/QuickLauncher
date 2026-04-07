@@ -1,63 +1,40 @@
-use crate::{
-    db,
-    models::{app_config_state::AppConfigState, config_item::ConfigItem},
-};
-use rusqlite::{params, Result};
+use crate::{entity, models::app_config_state::AppConfigState};
+use entity::configs::ActiveModel;
+use entity::configs::{Column, Entity as Configs};
+use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, Set};
 
-// pub fn get_app_config() -> Result<ConfigItem, String> {
 #[tauri::command]
-pub fn get_app_config() -> Result<AppConfigState, String> {
-    // state: State<'_, Mutex<Connection>>,
-    // let conn = state.lock().unwrap();
+pub async fn get_app_config(
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<AppConfigState, String> {
+    // 1. 先查
+    let config = Configs::find()
+        .filter(Column::Name.eq("appConfig"))
+        .one(db.inner())
+        .await
+        .map_err(|e| format!("查询配置失败：{}", e))?;
 
-    let conn = db::connection::get_conn().lock().unwrap();
+    let config = match config {
+        Some(model) => model,
 
-    // 使用 UPSERT 语句插入或更新配置项
-    // 如果配置项已存在，则更新其数据；如果不存在，则插入新记录
-    let mut stmt = conn
-        .prepare("SELECT * FROM configs WHERE name = ?")
-        .map_err(|e| format!("准备查询语句失败：{}", e))?;
+        None => {
+            // 2. 没有就插入默认值
+            let model = ActiveModel {
+                name: Set("appConfig".to_string()),
+                data: Set("{}".to_string()),
+                ..Default::default()
+            };
 
-    let params = params!["appConfig"];
-    let row = stmt.query_row(params, |row| {
-        Ok(ConfigItem {
-            id: row.get(0)?,
-            name: row.get(1)?,
-            data: row.get(2)?,
-        })
-    });
-
-    let config_item = match row {
-        Ok(item) => item,
-        Err(rusqlite::Error::QueryReturnedNoRows) => {
-            // 没查到，插入默认值
-            conn.execute(
-                "INSERT INTO configs (name, data) VALUES (?1, ?2)",
-                rusqlite::params!["appConfig", "{}"],
-            )
-            .map_err(|e| format!("插入默认配置失败：{}", e))?;
-
-            // 再查一遍
-            let mut stmt = conn
-                .prepare("SELECT * FROM configs WHERE name = ?")
-                .map_err(|e| format!("准备查询语句失败：{}", e))?;
-
-            stmt.query_row(rusqlite::params!["appConfig"], |row| {
-                Ok(ConfigItem {
-                    id: row.get(0)?,
-                    name: row.get(1)?,
-                    data: row.get(2)?,
-                })
-            })
-            .map_err(|e| format!("查询插入后的配置失败：{}", e))?
+            model
+                .insert(db.inner())
+                .await
+                .map_err(|e| format!("插入默认配置失败：{}", e))?
         }
-        Err(e) => return Err(format!("查询失败：{}", e)),
     };
 
-    // dbg!(&config_item.data);
-
+    // 3. 解析 JSON
     let parsed_data: AppConfigState =
-        serde_json::from_str(&config_item.data).map_err(|e| format!("解析 JSON 失败：{}", e))?;
+        serde_json::from_str(&config.data).map_err(|e| format!("解析 JSON 失败：{}", e))?;
 
     Ok(parsed_data)
 }

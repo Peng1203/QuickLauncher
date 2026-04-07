@@ -18,6 +18,7 @@ pub mod get_website_info;
 pub mod open_file_with_lnk;
 pub mod open_path;
 pub mod rename_launch;
+pub mod restart_app;
 pub mod reveal_in_file_manager;
 pub mod run_launch;
 pub mod run_launch_as_admin;

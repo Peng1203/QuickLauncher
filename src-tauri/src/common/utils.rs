@@ -1,4 +1,6 @@
-use crate::models::launch_item::LaunchItem;
+use crate::entity::launch_items::Model;
+use crate::models::launch_item::LaunchItemDto;
+
 use pinyin::ToPinyin;
 use std::{os::windows::process::CommandExt, process::Command};
 use url::Url;
@@ -31,7 +33,7 @@ pub fn get_pinyin_variants(name: &str) -> (String, String) {
 }
 
 // 以管理员权限运行
-pub fn run_as_admin(launch_item: LaunchItem) -> Result<(), String> {
+pub fn run_as_admin(launch_item: Model) -> Result<(), String> {
     let mut powershell_cmd = vec![
         "Start-Process".to_string(),
         "-FilePath".to_string(),

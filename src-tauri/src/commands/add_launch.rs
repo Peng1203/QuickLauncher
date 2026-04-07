@@ -1,44 +1,46 @@
-use rusqlite::params;
-
-use crate::db;
+use crate::{entity, models::launch_item::NewLaunchItem};
+use entity::prelude::LaunchItems;
+use sea_orm::{ActiveValue::Set, DatabaseConnection, EntityTrait};
 
 use crate::common::utils::get_pinyin_variants;
-use crate::models::launch_item::NewLaunchItem;
 
 #[tauri::command]
-pub fn add_launch(item: NewLaunchItem) -> Result<(), String> {
+pub async fn add_launch(
+    item: NewLaunchItem,
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<(), String> {
     dbg!(&item);
-
-    let conn = db::connection::get_conn().lock().unwrap();
-
     let pinyin_value = get_pinyin_variants(&item.name);
     let pinyin_full = pinyin_value.0;
     let pinyin_abbr = pinyin_value.1;
 
-    conn.execute(
-        "INSERT INTO launch_items
-        (name, lnk_name, path, type, icon, pinyin_full, pinyin_abbr, extension, hotkey, hotkey_global, keywords, start_dir, remarks, args, run_as_admin, order_index, enabled, category_id, subcategory_id) VALUES
-        (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?19)",
-        params![
-        item.name,
-        item.lnk_name,
-        item.path,
-        item.r#type,
-        item.icon,
-        pinyin_full,
-        pinyin_abbr,
-        item.extension,
-        item.hotkey,
-        item.hotkey_global,
-        item.keywords,
-        item.start_dir,
-        item.remarks,
-        item.args,
-        item.run_as_admin,
-        item.order_index,
-        item.enabled,
-        item.category_id,
-        item.subcategory_id
-    ]).map_err(|e| format!("插入启动项失败: {}", e))?;
+    let model = entity::launch_items::ActiveModel {
+        name: Set(item.name.clone()),
+        lnk_name: Set(item.lnk_name.clone()),
+        path: Set(item.path.clone()),
+        r#type: Set(item.r#type.clone()),
+        icon: Set(item.icon),
+        pinyin_full: Set(Some(pinyin_full)),
+        pinyin_abbr: Set(Some(pinyin_abbr)),
+        extension: Set(item.extension.clone()),
+        hotkey: Set(item.hotkey.clone()),
+        hotkey_global: Set(item.hotkey_global.clone()),
+        keywords: Set(item.keywords.clone()),
+        start_dir: Set(item.start_dir.clone()),
+        remarks: Set(item.remarks.clone()),
+        args: Set(item.args.clone()),
+        run_as_admin: Set(item.run_as_admin.clone()),
+        order_index: Set(item.order_index.clone()),
+        enabled: Set(item.enabled),
+        category_id: Set(item.category_id),
+        subcategory_id: Set(item.subcategory_id),
+        ..Default::default()
+    };
+
+    LaunchItems::insert(model)
+        .exec(&*db)
+        .await
+        .map_err(|e| format!("插入启动项失败: {}", e))?;
+
     Ok(())
 }

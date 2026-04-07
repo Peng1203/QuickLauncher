@@ -1,59 +1,73 @@
-use rusqlite::params;
+use sea_orm::{
+    sea_query::Expr, ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
+    Set,
+};
 
-use crate::db;
+use crate::entity::categories;
 use crate::models::category_item::CategoryItem;
 
 #[tauri::command]
-pub fn update_category(item: CategoryItem) -> Result<(), String> {
-    let conn = db::connection::get_conn().lock().unwrap();
-    let rows_affected = conn
-        .execute(
-            "UPDATE categories SET
-        name = ?,
-        parent_id = ?,
-        association_directory = ?,
-        exclude = ?,
-        layout = ?,
-        icon = ?
-        WHERE id = ?",
-            params![
-                item.name,
-                item.parent_id,
-                item.association_directory.clone().unwrap(),
-                item.exclude.clone().unwrap(),
-                item.layout.clone().unwrap(),
-                item.icon.clone().unwrap(),
-                item.id
-            ],
-        )
-        .map_err(|e| format!("Failed to update item: {}", e))?;
+pub async fn update_category(
+    item: CategoryItem,
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<(), String> {
+    // 先查是否存在
+    let model = categories::Entity::find_by_id(item.id)
+        .one(db.inner())
+        .await
+        .map_err(|e| format!("查询失败: {}", e))?;
 
-    // 检查是否有记录被更新
-    if rows_affected == 0 {
-        return Err("No item found with the specified ID".to_string());
-    }
+    let model = match model {
+        Some(m) => m,
+        None => return Err("No item found with the specified ID".to_string()),
+    };
+
+    // 转 ActiveModel
+    let mut active: categories::ActiveModel = model.into();
+
+    // 更新字段
+    active.name = Set(item.name);
+    active.parent_id = Set(item.parent_id);
+    active.association_directory = Set(item.association_directory);
+    active.exclude = Set(item.exclude);
+    active.layout = Set(item.layout);
+    active.icon = Set(item.icon);
+
+    // 执行更新
+    active
+        .update(db.inner())
+        .await
+        .map_err(|e| format!("更新失败: {}", e))?;
 
     Ok(())
 }
 
 #[tauri::command]
-pub fn update_category_ass_dir(id: i64, ass_dir: String) -> Result<(), String> {
-    let conn = db::connection::get_conn().lock().unwrap();
-    let rows_affected = conn
-        .execute(
-            "
-        UPDATE categories SET
-        association_directory = ?
-        WHERE id = ?
-        ",
-            params![ass_dir, id],
-        )
-        .map_err(|e| format!("Failed to update item: {}", e))?;
+pub async fn update_category_ass_dir(
+    id: i32,
+    ass_dir: String,
+    db: tauri::State<'_, DatabaseConnection>,
+) -> Result<(), String> {
+    // 先查
+    let model = categories::Entity::find_by_id(id)
+        .one(db.inner())
+        .await
+        .map_err(|e| format!("查询失败: {}", e))?;
 
-    // 检查是否有记录被更新
-    if rows_affected == 0 {
-        return Err("No item found with the specified ID".to_string());
-    }
+    // 判空
+    let mut model: categories::ActiveModel = match model {
+        Some(m) => m.into(),
+        None => return Err("No item found with the specified ID".to_string()),
+    };
+
+    // 更新字段
+    model.association_directory = Set(Some(ass_dir));
+
+    // 执行更新
+    model
+        .update(db.inner())
+        .await
+        .map_err(|e| format!("更新失败: {}", e))?;
 
     Ok(())
 }
