@@ -14,25 +14,54 @@
 </template>
 
 <script setup lang="tsx">
-import { openPath } from '@/api';
+import { open } from '@tauri-apps/plugin-dialog';
+import { computed, h, ref } from 'vue';
+import { deleteCategory, deleteLaunchByCategory, openPath, updateCategory, updateCategoryAssDir } from '@/api';
+import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { useContextMenuClose } from '@/composables/useContextMenuClose';
+import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
+import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
 const props = defineProps<{
   position: { x: number; y: number };
   item: CategoryItem;
 }>();
+const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch, removeCategoryDirWatch } =
+  useCategoryCorrelationDir();
+const store = useStore();
 
 const visible = defineModel<boolean>();
 
+const { dialog } = useNaiveUiApi();
+
+const isAssociationDirectory = computed(() => !!props.item?.association_directory);
+const isCurrentSelected = computed(() => store.activeCategory === props.item.id);
+
 function renderIcon(icon: string) {
   return () => h(<i class={`iconfont ${icon}`} />);
+}
+const sync_clear = ref<boolean>(false);
+function CancelWaring() {
+  return h(
+    <>
+      <p>是否取消关联目录?</p>
+      {/* class="text-[12px] text-gray-500" */}
+      <n-checkbox
+        v-model:checked={sync_clear.value}
+        style="font-size: 12px; color: #6a7282 !important"
+        size="small"
+        label="同时删除该分类下所有启动项?"
+      />
+    </>,
+  );
 }
 
 // 默认菜单项
 const menuOptions = computed(() => [
   {
+    // TODO
     label: props.item?.exclude ? '搜索排除 (✅)' : '搜索排除',
     key: 'exclude',
     icon: renderIcon('icon-paichusousuo'),
@@ -42,20 +71,19 @@ const menuOptions = computed(() => [
     },
   },
   {
-    label: props.item?.association_directory ? '关联目录 (✅)' : '关联目录',
+    label: isAssociationDirectory.value ? '关联目录 (✅)' : '关联目录',
     key: 'correlation',
     icon: renderIcon('icon-guanlian'),
-    // show: !props.item?.association_directory,
+    // show: !isAssociationDirectory.value,
     props: {
-      style: props.item?.association_directory ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+      style: isAssociationDirectory.value ? 'color: var(--n-color-danger);font-weight: bold;' : '',
     },
   },
   {
     label: '打开关联目录',
     key: 'openCorrelationDir',
     icon: renderIcon('icon-wj-wjj'),
-    show: !!props.item?.association_directory,
-    onClick: () => openPath(props.item!.association_directory!),
+    show: isAssociationDirectory.value,
   },
   {
     type: 'divider',
@@ -75,12 +103,12 @@ const menuOptions = computed(() => [
     label: '编 辑',
     key: 'edit',
     icon: renderIcon('icon-bianji'),
-    onClick: () => EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item),
   },
   {
+    // TODO
     label: '创建子分类',
     key: 'create-sub-category',
-    icon: renderIcon('icon-bianji'),
+    icon: renderIcon('icon-tianjiazifenlei'),
   },
   {
     label: '删 除',
@@ -99,11 +127,17 @@ const menuOptions = computed(() => [
       {
         label: props.item?.layout === 'grid' ? '平铺 (✅)' : '平铺',
         key: 'layout-grid',
+        props: {
+          style: props.item?.layout === 'grid' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
         icon: renderIcon('icon-24gl-appsSmall'),
       },
       {
         label: props.item?.layout === 'list' ? '列表 (✅)' : '列表',
         key: 'layout-list',
+        props: {
+          style: props.item?.layout === 'list' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
         icon: renderIcon('icon-liebiao'),
       },
     ],
@@ -112,72 +146,244 @@ const menuOptions = computed(() => [
     // TODO 排序
     label: '排序方式',
     key: 'order',
-    icon: renderIcon('icon-buju'),
+    icon: renderIcon('icon-paixufangshi'),
     children: [
       {
-        label: props.item?.layout === 'grid' ? '名称 (✅)' : '名称',
+        label: props.item?.sort_by === 'name' ? '名称 (✅)' : '名称',
         key: 'order-name',
-        icon: renderIcon('icon-24gl-appsSmall'),
+        props: {
+          style: props.item?.sort_by === 'name' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
+        icon: renderIcon('icon-mingchengpaixu'),
       },
       {
-        label: props.item?.layout === 'list' ? '类型 (✅)' : '类型',
-        key: 'layout-list',
-        icon: renderIcon('icon-liebiao'),
+        label: props.item?.sort_by === 'type' ? '类型 (✅)' : '类型',
+        key: 'order-type',
+        props: {
+          style: props.item?.sort_by === 'type' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
+        icon: renderIcon('icon-anleixingpaixu'),
       },
       {
-        label: props.item?.layout === 'list' ? '大小 (✅)' : '大小',
-        key: 'layout-list',
-        icon: renderIcon('icon-liebiao'),
+        label: props.item?.sort_by === 'time' ? '日期 (✅)' : '日期',
+        key: 'order-time',
+        props: {
+          style: props.item?.sort_by === 'time' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
+        icon: renderIcon('icon-anchuangjianshijianpaixu'),
       },
+      // {
+      //   label: props.item?.layout === 'list' ? '大小 (✅)' : '大小',
+      //   key: 'layout-list',
+      //   icon: renderIcon('icon-liebiao'),
+      // },
       {
         type: 'divider',
         key: 'd3',
       },
       {
-        label: props.item?.layout === 'list' ? '升序 (✅)' : '升序',
-        key: 'layout-list',
-        icon: renderIcon('icon-liebiao'),
+        label: props.item?.sort_order === 'asc' ? '升序 (✅)' : '升序',
+        key: 'sort-asc',
+        props: {
+          style: props.item?.sort_order === 'asc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
+        icon: renderIcon('icon-shengxu'),
       },
       {
-        label: props.item?.layout === 'list' ? '降序 (✅)' : '降序',
-        key: 'layout-list',
-        icon: renderIcon('icon-liebiao'),
+        label: props.item?.sort_order === 'desc' ? '降序 (✅)' : '降序',
+        key: 'sort-desc',
+        props: {
+          style: props.item?.sort_order === 'desc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
+        icon: renderIcon('icon-jiangxu'),
       },
     ],
   },
 ]);
+
+async function handleAssDir() {
+  // 选择关联目录
+  const association_directory = await open({
+    title: '选择关联目录',
+    multiple: false,
+    directory: true,
+  });
+  if (!association_directory) return;
+  // 查询是否有其他分类关联过当前目录
+  const hasAssDir = store.categoryData.find(item => item.association_directory === association_directory);
+  if (hasAssDir) {
+    const isConfirm = await new Promise(resolve => {
+      dialog.warning({
+        title: '提示',
+        content: `选中目录已存在关联的分类(${hasAssDir.name}) 是否继续关联?`,
+        positiveText: '确 定',
+        negativeText: '取 消',
+        draggable: true,
+        onPositiveClick: () => resolve(true),
+        onNegativeClick: () => resolve(false),
+      });
+    });
+    if (!isConfirm) return;
+  }
+
+  // 清除分类下的所有启动项
+  await deleteLaunchByCategory(props.item.id);
+
+  // 更新分类 关联目录
+  await updateCategoryAssDir({ id: props.item.id, association_directory });
+  await store.getCategoryData();
+  // 添加关联分类
+  await handleCreateLaunchFromCategoryDir({ ...props.item, association_directory });
+  await registerAllCategoryDirWatch();
+
+  if (isCurrentSelected.value) await store.getLaunchData(props.item.id);
+}
+
+async function handleCancelAssDir() {
+  console.log(`%c  ----`, 'color: #fff;background-color: #000;font-size: 18px', sync_clear.value);
+  if (sync_clear.value) await deleteLaunchByCategory(props.item.id);
+  await updateCategoryAssDir({ id: props.item.id, association_directory: '' });
+  await store.getCategoryData();
+  if (sync_clear.value && isCurrentSelected.value) await store.getLaunchData(props.item.id);
+  // TODO 删除/取消关联 目录时 删除监听器中的该项
+  await removeCategoryDirWatch(props.item.id);
+  sync_clear.value = false;
+}
 
 function handleClose() {
   visible.value = false;
 }
 
 async function handleSelect(key: string) {
-  // console.log('selected key:', key);
+  console.log('selected key:', key);
   // TODO: 根据 key 处理不同的操作
-  const findRes = menuOptions.value.find(item => item.key === key);
+  // const findRes = menuOptions.value.find(item => item.key === key);
 
-  if (!findRes) return handleClose();
-  findRes.onClick && (await findRes.onClick());
-  // switch (key) {
-  //   case 'rename':
-  //     EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item);
-  //     break;
-  //   case 'delete':
-  //     EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item);
-  //     break;
-  //   case 'edit':
-  //     EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item);
-  //     break;
-  //   case 'layout':
-  //     EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item);
-  //     break;
-  //   case 'exclude':
-  //     EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item);
-  //     break;
-  //   default:
-  //     break;
-  // }
+  // if (!findRes) return handleClose();
+  // findRes.onClick && (await findRes.onClick());
+  // 子菜单 click 事件处理
+  switch (key) {
+    case 'exclude':
+      // await handleToggleAssDir();
+      break;
+    case 'correlation':
+      await handleToggleAssDir();
+      break;
+    case 'openCorrelationDir':
+      openPath(props.item!.association_directory!);
+      break;
+    case 'rename':
+      EventBus.emit(AppEvent.CATEGORY_RENAME, props.item);
+      break;
+    case 'edit':
+      EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item);
+      break;
+    case 'create-sub-category':
+      // EventBus.emit(AppEvent.CATEGORY_RENAME, props.item);
+      break;
+    case 'delete':
+      await handleDelete();
+      break;
+    case 'layout-grid':
+      await handleLayoutChange('grid');
+      break;
+    case 'layout-list':
+      await handleLayoutChange('list');
+      break;
+    case 'order-name':
+      await handleOrderChange('name');
+      break;
+    case 'order-type':
+      await handleOrderChange('type');
+      break;
+    case 'order-time':
+      await handleOrderChange('time');
+      break;
+    case 'sort-asc':
+      await handleSortChange('asc');
+      break;
+    case 'sort-desc':
+      await handleSortChange('desc');
+      break;
+    default:
+      break;
+  }
   handleClose();
+}
+
+async function handleToggleAssDir() {
+  if (!store.launchData.length) return handleAssDir();
+
+  dialog.warning({
+    title: isAssociationDirectory.value ? '提示' : '警告',
+    content: isAssociationDirectory.value ? CancelWaring : '关联目录将清空该分类下的所有启动项 是否继续关联?',
+    positiveText: '确 定',
+    negativeText: '取 消',
+    draggable: true,
+    onPositiveClick: async () => {
+      // message.success('确定');
+      isAssociationDirectory.value ? handleCancelAssDir() : handleAssDir();
+    },
+    onNegativeClick: () => {
+      // message.info('取消');
+    },
+  });
+}
+
+async function handleDelete() {
+  return new Promise(resolve => {
+    dialog.warning({
+      title: '提示',
+      content: `是否删除 ${props.item.name} 分类?`,
+      positiveText: '确 定',
+      negativeText: '取 消',
+      draggable: true,
+      onPositiveClick: async () => {
+        await deleteCategory(props.item.id);
+        // 当删除的分类为当前选择的分类时 重置到默认分类
+        if (props.item.id === store.activeCategory) {
+          store.activeCategory = -1;
+          await store.getLaunchData();
+        }
+        await store.getCategoryData();
+        resolve(true);
+      },
+      onNegativeClick: () => resolve(true),
+    });
+  });
+}
+
+async function handleLayoutChange(val: LayoutType) {
+  const params = {
+    ...props.item,
+    layout: val,
+  };
+  await updateCategory(params);
+
+  const upCategory = store.categoryData.find(item => item.id === props.item.id);
+  if (!upCategory) return;
+  upCategory.layout = val;
+}
+async function handleOrderChange(val: SortByType) {
+  const params = {
+    ...props.item,
+    sort_by: val,
+  };
+  await updateCategory(params);
+  const upCategory = store.categoryData.find(item => item.id === props.item.id);
+  if (!upCategory) return;
+  upCategory.sort_by = val;
+  if (isCurrentSelected.value) store.getLaunchData();
+}
+async function handleSortChange(val: SortOrderType) {
+  const params = {
+    ...props.item,
+    sort_order: val,
+  };
+  await updateCategory(params);
+  const upCategory = store.categoryData.find(item => item.id === props.item.id);
+  if (!upCategory) return;
+  upCategory.sort_order = val;
 }
 
 useContextMenuClose(handleClose);

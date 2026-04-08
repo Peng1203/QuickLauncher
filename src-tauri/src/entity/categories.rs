@@ -13,13 +13,20 @@ pub struct Model {
     #[sea_orm(column_type = "Text", nullable)]
     pub association_directory: Option<String>,
     pub exclude: bool,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub layout: Option<String>,
+    #[sea_orm(column_type = "Text", default_value = "grid")]
+    pub layout: String,
+
+    #[sea_orm(column_type = "Text", default_value = "name")]
+    pub sort_by: String,
+
+    #[sea_orm(column_type = "Text", default_value = "asc")]
+    pub sort_order: String,
+
     #[sea_orm(column_type = "Text", nullable)]
     pub icon: Option<String>,
     #[sea_orm(column_type = "custom(\"DATETIME\")", nullable)]
     pub created_at: Option<String>,
-    #[sea_orm(column_type = "custom(\"DATETIME\")", nullable)]
+    #[sea_orm(column_type = "custom(\"CURRENT_TIMESTAMP\")", nullable)]
     pub updated_at: Option<String>,
 }
 

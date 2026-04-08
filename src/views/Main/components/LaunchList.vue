@@ -4,6 +4,7 @@
     tabindex="-1"
     class="overflow-auto m-1"
     @contextmenu.prevent.stop="handleShowListContextMenu"
+    @keydown="handleKeydown"
   >
     <!-- {{ isConrrelationDir }} -->
     <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
@@ -51,7 +52,7 @@
 <script setup lang="ts">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { addLaunch, getFileInfo } from '@/api';
 import ListContextMenu from '@/components/ListContextMenu.vue';
@@ -84,19 +85,20 @@ currentWindow.onDragDropEvent(async e => {
 
       const item: NewLaunchItem = {
         name: fileInfo.name,
+        lnk_name: fileInfo.lnk_name,
         path: fileInfo.path,
         type: fileInfo.type,
         icon: fileInfo.icon,
         // category_id: null,
         hotkey: '',
-        hotkey_global: 0,
+        hotkey_global: false,
         keywords: '',
         start_dir: fileInfo.start_dir,
         remarks: fileInfo.remarks || '',
         args: fileInfo.args || '',
-        run_as_admin: 0,
+        run_as_admin: false,
         order_index: 0,
-        enabled: 1,
+        enabled: true,
         category_id: activeCategory.value === -1 ? null : activeCategory.value,
         subcategory_id: null,
         extension: fileInfo.extension,
@@ -109,8 +111,6 @@ currentWindow.onDragDropEvent(async e => {
     store.getLaunchData();
   }
 });
-
-store.getLaunchData();
 
 const contextMenuVisible = ref<boolean>(false);
 const contextMenuPosition = ref({ x: 0, y: 0 });
@@ -125,5 +125,18 @@ function handleShowListContextMenu(e: MouseEvent) {
       contextMenuPosition.value = { x: e.clientX, y: e.clientY };
     });
   }, 100);
+}
+
+function handleKeydown(e: KeyboardEvent) {
+  const { keyCode, key } = e;
+
+  console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key);
+  switch (key) {
+    case 'F5': // 116
+      store.getLaunchData();
+      break;
+    default:
+      break;
+  }
 }
 </script>

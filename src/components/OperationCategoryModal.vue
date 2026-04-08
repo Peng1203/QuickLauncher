@@ -100,8 +100,8 @@
             >
               <n-switch
                 v-model:value="form.exclude"
-                :checked-value="1"
-                :unchecked-value="0"
+                :checked-value="true"
+                :unchecked-value="false"
               />
             </n-form-item>
           </n-col>
@@ -135,7 +135,7 @@
 import { open } from '@tauri-apps/plugin-dialog';
 import { Close } from '@vicons/ionicons5';
 import { ref } from 'vue';
-import { addCategory, updateCategory } from '@/api';
+import { addCategory, getLocalIconBase64, updateCategory } from '@/api';
 import IconPicker from '@/components/IconPicker.vue';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { useFormState } from '@/composables/useFormState';
@@ -162,10 +162,12 @@ const modalStatus = defineModel<boolean>({ default: false });
 const { form, initForm, setForm } = useFormState<NewCategoryItem>({
   icon: '',
   name: '',
-  parent_id: 0,
+  parent_id: null,
   association_directory: '',
-  exclude: 0,
-  layout: 'list',
+  exclude: false,
+  layout: 'grid',
+  sort_by: 'time',
+  sort_order: 'asc',
 });
 
 function handleClose() {
@@ -182,6 +184,7 @@ async function handleSelectDir() {
   form.value.association_directory = path;
   const arr = path.split('\\');
   form.value.name || (form.value.name = arr[arr.length - 1]);
+  form.value.icon = await getLocalIconBase64(path);
 }
 
 const isEdit = ref<boolean>(false);
@@ -200,12 +203,12 @@ async function handleConfirm() {
       await updateCategory(item);
     } else {
       const res = await addCategory(form.value);
+      console.log('res ------', res);
       // 如果有关联目录 创建该目录下的启动项
       await handleCreateLaunchFromCategoryDir(res);
       // 选中新创建的分类
       store.handleChangeCategory(res.id);
       // TODO 滚动到该分类
-
       registerAllCategoryDirWatch();
     }
     EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST);
@@ -221,9 +224,7 @@ async function handleConfirm() {
 EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, val => {
   isEdit.value = !!val;
   editItem.value = val;
-
   if (val) setForm(val);
-
   modalStatus.value = true;
 });
 </script>

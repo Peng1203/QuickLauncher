@@ -41,11 +41,13 @@ export enum InvokeMethod {
   RENAME_LAUNCH = 'rename_launch',
   DELETE_LAUNCH = 'delete_launch',
   UPDATE_LAUNCH = 'update_launch',
+  DELETE_LAUNCH_BY_CATEGORY = 'delete_launch_by_category',
 
   GET_CATEGORY = 'get_category',
   ADD_CATEGORY = 'add_category',
   UPDATE_CATEGORY = 'update_category',
   DELETE_CATEGORY = 'delete_category',
+  UPDATE_CATEGORY_ASS_DIR = 'update_category_ass_dir',
 
   EXE_COMMAND = 'exe_command',
 
@@ -62,6 +64,9 @@ export enum InvokeMethod {
 
   // 根据名称和分类获取启动项
   GET_LAUNCH_BY_NAME_AND_CATEGORY = 'get_launch_by_name_and_category',
+
+  // 判断前台窗口是否处于全屏
+  IS_FOREGROUND_FULLSCREEN = 'is_foreground_fullscreen',
 }
 
 export enum AppEvent {
@@ -78,6 +83,9 @@ export enum AppEvent {
 
   // 快速搜索快捷键事件
   SEARCH_SHORTCU_KEY = 'search_shortcu_key',
+
+  // 分类重命名
+  CATEGORY_RENAME = 'category_rename',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
@@ -91,3 +99,4 @@ export enum AutocompleteMatchMode {
   Prefix = 'prefix',
   Contains = 'contains',
 }
+  

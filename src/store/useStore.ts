@@ -11,31 +11,25 @@ export const useStore = defineStore('main', {
   }),
   actions: {
     async getLaunchData(id?: number) {
-      try {
-        const data = await getLaunchs(id || this.activeCategory);
-        this.launchData = data;
-      } catch (e) {
-        console.log('e', e);
-      }
+      const data = await getLaunchs(id || this.activeCategory);
+      this.launchData = data;
     },
 
     async getCategoryData() {
-      try {
-        const data = await getCategory();
-
-        this.categoryData = data;
-        this.categoryOptions = data.map(item => ({
-          value: item.id,
-          label: item.name,
-        }));
-      } catch (e) {
-        console.log('e', e);
-      }
+      const data = await getCategory();
+      this.categoryData = data;
+      this.categoryOptions = data.map(item => ({
+        value: item.id,
+        label: item.name,
+      }));
     },
 
     async handleChangeCategory(id: number) {
       this.activeCategory = id;
       await this.getLaunchData(id);
     },
+  },
+  getters: {
+    activeCategoryItem: state => state.categoryData.find(item => item.id === state.activeCategory) as CategoryItem,
   },
 });

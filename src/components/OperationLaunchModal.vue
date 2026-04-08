@@ -13,7 +13,11 @@
       :title="isEdit ? '编辑项目' : '新建项目'"
     >
       <template #header-extra>
-        <n-icon size="20" class="cursor-pointer" @click="handleClose">
+        <n-icon
+          size="20"
+          class="cursor-pointer"
+          @click="handleClose"
+        >
           <Close />
         </n-icon>
       </template>
@@ -47,7 +51,10 @@
               <!-- {{ currentFormSchemas }} -->
               <!-- {{ form }} -->
               <n-row>
-                <template v-for="sItem in currentFormSchemas" :key="sItem.prop">
+                <template
+                  v-for="sItem in currentFormSchemas"
+                  :key="sItem.prop"
+                >
                   <n-col
                     v-if="sItem.slot === 'iconSlot'"
                     :span="(sItem.span as any)"
@@ -71,7 +78,10 @@
                     v-else-if="sItem.slot === 'pathSlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <n-input
                         v-model:value="(form[sItem.prop] as any)"
                         placeholder=""
@@ -95,7 +105,10 @@
                     v-else-if="sItem.slot === 'urlSlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <n-input
                         v-model:value="(form[sItem.prop] as any)"
                         placeholder="https://www.bilibili.com"
@@ -130,7 +143,10 @@
                     v-else-if="sItem.slot === 'hotkeySlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <n-input
                         v-model:value="(form[sItem.prop] as any)"
                         placeholder=""
@@ -142,9 +158,9 @@
                     <n-checkbox
                       v-model:checked="form.hotkey_global"
                       size="small"
-                      :checked-value="1"
-                      :unchecked-value="0"
-                      :default-checked="0"
+                      :checked-value="true"
+                      :unchecked-value="false"
+                      :default-checked="false"
                       :disabled="!form.hotkey"
                     >
                       全局快捷键
@@ -178,14 +194,20 @@
                     v-else-if="sItem.slot === 'browserSlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <template #label>
                         <div class="flex">
                           <span class="mr-1">{{ sItem.label }}</span>
 
                           <n-tooltip trigger="hover">
                             <template #trigger>
-                              <n-icon size="16" class="cursor-pointer">
+                              <n-icon
+                                size="16"
+                                class="cursor-pointer"
+                              >
                                 <!-- @click="handleClose" -->
                                 <AlertCircleOutline />
                               </n-icon>
@@ -195,8 +217,7 @@
                               <br />
                               浏览器名称=浏览器exe文件地址
                               <br />
-                              例:
-                              QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
+                              例: QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
                             </span>
                           </n-tooltip>
                         </div>
@@ -211,7 +232,10 @@
                     v-else-if="sItem.slot === 'keywordsSlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <n-dynamic-tags
                         v-model:value="keywordsTags"
                         type="info"
@@ -225,7 +249,10 @@
                     v-else-if="sItem.slot === 'orderSlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <!-- borderFocus: 'inherit', -->
                       <!-- boxShadowFocus: 'none', -->
                       <!-- caretColor: 'inherit', -->
@@ -236,9 +263,7 @@
                         class="w-25"
                         size="small"
                       />
-                      <span class="ml-2 text-gray-400">
-                        用于搜索返回展示的优先级 数字越大越靠前
-                      </span>
+                      <span class="ml-2 text-gray-400">用于搜索返回展示的优先级 数字越大越靠前</span>
                     </n-form-item>
                   </n-col>
 
@@ -247,7 +272,10 @@
                     v-else-if="sItem.slot === 'categorySlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <!-- TODO 使用级联选择器 -->
                       <!-- {{ form }} -->
                       <n-select
@@ -265,7 +293,10 @@
                     v-else-if="sItem.slot === 'enabledSlot'"
                     :span="(sItem.span as any)"
                   >
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <n-switch
                         v-model:value="form.enabled"
                         :default-value="1"
@@ -275,8 +306,14 @@
                     </n-form-item>
                   </n-col>
 
-                  <n-col v-else :span="(sItem.span as any)">
-                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                  <n-col
+                    v-else
+                    :span="(sItem.span as any)"
+                  >
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
                       <n-input
                         v-model:value="(form[sItem.prop] as any)"
                         :theme-overrides="inputTheme"
@@ -302,7 +339,12 @@
           >
             确 认
           </n-button>
-          <n-button size="small" @click="handleClose">取 消</n-button>
+          <n-button
+            size="small"
+            @click="handleClose"
+          >
+            取 消
+          </n-button>
         </div>
       </template>
     </n-card>
@@ -310,11 +352,12 @@
 </template>
 
 <script setup lang="tsx">
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { invoke } from '@tauri-apps/api/core';
+import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
 import { AlertCircleOutline, Close } from '@vicons/ionicons5';
 import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
 import BrowerPicker from '@/components/BrowserPicker.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
@@ -454,19 +497,20 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
 
 const form = ref<NewLaunchItem>({
   name: '',
+  lnk_name: '',
   path: '',
   type: launchTypes[0].value,
   icon: '',
 
   hotkey: '',
-  hotkey_global: 0,
+  hotkey_global: false,
   keywords: '',
   start_dir: '',
   remarks: '',
   args: '',
-  run_as_admin: 0,
+  run_as_admin: false,
   order_index: 0,
-  enabled: 1,
+  enabled: true,
   category_id: null,
   subcategory_id: null,
   extension: null,
@@ -499,12 +543,7 @@ async function getUrlInfo() {
   try {
     if (!form.value.path.trim()) return;
 
-    if (
-      !(
-        form.value.path.includes('http://') ||
-        form.value.path.includes('https://')
-      )
-    ) {
+    if (!(form.value.path.includes('http://') || form.value.path.includes('https://'))) {
       form.value.path = `https://${form.value.path}`;
     }
     urlInfoLoading.value = true;
@@ -524,14 +563,14 @@ function initForm() {
   form.value.path = '';
   form.value.icon = '';
   form.value.hotkey = '';
-  form.value.hotkey_global = 0;
+  form.value.hotkey_global = false;
   form.value.keywords = '';
   form.value.start_dir = '';
   form.value.remarks = '';
   form.value.args = '';
-  form.value.run_as_admin = 0;
+  form.value.run_as_admin = false;
   form.value.order_index = 0;
-  form.value.enabled = 1;
+  form.value.enabled = true;
   form.value.category_id = null;
   form.value.subcategory_id = null;
 
@@ -547,10 +586,11 @@ function handleTypeChange(val: LaunchItemType) {
 
 function setForm(fileInfo: FileInfo) {
   // 重新选择文件/文件夹时 将该参数重置
-  form.value.run_as_admin = 0;
-  form.value.hotkey_global = 0;
+  form.value.run_as_admin = false;
+  form.value.hotkey_global = false;
 
   form.value.name = fileInfo.name;
+  form.value.lnk_name = fileInfo.lnk_name;
   form.value.path = fileInfo.path;
   form.value.icon = fileInfo.icon;
   form.value.type = fileInfo.type;
@@ -561,10 +601,13 @@ function setForm(fileInfo: FileInfo) {
 }
 
 async function handleSelectLaunch() {
-  const path = await open({
-    multiple: false,
-    directory: form.value.type === 'directory',
-  });
+  const path =
+    form.value.type === 'directory'
+      ? await open({
+          multiple: false,
+          directory: true,
+        })
+      : await invoke<string>('open_file_with_lnk');
 
   const fileInfo = await getFileInfo(path!);
   setForm(fileInfo);
@@ -606,9 +649,13 @@ async function handleConfirm() {
 const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'));
 
 // 打开对话框
-EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, val => {
+EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async val => {
   isEdit.value = !!val;
   editItem.value = val;
+  // 判断当前窗口是否处于展示状态
+  const mainWindow = await WebviewWindow.getByLabel('main');
+  const visible = await mainWindow?.isVisible();
+  if (!visible) await mainWindow?.show();
 
   if (isEdit.value) {
     for (const key in form.value) {
@@ -617,8 +664,7 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, val => {
     }
   } else {
     // 新建时 设置默认选中的分类
-    if (activeCategory.value !== -1)
-      form.value.category_id = activeCategory.value;
+    if (activeCategory.value !== -1) form.value.category_id = activeCategory.value;
   }
 
   modalStatus.value = true;

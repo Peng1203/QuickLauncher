@@ -1,18 +1,14 @@
 <template>
   <!-- :theme="darkTheme" -->
-  <n-config-provider>
-    <n-dialog-provider>
-      <n-notification-provider>
-        <n-message-provider>
-          <n-modal-provider>
+  <NConfigProvider>
+    <NDialogProvider>
+      <NNotificationProvider>
+        <NMessageProvider>
+          <NModalProvider>
             <router-view />
-          </n-modal-provider>
-        </n-message-provider>
-      </n-notification-provider>
-    </n-dialog-provider>
-  </n-config-provider>
+          </NModalProvider>
+        </NMessageProvider>
+      </NNotificationProvider>
+    </NDialogProvider>
+  </NConfigProvider>
 </template>
-
-<script setup lang="ts">
-// import { darkTheme } from 'naive-ui';
-</script>

@@ -7,7 +7,9 @@ pub struct NewCategoryItem {
     pub association_directory: Option<String>,
     pub icon: Option<String>,
     pub exclude: bool,
-    pub layout: Option<String>,
+    pub layout: String,
+    pub sort_by: String,
+    pub sort_order: String,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -17,7 +19,9 @@ pub struct CategoryItem {
     pub parent_id: Option<i32>,
     pub association_directory: Option<String>,
     pub exclude: bool,
-    pub layout: Option<String>,
+    pub layout: String,
+    pub sort_by: String,
+    pub sort_order: String,
     pub icon: Option<String>,
     pub created_at: Option<String>,
     pub updated_at: Option<String>,
@@ -32,6 +36,8 @@ impl From<entity::categories::Model> for CategoryItem {
             association_directory: model.association_directory,
             exclude: model.exclude,
             layout: model.layout,
+            sort_by: model.sort_by,
+            sort_order: model.sort_order,
             icon: model.icon,
             created_at: model.created_at,
             updated_at: model.updated_at,

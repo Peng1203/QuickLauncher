@@ -22,7 +22,6 @@
         :item="item"
         :icon="item.icon!"
         :name="item.name"
-        :active-category-item="activeCategoryItem!"
       />
     </VueDraggable>
 
@@ -44,7 +43,7 @@
 <script setup lang="ts">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { nextTick, ref } from 'vue';
 import { VueDraggable } from 'vue-draggable-plus';
 import { addLaunch, getFileInfo } from '@/api';
 import ListContextMenu from '@/components/ListContextMenu.vue';
@@ -57,7 +56,7 @@ import { EventBus } from '@/utils/eventBus';
 const store = useStore();
 const { launchData, activeCategory } = storeToRefs(store);
 
-const { isConrrelationDir, activeCategoryItem } = useCategoryCorrelationDir();
+const { isConrrelationDir } = useCategoryCorrelationDir();
 
 const launchModalStatus = ref(false);
 const categoryModalStatus = ref(false);
@@ -75,19 +74,20 @@ currentWindow.onDragDropEvent(async e => {
 
       const item: NewLaunchItem = {
         name: fileInfo.name,
+        lnk_name: fileInfo.lnk_name,
         path: fileInfo.path,
         type: fileInfo.type,
         icon: fileInfo.icon,
         // category_id: null,
         hotkey: '',
-        hotkey_global: 0,
+        hotkey_global: false,
         keywords: '',
         start_dir: fileInfo.start_dir,
         remarks: fileInfo.remarks || '',
         args: fileInfo.args || '',
-        run_as_admin: 0,
+        run_as_admin: false,
         order_index: 0,
-        enabled: 1,
+        enabled: true,
         category_id: activeCategory.value === -1 ? null : activeCategory.value,
         subcategory_id: null,
         extension: fileInfo.extension,
@@ -104,8 +104,6 @@ currentWindow.onDragDropEvent(async e => {
   }
 });
 
-store.getLaunchData();
-
 const contextMenuVisible = ref<boolean>(false);
 const contextMenuPosition = ref({ x: 0, y: 0 });
 const activeItem = ref<LaunchItem[]>([]);
@@ -121,5 +119,3 @@ function handleShowListContextMenu(e: MouseEvent) {
   }, 100);
 }
 </script>
-
-<style scoped lang="scss"></style>

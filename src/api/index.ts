@@ -140,11 +140,11 @@ export function getLaunchByID<T = LaunchItem>(id: number) {
  * @description 执行命令行
  * @author Peng
  *
- * @param {string} cmd
+ * @param {string} command
  * @returns {*}
  */
-export function exeCommand(cmd: string) {
-  return invoke(InvokeMethod.EXE_COMMAND, { cmd });
+export function exeCommand(command: string) {
+  return invoke(InvokeMethod.EXE_COMMAND, { command });
 }
 
 /**
@@ -214,6 +214,12 @@ export function addCategory(item: NewCategoryItem): Promise<CategoryItem> {
 export function updateCategory<T = CategoryItem>(item: T) {
   return invoke(InvokeMethod.UPDATE_CATEGORY, { item });
 }
+export function updateCategoryAssDir({
+  id,
+  association_directory,
+}: Pick<CategoryItem, 'id' | 'association_directory'>) {
+  return invoke(InvokeMethod.UPDATE_CATEGORY_ASS_DIR, { id, assDir: association_directory });
+}
 
 /**
  * @description 获取分类
@@ -254,4 +260,12 @@ export function getAutocomplete(keyword: string) {
 
 export function getLaunchByNameAndCategory<T = LaunchItem>(name: string, categoryId: number): Promise<T | null> {
   return invoke<T | null>(InvokeMethod.GET_LAUNCH_BY_NAME_AND_CATEGORY, { name, categoryId });
+}
+
+export function isForegroundFullscreen() {
+  return invoke(InvokeMethod.IS_FOREGROUND_FULLSCREEN);
+}
+
+export function deleteLaunchByCategory(categoryId: number) {
+  return invoke(InvokeMethod.DELETE_LAUNCH_BY_CATEGORY, { categoryId });
 }

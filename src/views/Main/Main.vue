@@ -21,7 +21,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { ref } from 'vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
-
+import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { useLoadConfig } from '@/composables/useLoadConfig';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
@@ -51,6 +51,39 @@ EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData);
 useLoadConfig();
 
 useAppConfigActions().initMainWindowShortcutKey();
+
+const { registerAllCategoryDirWatch } = useCategoryCorrelationDir();
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function getCategorys() {
+  await store.getCategoryData();
+  registerAllCategoryDirWatch();
+}
+
+async function initCategoryData() {
+  try {
+    await delay(50);
+    await getCategorys();
+  } catch (e) {
+    console.log('initCategoryData', e);
+    await initCategoryData();
+  }
+}
+
+async function initLaunchData() {
+  try {
+    await delay(50);
+    await store.getLaunchData();
+  } catch (e) {
+    console.log('initLaunchData', e);
+    await initLaunchData();
+  }
+}
+
+initCategoryData();
+initLaunchData();
 
 // watchImmediate(
 //   'C:\\Users\\Mayn\\Desktop\\FTTH APP截图',

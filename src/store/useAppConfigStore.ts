@@ -44,6 +44,7 @@ export const useAppConfigStore = defineStore(
       enableSearch: true,
       searchLostFocusHide: false,
       searchHideAfterOpen: true,
+      doNotDisturbMode: true,
       searchOpenOnMouseDisplay: true,
 
       enableWebSearch: true,
@@ -84,11 +85,7 @@ export const useAppConfigStore = defineStore(
       hooks: {
         beforeBackendSync: (state: any) => {
           // 初始化钩子 在rust端之前调用
-          console.log(
-            `%c beforeBackendSync ----`,
-            'color: #fff;background-color: #000;font-size: 18px',
-            state,
-          );
+          console.log(`%c beforeBackendSync ----`, 'color: #fff;background-color: #000;font-size: 18px', state);
           saveAppConfig(state);
 
           return state;

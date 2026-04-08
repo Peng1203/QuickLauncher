@@ -10,13 +10,19 @@
     >
       <h3 class="!mt-[0]">启动</h3>
       <n-form-item>
-        <n-checkbox v-model:checked="appConfigStore.enableSearch" size="small">
+        <n-checkbox
+          v-model:checked="appConfigStore.enableSearch"
+          size="small"
+        >
           启用快速搜索
         </n-checkbox>
       </n-form-item>
 
       <h3>显示/隐藏</h3>
-      <n-form-item label="快捷键" label-width="auto">
+      <n-form-item
+        label="快捷键"
+        label-width="auto"
+      >
         <n-input
           v-model:value="shortcutKey"
           readonly
@@ -68,11 +74,23 @@
       </n-form-item>
 
       <n-form-item>
+        <div class="">
+          <n-checkbox
+            v-model:checked="appConfigStore.doNotDisturbMode"
+            size="small"
+          >
+            勿扰模式
+          </n-checkbox>
+          <span class="text-[12px] text-gray-500">当显示器前台窗口处于全屏模式下不会弹出搜索窗口</span>
+        </div>
+      </n-form-item>
+
+      <n-form-item>
         <n-checkbox
           v-model:checked="appConfigStore.searchOpenOnMouseDisplay"
           size="small"
         >
-          跟随鼠标所在屏幕显示
+          跟随鼠标所在显示器显示
         </n-checkbox>
       </n-form-item>
 
@@ -113,7 +131,7 @@
           v-model:checked="appConfigStore.enableAutocompleteFrequencyFilter"
           size="small"
         >
-          只使用输入次数 ≥3 的记录作为自动补全候选项
+          仅使用输入次数 ≥3 次的记录作为自动补全候选项
         </n-checkbox>
       </n-form-item>
       <!-- <n-form-item>
@@ -128,7 +146,10 @@
       <!-- TODO -->
       <h3>历史记录</h3>
       <n-form-item>
-        <n-checkbox v-model:checked="appConfigStore.showHistory" size="small">
+        <n-checkbox
+          v-model:checked="appConfigStore.showHistory"
+          size="small"
+        >
           显示
         </n-checkbox>
         <!-- 排序条件 -->
@@ -143,12 +164,7 @@ import { ref } from 'vue';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
-import {
-  checkShortcutKey,
-  checkShortcutKeyComplete,
-  getShortcutKey,
-  unRegisterShortcutKey,
-} from '@/utils/shortcutKey';
+import { checkShortcutKey, checkShortcutKeyComplete, getShortcutKey, unRegisterShortcutKey } from '@/utils/shortcutKey';
 
 const { message } = useNaiveUiApi();
 const { appConfigStore } = useAppConfig();
@@ -179,10 +195,7 @@ async function handleBlur() {
     return;
   }
 
-  const checkVal = await checkShortcutKey(
-    shortcutKey.value,
-    appConfigStore.searchGlobalShortcutKey,
-  );
+  const checkVal = await checkShortcutKey(shortcutKey.value, appConfigStore.searchGlobalShortcutKey);
   if (!checkVal) {
     message.warning('快捷键被占用');
     shortcutKeyInputStatus.value = 'warning';
@@ -214,11 +227,7 @@ function handleClear() {
 }
 
 function handleShowCategory(val: boolean) {
-  console.log(
-    `%c val ----`,
-    'color: #fff;background-color: #000;font-size: 18px',
-    val,
-  );
+  console.log(`%c val ----`, 'color: #fff;background-color: #000;font-size: 18px', val);
 
   if (!val) appConfigStore.showSubCategory = false;
 }

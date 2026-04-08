@@ -45,8 +45,10 @@
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { renameLaunch, runLaunch } from '@/api';
 import { AppEvent } from '@/constant';
+import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 import LaunchItemContextMenu from './ListItemContextMenu.vue';
 
@@ -54,8 +56,10 @@ const props = defineProps<{
   icon: string;
   name: string;
   item: LaunchItem;
-  activeCategoryItem?: CategoryItem;
 }>();
+
+const store = useStore();
+const { activeCategoryItem } = storeToRefs(store);
 
 // 鼠标单击选中的项
 const activeItems = defineModel<LaunchItem[]>();
@@ -77,7 +81,7 @@ function handleKeydown(e: KeyboardEvent) {
   console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key);
   switch (key) {
     case 'F2': // 113
-      handleEditName();
+      !activeCategoryItem.value?.association_directory && handleEditName();
       break;
     case 'Enter': // 13
       handleSaveEditName();
@@ -133,7 +137,7 @@ const menuVisible = ref(false);
 const menuPosition = ref({ x: 0, y: 0 });
 const isSelected = computed(() => !!((activeItems.value?.length || 0) > 1));
 function handleShowContextMenu(e: MouseEvent) {
-  // if (props.activeCategoryItem?.association_directory) return;
+  if (activeCategoryItem.value?.association_directory) return;
   // 先关闭其他菜单 再打开当前菜单
   EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 

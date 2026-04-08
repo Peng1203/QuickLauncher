@@ -4,18 +4,19 @@ declare global {
   interface LaunchItem {
     id: number;
     name: string;
+    lnk_name?: string | null;
     path: string;
     type: 'file' | 'directory' | 'url';
     icon?: string | null;
     hotkey?: string | null;
-    hotkey_global?: 0 | 1;
+    hotkey_global?: boolean;
     keywords?: string | null;
     start_dir?: string | null;
     remarks?: string | null;
     args?: string | null;
-    run_as_admin?: 0 | 1;
+    run_as_admin?: boolean;
     order_index?: number;
-    enabled?: 0 | 1;
+    enabled?: boolean;
     category_id?: number | null;
     subcategory_id?: number | null;
     last_used_at?: string | null;
@@ -37,26 +38,9 @@ declare global {
     subcategory_name: string;
   };
 
-  // interface NewLaunchItem {
-  //   name: string
-  //   path: string
-  //   type: 'file' | 'directory' // 网站
-  //   icon?: string | null
-  //   hotkey?: string | null
-  //   hotkey_global?: 0 | 1
-  //   keywords?: string | null
-  //   start_dir?: string | null
-  //   remarks?: string | null
-  //   args?: string | null
-  //   run_as_admin?: 0 | 1
-  //   order_index?: number
-  //   enabled?: 0 | 1
-  //   category_id?: number | null
-  // }
-
   type FileInfo = Pick<
     LaunchItem,
-    'name' | 'path' | 'icon' | 'type' | 'extension' | 'args' | 'remarks' | 'start_dir'
+    'name' | 'lnk_name' | 'path' | 'icon' | 'type' | 'extension' | 'args' | 'remarks' | 'start_dir'
   > & { size: number };
 
   // 应用配置状态
@@ -104,6 +88,8 @@ declare global {
     searchLostFocusHide: boolean;
     /** 打开后隐藏 */
     searchHideAfterOpen: boolean;
+    /** 勿扰模式 */
+    doNotDisturbMode: boolean;
     /** 跟随鼠标所在屏幕显示 */
     searchOpenOnMouseDisplay: boolean;
 
@@ -140,14 +126,21 @@ declare global {
     type?: any;
   }
 
+  type LayoutType = 'list' | 'grid';
+
+  type SortByType = 'name' | 'type' | 'time';
+
+  type SortOrderType = 'asc' | 'desc';
   interface CategoryItem {
     id: number;
     name: string;
-    parent_id: number;
+    parent_id: number | null;
     association_directory?: string | null;
     /** 0不排除 1排除 */
-    exclude: 0 | 1;
-    layout: 'list' | 'grid';
+    exclude: boolean;
+    layout: LayoutType;
+    sort_by: SortByType;
+    sort_order: SortOrderType;
     icon: string | null;
     created_at: string;
     updated_at: string;

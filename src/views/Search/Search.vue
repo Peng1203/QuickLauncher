@@ -310,7 +310,7 @@
 
 <script setup lang="ts">
 import {
-  availableMonitors,
+  // availableMonitors,
   cursorPosition,
   getCurrentWindow,
   LogicalPosition,
@@ -324,6 +324,7 @@ import {
   exeCommand,
   getAutocomplete,
   getLaunchByID,
+  isForegroundFullscreen,
   runLaunch,
   searchLaunch,
 } from '@/api';
@@ -343,7 +344,7 @@ import Translation from './components/Translation.vue';
 
 const { appConfigStore } = useAppConfig();
 // prettier-ignore
-const placeTip = '名称 / 拼音 / 关键字 / 文件(目录)地址 / URL / Win内置命令 (mstsc)';
+const placeTip = '名称 / 拼音首字母 / 关键字 / 文件或目录路径 / URL / 系统命令';
 const placeholder = ref(placeTip);
 const inputRef = useTemplateRef('searchInputRef');
 
@@ -396,7 +397,7 @@ function handleKeydown(e: KeyboardEvent) {
   const reultCount = resultList.value.length;
   const minIndex = 0;
   const maxIndex = reultCount - 1;
-  const { keyCode } = e;
+  const { keyCode, ctrlKey, key } = e;
   // code
   // Enter keyCode=13 code=Enter
   // Esc   keyCode=27 code=Escape
@@ -410,6 +411,18 @@ function handleKeydown(e: KeyboardEvent) {
     spaceCounter.value = 0;
   }
 
+  // 组合按键对应的处理
+  if (ctrlKey && key === 'p') {
+    // 切换模式 ctrl + p
+    console.log(`%c 触发了  ctrl+p ----`, 'color: #fff;background-color: #000;font-size: 18px');
+    e.preventDefault();
+  } else if (ctrlKey && key === 'w') {
+    // 关闭搜索建议 (ctrl + w)
+    handleCloseSuggestion();
+    current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+  }
+
+  // 单个按键对应的处理
   switch (keyCode) {
     case 8: // Backspace 键
       // prettier-ignore
@@ -478,13 +491,6 @@ function handleKeydown(e: KeyboardEvent) {
       }
       e.preventDefault();
       break;
-    case 87: // 关闭搜索建议 (ctrl + w)
-      if (e.ctrlKey) {
-        handleCloseSuggestion();
-        current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
-      }
-
-      break;
   }
 }
 
@@ -550,6 +556,7 @@ async function handleEnterLaunch() {
    * 如果为无效命令 不做响应 (无法实现)
    */
   if (!resultList.value.length) {
+    console.log(`%c if ----`, 'color: #fff;background-color: #000;font-size: 18px');
     await exeCommand(keyword.value);
     addOrUpdateAutocompleteRecord(keyword.value);
   } else {
@@ -632,8 +639,8 @@ function handleClose(isEscClose: boolean = false) {
 }
 
 async function handleShow() {
-  const monitors = await availableMonitors();
-  console.log('monitors  ------', monitors);
+  // const monitors = await availableMonitors();
+  // console.log('monitors  ------', monitors);
   // TODO 可作为个性化设置 搜索框呼出位置跟随鼠标 需要适配搜索结果显示位置 朝上或者朝下
   if (appConfigStore.searchOpenOnMouseDisplay) {
     // 存在多个显示器时 呼出窗口跟随随便所在窗口
@@ -720,7 +727,11 @@ useAppConfigActions().registerSearchShortcutKey();
 // 监听快捷键按下
 EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
   if (!appConfigStore.enableSearch) return;
+  // 判断前台是否处于全屏模式
+  const isFull = await isForegroundFullscreen();
   const windowVisible = await current.isVisible();
+  // 当开启全屏勿扰 前台窗口为全屏 搜索窗口处于隐藏 则不进行展示响应
+  if (appConfigStore.doNotDisturbMode && isFull && !windowVisible) return;
   windowVisible ? handleClose() : handleShow();
 });
 

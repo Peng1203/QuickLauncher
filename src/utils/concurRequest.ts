@@ -5,6 +5,7 @@
  * @returns Promise<结果数组>
  */
 export async function batchRequest(tasks: (() => Promise<any>)[], concurrency = 5) {
+  console.log(`%c batchRequest ----`, 'color: #fff;background-color: #000;font-size: 18px');
   const results: any[] = new Array(tasks.length);
   let index = 0;
 
