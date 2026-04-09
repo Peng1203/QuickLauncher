@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
-import { setupApp } from './app/setupApp';
 import App from './App.vue';
+import { setupApp } from './app/setupApp';
 import router from './router';
 import store from './store';
 import './styles/global.css';

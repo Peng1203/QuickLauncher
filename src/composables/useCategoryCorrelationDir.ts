@@ -1,10 +1,10 @@
-import { computed, h, nextTick } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useStore } from '@/store/useStore';
-import { watch as watchDir, readDir, exists } from '@tauri-apps/plugin-fs';
-import { addLaunch, deleteLaunch, getFileInfo, getLaunchByNameAndCategory, updateLaunch } from '@/api';
-import { batchRequest } from '@/utils/concurRequest';
+import { exists, readDir, watch as watchDir } from '@tauri-apps/plugin-fs';
 import { differenceBy } from 'lodash-es';
+import { storeToRefs } from 'pinia';
+import { computed, h, nextTick } from 'vue';
+import { addLaunch, deleteCategory, deleteLaunch, getFileInfo, getLaunchByNameAndCategory, updateLaunch } from '@/api';
+import { useStore } from '@/store/useStore';
+import { batchRequest } from '@/utils/concurRequest';
 import { useNaiveUiApi } from './useNaiveUiApi';
 
 const watchMap = new Map();
@@ -12,7 +12,7 @@ const watchMap = new Map();
 const failureCateggorys = [];
 
 /** 监听分类关联目录 */
-export const useCategoryCorrelationDir = () => {
+export function useCategoryCorrelationDir() {
   const { dialog, message } = useNaiveUiApi();
 
   const store = useStore();
@@ -59,20 +59,19 @@ export const useCategoryCorrelationDir = () => {
     // 处理失效分类
   }
 
-  const handleWatchCreate = async (paths: string[], category: CategoryItem) => {
+  async function handleWatchCreate(paths: string[], category: CategoryItem) {
     const fullPath = paths[0];
     return await getFileInfoAndCreateLaunch(fullPath, category, true);
-  };
-  const handleWatchRemove = async (paths: string[], category: CategoryItem) => {
+  }
+
+  async function handleWatchRemove(paths: string[], category: CategoryItem) {
     const removeFullPath = paths[0];
     const launchItem = await getLaunchByNameAndCategory(removeFullPath.split('\\').pop()!, category.id);
     if (!launchItem) return;
     await deleteLaunch(launchItem.id);
-  };
+  }
 
-  const handleWatchRename = async (paths: string[], category: CategoryItem) => {
-    console.log(`%c paths ----`, 'color: #fff;background-color: #000;font-size: 18px', paths);
-    console.log(`%c category ----`, 'color: #fff;background-color: #000;font-size: 18px', category);
+  async function handleWatchRename(paths: string[], category: CategoryItem) {
     // 重命名操作 先删除旧的启动项 再添加新的启动项
     const [oldFullPath, newFullPath] = paths;
     const oldName = oldFullPath.split('\\').pop()!;
@@ -85,16 +84,14 @@ export const useCategoryCorrelationDir = () => {
       name: newName,
       path: newFullPath,
     };
-    console.log(`%c launchItem ----`, 'color: #fff;background-color: #000;font-size: 18px', launchItem);
     await updateLaunch(form);
     const upItem = store.launchData.find(item => item.id === launchItem.id);
     // 更新启动项列表
     nextTick(() => {
-      console.log(`%c upItem ----`, 'color: #fff;background-color: #000;font-size: 18px', upItem);
       if (upItem) upItem.name = newName;
       // else store.getLaunchData(category.id);
     });
-  };
+  }
 
   /** 删除指定的分类目录 watch */
   function removeCategoryDirWatch(id: number) {
@@ -117,8 +114,8 @@ export const useCategoryCorrelationDir = () => {
   /**
    * 根据目录中文件信息 创建启动项
    */
-  const getFileInfoAndCreateLaunch = async (entryName: string, category: CategoryItem, isFullPath: boolean = false) => {
-    const fullPath = isFullPath ? entryName : category.association_directory + '\\' + entryName;
+  async function getFileInfoAndCreateLaunch(entryName: string, category: CategoryItem, isFullPath: boolean = false) {
+    const fullPath = isFullPath ? entryName : `${category.association_directory}\\${entryName}`;
 
     const fileInfo = await getFileInfo(fullPath);
     if (!fileInfo) return;
@@ -144,7 +141,7 @@ export const useCategoryCorrelationDir = () => {
     };
     // // 添加记录
     await addLaunch(item);
-  };
+  }
 
   /** 检查分类关联目录与启动项的同步情况 */
   const checkCategoryDirAndLaunchSync = async () => {
@@ -160,8 +157,9 @@ export const useCategoryCorrelationDir = () => {
         positiveText: '确 定',
         negativeText: '取 消',
         draggable: true,
-        onPositiveClick: () => {
+        onPositiveClick: async () => {
           // TODO 删除分类
+          await deleteCategory(category.id);
           message.success('确定');
         },
       });
@@ -200,7 +198,7 @@ export const useCategoryCorrelationDir = () => {
     handleCreateLaunchFromCategoryDir,
     checkCategoryDirAndLaunchSync,
   };
-};
+}
 
 // let flag = false;
 // function test() {

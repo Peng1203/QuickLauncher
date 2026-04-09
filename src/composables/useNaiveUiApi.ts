@@ -1,4 +1,4 @@
-import { useMessage, useModal, useNotification, useDialog } from 'naive-ui';
+import { useDialog, useMessage, useModal, useNotification } from 'naive-ui';
 
 export function useNaiveUiApi() {
   const message = useMessage();

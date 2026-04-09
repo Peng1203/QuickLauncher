@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted } from 'vue';
-import { EventBus } from '@/utils/eventBus';
 import { AppEvent } from '@/constant';
+import { EventBus } from '@/utils/eventBus';
 
 export function useContextMenuClose(handleClose: () => void, handleOutsideClick?: (e: MouseEvent) => void) {
   onMounted(() => {

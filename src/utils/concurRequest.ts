@@ -6,7 +6,7 @@
  */
 export async function batchRequest(tasks: (() => Promise<any>)[], concurrency = 5) {
   console.log(`%c batchRequest ----`, 'color: #fff;background-color: #000;font-size: 18px');
-  const results: any[] = new Array(tasks.length);
+  const results: any[] = Array.from({ length: tasks.length });
   let index = 0;
 
   // 内部 worker 函数：负责执行队列中的任务
@@ -23,7 +23,7 @@ export async function batchRequest(tasks: (() => Promise<any>)[], concurrency = 
   }
 
   // 启动 N 个并发 worker
-  await Promise.all(new Array(Math.min(concurrency, tasks.length)).fill(null).map(() => worker()));
+  await Promise.all(Array.from({ length: Math.min(concurrency, tasks.length) }).fill(null).map(() => worker()));
 
   return results;
 }

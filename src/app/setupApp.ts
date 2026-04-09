@@ -1,5 +1,5 @@
 import { setupGlobalEvents } from './setupGlobalEvents';
 
-export const setupApp = () => {
+export function setupApp() {
   setupGlobalEvents();
-};
+}

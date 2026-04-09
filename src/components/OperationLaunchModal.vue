@@ -223,7 +223,10 @@
                         </div>
                       </template>
 
-                      <BrowerPicker v-model="(form.args as string)" />
+                      <!--  -->
+                      <template v-if="form.args">
+                        <BrowerPicker v-model="form.args" />
+                      </template>
                     </n-form-item>
                   </n-col>
 

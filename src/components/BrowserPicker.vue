@@ -1,7 +1,8 @@
 <template>
   <div class="con">
+    <!-- @ts-ignore -->
     <n-dynamic-tags
-      v-model:value="browserOptions as any"
+      v-model:value="browserOptions"
       size="small"
       :render-tag="handleRenderBrowserTag"
       @create="handleCreateBrowserOption"
@@ -22,6 +23,7 @@
 </template>
 
 <script setup lang="tsx">
+import type { DynamicTagsOption } from 'naive-ui';
 import { LogoChrome, LogoEdge, LogoFirefox, RefreshOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
@@ -67,7 +69,7 @@ const baseBrowserOptions = ref<OptionItem[]>(
 const browserOptions = computed<OptionItem[]>({
   get: () => baseBrowserOptions.value,
   set: val => (baseBrowserOptions.value = val.filter(item => item.value !== undefined)),
-});
+}) as unknown as DynamicTagsOption as any;
 
 function handleRenderBrowserTag(tag: OptionItem, index: number) {
   const IconComponent = browserIcons[tag.value as string];

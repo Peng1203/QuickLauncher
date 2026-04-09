@@ -1,8 +1,8 @@
+import { debounce } from 'lodash-es';
 import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
-import { debounce } from 'lodash-es';
 
-export const setupGlobalEvents = () => {
+export function setupGlobalEvents() {
   // const isDev = import.meta.env.DEV;
 
   // 触发关闭contextMenu事件
@@ -30,4 +30,4 @@ export const setupGlobalEvents = () => {
   //     }
   //   });
   // }
-};
+}
