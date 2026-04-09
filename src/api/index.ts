@@ -1,7 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
 import { createDiscreteApi } from 'naive-ui';
 import { InvokeMethod } from '@/constant';
-import { enable } from '@tauri-apps/plugin-autostart';
 
 const { message } = createDiscreteApi(['message']);
 
