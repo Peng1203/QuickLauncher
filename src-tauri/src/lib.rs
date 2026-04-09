@@ -32,6 +32,7 @@ use commands::set_app_config::set_app_config;
 use commands::update_category::update_category;
 use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
+use commands::update_launch_enabled_by_category::update_launch_enabled_by_category;
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
@@ -111,7 +112,8 @@ pub fn run() {
             open_file_with_lnk,
             delete_launch_by_category,
             delete_category,
-            restart_app
+            restart_app,
+            update_launch_enabled_by_category
         ])
         .setup(|app| {
             let db = tauri::async_runtime::block_on(async {

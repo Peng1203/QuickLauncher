@@ -1,12 +1,13 @@
 import type { WebSearchOpenModel } from '@/constant';
 
 declare global {
+  type LaunchType = 'file' | 'directory' | 'url';
   interface LaunchItem {
     id: number;
     name: string;
     lnk_name?: string | null;
     path: string;
-    type: 'file' | 'directory' | 'url';
+    type: LaunchType;
     icon?: string | null;
     hotkey?: string | null;
     hotkey_global?: boolean;
@@ -128,7 +129,7 @@ declare global {
 
   type LayoutType = 'list' | 'grid';
 
-  type SortByType = 'name' | 'type' | 'time';
+  type SortByType = 'name' | 'type' | 'time' | 'order';
 
   type SortOrderType = 'asc' | 'desc';
   interface CategoryItem {

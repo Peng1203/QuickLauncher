@@ -11,7 +11,16 @@ export const useStore = defineStore('main', {
   }),
   actions: {
     async getLaunchData(id?: number) {
-      const data = await getLaunchs(id || this.activeCategory);
+      let idParam = id || this.activeCategory;
+      if (idParam === -1) {
+        const data = await getLaunchs(id);
+        this.launchData = data;
+        return;
+      }
+
+      await nextTick(() => {});
+      const { sort_by, sort_order } = this.activeCategoryItem;
+      const data = await getLaunchs(this.activeCategory, sort_by, sort_order);
       this.launchData = data;
     },
 

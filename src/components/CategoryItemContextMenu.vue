@@ -16,7 +16,14 @@
 <script setup lang="tsx">
 import { open } from '@tauri-apps/plugin-dialog';
 import { computed, h, ref } from 'vue';
-import { deleteCategory, deleteLaunchByCategory, openPath, updateCategory, updateCategoryAssDir } from '@/api';
+import {
+  deleteCategory,
+  deleteLaunchByCategory,
+  openPath,
+  updateCategory,
+  updateCategoryAssDir,
+  updateLaunchEnabledByCategory,
+} from '@/api';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { useContextMenuClose } from '@/composables/useContextMenuClose';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
@@ -172,6 +179,14 @@ const menuOptions = computed(() => [
         },
         icon: renderIcon('icon-anchuangjianshijianpaixu'),
       },
+      {
+        label: props.item?.sort_by === 'order' ? '搜索优先级 (✅)' : '搜索优先级',
+        key: 'order-index',
+        props: {
+          style: props.item?.sort_by === 'order' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+        },
+        icon: renderIcon('icon-youxianji'),
+      },
       // {
       //   label: props.item?.layout === 'list' ? '大小 (✅)' : '大小',
       //   key: 'layout-list',
@@ -240,12 +255,10 @@ async function handleAssDir() {
 }
 
 async function handleCancelAssDir() {
-  console.log(`%c  ----`, 'color: #fff;background-color: #000;font-size: 18px', sync_clear.value);
   if (sync_clear.value) await deleteLaunchByCategory(props.item.id);
   await updateCategoryAssDir({ id: props.item.id, association_directory: '' });
   await store.getCategoryData();
   if (sync_clear.value && isCurrentSelected.value) await store.getLaunchData(props.item.id);
-  // TODO 删除/取消关联 目录时 删除监听器中的该项
   await removeCategoryDirWatch(props.item.id);
   sync_clear.value = false;
 }
@@ -256,7 +269,6 @@ function handleClose() {
 
 async function handleSelect(key: string) {
   console.log('selected key:', key);
-  // TODO: 根据 key 处理不同的操作
   // const findRes = menuOptions.value.find(item => item.key === key);
 
   // if (!findRes) return handleClose();
@@ -264,7 +276,7 @@ async function handleSelect(key: string) {
   // 子菜单 click 事件处理
   switch (key) {
     case 'exclude':
-      // await handleToggleAssDir();
+      await handleToggleQueryEnable();
       break;
     case 'correlation':
       await handleToggleAssDir();
@@ -299,6 +311,9 @@ async function handleSelect(key: string) {
     case 'order-time':
       await handleOrderChange('time');
       break;
+    case 'order-index':
+      await handleOrderChange('order');
+      break;
     case 'sort-asc':
       await handleSortChange('asc');
       break;
@@ -309,6 +324,21 @@ async function handleSelect(key: string) {
       break;
   }
   handleClose();
+}
+
+async function handleToggleQueryEnable() {
+  const { id, exclude } = props.item;
+  const newExclude = !exclude;
+  const params = {
+    ...props.item,
+    exclude: newExclude,
+  };
+  await updateCategory(params);
+  const upCategory = store.categoryData.find(item => item.id === props.item.id);
+  if (!upCategory) return;
+  upCategory.exclude = newExclude;
+
+  await updateLaunchEnabledByCategory(id, newExclude !== true);
 }
 
 async function handleToggleAssDir() {
@@ -384,6 +414,7 @@ async function handleSortChange(val: SortOrderType) {
   const upCategory = store.categoryData.find(item => item.id === props.item.id);
   if (!upCategory) return;
   upCategory.sort_order = val;
+  if (isCurrentSelected.value) store.getLaunchData();
 }
 
 useContextMenuClose(handleClose);

@@ -8,13 +8,25 @@
   >
     <!-- {{ isConrrelationDir }} -->
     <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
-    <VueDraggable
-      v-if="launchData.length"
+    <!-- <VueDraggable
       v-model="launchData"
       :animation="150"
       ghost-class="ghost"
       group="people"
-      class="grid grid-cols-6 draggable gap-0.5"
+    >
+    </VueDraggable> -->
+    <!-- class="flex flex-col divide-y divide-gray-100" -->
+    <!-- class="grid grid-cols-6 draggable gap-0.5" -->
+    <transition-group
+      v-if="launchData.length"
+      name="list"
+      tag="div"
+      class="relative"
+      :class="
+        mode === 'list'
+          ? 'flex flex-col divide-y divide-gray-100 mb-6'
+          : 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 draggable gap-0.5'
+      "
     >
       <template
         v-for="item in launchData"
@@ -28,7 +40,7 @@
           :active-category-item="activeCategoryItem!"
         />
       </template>
-    </VueDraggable>
+    </transition-group>
 
     <div
       v-else
@@ -53,7 +65,7 @@
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { storeToRefs } from 'pinia';
 import { nextTick, ref } from 'vue';
-import { VueDraggable } from 'vue-draggable-plus';
+// import { VueDraggable } from 'vue-draggable-plus';
 import { addLaunch, getFileInfo } from '@/api';
 import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
@@ -71,6 +83,7 @@ const { launchData, activeCategory } = storeToRefs(store);
 const { isConrrelationDir, activeCategoryItem } = useCategoryCorrelationDir();
 const launchModalStatus = ref(false);
 const currentWindow = getCurrentWebviewWindow();
+const mode = computed(() => activeCategoryItem.value?.layout || 'grid');
 
 currentWindow.onDragDropEvent(async e => {
   // 防止在关联目录分类下手动拖拽添加启动项
@@ -140,3 +153,20 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 </script>
+
+<style scoped>
+.list-move {
+  transition: all 0.25s ease;
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.2s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+</style>

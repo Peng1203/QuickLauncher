@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core';
 import { createDiscreteApi } from 'naive-ui';
 import { InvokeMethod } from '@/constant';
+import { enable } from '@tauri-apps/plugin-autostart';
 
 const { message } = createDiscreteApi(['message']);
 
@@ -120,8 +121,13 @@ export function updateLaunch<T = LaunchItem>(item: T) {
  * @param {number} categoryId 分类 ID
  * @returns {Promise<T[]>} 启动项数组
  */
-export function getLaunchs<T = LaunchItem>(categoryId: number = -1) {
-  return invoke<T[]>(InvokeMethod.GET_LAUNCH, { categoryId });
+export function getLaunchs<T = LaunchItem>(
+  categoryId: number = -1,
+  sortBy?: SortByType,
+  sortOrder?: SortOrderType,
+  enable?: boolean,
+) {
+  return invoke<T[]>(InvokeMethod.GET_LAUNCH, { categoryId, sortBy, sortOrder, enable });
 }
 
 /**
@@ -268,4 +274,8 @@ export function isForegroundFullscreen() {
 
 export function deleteLaunchByCategory(categoryId: number) {
   return invoke(InvokeMethod.DELETE_LAUNCH_BY_CATEGORY, { categoryId });
+}
+
+export function updateLaunchEnabledByCategory(categoryId: number, enabled: boolean) {
+  return invoke(InvokeMethod.UPDATE_LAUNCH_ENABLED_BY_CATEGORY, { categoryId, enabled });
 }

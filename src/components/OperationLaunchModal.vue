@@ -332,6 +332,8 @@
         </n-tab-pane>
       </n-tabs>
 
+      <!-- {{ form }} -->
+
       <template #footer>
         <div class="flex justify-end gap-4">
           <n-button
@@ -533,6 +535,7 @@ const inputTheme = {
   caretColor: 'inherit',
   borderHover: 'inherit',
 };
+const isEdit = ref<boolean>(false);
 
 const urlInfoLoading = ref(false);
 
@@ -584,6 +587,8 @@ function handleTypeChange(val: LaunchItemType) {
   initForm();
   nextTick(() => {
     form.value.type = val;
+    // 在指定分类下 新建启动项时 分类值回显
+    if (!isEdit.value && activeCategory.value !== -1) form.value.category_id = activeCategory.value;
   });
 }
 
@@ -630,8 +635,6 @@ function handleSwitchProxy(val: boolean) {
 
 const editItem = ref<LaunchItem>();
 
-const isEdit = ref<boolean>(false);
-
 async function handleConfirm() {
   if (isEdit.value) {
     const item: LaunchItem = JSON.parse(
@@ -643,6 +646,7 @@ async function handleConfirm() {
     // TODO 错误处理
     await updateLaunch(item);
   } else {
+    console.log(`%c form.value ----`, 'color: #fff;background-color: #000;font-size: 18px', form.value);
     await addLaunch(form.value);
   }
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
@@ -666,6 +670,7 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
       form.value[key] = val[key];
     }
   } else {
+    console.log(`%c 111 ----`, 'color: #fff;background-color: #000;font-size: 18px', activeCategory.value);
     // 新建时 设置默认选中的分类
     if (activeCategory.value !== -1) form.value.category_id = activeCategory.value;
   }

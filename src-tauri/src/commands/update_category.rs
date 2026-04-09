@@ -31,6 +31,8 @@ pub async fn update_category(
     active.association_directory = Set(item.association_directory);
     active.exclude = Set(item.exclude);
     active.layout = Set(item.layout);
+    active.sort_by = Set(item.sort_by);
+    active.sort_order = Set(item.sort_order);
     active.icon = Set(item.icon);
 
     // 执行更新

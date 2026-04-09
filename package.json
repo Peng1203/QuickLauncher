@@ -27,6 +27,7 @@
     "@tauri-store/pinia": "^4.1.0",
     "@vicons/ionicons5": "^0.13.0",
     "crypto-js": "^4.2.0",
+    "dayjs": "^1.11.20",
     "lodash-es": "^4.17.23",
     "naive-ui": "^2.42.0",
     "pinia": "^3.0.4",

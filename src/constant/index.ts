@@ -42,6 +42,7 @@ export enum InvokeMethod {
   DELETE_LAUNCH = 'delete_launch',
   UPDATE_LAUNCH = 'update_launch',
   DELETE_LAUNCH_BY_CATEGORY = 'delete_launch_by_category',
+  UPDATE_LAUNCH_ENABLED_BY_CATEGORY = 'update_launch_enabled_by_category',
 
   GET_CATEGORY = 'get_category',
   ADD_CATEGORY = 'add_category',
@@ -99,4 +100,3 @@ export enum AutocompleteMatchMode {
   Prefix = 'prefix',
   Contains = 'contains',
 }
-  

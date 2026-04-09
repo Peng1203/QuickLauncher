@@ -120,6 +120,7 @@ async function handleChangeCategory(id: number) {
   // 每次切换分类时 取消选中的重命名元素
   cancelRename();
   if (activeCategory.value === id) return;
+  store.launchData = [];
   await store.handleChangeCategory(id);
   checkCategoryDirAndLaunchSync();
 }

@@ -1,12 +1,9 @@
-<template>
+<!-- <template>
   <div
-    class="item flex flex-col items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded"
+    class="item flex items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded"
+    :class="isGridMode ? 'flex-col' : ''"
     :title="item.remarks || name"
-    :style="
-      activeItemIds.includes(item.id) // activeItems?.id === item.id
-        ? { backgroundColor: '#f5f5f5 !important' }
-        : {}
-    "
+    :style="isActive ? { backgroundColor: '#f5f5f5 !important' } : {}"
     tabindex="0"
     @click="handleActive($event)"
     @dblclick="handleRun"
@@ -18,20 +15,70 @@
       alt="icon"
       class="object-contain pointer-events-none w-8 mt-0.5"
     />
-    <!-- v-if="!isEdit" -->
-    <!-- {{ isEdit }} -->
 
     <span
       ref="nameRef"
-      :contenteditable="isEdit && activeItemIds.includes(item.id)"
+      :contenteditable="isEdit && isActive"
       class="text-xs text-center text-black px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal max-2-lines"
     >
       {{ name }}
-
-      <!-- -- {{ newName }} -->
     </span>
 
-    <!-- :visible="menuVisible" -->
+    <LaunchItemContextMenu
+      v-model="menuVisible"
+      :item="item"
+      :selected-ids="activeItemIds"
+      :position="menuPosition"
+      :item-path="item.path"
+      :item-name="item.name"
+      @rename="handleEditName"
+    />
+  </div>
+</template> -->
+
+<template>
+  <div
+    class="item cursor-pointer select-none rounded transition-colors"
+    :class="[
+      isGridMode
+        ? 'flex flex-col items-center min-w-20 h-18 hover:bg-gray-100/60'
+        : 'flex items-center px-3 py-2 hover:bg-gray-100',
+    ]"
+    :title="item.remarks || name"
+    :style="isActive ? { backgroundColor: '#f5f5f5 !important' } : {}"
+    tabindex="0"
+    @click="handleActive($event)"
+    @dblclick="handleRun"
+    @keydown="handleKeydown"
+    @contextmenu.prevent.stop="handleShowContextMenu"
+  >
+    <img
+      :src="icon"
+      alt="icon"
+      :class="isGridMode ? 'w-8 mt-0.5' : 'w-6 h-6 mr-3 shrink-0'"
+      class="object-contain pointer-events-none"
+    />
+
+    <span
+      ref="nameRef"
+      :contenteditable="isEdit && isActive"
+      class="text-black pointer-events-none px-1 w-fit line-clamp-2 mt-0.5 leading-normal max-2-lines"
+      :class="[isGridMode ? 'text-xs text-center px-1 mt-0.5 line-clamp-2' : 'text-sm flex-1 truncate']"
+    >
+      {{ name }}
+    </span>
+
+    <!-- 右侧扩展（list模式才有） -->
+    <template v-if="isListMode">
+      <div class="text-xs text-gray-400 w-24">
+        {{ dateFormat(item.created_at) || '' }}
+      </div>
+
+      <div class="text-xs text-gray-400 w-12">
+        {{ item.extension || typeFormat(item.type) }}
+      </div>
+    </template>
+
     <LaunchItemContextMenu
       v-model="menuVisible"
       :item="item"
@@ -45,6 +92,7 @@
 </template>
 
 <script setup lang="ts">
+import dayjs from 'dayjs';
 import { storeToRefs } from 'pinia';
 import { renameLaunch, runLaunch } from '@/api';
 import { AppEvent } from '@/constant';
@@ -67,6 +115,9 @@ const activeItemIds = computed(() => {
   if (!activeItems.value || !activeItems.value.length) return [];
   return activeItems.value?.map(item => item.id);
 });
+const isGridMode = computed(() => (activeCategoryItem.value?.layout || 'grid') === 'grid');
+const isListMode = computed(() => (activeCategoryItem.value?.layout || 'grid') === 'list');
+const isActive = computed(() => activeItemIds.value.includes(props.item.id));
 
 const isEdit = ref<boolean>(false);
 const newName = ref<string>(props.name);
@@ -173,9 +224,27 @@ function handleActive(e?: PointerEvent) {
     activeItems.value = [props.item];
   }
 }
+
+function dateFormat(date: string) {
+  return dayjs(date).format('YYYY/M/D H:m');
+}
+
+function typeFormat(type: LaunchType) {
+  switch (type) {
+    case 'directory':
+      return '文件夹';
+    case 'file':
+      return '文件';
+    case 'url':
+      return '网站';
+  }
+}
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.item {
+  border-bottom: none;
+}
 .item:hover {
   /* background-color: #f5f5f5; */
   background-color: #f5f5f586;

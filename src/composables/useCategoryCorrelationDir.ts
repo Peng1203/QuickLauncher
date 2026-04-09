@@ -134,7 +134,7 @@ export function useCategoryCorrelationDir() {
       args: fileInfo.args || '',
       run_as_admin: false,
       order_index: 0,
-      enabled: category.exclude,
+      enabled: !category.exclude,
       category_id: category.id,
       subcategory_id: null,
       extension: fileInfo.extension,

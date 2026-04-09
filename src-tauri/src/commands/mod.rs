@@ -27,3 +27,4 @@ pub mod search_launch;
 pub mod set_app_config;
 pub mod update_category;
 pub mod update_launch;
+pub mod update_launch_enabled_by_category;
