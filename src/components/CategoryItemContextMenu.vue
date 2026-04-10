@@ -1,7 +1,6 @@
 <template>
   <!-- style="max-height: 300px; overflow-y: auto" -->
   <n-dropdown
-    ref="menuRef"
     placement="bottom-start"
     trigger="manual"
     :x="position.x"
@@ -25,7 +24,7 @@ import {
   updateLaunchEnabledByCategory,
 } from '@/api';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
-import { useContextMenuClose } from '@/composables/useContextMenuClose';
+// import { useContextMenuClose } from '@/composables/useContextMenuClose';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
@@ -150,7 +149,6 @@ const menuOptions = computed(() => [
     ],
   },
   {
-    // TODO 排序
     label: '排序方式',
     key: 'order',
     icon: renderIcon('icon-paixufangshi'),
@@ -297,28 +295,28 @@ async function handleSelect(key: string) {
       await handleDelete();
       break;
     case 'layout-grid':
-      await handleLayoutChange('grid');
+      await handleLayoutOrderSortChange('grid', 'layout');
       break;
     case 'layout-list':
-      await handleLayoutChange('list');
+      await handleLayoutOrderSortChange('list', 'layout');
       break;
     case 'order-name':
-      await handleOrderChange('name');
+      await handleLayoutOrderSortChange('name', 'sort_by', true);
       break;
     case 'order-type':
-      await handleOrderChange('type');
+      await handleLayoutOrderSortChange('type', 'sort_by', true);
       break;
     case 'order-time':
-      await handleOrderChange('time');
+      await handleLayoutOrderSortChange('time', 'sort_by', true);
       break;
     case 'order-index':
-      await handleOrderChange('order');
+      await handleLayoutOrderSortChange('order', 'sort_by', true);
       break;
     case 'sort-asc':
-      await handleSortChange('asc');
+      await handleLayoutOrderSortChange('asc', 'sort_order', true);
       break;
     case 'sort-desc':
-      await handleSortChange('desc');
+      await handleLayoutOrderSortChange('desc', 'sort_order', true);
       break;
     default:
       break;
@@ -383,39 +381,24 @@ async function handleDelete() {
   });
 }
 
-async function handleLayoutChange(val: LayoutType) {
+async function handleLayoutOrderSortChange<T extends LayoutType | SortByType | SortOrderType>(
+  val: T,
+  upKey: keyof CategoryItem,
+  updateLaunchList: boolean = false,
+) {
   const params = {
     ...props.item,
-    layout: val,
+    [upKey]: val,
   };
   await updateCategory(params);
 
   const upCategory = store.categoryData.find(item => item.id === props.item.id);
   if (!upCategory) return;
-  upCategory.layout = val;
-}
-async function handleOrderChange(val: SortByType) {
-  const params = {
-    ...props.item,
-    sort_by: val,
-  };
-  await updateCategory(params);
-  const upCategory = store.categoryData.find(item => item.id === props.item.id);
-  if (!upCategory) return;
-  upCategory.sort_by = val;
-  if (isCurrentSelected.value) store.getLaunchData();
-}
-async function handleSortChange(val: SortOrderType) {
-  const params = {
-    ...props.item,
-    sort_order: val,
-  };
-  await updateCategory(params);
-  const upCategory = store.categoryData.find(item => item.id === props.item.id);
-  if (!upCategory) return;
-  upCategory.sort_order = val;
-  if (isCurrentSelected.value) store.getLaunchData();
+  // @ts-ignore
+  upCategory[upKey] = val;
+
+  if (updateLaunchList && isCurrentSelected.value) store.getLaunchData();
 }
 
-useContextMenuClose(handleClose);
+// useContextMenuClose(handleClose);
 </script>

@@ -287,8 +287,8 @@
                         placeholder=""
                         :default-value="null"
                         :options="(categoryOptions as any)"
-                        :disabled="activeCategory !== -1"
                       />
+                      <!-- :disabled="activeCategory !== -1" -->
                     </n-form-item>
                   </n-col>
 
@@ -331,7 +331,7 @@
           </div>
         </n-tab-pane>
       </n-tabs>
-
+      {{ editItemWithCategory }}
       <!-- {{ form }} -->
 
       <template #footer>
@@ -652,6 +652,17 @@ async function handleConfirm() {
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
   handleClose();
 }
+
+// 获取当前编辑启动项 所属分类的详情
+const editItemWithCategory = computed(() => {
+  console.log(`%c isEdit.value ----`, 'color: #fff;background-color: #000;font-size: 18px', isEdit.value);
+  console.log(`%c editItem.value ----`, 'color: #fff;background-color: #000;font-size: 18px', editItem.value);
+  if (!isEdit.value) return null;
+  const findRes = store.categoryData.find(item => item.id === editItem.value?.category_id);
+  console.log(`%c findRes ----`, 'color: #fff;background-color: #000;font-size: 18px', findRes);
+  if (!findRes) return null;
+  return findRes;
+});
 
 const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'));
 

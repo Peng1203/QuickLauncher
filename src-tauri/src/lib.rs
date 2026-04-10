@@ -12,6 +12,7 @@ use commands::exe_command::exe_command;
 use commands::get_app_config::get_app_config;
 use commands::get_autocomplete::get_autocomplete;
 use commands::get_category::get_category;
+use commands::get_category_by_id::get_category_by_id;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
 use commands::get_launch_by_id::get_launch_by_id;
@@ -113,7 +114,8 @@ pub fn run() {
             delete_launch_by_category,
             delete_category,
             restart_app,
-            update_launch_enabled_by_category
+            update_launch_enabled_by_category,
+            get_category_by_id
         ])
         .setup(|app| {
             let db = tauri::async_runtime::block_on(async {

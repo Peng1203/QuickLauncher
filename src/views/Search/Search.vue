@@ -220,8 +220,9 @@
       </div>
     </label>
 
-    <ul
-      v-if="hasResult"
+    <transition-group
+      name="list"
+      tag="ul"
       tabindex="-1"
       class="search-container absolute z-50 w-full overflow-y-scroll bg-white border-none rounded-b-[10px] !border-t-gray-200 max-h-[300px]"
       :style="{
@@ -246,7 +247,7 @@
               handleEnter();
             }
           "
-          @contextmenu.prevent.stop="handleShowContextMenu($event, item.id)"
+          @contextmenu.prevent.stop="handleShowContextMenu($event, item)"
         >
           <!-- @mouseenter="selectedIndex = index" -->
           <div class="flex items-center">
@@ -288,7 +289,7 @@
           </div>
         </li>
       </template>
-    </ul>
+    </transition-group>
 
     <!-- 启动项右击菜单 -->
     <LaunchItemContextMenu
@@ -298,6 +299,7 @@
       li-style="padding-top: 4px; padding-bottom: 4px;"
       :viewport-margin="0"
       :item="itemDetail!"
+      :category-item="categoryItem"
       :selected-ids="[]"
       :position="menuPosition"
       :item-path="itemDetail!.path"
@@ -323,10 +325,12 @@ import {
   addOrUpdateAutocompleteRecord,
   exeCommand,
   getAutocomplete,
+  getCategoryByID,
   getLaunchByID,
   isForegroundFullscreen,
   runLaunch,
   searchLaunch,
+  updateLaunch,
 } from '@/api';
 import LaunchItemContextMenu from '@/components/ListItemContextMenu.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
@@ -414,7 +418,6 @@ function handleKeydown(e: KeyboardEvent) {
   // 组合按键对应的处理
   if (ctrlKey && key === 'p') {
     // 切换模式 ctrl + p
-    console.log(`%c 触发了  ctrl+p ----`, 'color: #fff;background-color: #000;font-size: 18px');
     e.preventDefault();
   } else if (ctrlKey && key === 'w') {
     // 关闭搜索建议 (ctrl + w)
@@ -556,7 +559,6 @@ async function handleEnterLaunch() {
    * 如果为无效命令 不做响应 (无法实现)
    */
   if (!resultList.value.length) {
-    console.log(`%c if ----`, 'color: #fff;background-color: #000;font-size: 18px');
     await exeCommand(keyword.value);
     addOrUpdateAutocompleteRecord(keyword.value);
   } else {
@@ -680,43 +682,41 @@ watch(selectedIndex, async newIndex => {
 });
 
 let searchRequestId = 0;
-watch(
-  () => keyword.value,
-  async keyword => {
-    const currentId = ++searchRequestId;
+watch(() => keyword.value, handleSearch);
 
-    autocompleteIndex.value = 0;
-    autocompleteList.value = [];
+async function handleSearch() {
+  const currentId = ++searchRequestId;
 
-    if (!keyword.trim()) {
-      handleCloseSuggestion();
-      return current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+  autocompleteIndex.value = 0;
+  autocompleteList.value = [];
+
+  if (!keyword.value.trim()) {
+    handleCloseSuggestion();
+    return current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+  }
+
+  // 根据当前搜索模式 调用不同的搜索接口
+  let launchs: SearchLauncItem[] = [];
+  if (isWebSearchModel.value) {
+    launchs = await searchSuggestion();
+  } else {
+    if (appConfigStore.enableAutocomplete) {
+      getAutocomplete(keyword.value).then(res => {
+        if (currentId === searchRequestId) {
+          autocompleteList.value = res;
+        }
+      });
     }
+    launchs = await searchLaunch(keyword.value);
+    // 当完成过一次搜索时 设置搜索标志位为 true 避免用户按的太快导致搜索结果没有出来执行后报错
+    if (!searchFlag.value) searchFlag.value = true;
+  }
+  resultList.value = launchs;
 
-    // 根据当前搜索模式 调用不同的搜索接口
-    let launchs: SearchLauncItem[] = [];
-    if (isWebSearchModel.value) {
-      launchs = await searchSuggestion();
-    } else {
-      if (appConfigStore.enableAutocomplete) {
-        getAutocomplete(keyword).then(res => {
-          if (currentId === searchRequestId) {
-            autocompleteList.value = res;
-          }
-        });
-      }
-      launchs = await searchLaunch(keyword);
-      // 当完成过一次搜索时 设置搜索标志位为 true 避免用户按的太快导致搜索结果没有出来执行后报错
-      if (!searchFlag.value) searchFlag.value = true;
-    }
-    resultList.value = launchs;
-
-    if (currentId === searchRequestId) {
-      current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
-    }
-  },
-);
-
+  if (currentId === searchRequestId) {
+    current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+  }
+}
 function handleBlur() {
   if (appConfigStore.searchLostFocusHide) handleClose();
 }
@@ -736,6 +736,7 @@ EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
 });
 
 const menuPosition = ref({ x: 0, y: 0 });
+const categoryItem = ref<CategoryItem | null>();
 const itemDetail = ref<LaunchItem>({
   id: 0,
   name: '',
@@ -746,9 +747,11 @@ const itemDetail = ref<LaunchItem>({
   launch_count: 0,
   failure_count: 0,
 });
-async function handleShowContextMenu(e: MouseEvent, id: number) {
-  const detail = await getLaunchByID(id);
-  if (!detail) {
+async function handleShowContextMenu(e: MouseEvent, item: SearchLauncItem) {
+  const { id, category_id } = item;
+  const [launch, category] = await Promise.all([getLaunchByID(id), getCategoryByID(category_id!).catch(() => null)]);
+  categoryItem.value = category;
+  if (!launch) {
     return notification.error({
       content: '查询失败',
       meta: '未找到启动项详情',
@@ -756,12 +759,25 @@ async function handleShowContextMenu(e: MouseEvent, id: number) {
       keepAliveOnHover: true,
     });
   }
-  itemDetail.value = detail;
+  itemDetail.value = launch;
+
   nextTick(() => {
     menuVisible.value = true;
     menuPosition.value = { x: e.clientX, y: e.clientY };
   });
 }
+
+EventBus.listen(AppEvent.INCREASE_PRIORITY, async (item: LaunchItem) => {
+  let { order_index = 0 } = item;
+  const form = {
+    ...item,
+    order_index: (order_index += 10),
+  };
+  await updateLaunch(form);
+  await handleSearch();
+  // 通知列表更新
+  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
+});
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
@@ -835,6 +851,21 @@ ul:focus-visible {
     margin-left: 38px;
     width: fit-content;
   }
+}
+
+.list-move {
+  transition: transform 0.25s ease;
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.2s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
 }
 </style>
 

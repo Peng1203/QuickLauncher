@@ -190,7 +190,7 @@ const isSelected = computed(() => !!((activeItems.value?.length || 0) > 1));
 function handleShowContextMenu(e: MouseEvent) {
   if (activeCategoryItem.value?.association_directory) return;
   // 先关闭其他菜单 再打开当前菜单
-  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
+  // EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 
   setTimeout(() => {
     nextTick(() => {

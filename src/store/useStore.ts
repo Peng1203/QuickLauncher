@@ -11,26 +11,35 @@ export const useStore = defineStore('main', {
   }),
   actions: {
     async getLaunchData(id?: number) {
-      let idParam = id || this.activeCategory;
-      if (idParam === -1) {
-        const data = await getLaunchs(id);
-        this.launchData = data;
-        return;
-      }
+      const categoryId = id ?? this.activeCategory;
 
-      await nextTick(() => {});
-      const { sort_by, sort_order } = this.activeCategoryItem;
-      const data = await getLaunchs(this.activeCategory, sort_by, sort_order);
+      const params =
+        categoryId === -1
+          ? [categoryId]
+          : [categoryId, this.activeCategoryItem?.sort_by, this.activeCategoryItem?.sort_order];
+
+      // @ts-ignore
+      const data = await getLaunchs(...params);
       this.launchData = data;
     },
 
     async getCategoryData() {
       const data = await getCategory();
       this.categoryData = data;
-      this.categoryOptions = data.map(item => ({
-        value: item.id,
-        label: item.name,
-      }));
+      this.categoryOptions = data
+        // .filter(item => !item.association_directory)
+        .map(item => ({
+          // 部分分了关联了 文件目录 在 option中 禁止这些目录作为选项
+          disable: !!item.association_directory,
+          value: item.id,
+          label: item.name,
+        }));
+
+      console.log(
+        `%c this.categoryOptions ----`,
+        'color: #fff;background-color: #000;font-size: 18px',
+        this.categoryOptions,
+      );
     },
 
     async handleChangeCategory(id: number) {

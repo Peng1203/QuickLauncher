@@ -15,7 +15,7 @@ pub async fn run_launch(id: i32, db: tauri::State<'_, DatabaseConnection>) -> Re
     log::info!("id:{}, path:{}", id, launch_item.path);
 
     let mut args;
-
+    dbg!(&launch_item);
     if launch_item.r#type == "file" {
         let start_dir = launch_item
             .start_dir
@@ -23,7 +23,7 @@ pub async fn run_launch(id: i32, db: tauri::State<'_, DatabaseConnection>) -> Re
             .filter(|s| !s.trim().is_empty())
             .unwrap_or("C:\\Windows\\System32");
 
-        if launch_item.run_as_admin == Some(true) {
+        if launch_item.run_as_admin == Some(false) {
             args = vec![
                 "/C".to_string(),
                 "start".to_string(),

@@ -1,41 +1,23 @@
 <template>
-  <div
-    v-if="visible"
-    ref="menuRef"
-    class="fixed z-50 rounded-lg shadow-lg bg-white border border-gray-200"
-    :style="{
-      top: `${calcPosition.y}px`,
-      left: `${calcPosition.x}px`,
-      width: `${MENU_WIDTH}px`,
-    }"
-    @click.stop
-  >
-    <ul class="text-sm text-gray-700">
-      <template
-        v-for="menu in menuItems"
-        :key="menu.label"
-      >
-        <li
-          v-if="menu?.itemVisible === undefined ? true : menu.itemVisible()"
-          :style="liStyle"
-          class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-          @click="handleClick(menu)"
-        >
-          {{ menu.label }}
-        </li>
-      </template>
-    </ul>
-  </div>
+  <n-dropdown
+    placement="bottom-start"
+    trigger="manual"
+    :x="position.x"
+    :y="position.y"
+    :options="menuOptions"
+    :show="visible"
+    :on-clickoutside="handleClose"
+    @select="handleSelect"
+  />
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ask } from '@tauri-apps/plugin-dialog';
 import { useMessage } from 'naive-ui';
-import { onMounted, onUnmounted, ref } from 'vue';
 import { deleteLaunch, openRevealManager, runLaunchAsAdmin } from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
-import { AppEvent, MENU_WIDTH } from '@/constant';
+import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 
 export interface MenuAction {
@@ -51,15 +33,14 @@ const props = withDefaults(
     item: LaunchItem;
     itemPath: string;
     itemName: string;
+    categoryItem?: CategoryItem | null;
     selectedIds: number[];
-    extraItems?: MenuAction[];
     type?: 'LaunchList' | 'SearchLaunchList';
-    viewportMargin?: number;
     liStyle?: string;
   }>(),
   {
     type: 'LaunchList',
-    viewportMargin: 5,
+    categoryItem: null,
   },
 );
 
@@ -70,120 +51,109 @@ const visible = defineModel<boolean>();
 const message = useMessage();
 const { appConfigStore } = useAppConfig();
 const selected = computed(() => !!((props.selectedIds?.length || 0) > 1));
-function handleClick(item: MenuAction) {
-  item.onClick();
-  handleCloseMenu();
+
+function renderIcon(icon: string) {
+  return () => h(<i class={`iconfont ${icon}`} />);
 }
 
+const isLaunchList = computed(() => props.type === 'LaunchList');
+const isSearchLaunchList = computed(() => props.type === 'SearchLaunchList');
+
 // 默认菜单项
-const menuItems = ref<MenuAction[]>([
-  {
-    label: '以管理员身份运行',
-    onClick: () => runLaunchAsAdmin(props.item.id),
-    itemVisible: () => !selected.value && ['exe'].includes(props.item?.extension || ''),
-  },
-  {
-    label: `打开${props.item.type === 'file' ? '文件' : '目录'}所在位置`,
-    onClick: async () => openRevealManager(props.item.path),
-    itemVisible: () => !selected.value && ['file', 'directory'].includes(props.item.type),
-  },
-  {
-    label: '复制路径',
-    onClick: async () => {
-      await writeText(props.itemPath);
-      message.success('复制成功');
+const menuOptions = computed(() => {
+  const menus = [
+    {
+      label: '以管理员身份运行',
+      key: 'runAsAdmin',
+      icon: renderIcon('icon-guanliyuan_jiaoseguanli'),
+      itemVisible: ['exe'].includes(props.item?.extension || ''),
     },
-    itemVisible: () => !selected.value,
-  },
-  {
-    label: '重命名',
-    onClick: () => emit('rename'),
-    itemVisible: () => !selected.value && props.type !== 'SearchLaunchList',
-  },
-  {
-    label: '删除',
-    onClick: async () => {
-      if (appConfigStore.confirmBeforeDelete) {
-        const tip = selected.value
-          ? `是否批量删除选中的 ${props.selectedIds.length} 个启动项 ?`
-          : `是否删除 ${props.itemName} ?`;
-        const answer = await ask(tip, {
-          title: '删 除',
-          kind: 'warning',
-        });
-        if (!answer) return;
-      }
-      await Promise.all(props.selectedIds.map(id => deleteLaunch(id)));
-      EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
+    {
+      label: `打开${props.item.type === 'file' ? '文件' : '目录'}所在位置`,
+      key: 'openRevalPath',
+      icon: renderIcon('icon-dakaisuozaiwenjianjia'),
+      itemVisible: ['file', 'directory'].includes(props.item.type),
     },
-    itemVisible: () => props.type !== 'SearchLaunchList',
-  },
-  {
-    label: '编辑',
-    onClick: () => {
-      console.log('props.item', { ...props.item });
-      EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
+    {
+      label: '复制路径',
+      key: 'copyPath',
+      icon: renderIcon('icon-fuzhilujing'),
     },
-    itemVisible: () => !selected.value,
-  },
-  // {
-  //   label: '设置开机启动',
-  //   onClick: () => {
-  //     console.log('设置开机启动')
-  //   },
-  // },
-  // {
-  //   label: '移除启动项',
-  //   onClick: () => {
-  //     console.log('移除启动项')
-  //   },
-  // },
-]);
+    {
+      label: '重命名',
+      key: 'rename',
+      icon: renderIcon('icon-zhongmingming'),
+      itemVisible: isLaunchList.value,
+    },
+    {
+      label: '删除',
+      key: 'delete',
+      icon: renderIcon('icon-shanchufenlei'),
+      itemVisible: isLaunchList.value,
+    },
+    {
+      label: '编辑',
+      key: 'edit',
+      icon: renderIcon('icon-bianji'),
+      itemVisible: props.categoryItem === null ? true : !props.categoryItem?.association_directory,
+    },
+    {
+      label: '提高优先级',
+      key: 'increasePriority',
+      icon: renderIcon('icon-youxianji1'),
+      itemVisible: isSearchLaunchList.value,
+    },
+  ];
+
+  return menus.filter(item => item.itemVisible !== false);
+});
 
 // 自动监听点击窗口其他地方关闭菜单
-function handleCloseMenu() {
+function handleClose() {
   visible.value = false;
 }
 
-const menuRef = useTemplateRef('menuRef');
-
-function handleOutsideClick(e: MouseEvent) {
-  if (menuRef.value && !menuRef.value.contains(e.target as Node)) {
-    handleCloseMenu();
+async function handleDelete() {
+  if (appConfigStore.confirmBeforeDelete) {
+    const tip = selected.value
+      ? `是否批量删除选中的 ${props.selectedIds.length} 个启动项 ?`
+      : `是否删除 ${props.itemName} ?`;
+    const answer = await ask(tip, {
+      title: '删 除',
+      kind: 'warning',
+    });
+    if (!answer) return;
   }
+  await Promise.all(props.selectedIds.map(id => deleteLaunch(id)));
+  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
 }
 
-// 菜单距离窗口边的距离
-const VIEWPORT_MARGIN = props.viewportMargin;
-
-// 计算出菜单出现的 x y 位置
-const calcPosition = computed(() => {
-  let x = props.position.x;
-  let y = props.position.y;
-
-  if (props.position.x + MENU_WIDTH > window.innerWidth) {
-    x = window.innerWidth - MENU_WIDTH - VIEWPORT_MARGIN;
+async function handleSelect(key: string) {
+  switch (key) {
+    case 'runAsAdmin':
+      runLaunchAsAdmin(props.item.id);
+      break;
+    case 'openRevalPath':
+      openRevealManager(props.item.path);
+      break;
+    case 'copyPath':
+      await writeText(props.itemPath);
+      message.success('复制成功');
+      break;
+    case 'rename':
+      emit('rename');
+      break;
+    case 'delete':
+      handleDelete();
+      break;
+    case 'edit':
+      EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
+      break;
+    case 'increasePriority':
+      EventBus.emit(AppEvent.INCREASE_PRIORITY, props.item);
+      break;
   }
 
-  if (menuRef.value) {
-    if (props.position.y + menuRef.value.offsetHeight > window.innerHeight) {
-      y = window.innerHeight - menuRef.value.offsetHeight - VIEWPORT_MARGIN;
-    }
-  }
-
-  return { x, y };
-});
-
-onMounted(() => {
-  EventBus.listen(AppEvent.CLOSE_CONTEXT_MENU, handleCloseMenu);
-
-  window.addEventListener('click', handleOutsideClick);
-  window.addEventListener('contextmenu', handleOutsideClick);
-  window.addEventListener('scroll', handleCloseMenu, true);
-});
-onUnmounted(() => {
-  window.removeEventListener('click', handleOutsideClick);
-  window.removeEventListener('contextmenu', handleOutsideClick);
-  window.removeEventListener('scroll', handleCloseMenu, true);
-});
+  handleClose();
+}
 </script>

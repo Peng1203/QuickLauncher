@@ -6,7 +6,7 @@
     :width="192"
     :show-collapsed-content="true"
     tabindex="-1"
-    class="w-48 bg-white border-r border-gray-200 flex flex-col py-3 px-2 z-10"
+    class="w-48 bg-white border-r border-gray-200 flex flex-col py-1.5 px-2 z-10"
     @contextmenu.prevent.stop="handleShowCategoryContextMenu"
     @keydown="handleKeydown"
   >
@@ -91,7 +91,7 @@ async function getCategorys() {
 const contextMenuVisible = ref<boolean>(false);
 const contextMenuPosition = ref({ x: 0, y: 0 });
 function handleShowCategoryContextMenu(e: MouseEvent) {
-  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
+  // EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 
   setTimeout(() => {
     nextTick(() => {
@@ -104,7 +104,7 @@ function handleShowCategoryContextMenu(e: MouseEvent) {
 const itemMenuVisible = ref<boolean>(false);
 const activeItem = ref<CategoryItem>();
 function handleShowCategoryItemContextMenu(e: MouseEvent, item: CategoryItem) {
-  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
+  // EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
   itemMenuVisible.value = false;
 
   setTimeout(() => {

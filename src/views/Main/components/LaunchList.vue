@@ -6,17 +6,6 @@
     @contextmenu.prevent.stop="handleShowListContextMenu"
     @keydown="handleKeydown"
   >
-    <!-- {{ isConrrelationDir }} -->
-    <!-- TODO 支持启动项拖拽 控制 order_index 字段 以及拖拽分类 -->
-    <!-- <VueDraggable
-      v-model="launchData"
-      :animation="150"
-      ghost-class="ghost"
-      group="people"
-    >
-    </VueDraggable> -->
-    <!-- class="flex flex-col divide-y divide-gray-100" -->
-    <!-- class="grid grid-cols-6 draggable gap-0.5" -->
     <transition-group
       v-if="launchData.length"
       name="list"
@@ -49,6 +38,7 @@
       {{ isConrrelationDir ? '空文件夹' : '拖动文件到该区域' }}
     </div>
     <!-- {{ categoryModalStatus }} -->
+    <!-- {{ mode }} -->
   </n-layout-content>
 
   <!-- 启动项列表 空白处右键菜单 -->
@@ -71,9 +61,7 @@ import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
 import OperationLaunchModal from '@/components/OperationLaunchModal.vue';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
-import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
-import { EventBus } from '@/utils/eventBus';
 
 const props = defineProps<{
   categoryModalStatus: boolean;
@@ -130,7 +118,7 @@ const contextMenuPosition = ref({ x: 0, y: 0 });
 const activeItem = ref<LaunchItem[]>([]);
 
 function handleShowListContextMenu(e: MouseEvent) {
-  EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
+  // EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
 
   setTimeout(() => {
     nextTick(() => {

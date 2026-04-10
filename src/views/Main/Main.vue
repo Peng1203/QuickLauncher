@@ -1,16 +1,21 @@
 <template>
-  <n-layout class="w-full h-full">
+  <n-layout
+    class="w-full h-full flex flex-col"
+    position="absolute"
+    :native-scrollbar="false"
+  >
     <Header />
 
     <n-layout
       has-sider
-      style="height: calc(600px - 32px)"
-      class="container-layout"
+      class="container-layout flex-1 overflow-hidden"
     >
       <Sidebar />
 
       <LaunchList :category-modal-status="categoryModalStatus" />
     </n-layout>
+
+    <Footer />
 
     <OperationCategoryModal v-model="categoryModalStatus" />
   </n-layout>
@@ -115,6 +120,7 @@ initLaunchData();
 
 <style scoped lang="scss">
 .container-layout {
+  height: calc(600px - 24px - 32px);
   ::v-deep(.n-layout-scroll-container:has(> aside)) {
     overflow-y: hidden !important;
   }

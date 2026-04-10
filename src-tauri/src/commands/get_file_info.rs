@@ -27,6 +27,7 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     let metadata = fs::metadata(&p).map_err(|e| e.to_string())?;
 
     let mut full_path: String;
+    // let mut relative_path: String;
     let mut args: String = "".to_string();
     let mut remarks: String = "".to_string();
     let mut working_dir: String = "".to_string();
@@ -40,6 +41,7 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     if p.extension().map_or(false, |ext| ext == "lnk") {
         // 解析 lnk 文件 并获取真正的路径
         let lnk_info = LNKParser::from_path(&path).unwrap();
+        dbg!(&lnk_info);
 
         args = lnk_info
             .get_command_line_arguments()
@@ -47,11 +49,23 @@ pub fn get_file_info(path: String) -> Result<FileInfo, String> {
             .map(|s| s.to_string())
             .unwrap_or_default();
 
+        // relative_path = lnk_info
+        //     .get_relative_path()
+        //     .as_ref()
+        //     .map(|s| s.to_string())
+        //     .unwrap_or_default();
+
         full_path = lnk_info
             .get_target_full_path()
             .as_deref()
-            .unwrap()
-            .to_string();
+            .map(|p| p.replace("MY_COMPUTER\\", ""))
+            .unwrap_or_default();
+
+        // full_path = lnk_info
+        //     .get_target_full_path()
+        //     .as_deref()
+        //     .unwrap()
+        //     .to_string();
 
         remarks = lnk_info
             .get_name_string()

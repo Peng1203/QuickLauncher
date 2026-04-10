@@ -45,6 +45,7 @@ export enum InvokeMethod {
   UPDATE_LAUNCH_ENABLED_BY_CATEGORY = 'update_launch_enabled_by_category',
 
   GET_CATEGORY = 'get_category',
+  GET_CATEGORY_BY_ID = 'get_category_by_id',
   ADD_CATEGORY = 'add_category',
   UPDATE_CATEGORY = 'update_category',
   DELETE_CATEGORY = 'delete_category',
@@ -87,6 +88,9 @@ export enum AppEvent {
 
   // 分类重命名
   CATEGORY_RENAME = 'category_rename',
+
+  // 提升查询项优先级
+  INCREASE_PRIORITY = 'increase_priority',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];

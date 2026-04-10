@@ -1,4 +1,5 @@
 <template>
+  <!-- position="absolute" -->
   <n-layout-header
     :data-tauri-drag-region="!appConfigStore.center"
     class="h-8 bg-white flex items-center justify-between px-2 border-b-1 border-gray-200 z-10"
@@ -22,7 +23,10 @@
         :options="options"
       >
         <!-- @select="" -->
-        <n-icon size="25" class="cursor-pointer">
+        <n-icon
+          size="25"
+          class="cursor-pointer"
+        >
           <MenuOutline />
         </n-icon>
       </n-dropdown>
@@ -43,19 +47,14 @@
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface';
 import { LogicalPosition } from '@tauri-apps/api/dpi';
 import { listen } from '@tauri-apps/api/event';
-import {
-  getCurrentWebviewWindow,
-  WebviewWindow,
-} from '@tauri-apps/api/webviewWindow';
+import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline, MenuOutline, SettingsOutline } from '@vicons/ionicons5';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
 import { AppEvent } from '@/constant';
 
-const { appConfigStore, settingWindowPositionX, settingWindowPositionY } =
-  useAppConfig();
-const { setAlwaysOnTop, setMainWindowCenter, setAutoStart } =
-  useAppConfigActions();
+const { appConfigStore, settingWindowPositionX, settingWindowPositionY } = useAppConfig();
+const { setAlwaysOnTop, setMainWindowCenter, setAutoStart } = useAppConfigActions();
 
 const cuurrentWindow = getCurrentWebviewWindow();
 
@@ -79,7 +78,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.onTop}
           v-model:checked={appConfigStore.onTop}
           onUpdate-checked={setAlwaysOnTop}
-        />
+        />,
       ),
   },
   {
@@ -95,7 +94,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.center}
           v-model:checked={appConfigStore.center}
           onUpdate-checked={setMainWindowCenter}
-        />
+        />,
       ),
   },
   {
@@ -110,7 +109,7 @@ const options: DropdownMixedOption[] = [
           label="静默启动"
           default-checked={appConfigStore.silentStart}
           v-model:checked={appConfigStore.silentStart}
-        />
+        />,
       ),
   },
   {
@@ -126,7 +125,7 @@ const options: DropdownMixedOption[] = [
           default-checked={appConfigStore.autoStart}
           v-model:checked={appConfigStore.autoStart}
           onUpdate-checked={setAutoStart}
-        />
+        />,
       ),
   },
 
@@ -149,13 +148,8 @@ async function handleToggleSettingWindowVisible() {
     settingWindow?.hide();
   } else {
     const x =
-      settingWindowPositionX.value > 0
-        ? settingWindowPositionX.value
-        : appConfigStore.mainWindowPositionX + 100;
-    const y =
-      settingWindowPositionY.value > 0
-        ? settingWindowPositionY.value
-        : appConfigStore.mainWindowPositionY + 50;
+      settingWindowPositionX.value > 0 ? settingWindowPositionX.value : appConfigStore.mainWindowPositionX + 100;
+    const y = settingWindowPositionY.value > 0 ? settingWindowPositionY.value : appConfigStore.mainWindowPositionY + 50;
 
     // 将设置窗口置于 当前主窗口之间展示
     settingWindow?.setPosition(new LogicalPosition(x, y));

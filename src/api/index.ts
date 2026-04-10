@@ -140,6 +140,9 @@ export function getLaunchs<T = LaunchItem>(
 export function getLaunchByID<T = LaunchItem>(id: number) {
   return invoke<T>(InvokeMethod.GET_LAUNCH_BY_ID, { id });
 }
+export function getCategoryByID<T = CategoryItem>(id: number) {
+  return invoke<T>(InvokeMethod.GET_CATEGORY_BY_ID, { id });
+}
 
 /**
  * @description 执行命令行
