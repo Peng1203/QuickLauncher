@@ -69,11 +69,19 @@ pub enum Relation {
     Categories1,
     #[sea_orm(has_many = "super::launch_history::Entity")]
     LaunchHistory,
+    #[sea_orm(has_many = "super::autocomplete_history::Entity")]
+    AutocompleteHistory,
 }
 
 impl Related<super::launch_history::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::LaunchHistory.def()
+    }
+}
+
+impl Related<super::autocomplete_history::Entity> for Entity {
+    fn to() -> RelationDef {
+        Relation::AutocompleteHistory.def()
     }
 }
 

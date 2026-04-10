@@ -302,9 +302,9 @@
                     >
                       <n-switch
                         v-model:value="form.enabled"
-                        :default-value="1"
-                        :checked-value="1"
-                        :unchecked-value="0"
+                        :default-value="true"
+                        :checked-value="true"
+                        :unchecked-value="false"
                       />
                     </n-form-item>
                   </n-col>
@@ -331,7 +331,7 @@
           </div>
         </n-tab-pane>
       </n-tabs>
-      {{ editItemWithCategory }}
+      <!-- {{ editItemWithCategory }} -->
       <!-- {{ form }} -->
 
       <template #footer>
@@ -654,15 +654,12 @@ async function handleConfirm() {
 }
 
 // 获取当前编辑启动项 所属分类的详情
-const editItemWithCategory = computed(() => {
-  console.log(`%c isEdit.value ----`, 'color: #fff;background-color: #000;font-size: 18px', isEdit.value);
-  console.log(`%c editItem.value ----`, 'color: #fff;background-color: #000;font-size: 18px', editItem.value);
-  if (!isEdit.value) return null;
-  const findRes = store.categoryData.find(item => item.id === editItem.value?.category_id);
-  console.log(`%c findRes ----`, 'color: #fff;background-color: #000;font-size: 18px', findRes);
-  if (!findRes) return null;
-  return findRes;
-});
+// const editItemWithCategory = computed(() => {
+//   if (!isEdit.value) return null;
+//   const findRes = store.categoryData.find(item => item.id === editItem.value?.category_id);
+//   if (!findRes) return null;
+//   return findRes;
+// });
 
 const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'));
 
@@ -681,7 +678,6 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
       form.value[key] = val[key];
     }
   } else {
-    console.log(`%c 111 ----`, 'color: #fff;background-color: #000;font-size: 18px', activeCategory.value);
     // 新建时 设置默认选中的分类
     if (activeCategory.value !== -1) form.value.category_id = activeCategory.value;
   }

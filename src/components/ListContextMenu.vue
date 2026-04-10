@@ -139,7 +139,7 @@ const menuOptions = computed(() => [
 async function handleSelect(key: string) {
   switch (key) {
     case 'add':
-      EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY);
+      EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH);
       break;
     case 'layout-grid':
       await handleLayoutOrderSortChange('grid', 'layout');
