@@ -216,6 +216,7 @@
 <script setup lang="ts">
 import { getVersion } from '@tauri-apps/api/app';
 import { storeToRefs } from 'pinia';
+import { getLaunchByID } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
 import { useCategorySort } from '@/composables/useCategorySort';
 import { AppEvent } from '@/constant';
@@ -224,7 +225,9 @@ import { getFromNow } from '@/utils/date';
 import { EventBus } from '@/utils/eventBus';
 import Kbd from './Kbd.vue';
 
-const { activeCategory, activeCategoryItem, launchData, activeLaunchItem } = storeToRefs(useStore());
+const store = useStore();
+
+const { activeCategory, activeCategoryItem, launchData, activeLaunchItem } = storeToRefs(store);
 const { handleLayoutOrderSortChange } = useCategorySort(activeCategoryItem);
 
 const shortcutKeys = [
@@ -305,8 +308,15 @@ function handleToggleSortBy() {
 EventBus.listen(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, (id: number) => {
   const findRes = launchData.value.find(item => item.id === id);
   if (!findRes) return;
-  findRes.launch_count += 1;
+  // findRes.launch_count += 1;
   // 当选中的启动项处于选中的分类时 更新启动项列表
+  // EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
+  nextTick(async () => {
+    const upItem = await getLaunchByID(id);
+
+    findRes.launch_count = upItem.launch_count;
+    findRes.last_used_at = upItem.last_used_at;
+  });
 });
 
 onMounted(async () => {
