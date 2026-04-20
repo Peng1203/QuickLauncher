@@ -179,9 +179,9 @@
                       <n-checkbox
                         v-model:checked="form.run_as_admin"
                         size="small"
-                        :checked-value="1"
-                        :unchecked-value="0"
-                        :default-checked="0"
+                        :checked-value="true"
+                        :unchecked-value="false"
+                        :default-checked="false"
                         :disabled="form.extension !== 'exe'"
                       >
                         以管理员身份运行
@@ -224,8 +224,8 @@
                       </template>
 
                       <!--  -->
-                      <template v-if="form.args">
-                        <BrowerPicker v-model="form.args" />
+                      <template v-if="form.type === 'url'">
+                        <BrowerPicker v-model="(form.args as string)" />
                       </template>
                     </n-form-item>
                   </n-col>

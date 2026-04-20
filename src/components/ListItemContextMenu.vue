@@ -15,9 +15,11 @@
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { ask } from '@tauri-apps/plugin-dialog';
 import { useMessage } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { deleteLaunch, openRevealManager, runLaunchAsAdmin } from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { AppEvent } from '@/constant';
+import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
 export interface MenuAction {
@@ -34,7 +36,6 @@ const props = withDefaults(
     itemPath: string;
     itemName: string;
     categoryItem?: CategoryItem | null;
-    selectedIds: number[];
     type?: 'LaunchList' | 'SearchLaunchList';
     liStyle?: string;
   }>(),
@@ -50,7 +51,7 @@ const visible = defineModel<boolean>();
 
 const message = useMessage();
 const { appConfigStore } = useAppConfig();
-const selected = computed(() => !!((props.selectedIds?.length || 0) > 1));
+const { activeLaunchItem } = storeToRefs(useStore());
 
 function renderIcon(icon: string) {
   return () => h(<i class={`iconfont ${icon}`} />);
@@ -86,16 +87,22 @@ const menuOptions = computed(() => {
       itemVisible: isLaunchList.value,
     },
     {
-      label: '删除',
+      label: '删 除',
       key: 'delete',
       icon: renderIcon('icon-shanchufenlei'),
       itemVisible: isLaunchList.value,
     },
     {
-      label: '编辑',
+      label: '编 辑',
       key: 'edit',
       icon: renderIcon('icon-bianji'),
       itemVisible: props.categoryItem === null ? true : !props.categoryItem?.association_directory,
+    },
+    {
+      label: '定 位',
+      key: 'position',
+      icon: renderIcon('icon-address'),
+      itemVisible: isSearchLaunchList.value,
     },
     {
       label: '提高优先级',
@@ -115,17 +122,16 @@ function handleClose() {
 
 async function handleDelete() {
   if (appConfigStore.confirmBeforeDelete) {
-    const tip = selected.value
-      ? `是否批量删除选中的 ${props.selectedIds.length} 个启动项 ?`
-      : `是否删除 ${props.itemName} ?`;
+    const tip = `是否删除 ${props.itemName} ?`;
     const answer = await ask(tip, {
       title: '删 除',
       kind: 'warning',
     });
     if (!answer) return;
   }
-  await Promise.all(props.selectedIds.map(id => deleteLaunch(id)));
+  await deleteLaunch(props.item.id);
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
+  if (props.item.id === activeLaunchItem.value?.id) activeLaunchItem.value = null;
 }
 
 async function handleSelect(key: string) {
@@ -147,6 +153,10 @@ async function handleSelect(key: string) {
       handleDelete();
       break;
     case 'edit':
+      EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
+      break;
+    case 'position':
+      // TODO
       EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
       break;
     case 'increasePriority':

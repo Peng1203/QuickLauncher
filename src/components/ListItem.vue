@@ -1,41 +1,3 @@
-<!-- <template>
-  <div
-    class="item flex items-center min-w-20 w-full h-18 cursor-pointer select-none hover:bg-opacity-20 rounded"
-    :class="isGridMode ? 'flex-col' : ''"
-    :title="item.remarks || name"
-    :style="isActive ? { backgroundColor: '#f5f5f5 !important' } : {}"
-    tabindex="0"
-    @click="handleActive($event)"
-    @dblclick="handleRun"
-    @keydown="handleKeydown"
-    @contextmenu.prevent.stop="handleShowContextMenu"
-  >
-    <img
-      :src="icon"
-      alt="icon"
-      class="object-contain pointer-events-none w-8 mt-0.5"
-    />
-
-    <span
-      ref="nameRef"
-      :contenteditable="isEdit && isActive"
-      class="text-xs text-center text-black px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal max-2-lines"
-    >
-      {{ name }}
-    </span>
-
-    <LaunchItemContextMenu
-      v-model="menuVisible"
-      :item="item"
-      :selected-ids="activeItemIds"
-      :position="menuPosition"
-      :item-path="item.path"
-      :item-name="item.name"
-      @rename="handleEditName"
-    />
-  </div>
-</template> -->
-
 <template>
   <div
     class="item cursor-pointer select-none rounded transition-colors"
@@ -47,7 +9,7 @@
     :title="item.remarks || name"
     :style="isActive ? { backgroundColor: '#f5f5f5 !important' } : {}"
     tabindex="0"
-    @click="handleActive($event)"
+    @click="handleActive"
     @dblclick="handleRun"
     @keydown="handleKeydown"
     @contextmenu.prevent.stop="handleShowContextMenu"
@@ -71,18 +33,17 @@
     <!-- 右侧扩展（list模式才有） -->
     <template v-if="isListMode">
       <div class="text-xs text-gray-400 w-24">
-        {{ dateFormat(item.created_at) || '' }}
+        {{ dateFormat(item.created_at, 'YYYY/M/D H:m') || '' }}
       </div>
 
       <div class="text-xs text-gray-400 w-12">
-        {{ item.extension || typeFormat(item.type) }}
+        {{ item.extension || formatLaunchType(item.type) }}
       </div>
     </template>
 
     <LaunchItemContextMenu
       v-model="menuVisible"
       :item="item"
-      :selected-ids="activeItemIds"
       :position="menuPosition"
       :item-path="item.path"
       :item-name="item.name"
@@ -92,11 +53,12 @@
 </template>
 
 <script setup lang="ts">
-import dayjs from 'dayjs';
 import { storeToRefs } from 'pinia';
 import { renameLaunch, runLaunch } from '@/api';
+import { formatLaunchType } from '@/common/formatLaunchType';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
+import { dateFormat } from '@/utils/date';
 import { EventBus } from '@/utils/eventBus';
 import LaunchItemContextMenu from './ListItemContextMenu.vue';
 
@@ -107,17 +69,14 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
-const { activeCategoryItem } = storeToRefs(store);
+const { activeCategoryItem, activeLaunchItem } = storeToRefs(store);
 
 // 鼠标单击选中的项
 const activeItems = defineModel<LaunchItem[]>();
-const activeItemIds = computed(() => {
-  if (!activeItems.value || !activeItems.value.length) return [];
-  return activeItems.value?.map(item => item.id);
-});
+
 const isGridMode = computed(() => (activeCategoryItem.value?.layout || 'grid') === 'grid');
 const isListMode = computed(() => (activeCategoryItem.value?.layout || 'grid') === 'list');
-const isActive = computed(() => activeItemIds.value.includes(props.item.id));
+const isActive = computed(() => activeLaunchItem.value?.id === props.item.id);
 
 const isEdit = ref<boolean>(false);
 const newName = ref<string>(props.name);
@@ -201,43 +160,30 @@ function handleShowContextMenu(e: MouseEvent) {
         console.log(`%c isSelected ----`, 'color: #fff;background-color: #000;font-size: 18px', isSelected.value);
       } else {
         // 选中当前菜单
-        activeItems.value = [props.item];
+        activeLaunchItem.value = props.item;
       }
     });
   }, 100);
 }
 
-function handleActive(e?: PointerEvent) {
-  // 当用户同时按下ctrl + 点击时为复选操作
+// e?: PointerEvent
+function handleActive() {
   isEdit.value = false;
-  if (e?.ctrlKey) {
-    // 判断当前按下的启动项是否已经在复选列表中 如果存在则从复选列表中移除
-    if (activeItemIds.value.includes(props.item.id)) {
-      const index = activeItems.value?.findIndex(item => item.id === props.item.id);
+  activeLaunchItem.value = props.item;
+  // 当用户同时按下ctrl + 点击时为复选操作
+  // if (e?.ctrlKey) {
+  //   // 判断当前按下的启动项是否已经在复选列表中 如果存在则从复选列表中移除
+  //   if (activeItemIds.value.includes(props.item.id)) {
+  //     const index = activeItems.value?.findIndex(item => item.id === props.item.id);
 
-      if (!index || index === -1) return;
-      activeItems.value?.splice(index, 1);
-    } else {
-      activeItems.value?.push(props.item);
-    }
-  } else {
-    activeItems.value = [props.item];
-  }
-}
-
-function dateFormat(date: string) {
-  return dayjs(date).format('YYYY/M/D H:m');
-}
-
-function typeFormat(type: LaunchType) {
-  switch (type) {
-    case 'directory':
-      return '文件夹';
-    case 'file':
-      return '文件';
-    case 'url':
-      return '网站';
-  }
+  //     if (!index || index === -1) return;
+  //     activeItems.value?.splice(index, 1);
+  //   } else {
+  //     activeItems.value?.push(props.item);
+  //   }
+  // } else {
+  //   activeItems.value = [props.item];
+  // }
 }
 </script>
 

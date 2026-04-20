@@ -4,7 +4,7 @@ import { getCategory, getLaunchs } from '@/api';
 export const useStore = defineStore('main', {
   state: () => ({
     launchData: <LaunchItem[]>[],
-
+    activeLaunchItem: <LaunchItem | null>{},
     activeCategory: -1,
     categoryData: <CategoryItem[]>[],
     categoryOptions: <OptionItem[]>[],
@@ -34,12 +34,6 @@ export const useStore = defineStore('main', {
           value: item.id,
           label: item.name,
         }));
-
-      console.log(
-        `%c this.categoryOptions ----`,
-        'color: #fff;background-color: #000;font-size: 18px',
-        this.categoryOptions,
-      );
     },
 
     async handleChangeCategory(id: number) {

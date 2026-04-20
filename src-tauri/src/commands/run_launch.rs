@@ -1,6 +1,9 @@
 use crate::{common::utils::run_as_admin, entity};
-use entity::launch_items::{Entity as LaunchItems, Model};
-use sea_orm::{DatabaseConnection, EntityTrait};
+use entity::launch_items::{Column, Entity as LaunchItems, Model};
+use sea_orm::{
+    prelude::Expr, sea_query::prelude::Local, ColumnTrait, DatabaseConnection, DbErr, EntityTrait,
+    ExprTrait, QueryFilter,
+};
 use std::{os::windows::process::CommandExt, process::Command};
 
 #[tauri::command]
@@ -82,6 +85,32 @@ pub async fn run_launch(id: i32, db: tauri::State<'_, DatabaseConnection>) -> Re
             return Err(format!("无法打开URL: {}", e));
         }
     }
+
+    // 更新启动项目的启动次数和最后使用时间
+    incr_launch_count(db.inner(), id)
+        .await
+        .map_err(|e| format!("更新启动次数失败: {}", e))?;
+
+    Ok(())
+}
+
+async fn incr_launch_count(db: &DatabaseConnection, id: i32) -> Result<(), DbErr> {
+    LaunchItems::update_many()
+        .col_expr(Column::LaunchCount, Expr::col(Column::LaunchCount).add(1))
+        .col_expr(Column::LastUsedAt, Expr::value(Local::now().naive_local()))
+        .filter(Column::Id.eq(id))
+        .exec(db)
+        .await?;
+
+    Ok(())
+}
+
+async fn incr_failure_count(db: &DatabaseConnection, id: i32) -> Result<(), DbErr> {
+    LaunchItems::update_many()
+        .col_expr(Column::FailureCount, Expr::col(Column::FailureCount).add(1))
+        .filter(Column::Id.eq(id))
+        .exec(db)
+        .await?;
 
     Ok(())
 }

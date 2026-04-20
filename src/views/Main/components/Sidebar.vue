@@ -76,7 +76,7 @@ import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
 const store = useStore();
-const { categoryData, activeCategory, activeCategoryItem } = storeToRefs(store);
+const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem } = storeToRefs(store);
 const { registerAllCategoryDirWatch, checkCategoryDirAndLaunchSync } = useCategoryCorrelationDir();
 
 function handleOpenAddCategory() {
@@ -119,7 +119,9 @@ function handleShowCategoryItemContextMenu(e: MouseEvent, item: CategoryItem) {
 async function handleChangeCategory(id: number) {
   // 每次切换分类时 取消选中的重命名元素
   cancelRename();
+  // 清空选中的分类
   if (activeCategory.value === id) return;
+  activeLaunchItem.value = null;
   store.launchData = [];
   await store.handleChangeCategory(id);
   checkCategoryDirAndLaunchSync();

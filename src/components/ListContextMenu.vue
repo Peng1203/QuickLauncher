@@ -13,7 +13,7 @@
 
 <script setup lang="tsx">
 import { storeToRefs } from 'pinia';
-import { updateCategory } from '@/api';
+import { useCategorySort } from '@/composables/useCategorySort';
 // import { useContextMenuClose } from '@/composables/useContextMenuClose';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
@@ -29,6 +29,7 @@ const visible = defineModel<boolean>();
 
 const store = useStore();
 const { activeCategoryItem } = storeToRefs(store);
+const { handleLayoutOrderSortChange } = useCategorySort(activeCategoryItem);
 
 function handleClose() {
   visible.value = false;
@@ -168,24 +169,5 @@ async function handleSelect(key: string) {
   }
 
   handleClose();
-}
-
-async function handleLayoutOrderSortChange<T extends LayoutType | SortByType | SortOrderType>(
-  val: T,
-  upKey: keyof CategoryItem,
-  updateLaunchList: boolean = false,
-) {
-  const params = {
-    ...activeCategoryItem.value,
-    [upKey]: val,
-  };
-  await updateCategory(params);
-
-  const upCategory = store.categoryData.find(item => item.id === activeCategoryItem.value.id);
-  if (!upCategory) return;
-  // @ts-ignore
-  upCategory[upKey] = val;
-
-  if (updateLaunchList) store.getLaunchData();
 }
 </script>

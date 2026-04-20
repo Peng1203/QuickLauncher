@@ -72,3 +72,21 @@ h3 {
   --n-box-shadow-focus: none !important;
   transition: none !important;
 }
+
+.flex-c-c {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-s-c {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+.flex-sb-c {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

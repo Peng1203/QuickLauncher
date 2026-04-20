@@ -59,38 +59,7 @@
             v-show="!(autocompleteList.length === 1)"
             class="flex items-center select-none"
           >
-            <svg
-              width="40"
-              height="24"
-              viewBox="0 0 40 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <!-- 背景矩形 -->
-              <rect
-                x="0"
-                y="0"
-                width="40"
-                height="24"
-                rx="4"
-                ry="4"
-                fill="#f9f9f9"
-                stroke="#ccc"
-                stroke-width="1"
-              />
-
-              <!-- Tab 文本 -->
-              <text
-                x="50%"
-                y="50%"
-                alignment-baseline="middle"
-                text-anchor="middle"
-                font-size="12"
-                font-family="Arial, sans-serif"
-                fill="#000"
-              >
-                Tab
-              </text>
-            </svg>
+            <Kbd>Tab</Kbd>
             <span class="text-xs ml-1">切换</span>
           </span>
 
@@ -98,42 +67,7 @@
             v-show="currentAutocompleteSuggestion !== keyword"
             class="flex items-center select-none"
           >
-            <svg
-              width="40"
-              height="24"
-              viewBox="0 0 40 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <!-- 背景矩形 -->
-              <rect
-                x="0"
-                y="0"
-                width="40"
-                height="24"
-                rx="4"
-                ry="4"
-                fill="#f9f9f9"
-                stroke="#ccc"
-                stroke-width="1"
-              />
-
-              <!-- 横线（箭杆） -->
-              <line
-                x1="10"
-                y1="12"
-                x2="28"
-                y2="12"
-                stroke="#333"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-
-              <!-- 右箭头三角 -->
-              <polygon
-                points="26,8 36,12 26,16"
-                fill="#333"
-              />
-            </svg>
+            <Kbd>→</Kbd>
             <span class="text-xs ml-1">补全</span>
           </span>
         </div>
@@ -148,73 +82,10 @@
         </span>
 
         <span class="flex items-center select-none mr-3">
-          <svg
-            width="40"
-            height="20"
-            viewBox="0 0 40 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <!-- 背景矩形 -->
-            <rect
-              x="0"
-              y="0"
-              width="40"
-              height="20"
-              rx="4"
-              ry="4"
-              fill="#f9f9f9"
-              stroke="#ccc"
-              stroke-width="1"
-            />
-
-            <!-- Tab 文本 -->
-            <text
-              x="50%"
-              y="50%"
-              alignment-baseline="middle"
-              text-anchor="middle"
-              font-size="12"
-              font-family="Arial, sans-serif"
-              fill="#000"
-            >
-              Ctrl
-            </text>
-          </svg>
-
+          <Kbd>Ctrl</Kbd>
           <span>+</span>
+          <Kbd>W</Kbd>
 
-          <svg
-            width="30"
-            height="20"
-            viewBox="0 0 30 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <!-- 背景矩形 -->
-            <rect
-              x="0"
-              y="0"
-              width="30"
-              height="20"
-              rx="4"
-              ry="4"
-              fill="#f9f9f9"
-              stroke="#ccc"
-              stroke-width="1"
-            />
-
-            <!-- Tab 文本 -->
-            <text
-              x="50%"
-              y="55%"
-              alignment-baseline="middle"
-              text-anchor="middle"
-              font-size="12"
-              font-family="Arial, sans-serif"
-              fill="#000"
-            >
-              W
-            </text>
-          </svg>
           <span class="text-xs ml-1">关闭候补</span>
         </span>
       </div>
@@ -295,8 +166,9 @@
     <LaunchItemContextMenu
       v-model="menuVisible"
       type="SearchLaunchList"
-      style="transform: scale(0.85)"
       li-style="padding-top: 4px; padding-bottom: 4px;"
+      style="transform: scale(0.85); overflow-y: scroll"
+      :style="{ height: contextMenuHeight }"
       :viewport-margin="0"
       :item="itemDetail!"
       :category-item="categoryItem"
@@ -566,6 +438,8 @@ async function handleEnterLaunch() {
     if (!item) return;
     // 执行启动
     await runLaunch(item.id);
+    // 更新列表中的启动次数
+    EventBus.emit(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, item.id);
     // TODO 根据返回结果进行统计 对应次数
     addOrUpdateAutocompleteRecord(keyword.value, item.id);
   }
@@ -777,6 +651,11 @@ EventBus.listen(AppEvent.INCREASE_PRIORITY, async (item: LaunchItem) => {
   await handleSearch();
   // 通知列表更新
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
+});
+
+const contextMenuHeight = computed(() => {
+  if (resultList.value.length === 1) return '80px';
+  return resultList.value.length <= 3 ? `${50 + (resultList.value.length - 1) * 48}px` : 'initial';
 });
 
 onMounted(() => {

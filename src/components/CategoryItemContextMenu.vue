@@ -24,6 +24,7 @@ import {
   updateLaunchEnabledByCategory,
 } from '@/api';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
+import { useCategorySort } from '@/composables/useCategorySort';
 // import { useContextMenuClose } from '@/composables/useContextMenuClose';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
@@ -34,13 +35,15 @@ const props = defineProps<{
   position: { x: number; y: number };
   item: CategoryItem;
 }>();
-const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch, removeCategoryDirWatch } =
-  useCategoryCorrelationDir();
-const store = useStore();
 
 const visible = defineModel<boolean>();
 
+const store = useStore();
 const { dialog } = useNaiveUiApi();
+
+const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch, removeCategoryDirWatch } =
+  useCategoryCorrelationDir();
+const { handleLayoutOrderSortChange } = useCategorySort(toRefs(props).item);
 
 const isAssociationDirectory = computed(() => !!props.item?.association_directory);
 const isCurrentSelected = computed(() => store.activeCategory === props.item.id);
@@ -379,25 +382,6 @@ async function handleDelete() {
       onNegativeClick: () => resolve(true),
     });
   });
-}
-
-async function handleLayoutOrderSortChange<T extends LayoutType | SortByType | SortOrderType>(
-  val: T,
-  upKey: keyof CategoryItem,
-  updateLaunchList: boolean = false,
-) {
-  const params = {
-    ...props.item,
-    [upKey]: val,
-  };
-  await updateCategory(params);
-
-  const upCategory = store.categoryData.find(item => item.id === props.item.id);
-  if (!upCategory) return;
-  // @ts-ignore
-  upCategory[upKey] = val;
-
-  if (updateLaunchList && isCurrentSelected.value) store.getLaunchData();
 }
 
 // useContextMenuClose(handleClose);

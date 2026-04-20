@@ -91,6 +91,9 @@ export enum AppEvent {
 
   // 提升查询项优先级
   INCREASE_PRIORITY = 'increase_priority',
+
+  // 更新启动项启动次数
+  UPDATE_LAUNCH_ITEM_COUNT = 'update_launch_item_count',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
