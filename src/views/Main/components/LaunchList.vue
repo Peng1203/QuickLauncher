@@ -4,7 +4,6 @@
     tabindex="-1"
     class="overflow-auto m-1"
     @contextmenu.prevent.stop="handleShowListContextMenu"
-    @keydown="handleKeydown"
   >
     <transition-group
       v-if="launchData.length"
@@ -22,7 +21,7 @@
         :key="item.id"
       >
         <ListItem
-          v-model="activeItem"
+          :ref="el => (itemRefs[`${item.id}`] = el)"
           :item="item"
           :icon="item.icon!"
           :name="item.name"
@@ -53,6 +52,7 @@
 
 <script setup lang="ts">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { isEmpty } from 'lodash-es';
 import { storeToRefs } from 'pinia';
 import { nextTick, ref } from 'vue';
 // import { VueDraggable } from 'vue-draggable-plus';
@@ -61,14 +61,16 @@ import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
 import OperationLaunchModal from '@/components/OperationLaunchModal.vue';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
+import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
+import { EventBus } from '@/utils/eventBus';
 
 const props = defineProps<{
   categoryModalStatus: boolean;
 }>();
 const store = useStore();
-const { launchData, activeCategory } = storeToRefs(store);
-const { isConrrelationDir, activeCategoryItem } = useCategoryCorrelationDir();
+const { launchData, activeCategory, activeCategoryItem, activeLaunchItem } = storeToRefs(store);
+const { isConrrelationDir } = useCategoryCorrelationDir();
 const launchModalStatus = ref(false);
 const currentWindow = getCurrentWebviewWindow();
 const mode = computed(() => activeCategoryItem.value?.layout || 'grid');
@@ -115,7 +117,6 @@ currentWindow.onDragDropEvent(async e => {
 
 const contextMenuVisible = ref<boolean>(false);
 const contextMenuPosition = ref({ x: 0, y: 0 });
-const activeItem = ref<LaunchItem[]>([]);
 
 function handleShowListContextMenu(e: MouseEvent) {
   // EventBus.emit(AppEvent.CLOSE_CONTEXT_MENU);
@@ -128,18 +129,20 @@ function handleShowListContextMenu(e: MouseEvent) {
   }, 100);
 }
 
-function handleKeydown(e: KeyboardEvent) {
-  const { keyCode, key } = e;
+const itemRefs = shallowRef<any>({});
+EventBus.listen(AppEvent.LAUNCH_RENAME, () => {
+  if (isEmpty(activeLaunchItem.value)) return;
+  const itemRef = itemRefs.value[activeLaunchItem.value.id];
+  itemRef?.handleEditName();
+});
 
-  console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key);
-  switch (key) {
-    case 'F5': // 116
-      store.getLaunchData();
-      break;
-    default:
-      break;
-  }
-}
+// 处理窗口内部 Delete 快捷键
+EventBus.listen(AppEvent.DELETE_LAUNCH, () => {
+  console.log(`%c 1111 ----`, 'color: #fff;background-color: #000;font-size: 18px', 1111);
+  if (isEmpty(activeLaunchItem.value)) return;
+  const itemRef = itemRefs.value[activeLaunchItem.value.id];
+  itemRef?.handleDelete();
+});
 </script>
 
 <style scoped>

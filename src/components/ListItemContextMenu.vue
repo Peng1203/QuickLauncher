@@ -13,13 +13,9 @@
 
 <script setup lang="tsx">
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { ask } from '@tauri-apps/plugin-dialog';
 import { useMessage } from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { deleteLaunch, openRevealManager, runLaunchAsAdmin } from '@/api';
-import { useAppConfig } from '@/composables/useAppConfig';
+import { openRevealManager, runLaunchAsAdmin } from '@/api';
 import { AppEvent } from '@/constant';
-import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
 export interface MenuAction {
@@ -45,13 +41,11 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits(['close', 'rename']);
+const emit = defineEmits(['close', 'rename', 'delete']);
 
 const visible = defineModel<boolean>();
 
 const message = useMessage();
-const { appConfigStore } = useAppConfig();
-const { activeLaunchItem } = storeToRefs(useStore());
 
 function renderIcon(icon: string) {
   return () => h(<i class={`iconfont ${icon}`} />);
@@ -120,20 +114,6 @@ function handleClose() {
   visible.value = false;
 }
 
-async function handleDelete() {
-  if (appConfigStore.confirmBeforeDelete) {
-    const tip = `是否删除 ${props.itemName} ?`;
-    const answer = await ask(tip, {
-      title: '删 除',
-      kind: 'warning',
-    });
-    if (!answer) return;
-  }
-  await deleteLaunch(props.item.id);
-  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
-  if (props.item.id === activeLaunchItem.value?.id) activeLaunchItem.value = null;
-}
-
 async function handleSelect(key: string) {
   switch (key) {
     case 'runAsAdmin':
@@ -150,13 +130,13 @@ async function handleSelect(key: string) {
       emit('rename');
       break;
     case 'delete':
-      handleDelete();
+      emit('delete');
       break;
     case 'edit':
       EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
       break;
     case 'position':
-      // TODO
+      // TODO 定位
       EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
       break;
     case 'increasePriority':

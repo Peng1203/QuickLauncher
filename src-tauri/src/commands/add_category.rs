@@ -14,6 +14,7 @@ pub async fn add_category(
         icon: Set(item.icon),
         exclude: Set(item.exclude),
         layout: Set(item.layout),
+        order_index: Set(item.order_index),
         ..Default::default()
     };
 

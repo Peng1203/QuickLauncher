@@ -1,6 +1,8 @@
 import type { WebSearchOpenModel } from '@/constant';
 
 declare global {
+  type DirectionType = 'up' | 'right' | 'down' | 'left';
+
   type LaunchType = 'file' | 'directory' | 'url';
   interface LaunchItem {
     id: number;

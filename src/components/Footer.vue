@@ -16,8 +16,8 @@
           size="14"
           class="iconfont icon-fenlei"
         />
-        <span>
-          {{ activeCategory === -1 ? '默认' : activeCategoryItem.name }}
+        <span class="overflow-hidden whitespace-nowrap">
+          {{ activeCategory === -1 ? '默认' : activeCategoryItem?.name }}
         </span>
       </span>
 
@@ -38,7 +38,7 @@
       <!-- 目录关联状态信息 -->
       <span class="flex-s-c cursor-pointer">
         <n-icon
-          v-if="activeCategory !== -1 && activeCategoryItem.association_directory"
+          v-if="activeCategory !== -1 && activeCategoryItem?.association_directory"
           size="16"
           title="已关联目录"
           class="iconfont icon-guanlian"
@@ -219,6 +219,7 @@ import { storeToRefs } from 'pinia';
 import { getLaunchByID } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
 import { useCategorySort } from '@/composables/useCategorySort';
+import { useMainWindowShortcut } from '@/composables/useMainWindowShortcut';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { getFromNow } from '@/utils/date';
@@ -246,16 +247,6 @@ const shortcutKeys = [
 ];
 
 const version = ref<string>();
-
-// const oldLaunchCount = ref(0);
-// const newLaunchCount = ref(0);
-// watch(
-//   () => launchData.value,
-//   (newVal, oldVal) => {
-//     console.log(`%c newVal ----`, 'color: #fff;background-color: #000;font-size: 18px', newVal.length);
-//     console.log(`%c oldVal ----`, 'color: #fff;background-color: #000;font-size: 18px', oldVal.length);
-//   },
-// );
 
 const sortInfo = computed(() => {
   // if (activeCategory.value === -1) {
@@ -318,6 +309,8 @@ EventBus.listen(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, (id: number) => {
     findRes.last_used_at = upItem.last_used_at;
   });
 });
+
+useMainWindowShortcut();
 
 onMounted(async () => {
   version.value = await getVersion();

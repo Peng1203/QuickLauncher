@@ -33,23 +33,39 @@ pub async fn get_launch(
     // ------------------------
     // 排序字段（白名单防止乱传）
     // ------------------------
+    // if let Some(sort_by) = sort_by {
+    //     let column = match sort_by.as_str() {
+    //         "id" => Column::Id,
+    //         "name" => Column::Name,
+    //         "type" => Column::Type,
+    //         "time" => Column::CreatedAt,
+    //         // "updated_at" => Column::UpdatedAt,
+    //         "order" => Column::OrderIndex,
+    //         _ => Column::Id,
+    //     };
+    //     let order = match sort_order.as_deref() {
+    //         Some("desc") => Order::Desc,
+    //         _ => Order::Asc,
+    //     };
+    //     query = query.order_by(column, order);
+    // }
     if let Some(sort_by) = sort_by {
-        let column = match sort_by.as_str() {
-            // "id" => Column::Id,
-            "name" => Column::Name,
-            "type" => Column::Type,
-            "time" => Column::CreatedAt,
-            // "updated_at" => Column::UpdatedAt,
-            "order" => Column::OrderIndex, // 如果你有这个字段
-            _ => Column::Id,               // 默认兜底
-        };
-
         let order = match sort_order.as_deref() {
             Some("desc") => Order::Desc,
             _ => Order::Asc,
         };
 
-        query = query.order_by(column, order);
+        query = match sort_by.as_str() {
+            "name" => query.order_by(Column::Name, order),
+            "type" => {
+                query
+                    .order_by(Column::Type, order.clone())
+                    .order_by(Column::Extension, order) // ✅ 次排序
+            }
+            "time" => query.order_by(Column::CreatedAt, order),
+            "order" => query.order_by(Column::OrderIndex, order),
+            _ => query.order_by(Column::Id, order),
+        };
     }
 
     // ------------------------

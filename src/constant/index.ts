@@ -74,11 +74,15 @@ export enum InvokeMethod {
 export enum AppEvent {
   UPDATE_LAUNCH_LIST = 'update_launch_list',
   OPEN_OPERATION_LAUNCH = 'open_operation_launch',
+  DELETE_LAUNCH = 'delete_launch_item',
+
+  DELETE_CATEGORY = 'delete_category_item',
   OPEN_OPERATION_CATEGORY = 'open_operation_category',
 
   // 关闭右键菜单
   CLOSE_CONTEXT_MENU = 'close_context_menu',
   UPDATE_CATEGORY_LIST = 'update_category_list',
+  ACTIVE_CATEGORY = 'active_category',
 
   // 通知其他窗口更新pinia中的appConfig数据
   UPDATE_APP_CONFIG_DATA = 'update_app_config',
@@ -94,6 +98,9 @@ export enum AppEvent {
 
   // 更新启动项启动次数
   UPDATE_LAUNCH_ITEM_COUNT = 'update_launch_item_count',
+
+  // 分类重命名
+  LAUNCH_RENAME = 'launch_rename',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
@@ -107,3 +114,5 @@ export enum AutocompleteMatchMode {
   Prefix = 'prefix',
   Contains = 'contains',
 }
+
+export const ACTIVE_CATEGORY_LOCAL_KEY = 'active_category';

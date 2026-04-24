@@ -10,6 +10,7 @@ pub struct NewCategoryItem {
     pub layout: String,
     pub sort_by: String,
     pub sort_order: String,
+    pub order_index: Option<i32>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -22,6 +23,7 @@ pub struct CategoryItem {
     pub layout: String,
     pub sort_by: String,
     pub sort_order: String,
+    pub order_index: Option<i32>,
     pub icon: Option<String>,
     pub created_at: Option<String>,
     pub updated_at: Option<String>,
@@ -38,6 +40,7 @@ impl From<entity::categories::Model> for CategoryItem {
             layout: model.layout,
             sort_by: model.sort_by,
             sort_order: model.sort_order,
+            order_index: model.order_index,
             icon: model.icon,
             created_at: model.created_at,
             updated_at: model.updated_at,

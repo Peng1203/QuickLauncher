@@ -1,11 +1,13 @@
 <template>
   <!-- !w-48 -->
   <n-layout-sider
+    id="layoutSider"
+    ref="siderRef"
+    tabindex="-1"
     collapse-mode="width"
     :collapsed-width="120"
     :width="192"
     :show-collapsed-content="true"
-    tabindex="-1"
     class="w-48 bg-white border-r border-gray-200 flex flex-col py-1.5 px-2 z-10"
     @contextmenu.prevent.stop="handleShowCategoryContextMenu"
     @keydown="handleKeydown"
@@ -24,6 +26,7 @@
       <button
         v-for="item of categoryData"
         :key="item.id"
+        :ref="el => (categoryItemRefs[`${item.id}`] = el)"
         :class="[activeCategory === item.id ? 'bg-gray-100 text-blue-600' : 'hover:bg-gray-50 text-gray-700']"
         tabindex="-1"
         class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden"
@@ -51,7 +54,6 @@
   <CategoryContextMenu
     v-model="contextMenuVisible"
     :position="contextMenuPosition"
-    @add="handleOpenAddCategory"
   />
 
   <!-- 分类自定义菜单 -->
@@ -78,10 +80,6 @@ import { EventBus } from '@/utils/eventBus';
 const store = useStore();
 const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem } = storeToRefs(store);
 const { registerAllCategoryDirWatch, checkCategoryDirAndLaunchSync } = useCategoryCorrelationDir();
-
-function handleOpenAddCategory() {
-  console.log(`%c 121 ----`, 'color: #fff;background-color: #000;font-size: 18px', 121);
-}
 
 async function getCategorys() {
   await store.getCategoryData();
@@ -136,7 +134,6 @@ function handleOpenAssDir(item: CategoryItem) {
 //   () => categoryData.value.find(item => item.id === activeCategory.value)!
 // )
 
-EventBus.listen(AppEvent.UPDATE_CATEGORY_LIST, getCategorys);
 const activeRenameItem = ref<CategoryItem>();
 const activeRenameItemRef = ref(null);
 const itemRefs = shallowRef<any>({});
@@ -144,7 +141,8 @@ const renameItemId = ref<number>(0);
 const renameStatus = ref<boolean>(true);
 
 const oldName = ref('');
-function handleRename(item: CategoryItem) {
+function handleRename() {
+  const item = activeCategoryItem.value;
   renameStatus.value = true;
   activeRenameItem.value = item;
   renameItemId.value = item.id;
@@ -164,6 +162,7 @@ function handleRename(item: CategoryItem) {
 }
 EventBus.listen(AppEvent.CATEGORY_RENAME, handleRename);
 
+const siderRef = useTemplateRef('siderRef');
 function cancelRename(restore: boolean = true) {
   if (!renameStatus.value) return;
   renameItemId.value = 0;
@@ -176,16 +175,20 @@ function cancelRename(restore: boolean = true) {
     // @ts-ignore
     activeRenameItemRef.value.textContent = oldName.value;
   }
+
+  nextTick(() => {
+    // removeAllRanges()会使 activeElement 元素变为body 导致快捷键失效
+    siderRef?.value?.$el.focus();
+  });
 }
 
 async function handleKeydown(e: KeyboardEvent) {
-  const { keyCode, key } = e;
-  console.log('keyCode ------', keyCode);
+  const { key } = e;
+  // console.log('keyCode ------', keyCode);
   console.log('key ------', key);
   switch (key) {
     case 'F2': // 113
-      if (activeCategory.value === -1) return;
-      handleRename(activeCategoryItem.value);
+      handleRename();
       break;
     case 'Enter': // 13
       if (!renameStatus.value) return;
@@ -204,10 +207,63 @@ async function handleKeydown(e: KeyboardEvent) {
     case 'Escape': // 27
       cancelRename();
       break;
+    case 'ArrowUp': // 38
+      handleCategorySwitchByKey('up');
+      break;
+    case 'ArrowDown': // 40
+      handleCategorySwitchByKey('down');
+      break;
     default:
       break;
   }
 }
+
+const maxIndex = computed(() => categoryData.value.length - 1);
+const currentIndex = computed(() => categoryData.value.findIndex(item => item.id === activeCategory.value));
+const categoryItemRefs = shallowRef<any>({});
+async function handleCategorySwitchByKey(direction: DirectionType) {
+  if (maxIndex.value <= 1 || currentIndex.value === -1) return;
+  let newIndex = 0;
+
+  switch (direction) {
+    case 'up':
+      // 边界情况处理
+      if (!currentIndex.value) newIndex = maxIndex.value;
+      else newIndex = currentIndex.value - 1;
+      break;
+    case 'down':
+      if (currentIndex.value === maxIndex.value) newIndex = 0;
+      else newIndex = currentIndex.value + 1;
+      break;
+  }
+
+  const item = categoryData.value[newIndex];
+  await handleChangeCategory(item.id);
+  // 分类滚动到可视区域
+
+  nextTick(() => {
+    const el = categoryItemRefs.value[item.id];
+    if (!el) return;
+    el?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  });
+}
+
+EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
+  await getCategorys();
+  await store.handleChangeCategory(item.id);
+  nextTick(() => {
+    const el = categoryItemRefs.value[item.id];
+
+    if (!el) return;
+    el?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+    });
+  });
+});
 </script>
 
 <style lang="scss" scoped>

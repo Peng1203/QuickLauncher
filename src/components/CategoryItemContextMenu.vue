@@ -14,6 +14,7 @@
 
 <script setup lang="tsx">
 import { open } from '@tauri-apps/plugin-dialog';
+import { storeToRefs } from 'pinia';
 import { computed, h, ref } from 'vue';
 import {
   deleteCategory,
@@ -44,6 +45,8 @@ const { dialog } = useNaiveUiApi();
 const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch, removeCategoryDirWatch } =
   useCategoryCorrelationDir();
 const { handleLayoutOrderSortChange } = useCategorySort(toRefs(props).item);
+
+const { activeCategoryItem } = storeToRefs(store);
 
 const isAssociationDirectory = computed(() => !!props.item?.association_directory);
 const isCurrentSelected = computed(() => store.activeCategory === props.item.id);
@@ -286,7 +289,7 @@ async function handleSelect(key: string) {
       openPath(props.item!.association_directory!);
       break;
     case 'rename':
-      EventBus.emit(AppEvent.CATEGORY_RENAME, props.item);
+      EventBus.emit(AppEvent.CATEGORY_RENAME);
       break;
     case 'edit':
       EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, props.item);
@@ -365,14 +368,15 @@ async function handleDelete() {
   return new Promise(resolve => {
     dialog.warning({
       title: '提示',
-      content: `是否删除 ${props.item.name} 分类?`,
+      content: `是否删除 ${props.item?.name || activeCategoryItem.value.name} 分类?`,
       positiveText: '确 定',
       negativeText: '取 消',
       draggable: true,
       onPositiveClick: async () => {
-        await deleteCategory(props.item.id);
+        const id = props.item?.id || activeCategoryItem.value.id;
+        await deleteCategory(id);
         // 当删除的分类为当前选择的分类时 重置到默认分类
-        if (props.item.id === store.activeCategory) {
+        if (id === store.activeCategory) {
           store.activeCategory = -1;
           await store.getLaunchData();
         }
@@ -384,5 +388,5 @@ async function handleDelete() {
   });
 }
 
-// useContextMenuClose(handleClose);
+EventBus.listen(AppEvent.DELETE_CATEGORY, handleDelete);
 </script>

@@ -3,6 +3,7 @@
     v-model:show="modalStatus"
     transform-origin="center"
     :mask-closable="false"
+    :on-esc="handleClose"
     @close="handleClose"
   >
     <n-card
@@ -142,10 +143,7 @@ import { useFormState } from '@/composables/useFormState';
 import { useLoading } from '@/composables/useLoading';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
-import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
-
-const store = useStore();
 
 const { message } = useNaiveUiApi();
 const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch } = useCategoryCorrelationDir();
@@ -203,15 +201,12 @@ async function handleConfirm() {
       await updateCategory(item);
     } else {
       const res = await addCategory(form.value);
-      console.log('res ------', res);
       // 如果有关联目录 创建该目录下的启动项
       await handleCreateLaunchFromCategoryDir(res);
-      // 选中新创建的分类
-      store.handleChangeCategory(res.id);
-      // TODO 滚动到该分类
+      // 更新分类数据 并选中新创建的分类
+      EventBus.emit(AppEvent.ACTIVE_CATEGORY, res);
       registerAllCategoryDirWatch();
     }
-    EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST);
     handleClose();
   } catch (e) {
     message.error(e as string);

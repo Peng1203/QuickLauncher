@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia';
 import { getCategory, getLaunchs } from '@/api';
+import { ACTIVE_CATEGORY_LOCAL_KEY } from '@/constant';
 
 export const useStore = defineStore('main', {
   state: () => ({
     launchData: <LaunchItem[]>[],
     activeLaunchItem: <LaunchItem | null>{},
-    activeCategory: -1,
+    activeCategory: Number(localStorage.getItem(ACTIVE_CATEGORY_LOCAL_KEY)) || -1,
     categoryData: <CategoryItem[]>[],
     categoryOptions: <OptionItem[]>[],
   }),
@@ -38,6 +39,7 @@ export const useStore = defineStore('main', {
 
     async handleChangeCategory(id: number) {
       this.activeCategory = id;
+      localStorage.setItem(ACTIVE_CATEGORY_LOCAL_KEY, id + '');
       await this.getLaunchData(id);
     },
   },

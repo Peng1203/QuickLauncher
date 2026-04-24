@@ -3,6 +3,7 @@
     v-model:show="modalStatus"
     transform-origin="center"
     :mask-closable="false"
+    :on-esc="handleClose"
     @close="handleClose"
   >
     <n-card
@@ -646,7 +647,6 @@ async function handleConfirm() {
     // TODO 错误处理
     await updateLaunch(item);
   } else {
-    console.log(`%c form.value ----`, 'color: #fff;background-color: #000;font-size: 18px', form.value);
     await addLaunch(form.value);
   }
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);

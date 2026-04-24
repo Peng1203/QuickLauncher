@@ -48,14 +48,17 @@
       :item-path="item.path"
       :item-name="item.name"
       @rename="handleEditName"
+      @delete="handleDelete"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { isEmpty } from 'lodash-es';
 import { storeToRefs } from 'pinia';
-import { renameLaunch, runLaunch } from '@/api';
+import { deleteLaunch, renameLaunch, runLaunch } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
+import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { dateFormat } from '@/utils/date';
@@ -90,9 +93,9 @@ function handleKeydown(e: KeyboardEvent) {
 
   console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key);
   switch (key) {
-    case 'F2': // 113
-      !activeCategoryItem.value?.association_directory && handleEditName();
-      break;
+    // case 'F2': // 113
+    //   handleEditName();
+    //   break;
     case 'Enter': // 13
       handleSaveEditName();
       e.preventDefault();
@@ -106,8 +109,14 @@ function handleKeydown(e: KeyboardEvent) {
 }
 
 const nameRef = useTemplateRef('nameRef');
+
 function handleEditName() {
-  handleActive();
+  // 判断是否有选中启动项
+  const isEmp = isEmpty(activeLaunchItem.value);
+  if (isEmp) return;
+
+  if (activeCategoryItem.value?.association_directory) return;
+  // handleActive();
   if (isEdit.value) return;
   newName.value = props.name;
   isEdit.value = true;
@@ -185,6 +194,40 @@ function handleActive() {
   //   activeItems.value = [props.item];
   // }
 }
+const { dialog } = useNaiveUiApi();
+
+async function handleDelete() {
+  // 当分类 所属分类关联了目录时 禁止删除操作
+  // if (appConfigStore.confirmBeforeDelete) {
+  //   const tip = `是否删除 ${props.item.name} ?`;
+  //   const answer = await ask(tip, {
+  //     title: '删 除',
+  //     kind: 'warning',
+  //   });
+  //   console.log(`%c answer ----`, 'color: #fff;background-color: #000;font-size: 18px', answer);
+  //   if (!answer) return;
+  // }
+
+  const answer = await new Promise(resolve => {
+    dialog.warning({
+      title: '提示',
+      content: `是否删除 ${props.item.name} ?`,
+      positiveText: '确 定',
+      negativeText: '取 消',
+      draggable: true,
+      onPositiveClick: async () => resolve(true),
+      onNegativeClick: () => resolve(false),
+    });
+  });
+  console.log(`%c answer ----`, 'color: #fff;background-color: #000;font-size: 18px', answer);
+  if (!answer) return;
+
+  await deleteLaunch(props.item.id);
+  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
+  if (props.item.id === activeLaunchItem.value?.id) activeLaunchItem.value = null;
+}
+
+defineExpose({ handleEditName, handleDelete });
 </script>
 
 <style scoped lang="scss">

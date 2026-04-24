@@ -73,6 +73,7 @@
         </div>
       </div>
 
+      <!-- 当想要执行自定义命令时 存在搜索结果 通过关闭 -->
       <div
         v-show="resultList.length && !autocompleteList.length"
         class="suggestion-con"
@@ -86,7 +87,7 @@
           <span>+</span>
           <Kbd>W</Kbd>
 
-          <span class="text-xs ml-1">关闭候补</span>
+          <span class="text-xs ml-1">关闭搜索结果</span>
         </span>
       </div>
     </label>

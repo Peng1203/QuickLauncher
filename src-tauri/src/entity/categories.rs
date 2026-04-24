@@ -24,8 +24,13 @@ pub struct Model {
 
     #[sea_orm(column_type = "Text", nullable)]
     pub icon: Option<String>,
+
+    #[sea_orm(default_value = 0, nullable)]
+    pub order_index: Option<i32>,
+
     #[sea_orm(column_type = "custom(\"DATETIME\")", nullable)]
     pub created_at: Option<String>,
+
     #[sea_orm(column_type = "custom(\"CURRENT_TIMESTAMP\")", nullable)]
     pub updated_at: Option<String>,
 }

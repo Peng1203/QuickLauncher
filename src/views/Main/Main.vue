@@ -67,28 +67,34 @@ async function getCategorys() {
   registerAllCategoryDirWatch();
 }
 
+const retryCounter1 = ref(0);
+const retryCounter2 = ref(0);
+
 async function initCategoryData() {
   try {
+    if (retryCounter1.value >= 20) return;
     await delay(50);
     await getCategorys();
   } catch (e) {
     console.log('initCategoryData', e);
+    retryCounter1.value++;
     await initCategoryData();
   }
 }
 
 async function initLaunchData() {
   try {
+    if (retryCounter2.value >= 20) return;
     await delay(50);
     await store.getLaunchData();
   } catch (e) {
     console.log('initLaunchData', e);
+    retryCounter2.value++;
     await initLaunchData();
   }
 }
 
-initCategoryData();
-initLaunchData();
+initCategoryData().then(initLaunchData);
 
 // watchImmediate(
 //   'C:\\Users\\Mayn\\Desktop\\FTTH APP截图',

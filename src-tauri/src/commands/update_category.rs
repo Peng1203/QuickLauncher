@@ -34,6 +34,7 @@ pub async fn update_category(
     active.sort_by = Set(item.sort_by);
     active.sort_order = Set(item.sort_order);
     active.icon = Set(item.icon);
+    active.order_index = Set(item.order_index);
 
     // 执行更新
     active
