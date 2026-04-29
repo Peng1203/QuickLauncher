@@ -16,7 +16,7 @@ pub struct Model {
     #[sea_orm(column_type = "Text", default_value = "grid")]
     pub layout: String,
 
-    #[sea_orm(column_type = "Text", default_value = "name")]
+    #[sea_orm(column_type = "Text", default_value = "time")]
     pub sort_by: String,
 
     #[sea_orm(column_type = "Text", default_value = "asc")]

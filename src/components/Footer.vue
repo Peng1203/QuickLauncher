@@ -17,7 +17,7 @@
           class="iconfont icon-fenlei"
         />
         <span class="overflow-hidden whitespace-nowrap">
-          {{ activeCategory === -1 ? '默认' : activeCategoryItem?.name }}
+          {{ activeCategoryItem?.name }}
         </span>
       </span>
 

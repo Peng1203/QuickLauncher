@@ -1,6 +1,7 @@
 <template>
   <n-modal
     v-model:show="modalStatus"
+    data-tauri-drag-region
     transform-origin="center"
     :mask-closable="false"
     :on-esc="handleClose"
@@ -57,6 +58,7 @@
             >
               <n-input
                 v-model:value="form.name"
+                tabindex="1"
                 placeholder=""
                 type="text"
                 :theme-overrides="inputTheme"
@@ -94,7 +96,6 @@
           </n-col>
 
           <n-col span="22">
-            <!-- TODO -->
             <n-form-item
               label="搜索排除"
               path="exclude"
@@ -133,10 +134,11 @@
 </template>
 
 <script setup lang="ts">
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Close } from '@vicons/ionicons5';
 import { ref } from 'vue';
-import { addCategory, getLocalIconBase64, updateCategory } from '@/api';
+import { addCategory, getLocalIconBase64, updateCategory, updateLaunchEnabledByCategory } from '@/api';
 import IconPicker from '@/components/IconPicker.vue';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { useFormState } from '@/composables/useFormState';
@@ -155,7 +157,7 @@ const inputTheme = {
   borderHover: 'inherit',
 };
 
-const modalStatus = defineModel<boolean>({ default: false });
+const modalStatus = ref(true);
 
 const { form, initForm, setForm } = useFormState<NewCategoryItem>({
   icon: '',
@@ -166,11 +168,13 @@ const { form, initForm, setForm } = useFormState<NewCategoryItem>({
   layout: 'grid',
   sort_by: 'time',
   sort_order: 'asc',
+  order_index: 0,
 });
 
-function handleClose() {
-  modalStatus.value = false;
+async function handleClose() {
   initForm();
+  const window = await WebviewWindow.getByLabel('operCategory');
+  window?.hide();
 }
 
 async function handleSelectDir() {
@@ -199,6 +203,10 @@ async function handleConfirm() {
         ...form.value,
       };
       await updateCategory(item);
+      // 更新启动项的排除搜索
+      await updateLaunchEnabledByCategory(item.id as number, item.exclude !== true);
+
+      EventBus.emit(AppEvent.UPDATE_CATEGORY_LIST);
     } else {
       const res = await addCategory(form.value);
       // 如果有关联目录 创建该目录下的启动项
@@ -216,22 +224,28 @@ async function handleConfirm() {
 }
 
 // 打开对话框
-EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, val => {
+EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, async val => {
+  initForm();
   isEdit.value = !!val;
   editItem.value = val;
-  if (val) setForm(val);
   modalStatus.value = true;
+  if (val) setForm(val);
+  const window = await WebviewWindow.getByLabel('operCategory');
+  window?.setTitle(isEdit.value ? '编辑分类' : '新建分类');
+  await window?.show();
+  await window?.setFocus();
 });
 </script>
 
 <style scoped>
 .n-modal {
   padding: 10px;
+  transition: none !important;
 }
 
 .n-card {
   width: 600px;
-  height: 350px;
+  height: 400px;
 }
 
 .n-col {

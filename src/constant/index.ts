@@ -50,6 +50,7 @@ export enum InvokeMethod {
   UPDATE_CATEGORY = 'update_category',
   DELETE_CATEGORY = 'delete_category',
   UPDATE_CATEGORY_ASS_DIR = 'update_category_ass_dir',
+  ENSURE_DEFAULT_CATEGORY = 'ensure_default_category',
 
   EXE_COMMAND = 'exe_command',
 

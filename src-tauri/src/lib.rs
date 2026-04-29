@@ -8,6 +8,7 @@ use commands::add_or_update_autocomplete::add_or_update_autocomplete;
 use commands::delete_category::delete_category;
 use commands::delete_launch::delete_launch;
 use commands::delete_launch_by_category::delete_launch_by_category;
+use commands::ensure_default_category::ensure_default_category;
 use commands::exe_command::exe_command;
 use commands::get_app_config::get_app_config;
 use commands::get_autocomplete::get_autocomplete;
@@ -115,7 +116,8 @@ pub fn run() {
             delete_category,
             restart_app,
             update_launch_enabled_by_category,
-            get_category_by_id
+            get_category_by_id,
+            ensure_default_category
         ])
         .setup(|app| {
             let db = tauri::async_runtime::block_on(async {
@@ -126,7 +128,7 @@ pub fn run() {
             let main_window = app.get_webview_window("main").unwrap();
             let search_window = app.get_webview_window("search").unwrap();
             let setting_window = app.get_webview_window("setting").unwrap();
-            let transparent_drag_window = app.get_webview_window("transparentDrag").unwrap();
+
 
             main_window.on_window_event(|event| {
                 if let WindowEvent::CloseRequested { api, .. } = event {
@@ -143,11 +145,7 @@ pub fn run() {
                     api.prevent_close();
                 }
             });
-            transparent_drag_window.on_window_event(|event| {
-                if let WindowEvent::CloseRequested { api, .. } = event {
-                    api.prevent_close();
-                }
-            });
+ 
 
             // 初始化应用配置
             app.manage(Mutex::new(AppConfigState::default()));
@@ -158,9 +156,6 @@ pub fn run() {
                 if let Some(main_window) = app.get_webview_window("main") {
                     main_window.open_devtools();
                 }
-                // if let Some(transparent_drag_window) = app.get_webview_window("transparentDrag") {
-                //     transparent_drag_window.open_devtools();
-                // }
             }
 
             // 创建系统托盘

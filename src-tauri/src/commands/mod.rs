@@ -4,6 +4,7 @@ pub mod add_or_update_autocomplete;
 pub mod delete_category;
 pub mod delete_launch;
 pub mod delete_launch_by_category;
+pub mod ensure_default_category;
 pub mod exe_command;
 pub mod get_app_config;
 pub mod get_autocomplete;

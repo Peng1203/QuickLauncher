@@ -46,9 +46,10 @@ const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch, removeCa
   useCategoryCorrelationDir();
 const { handleLayoutOrderSortChange } = useCategorySort(toRefs(props).item);
 
-const { activeCategoryItem } = storeToRefs(store);
+const { activeCategoryItem, defaultCategory } = storeToRefs(store);
 
 const isAssociationDirectory = computed(() => !!props.item?.association_directory);
+const isDefaultCategory = computed(() => props.item?.id !== defaultCategory.value?.id);
 const isCurrentSelected = computed(() => store.activeCategory === props.item.id);
 
 function renderIcon(icon: string) {
@@ -77,7 +78,7 @@ const menuOptions = computed(() => [
     label: props.item?.exclude ? '搜索排除 (✅)' : '搜索排除',
     key: 'exclude',
     icon: renderIcon('icon-paichusousuo'),
-    // show: item.
+    show: isDefaultCategory.value,
     props: {
       style: props.item?.exclude ? 'color: var(--n-color-danger);font-weight: bold;' : '',
     },
@@ -86,7 +87,7 @@ const menuOptions = computed(() => [
     label: isAssociationDirectory.value ? '关联目录 (✅)' : '关联目录',
     key: 'correlation',
     icon: renderIcon('icon-guanlian'),
-    // show: !isAssociationDirectory.value,
+    show: isDefaultCategory.value,
     props: {
       style: isAssociationDirectory.value ? 'color: var(--n-color-danger);font-weight: bold;' : '',
     },
@@ -100,6 +101,7 @@ const menuOptions = computed(() => [
   {
     type: 'divider',
     key: 'd1',
+    show: isDefaultCategory.value,
   },
   {
     label: '重命名',
@@ -121,11 +123,13 @@ const menuOptions = computed(() => [
     label: '创建子分类',
     key: 'create-sub-category',
     icon: renderIcon('icon-tianjiazifenlei'),
+    show: isDefaultCategory.value,
   },
   {
     label: '删 除',
     key: 'delete',
     icon: renderIcon('icon-shanchufenlei'),
+    show: isDefaultCategory.value,
   },
   {
     type: 'divider',
@@ -377,8 +381,8 @@ async function handleDelete() {
         await deleteCategory(id);
         // 当删除的分类为当前选择的分类时 重置到默认分类
         if (id === store.activeCategory) {
-          store.activeCategory = -1;
-          await store.getLaunchData();
+          // store.activeCategory = defaultCategory.value.id;
+          await store.handleChangeCategory(defaultCategory.value.id);
         }
         await store.getCategoryData();
         resolve(true);

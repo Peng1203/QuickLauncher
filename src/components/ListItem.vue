@@ -1,12 +1,12 @@
 <template>
   <div
+    ref="itemRef"
     class="item cursor-pointer select-none rounded transition-colors"
     :class="[
       isGridMode
         ? 'flex flex-col items-center min-w-20 h-18 hover:bg-gray-100/60'
         : 'flex items-center px-3 py-2 hover:bg-gray-100',
     ]"
-    :title="item.remarks || name"
     :style="isActive ? { backgroundColor: '#f5f5f5 !important' } : {}"
     tabindex="0"
     @click="handleActive"
@@ -14,6 +14,7 @@
     @keydown="handleKeydown"
     @contextmenu.prevent.stop="handleShowContextMenu"
   >
+    <!-- :title="item.remarks || name" -->
     <img
       :src="icon"
       alt="icon"
@@ -72,7 +73,7 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
-const { activeCategoryItem, activeLaunchItem } = storeToRefs(store);
+const { activeCategoryItem, activeLaunchItem, launchData, activeCursorX, activeCursorY } = storeToRefs(store);
 
 // 鼠标单击选中的项
 const activeItems = defineModel<LaunchItem[]>();
@@ -97,7 +98,11 @@ function handleKeydown(e: KeyboardEvent) {
     //   handleEditName();
     //   break;
     case 'Enter': // 13
-      handleSaveEditName();
+      if (isEdit.value) {
+        handleSaveEditName();
+      } else {
+        isActive.value && handleRun();
+      }
       e.preventDefault();
       break;
     case 'Escape': // 27
@@ -174,11 +179,20 @@ function handleShowContextMenu(e: MouseEvent) {
     });
   }, 100);
 }
+const gridRowMaxItem = computed(() => (activeCategoryItem.value?.layout === 'list' ? 1 : 6));
 
 // e?: PointerEvent
 function handleActive() {
   isEdit.value = false;
+  // 手动点击选择启动项时 更新选中的坐标
+  const i = launchData.value.findIndex(item => item.id === props.item.id);
+  if (i === -1) return;
+  const posX = Math.ceil((i + 1) / gridRowMaxItem.value);
+  const posY = (i + 1) % gridRowMaxItem.value || gridRowMaxItem.value;
+  activeCursorX.value = posX;
+  activeCursorY.value = posY;
   activeLaunchItem.value = props.item;
+
   // 当用户同时按下ctrl + 点击时为复选操作
   // if (e?.ctrlKey) {
   //   // 判断当前按下的启动项是否已经在复选列表中 如果存在则从复选列表中移除
@@ -194,8 +208,8 @@ function handleActive() {
   //   activeItems.value = [props.item];
   // }
 }
-const { dialog } = useNaiveUiApi();
 
+const { dialog } = useNaiveUiApi();
 async function handleDelete() {
   // 当分类 所属分类关联了目录时 禁止删除操作
   // if (appConfigStore.confirmBeforeDelete) {
@@ -219,7 +233,6 @@ async function handleDelete() {
       onNegativeClick: () => resolve(false),
     });
   });
-  console.log(`%c answer ----`, 'color: #fff;background-color: #000;font-size: 18px', answer);
   if (!answer) return;
 
   await deleteLaunch(props.item.id);
@@ -227,7 +240,19 @@ async function handleDelete() {
   if (props.item.id === activeLaunchItem.value?.id) activeLaunchItem.value = null;
 }
 
-defineExpose({ handleEditName, handleDelete });
+const el = useTemplateRef('itemRef');
+function scrollItemIntoView() {
+  if (!el.value) return;
+
+  el.value.scrollIntoView({
+    behavior: 'smooth', // 改成 auto 可立即滚动
+    block: 'nearest', // 只在超出可视区时滚动
+    inline: 'nearest',
+  });
+  el.value?.focus();
+}
+
+defineExpose({ handleEditName, handleDelete, scrollItemIntoView });
 </script>
 
 <style scoped lang="scss">

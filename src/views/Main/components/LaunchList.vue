@@ -1,5 +1,6 @@
 <template>
   <n-layout-content
+    id="list-container"
     ref="launchListContainerRef"
     tabindex="-1"
     class="overflow-auto m-1"
@@ -11,7 +12,7 @@
       tag="div"
       class="relative"
       :class="
-        mode === 'list'
+        isListMode
           ? 'flex flex-col divide-y divide-gray-100 mb-6'
           : 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 draggable gap-0.5'
       "
@@ -36,8 +37,6 @@
     >
       {{ isConrrelationDir ? '空文件夹' : '拖动文件到该区域' }}
     </div>
-    <!-- {{ categoryModalStatus }} -->
-    <!-- {{ mode }} -->
   </n-layout-content>
 
   <!-- 启动项列表 空白处右键菜单 -->
@@ -45,9 +44,6 @@
     v-model="contextMenuVisible"
     :position="contextMenuPosition"
   />
-
-  <!-- 新增/编辑 启动项 -->
-  <OperationLaunchModal v-model="launchModalStatus" />
 </template>
 
 <script setup lang="ts">
@@ -59,27 +55,20 @@ import { nextTick, ref } from 'vue';
 import { addLaunch, getFileInfo } from '@/api';
 import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
-import OperationLaunchModal from '@/components/OperationLaunchModal.vue';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
-const props = defineProps<{
-  categoryModalStatus: boolean;
-}>();
 const store = useStore();
 const { launchData, activeCategory, activeCategoryItem, activeLaunchItem } = storeToRefs(store);
 const { isConrrelationDir } = useCategoryCorrelationDir();
-const launchModalStatus = ref(false);
 const currentWindow = getCurrentWebviewWindow();
-const mode = computed(() => activeCategoryItem.value?.layout || 'grid');
+const isListMode = computed(() => activeCategoryItem.value.layout === 'list');
 
 currentWindow.onDragDropEvent(async e => {
   // 防止在关联目录分类下手动拖拽添加启动项
   if (isConrrelationDir.value) return;
-  // 当添加对话框打开时不触发后续操作 防止和对话框拖拽事件相互影响
-  if (launchModalStatus.value || props.categoryModalStatus) return;
 
   // TODO 分类对话框打开
   if (e.payload.type === 'drop') {
@@ -138,14 +127,24 @@ EventBus.listen(AppEvent.LAUNCH_RENAME, () => {
 
 // 处理窗口内部 Delete 快捷键
 EventBus.listen(AppEvent.DELETE_LAUNCH, () => {
-  console.log(`%c 1111 ----`, 'color: #fff;background-color: #000;font-size: 18px', 1111);
   if (isEmpty(activeLaunchItem.value)) return;
   const itemRef = itemRefs.value[activeLaunchItem.value.id];
   itemRef?.handleDelete();
 });
+
+watch(
+  () => activeLaunchItem.value,
+  val => {
+    console.log(`%c val ----`, 'color: #fff;background-color: #000;font-size: 18px', val);
+    if (val) {
+      const itemRef = itemRefs.value[val.id];
+      itemRef?.scrollItemIntoView();
+    }
+  },
+);
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .list-move {
   transition: all 0.25s ease;
 }

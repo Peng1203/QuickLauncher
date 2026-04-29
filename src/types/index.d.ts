@@ -144,6 +144,7 @@ declare global {
     layout: LayoutType;
     sort_by: SortByType;
     sort_order: SortOrderType;
+    order_index: ?number;
     icon: string | null;
     created_at: string;
     updated_at: string;

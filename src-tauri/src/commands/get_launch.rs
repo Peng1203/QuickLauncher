@@ -1,5 +1,7 @@
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, Order, QueryFilter, QueryOrder};
+use sea_orm::{
+    ColumnTrait, Condition, DatabaseConnection, EntityTrait, Order, QueryFilter, QueryOrder,
+};
 use tauri::State;
 
 use crate::entity;
@@ -7,6 +9,7 @@ use crate::entity;
 #[tauri::command]
 pub async fn get_launch(
     category_id: i32,
+    default_category: Option<bool>,
     sort_by: Option<String>,
     sort_order: Option<String>,
     enabled: Option<bool>,
@@ -14,11 +17,19 @@ pub async fn get_launch(
 ) -> Result<Vec<Model>, String> {
     let mut query = LaunchItems::find();
 
+    // 默认为 false
+    let default_category = default_category.unwrap_or(false);
+
     // ------------------------
     // category 过滤
     // ------------------------
-    if category_id == -1 {
-        query = query.filter(Column::CategoryId.is_null());
+    if default_category {
+        // 默认分类：查询 category_id 为 null 或 当前分类 id
+        query = query.filter(
+            Condition::any()
+                .add(Column::CategoryId.is_null())
+                .add(Column::CategoryId.eq(category_id)),
+        );
     } else {
         query = query.filter(Column::CategoryId.eq(category_id));
     }
@@ -60,7 +71,7 @@ pub async fn get_launch(
             "type" => {
                 query
                     .order_by(Column::Type, order.clone())
-                    .order_by(Column::Extension, order) // ✅ 次排序
+                    .order_by(Column::Extension, order) // 次排序
             }
             "time" => query.order_by(Column::CreatedAt, order),
             "order" => query.order_by(Column::OrderIndex, order),

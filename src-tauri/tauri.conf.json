@@ -13,7 +13,8 @@
   "app": {
     "windows": [
       {
-        "title": "Main",
+        "title": "Quick Launcher",
+        "label": "main",
         "width": 800,
         "height": 600,
         "dragDropEnabled": true,
@@ -55,22 +56,30 @@
         "skipTaskbar": false
       },
       {
-        "title": "TransparentDrag",
-        "label": "transparentDrag",
+        "title": "Operation Launch",
+        "label": "operLaunch",
         "width": 600,
-        "height": 560,
-        "url": "/#/transparentDrag",
-        "skipTaskbar": true,
-        "transparent": true,
+        "height": 400,
+        "url": "/#/operLaunch",
+        "visible": false,
+        "center": false,
+        "dragDropEnabled": true,
         "decorations": false,
         "resizable": false,
-        "alwaysOnTop": true,
-        "shadow": false,
-        "focus": false,
+        "skipTaskbar": false
+      },
+      {
+        "title": "Operation Category",
+        "label": "operCategory",
+        "width": 600,
+        "height": 400,
+        "url": "/#/operCategory",
         "visible": false,
-        "backgroundColor": null,
+        "center": false,
         "dragDropEnabled": true,
-        "contentProtected": true
+        "decorations": false,
+        "resizable": false,
+        "skipTaskbar": false
       }
     ],
     "security": {
@@ -80,13 +89,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "windows": {
       "allowDowngrades": true,
       "certificateThumbprint": null,

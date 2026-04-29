@@ -287,7 +287,7 @@ function handleKeydown(e: KeyboardEvent) {
   } else {
     spaceCounter.value = 0;
   }
-
+  console.log(`%c aaa ----`, 'color: #fff;background-color: #000;font-size: 18px');
   // 组合按键对应的处理
   if (ctrlKey && key === 'p') {
     // 切换模式 ctrl + p
@@ -315,9 +315,12 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       break;
     case 13: // Enter 键
+      console.log(`%c 111 ----`, 'color: #fff;background-color: #000;font-size: 18px', 111);
       if (isTranslationModel.value) {
+        console.log(`%c 222 ----`, 'color: #fff;background-color: #000;font-size: 18px', 222);
         translationRef.value?.handleEnter();
       } else {
+        console.log(`%c 333 ----`, 'color: #fff;background-color: #000;font-size: 18px', 333);
         searchFlag.value && handleEnter();
       }
       break;

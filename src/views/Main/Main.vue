@@ -12,18 +12,18 @@
     >
       <Sidebar />
 
-      <LaunchList :category-modal-status="categoryModalStatus" />
+      <LaunchList />
+      {{ store.categoryOptions.length }}
     </n-layout>
 
     <Footer />
-
-    <OperationCategoryModal v-model="categoryModalStatus" />
   </n-layout>
 </template>
 
 <script setup lang="ts">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { ref } from 'vue';
+import { ensureDefaultCategory } from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
@@ -38,8 +38,6 @@ const store = useStore();
 
 const { appConfigStore } = useAppConfig();
 
-const categoryModalStatus = ref(false);
-
 const currentWindow = getCurrentWebviewWindow();
 
 let timer: any;
@@ -52,6 +50,7 @@ currentWindow.onMoved(({ payload: position }) => {
 });
 
 EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData);
+EventBus.listen(AppEvent.UPDATE_CATEGORY_LIST, store.getCategoryData);
 
 useLoadConfig();
 
@@ -62,66 +61,38 @@ const { registerAllCategoryDirWatch } = useCategoryCorrelationDir();
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
-async function getCategorys() {
-  await store.getCategoryData();
-  registerAllCategoryDirWatch();
-}
-
-const retryCounter1 = ref(0);
-const retryCounter2 = ref(0);
 
 async function initCategoryData() {
   try {
-    if (retryCounter1.value >= 20) return;
-    await delay(50);
-    await getCategorys();
+    await store.getCategoryData(true);
+    registerAllCategoryDirWatch();
   } catch (e) {
     console.log('initCategoryData', e);
-    retryCounter1.value++;
-    await initCategoryData();
   }
 }
 
 async function initLaunchData() {
   try {
-    if (retryCounter2.value >= 20) return;
-    await delay(50);
     await store.getLaunchData();
   } catch (e) {
     console.log('initLaunchData', e);
-    retryCounter2.value++;
-    await initLaunchData();
   }
 }
 
-initCategoryData().then(initLaunchData);
+const retryCounter = ref(0);
+async function initData() {
+  try {
+    if (retryCounter.value >= 20) return;
+    await delay(50);
+    await ensureDefaultCategory().then(initCategoryData).then(initLaunchData);
+  } catch (e) {
+    console.log('initData', e);
+    retryCounter.value++;
+    await initData();
+  }
+}
 
-// watchImmediate(
-//   'C:\\Users\\Mayn\\Desktop\\FTTH APP截图',
-//   event => {
-//     console.log(`%c event ----`, 'color: #fff;background-color: #000;font-size: 18px', event)
-//   },
-//   { baseDir: BaseDirectory.Desktop }
-// )
-
-// listen<AppConfigState>(AppEvent.UPDATE_APP_CONFIG_DATA, val => {
-//   for (const key in val.payload) {
-//     // @ts-ignore
-//     appConfigStore[key] = val.payload[key]
-//   }
-// })
-
-// const transparentDragWindow = ref<WebviewWindow | null>(null);
-// const launchListContainerRef = useTemplateRef('launchListContainerRef');
-// function showTransparentDragWindow() {
-//   transparentDragWindow.value?.show();
-//   transparentDragWindow.value?.setPosition(
-//     new LogicalPosition(
-//       appConfigStore.mainWindowPositionX + 192 + 12,
-//       appConfigStore.mainWindowPositionY + 32 + 4
-//     )
-//   );
-// }
+initData();
 </script>
 
 <style scoped lang="scss">

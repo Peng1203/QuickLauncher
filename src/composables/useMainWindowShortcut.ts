@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia';
 
 export function useMainWindowShortcut() {
   const store = useStore();
-  const { activeCategoryItem, activeLaunchItem } = storeToRefs(store);
+  const { activeCategoryItem, activeLaunchItem, activeCursorX, activeCursorY, launchData } = storeToRefs(store);
 
   const EVENT = 'keydown';
 
@@ -34,12 +34,145 @@ export function useMainWindowShortcut() {
       case 'Delete': // 删除
         handleDelete();
         break;
+      case 'ArrowUp':
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case 'ArrowLeft':
+        handleMoveSelection(key);
+        break;
 
       default:
         break;
     }
-    e.preventDefault();
+    // e.preventDefault();
   };
+
+  const gridRowMaxItem = computed(() => (activeCategoryItem.value?.layout === 'list' ? 1 : 6));
+  const rowTotal = computed(() => Math.ceil((launchData.value.length + 1) / gridRowMaxItem.value));
+  const navigationMap = computed(() => {
+    const map = new Map();
+    launchData.value.forEach((item, i) => {
+      const posX = Math.ceil((i + 1) / gridRowMaxItem.value);
+      const posY = (i + 1) % gridRowMaxItem.value || gridRowMaxItem.value;
+      map.set(`${posX},${posY}`, item);
+    });
+    return map;
+  });
+  function handleMoveSelection(key: string) {
+    // 当前没有选中 列表元素时执行分类上下切换的快捷键
+
+    // if (!launchData.value.length) return;
+
+    // 初始坐标可以通过右方向键选中
+    if (key === 'ArrowRight' && launchData.value.length && !activeCursorX.value && !activeCursorY.value) {
+      activeCursorX.value = 1;
+      activeCursorY.value = 1;
+    } else {
+      switch (key) {
+        case 'ArrowUp': {
+          const nextX = activeCursorX.value - 1;
+          if (nextX < 1) return;
+
+          let nextY = activeCursorY.value;
+
+          while (nextY > 0) {
+            if (navigationMap.value.has(`${nextX},${nextY}`)) {
+              activeCursorX.value = nextX;
+              activeCursorY.value = nextY;
+              break;
+            }
+            nextY--;
+          }
+
+          break;
+        }
+
+        case 'ArrowDown': {
+          const nextX = activeCursorX.value + 1;
+          if (nextX > rowTotal.value) return;
+
+          let nextY = activeCursorY.value;
+
+          while (nextY > 0) {
+            if (navigationMap.value.has(`${nextX},${nextY}`)) {
+              activeCursorX.value = nextX;
+              activeCursorY.value = nextY;
+              break;
+            }
+            nextY--;
+          }
+
+          break;
+        }
+        case 'ArrowLeft': {
+          // 如果处于第一个选中的启动项 再次按下时 回到初始状态 取消选中元素
+          if (activeCursorX.value === 1 && activeCursorY.value === 1) {
+            activeCursorX.value = 0;
+            activeCursorY.value = 0;
+            // document.body.focus();
+            const siderEl = document.querySelector('#layoutSider') as any;
+            siderEl?.focus();
+          } else {
+            const nextY = activeCursorY.value - 1;
+            // 当前行正常左移
+            if (nextY >= 1 && navigationMap.value.has(`${activeCursorX.value},${nextY}`)) {
+              activeCursorY.value = nextY;
+              break;
+            }
+
+            // 当前已经是第一个元素 -> 跳上一行最后一个
+            const prevX = activeCursorX.value - 1;
+            if (prevX < 1) return;
+
+            let lastY = gridRowMaxItem.value;
+
+            while (lastY > 0) {
+              if (navigationMap.value.has(`${prevX},${lastY}`)) {
+                activeCursorX.value = prevX;
+                activeCursorY.value = lastY;
+                break;
+              }
+              lastY--;
+            }
+          }
+
+          break;
+        }
+
+        case 'ArrowRight': {
+          const nextY = activeCursorY.value + 1;
+
+          // 当前行正常右移
+          if (navigationMap.value.has(`${activeCursorX.value},${nextY}`)) {
+            activeCursorY.value = nextY;
+            break;
+          }
+
+          // 当前已经是最后一个元素 -> 跳下一行第一个
+          const nextX = activeCursorX.value + 1;
+          if (nextX > rowTotal.value) return;
+
+          let firstY = 1;
+
+          while (firstY <= gridRowMaxItem.value) {
+            if (navigationMap.value.has(`${nextX},${firstY}`)) {
+              activeCursorX.value = nextX;
+              activeCursorY.value = firstY;
+              break;
+            }
+            firstY++;
+          }
+
+          break;
+        }
+      }
+    }
+
+    const position = `${activeCursorX.value},${activeCursorY.value}`;
+    const nextItem = navigationMap.value.get(position);
+    if (!nextItem) return (activeLaunchItem.value = null);
+    activeLaunchItem.value = nextItem;
+  }
 
   /**
    * 重命名 分为分类重命名和启动项重命名
@@ -80,7 +213,6 @@ export function useMainWindowShortcut() {
 
   function handleDelete() {
     const isEmp = isEmpty(activeLaunchItem.value);
-    console.log(`%c isEmp ----`, 'color: #fff;background-color: #000;font-size: 18px', isEmp);
     isEmp ? EventBus.emit(AppEvent.DELETE_CATEGORY) : EventBus.emit(AppEvent.DELETE_LAUNCH);
   }
 

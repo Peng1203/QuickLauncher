@@ -1,6 +1,7 @@
 <template>
   <n-modal
     v-model:show="modalStatus"
+    data-tauri-drag-region
     transform-origin="center"
     :mask-closable="false"
     :on-esc="handleClose"
@@ -40,6 +41,9 @@
           :tab="item.label"
         >
           <div style="max-height: 310px; overflow-y: auto">
+            <!-- {{ { ...form, icon: '' } }} -->
+            <!-- -- {{ appConfigStore }} -->
+
             <n-form
               ref="formRef"
               size="small"
@@ -281,7 +285,6 @@
                       :path="sItem.prop"
                     >
                       <!-- TODO 使用级联选择器 -->
-                      <!-- {{ form }} -->
                       <n-select
                         v-model:value="form.category_id"
                         clearable
@@ -366,13 +369,14 @@ import { storeToRefs } from 'pinia';
 import { computed, nextTick, ref } from 'vue';
 import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
 import BrowerPicker from '@/components/BrowserPicker.vue';
+import IconPicker from '@/components/IconPicker.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
+import { useFormState } from '@/composables/useFormState';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
+import piniaStore from '@/store';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
-import IconPicker from './IconPicker.vue';
-
 // 表单字段 schema 类型
 interface FieldSchema {
   prop: keyof NewLaunchItem;
@@ -392,7 +396,7 @@ type LaunchItemType = NewLaunchItem['type'];
 
 const modalStatus = defineModel<boolean>({ default: true });
 
-const store = useStore();
+const store = useStore(piniaStore);
 const { categoryOptions, activeCategory } = storeToRefs(store);
 
 const { appConfigStore } = useAppConfig();
@@ -501,7 +505,11 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
   ],
 };
 
-const form = ref<NewLaunchItem>({
+const {
+  form,
+  initForm,
+  setForm: _setForm,
+} = useFormState<NewLaunchItem>({
   name: '',
   lnk_name: '',
   path: '',
@@ -540,10 +548,11 @@ const isEdit = ref<boolean>(false);
 
 const urlInfoLoading = ref(false);
 
-function handleClose() {
-  modalStatus.value = false;
+async function handleClose() {
   urlInfoLoading.value = false;
   initForm();
+  const window = await WebviewWindow.getByLabel('operLaunch');
+  window?.hide();
 }
 
 async function getUrlInfo() {
@@ -564,26 +573,6 @@ async function getUrlInfo() {
   }
 }
 
-function initForm() {
-  form.value.type = launchTypes[0].value;
-  form.value.name = '';
-  form.value.path = '';
-  form.value.icon = '';
-  form.value.hotkey = '';
-  form.value.hotkey_global = false;
-  form.value.keywords = '';
-  form.value.start_dir = '';
-  form.value.remarks = '';
-  form.value.args = '';
-  form.value.run_as_admin = false;
-  form.value.order_index = 0;
-  form.value.enabled = true;
-  form.value.category_id = null;
-  form.value.subcategory_id = null;
-
-  form.value.extension = null;
-}
-
 function handleTypeChange(val: LaunchItemType) {
   initForm();
   nextTick(() => {
@@ -598,15 +587,7 @@ function setForm(fileInfo: FileInfo) {
   form.value.run_as_admin = false;
   form.value.hotkey_global = false;
 
-  form.value.name = fileInfo.name;
-  form.value.lnk_name = fileInfo.lnk_name;
-  form.value.path = fileInfo.path;
-  form.value.icon = fileInfo.icon;
-  form.value.type = fileInfo.type;
-  form.value.extension = fileInfo.extension;
-  form.value.args = fileInfo.args;
-  form.value.remarks = fileInfo.remarks;
-  form.value.start_dir = fileInfo.start_dir;
+  _setForm(fileInfo);
 }
 
 async function handleSelectLaunch() {
@@ -663,31 +644,10 @@ async function handleConfirm() {
 
 const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'));
 
-// 打开对话框
-EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async val => {
-  isEdit.value = !!val;
-  editItem.value = val;
-  // 判断当前窗口是否处于展示状态
-  const mainWindow = await WebviewWindow.getByLabel('main');
-  const visible = await mainWindow?.isVisible();
-  if (!visible) await mainWindow?.show();
-
-  if (isEdit.value) {
-    for (const key in form.value) {
-      // @ts-expect-error
-      form.value[key] = val[key];
-    }
-  } else {
-    // 新建时 设置默认选中的分类
-    if (activeCategory.value !== -1) form.value.category_id = activeCategory.value;
-  }
-
-  modalStatus.value = true;
-});
-
+// 拖拽
 getCurrentWebviewWindow().onDragDropEvent(async e => {
+  if (isEdit.value) return;
   // 当添加对话框没打开时不触发后续操作 防止和外层 拖拽事件相互影响
-  if (!modalStatus.value) return;
   if (e.payload.type === 'drop') {
     if (!e.payload.paths.length) return;
     const path = e.payload.paths[0];
@@ -704,11 +664,33 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
     }
   }
 });
+
+// 打开对话框
+EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async val => {
+  initForm();
+  isEdit.value = !!val;
+  editItem.value = val;
+  if (isEdit.value) {
+    _setForm(val!);
+  } else {
+    // 新建时 设置默认选中的分类
+    if (activeCategory.value !== -1) form.value.category_id = activeCategory.value;
+  }
+
+  modalStatus.value = true;
+
+  // 判断当前窗口是否处于展示状态
+  const window = await WebviewWindow.getByLabel('operLaunch');
+  window?.setTitle(isEdit.value ? '编辑启动项' : '新建启动项');
+  await window?.show();
+  await window?.setFocus();
+});
 </script>
 
 <style scoped>
 .n-modal {
   padding: 10px;
+  transition: none !important;
 }
 
 .n-card {

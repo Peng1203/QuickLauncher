@@ -125,8 +125,9 @@ export function getLaunchs<T = LaunchItem>(
   sortBy?: SortByType,
   sortOrder?: SortOrderType,
   enable?: boolean,
+  defaultCategory?: boolean,
 ) {
-  return invoke<T[]>(InvokeMethod.GET_LAUNCH, { categoryId, sortBy, sortOrder, enable });
+  return invoke<T[]>(InvokeMethod.GET_LAUNCH, { categoryId, defaultCategory, sortBy, sortOrder, enable });
 }
 
 /**
@@ -237,6 +238,10 @@ export function updateCategoryAssDir({
  */
 export function getCategory() {
   return invoke<CategoryItem[]>(InvokeMethod.GET_CATEGORY);
+}
+
+export function ensureDefaultCategory() {
+  return invoke(InvokeMethod.ENSURE_DEFAULT_CATEGORY);
 }
 
 export function deleteCategory(id: number) {
