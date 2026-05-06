@@ -8,7 +8,7 @@
       :label-width="160"
       :show-feedback="false"
     >
-      <h3 class="!mt-[0]">启动</h3>
+      <h3 class="!mt-[0]">启用</h3>
       <n-form-item>
         <n-checkbox
           v-model:checked="appConfigStore.enableSearch"

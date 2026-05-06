@@ -8,7 +8,11 @@
       <!-- {{ activeTab }} -->
       <!-- {{ appConfigStore.center }} -->
 
-      <n-icon size="25" class="cursor-pointer" @click="handleClose">
+      <n-icon
+        size="25"
+        class="cursor-pointer"
+        @click="handleClose"
+      >
         <CloseOutline />
       </n-icon>
     </header>
@@ -39,6 +43,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { useAppConfig } from '@/composables/useAppConfig';
+import CommandAlias from './components/CommandAlias.vue';
 import GeneralPane from './components/General.vue';
 import NetworkPane from './components/Network.vue';
 import QuickSearchPane from './components/QuickSearch.vue';
@@ -52,11 +57,12 @@ const settingTabs = [
   { label: '常 规', value: 'general', contentComponent: GeneralPane },
   { label: '快速搜索', value: 'q_search', contentComponent: QuickSearchPane },
   { label: '网络搜索', value: 'n_search', contentComponent: WebSearchPane },
+  { label: '命令别名', value: 'command_alias', contentComponent: CommandAlias },
   { label: '翻 译', value: 'translation', contentComponent: Translation },
   { label: '网 络', value: 'network', contentComponent: NetworkPane },
 ];
 
-const activeTab = ref(settingTabs[1].value);
+const activeTab = ref(settingTabs[3].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 

@@ -286,3 +286,13 @@ export function deleteLaunchByCategory(categoryId: number) {
 export function updateLaunchEnabledByCategory(categoryId: number, enabled: boolean) {
   return invoke(InvokeMethod.UPDATE_LAUNCH_ENABLED_BY_CATEGORY, { categoryId, enabled });
 }
+
+/**
+ * @description 获取命令别名启动项
+ * @author Peng
+ *
+ * @returns {*}
+ */
+export function getAliasLaunch() {
+  return invoke<LaunchItem[]>(InvokeMethod.GET_ALIAS_LAUNCH);
+}

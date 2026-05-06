@@ -38,7 +38,9 @@ pub async fn search_launch(
         .select_only()
         .column(LIColumn::Id)
         .column(LIColumn::Name)
+        .column(LIColumn::Path)
         .column(LIColumn::Icon)
+        .column(LIColumn::Type)
         .column(LIColumn::CategoryId)
         .column(LIColumn::SubcategoryId)
         // category_name

@@ -9,11 +9,9 @@
       :show-feedback="false"
     >
       <div class="flex items-center justify-between">
-        <h3 class="!mt-[0]">启动</h3>
+        <h3 class="!mt-[0]">启用</h3>
 
-        <OpenDemoVideo
-          video-url="https://www.bilibili.com/video/BV1c7FKzKEc3"
-        />
+        <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1c7FKzKEc3" />
       </div>
       <n-form-item>
         <n-checkbox
@@ -34,11 +32,7 @@
           <p class="text-[12px] leading-3.5 text-gray-500 mt-1">
             输入
             <b class="text-black">
-              {{
-                appConfigStore.webSearchOpenModel
-                  ? '(英文状态) 冒号 + 关键字 + 空格'
-                  : '关键字 + 空格'
-              }}
+              {{ appConfigStore.webSearchOpenModel ? '(英文状态) 冒号 + 关键字 + 空格' : '关键字 + 空格' }}
             </b>
             使用网络搜索，例如使用谷歌搜索，输入
             <b class="text-black">
@@ -71,13 +65,15 @@
           :bordered="true"
           :single-line="true"
           :row-props="getRowProps"
-          :row-class-name="
-            ({ id }) => (id === activeRowId ? '!bg-gray-200' : '')
-          "
+          :row-class-name="({ id }) => (id === activeRowId ? '!bg-gray-200' : '')"
         />
       </n-form-item>
       <div class="mt-1 flex gap-1">
-        <n-button size="small" type="default" @click="handleAdd">
+        <n-button
+          size="small"
+          type="default"
+          @click="handleAdd"
+        >
           新 增
         </n-button>
         <n-button
@@ -100,7 +96,10 @@
           :label-width="60"
           :show-feedback="false"
         >
-          <n-form-item label="图标" class="mt-1 w-[90%]">
+          <n-form-item
+            label="图标"
+            class="mt-1 w-[90%]"
+          >
             <div class="flex items-end gap-2">
               <n-avatar
                 size="medium"
@@ -124,9 +123,16 @@
                 </template>
               </n-button>
 
-              <n-tooltip placement="bottom" trigger="click">
+              <n-tooltip
+                placement="bottom"
+                trigger="click"
+              >
                 <template #trigger>
-                  <n-button size="tiny" type="default" title="网络图片">
+                  <n-button
+                    size="tiny"
+                    type="default"
+                    title="网络图片"
+                  >
                     <template #icon>
                       <n-icon>
                         <LinkOutline />
@@ -137,7 +143,10 @@
                 <div class="text-gray-700">输入网络图片地址</div>
 
                 <n-input-group>
-                  <n-input v-model:value="onlineImgUrl" placeholder="" />
+                  <n-input
+                    v-model:value="onlineImgUrl"
+                    placeholder=""
+                  />
                   <n-button
                     type="info"
                     :loading="onlineImgUrlLoading"
@@ -149,9 +158,16 @@
                 </n-input-group>
               </n-tooltip>
 
-              <n-tooltip placement="bottom" trigger="click" title="网站图标">
+              <n-tooltip
+                placement="bottom"
+                trigger="click"
+                title="网站图标"
+              >
                 <template #trigger>
-                  <n-button size="tiny" type="default">
+                  <n-button
+                    size="tiny"
+                    type="default"
+                  >
                     <template #icon>
                       <n-icon>
                         <GlobeOutline />
@@ -161,7 +177,10 @@
                 </template>
                 <div class="text-gray-700">输入网站地址</div>
                 <n-input-group>
-                  <n-input v-model:value="webSiteUrl" placeholder="" />
+                  <n-input
+                    v-model:value="webSiteUrl"
+                    placeholder=""
+                  />
                   <n-button
                     type="info"
                     :loading="webSiteUrlLoading"
@@ -173,9 +192,16 @@
                 </n-input-group>
               </n-tooltip>
 
-              <n-tooltip placement="top" trigger="click" title="SVG 图标">
+              <n-tooltip
+                placement="top"
+                trigger="click"
+                title="SVG 图标"
+              >
                 <template #trigger>
-                  <n-button size="tiny" type="default">
+                  <n-button
+                    size="tiny"
+                    type="default"
+                  >
                     <template #icon>
                       <n-icon>
                         <CodeOutline />
@@ -203,30 +229,59 @@
               </n-tooltip>
             </div>
           </n-form-item>
-          <n-form-item label="名称" class="mt-1 w-[90%]">
-            <n-input v-model:value="sourceForm.name" placeholder="" />
+          <n-form-item
+            label="名称"
+            class="mt-1 w-[90%]"
+          >
+            <n-input
+              v-model:value="sourceForm.name"
+              placeholder=""
+            />
           </n-form-item>
 
-          <n-form-item label="关键字" class="mt-1 w-[90%]">
-            <n-input v-model:value="sourceForm.keywords" placeholder="" />
+          <n-form-item
+            label="关键字"
+            class="mt-1 w-[90%]"
+          >
+            <n-input
+              v-model:value="sourceForm.keywords"
+              placeholder=""
+            />
           </n-form-item>
 
-          <n-form-item label="网址" class="mt-1 w-[90%]">
+          <n-form-item
+            label="网址"
+            class="mt-1 w-[90%]"
+          >
             <n-input
               v-model:value="sourceForm.searchApi"
               placeholder="https://www.baidu.com/s?wd={w}"
             />
           </n-form-item>
 
-          <n-form-item label="描述" class="mt-1 w-[90%]">
-            <n-input v-model:value="sourceForm.desc" placeholder="" />
+          <n-form-item
+            label="描述"
+            class="mt-1 w-[90%]"
+          >
+            <n-input
+              v-model:value="sourceForm.desc"
+              placeholder=""
+            />
           </n-form-item>
 
           <div class="mt-1 flex gap-1">
-            <n-button size="small" type="info" @click="handleConfirm">
+            <n-button
+              size="small"
+              type="info"
+              @click="handleConfirm"
+            >
               确 认
             </n-button>
-            <n-button size="small" type="tertiary" @click="handleCancel">
+            <n-button
+              size="small"
+              type="tertiary"
+              @click="handleCancel"
+            >
               取 消
             </n-button>
           </div>
@@ -238,13 +293,7 @@
 
 <script setup lang="tsx">
 import { open } from '@tauri-apps/plugin-dialog';
-import {
-  ArrowUp,
-  CodeOutline,
-  GlobeOutline,
-  LinkOutline,
-  RefreshOutline,
-} from '@vicons/ionicons5';
+import { ArrowUp, CodeOutline, GlobeOutline, LinkOutline, RefreshOutline } from '@vicons/ionicons5';
 import { h } from 'vue';
 import { getLocalIconBase64, getOnlineImgBase64, getWebsiteInfo } from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
@@ -265,7 +314,13 @@ const columns = [
     // prettier-ignore
     width: 50,
     render: (row: WebSearchSource) =>
-      h(<n-avatar class="!bg-transparent mt-2" size={22} src={row.icon} />),
+      h(
+        <n-avatar
+          class="!bg-transparent mt-2"
+          size={22}
+          src={row.icon}
+        />,
+      ),
   },
   { title: '名称', key: 'name', width: 80, ellipsis: true },
   { title: '关键字', key: 'keywords', width: 100, ellipsis: true },
@@ -328,12 +383,7 @@ const onlineImgUrlLoading = ref<boolean>(false);
 async function handleGetOnlineImg() {
   try {
     onlineImgUrlLoading.value = true;
-    if (
-      !(
-        onlineImgUrl.value.includes('http://') ||
-        onlineImgUrl.value.includes('https://')
-      )
-    ) {
+    if (!(onlineImgUrl.value.includes('http://') || onlineImgUrl.value.includes('https://'))) {
       onlineImgUrl.value = `https://${onlineImgUrl.value}`;
     }
     const base64 = await getOnlineImgBase64(onlineImgUrl.value);
@@ -350,12 +400,7 @@ const webSiteUrlLoading = ref<boolean>(false);
 async function handleGetWebSiteUrl() {
   try {
     webSiteUrlLoading.value = true;
-    if (
-      !(
-        webSiteUrl.value.includes('http://') ||
-        webSiteUrl.value.includes('https://')
-      )
-    ) {
+    if (!(webSiteUrl.value.includes('http://') || webSiteUrl.value.includes('https://'))) {
       webSiteUrl.value = `https://${webSiteUrl.value}`;
     }
     const { icon, title }: any = await getWebsiteInfo(webSiteUrl.value);
@@ -384,9 +429,7 @@ async function handleConfirm() {
 }
 
 function handleSaveEdit() {
-  const editSource = webSearchSourceList.value.find(
-    item => item.id === sourceForm.value.id,
-  );
+  const editSource = webSearchSourceList.value.find(item => item.id === sourceForm.value.id);
   if (!editSource) return;
   for (const key in sourceForm.value) {
     // @ts-expect-error
@@ -396,9 +439,7 @@ function handleSaveEdit() {
   handleCancel();
 }
 function handleSaveAdd() {
-  const exists = webSearchSourceList.value.some(
-    item => item.keywords === sourceForm.value.keywords,
-  );
+  const exists = webSearchSourceList.value.some(item => item.keywords === sourceForm.value.keywords);
 
   if (exists) return message.warning('已存在相同关键字');
   webSearchSourceList.value.push({
@@ -416,9 +457,7 @@ function handleCancel() {
 }
 
 function handleDel() {
-  const index = webSearchSourceList.value.findIndex(
-    item => item.id === sourceForm.value.id,
-  );
+  const index = webSearchSourceList.value.findIndex(item => item.id === sourceForm.value.id);
 
   if (index === -1) return;
   webSearchSourceList.value.splice(index, 1);

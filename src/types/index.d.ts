@@ -3,7 +3,7 @@ import type { WebSearchOpenModel } from '@/constant';
 declare global {
   type DirectionType = 'up' | 'right' | 'down' | 'left';
 
-  type LaunchType = 'file' | 'directory' | 'url';
+  type LaunchType = 'file' | 'directory' | 'url' | 'alias';
   interface LaunchItem {
     id: number;
     name: string;
@@ -36,7 +36,10 @@ declare global {
     'id' | 'last_used_at' | 'created_at' | 'updated_at' | 'launch_count' | 'failure_count'
   >;
 
-  type SearchLauncItem = Pick<LaunchItem, 'id' | 'name' | 'icon' | 'category_id' | 'subcategory_id'> & {
+  type SearchLauncItem = Pick<
+    LaunchItem,
+    'id' | 'name' | 'path' | 'icon' | 'type' | 'category_id' | 'subcategory_id'
+  > & {
     category_name: string;
     subcategory_name: string;
   };
@@ -118,6 +121,8 @@ declare global {
     showSubCategory: boolean;
 
     confirmBeforeDelete: boolean;
+    /** 启动命令别名 */
+    enableCommandAlias: boolean;
   }
 
   type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja';

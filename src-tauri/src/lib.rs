@@ -35,6 +35,7 @@ use commands::update_category::update_category;
 use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
 use commands::update_launch_enabled_by_category::update_launch_enabled_by_category;
+use commands::get_alias_launch::get_alias_launch;
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
@@ -117,7 +118,8 @@ pub fn run() {
             restart_app,
             update_launch_enabled_by_category,
             get_category_by_id,
-            ensure_default_category
+            ensure_default_category,
+            get_alias_launch
         ])
         .setup(|app| {
             let db = tauri::async_runtime::block_on(async {

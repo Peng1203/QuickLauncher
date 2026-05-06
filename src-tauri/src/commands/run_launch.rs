@@ -1,4 +1,4 @@
-use crate::{common::utils::run_as_admin, entity};
+use crate::{commands::exe_command::exec_command_internal, common::utils::run_as_admin, entity};
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
 use sea_orm::{
     prelude::Expr, sea_query::prelude::Local, ColumnTrait, DatabaseConnection, DbErr, EntityTrait,
@@ -84,6 +84,8 @@ pub async fn run_launch(id: i32, db: tauri::State<'_, DatabaseConnection>) -> Re
             log::error!("无法打开URL: {}", e);
             return Err(format!("无法打开URL: {}", e));
         }
+    } else if launch_item.r#type == "alias" {
+        let _ = exec_command_internal(&launch_item.path);
     }
 
     // 更新启动项目的启动次数和最后使用时间
@@ -91,6 +93,7 @@ pub async fn run_launch(id: i32, db: tauri::State<'_, DatabaseConnection>) -> Re
         .await
         .map_err(|e| format!("更新启动次数失败: {}", e))?;
 
+    // 添加历史记录
     Ok(())
 }
 

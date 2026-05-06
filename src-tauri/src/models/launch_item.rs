@@ -25,7 +25,9 @@ pub struct NewLaunchItem {
 pub struct SearchLaunchItem {
     pub id: i32,
     pub name: String,
+    pub path: String,
     pub icon: Option<String>,
+    pub r#type: String,
     pub category_id: Option<i32>,
     pub category_name: Option<String>,
     pub subcategory_id: Option<i32>,

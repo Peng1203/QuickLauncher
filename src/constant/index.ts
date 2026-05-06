@@ -70,6 +70,9 @@ export enum InvokeMethod {
 
   // 判断前台窗口是否处于全屏
   IS_FOREGROUND_FULLSCREEN = 'is_foreground_fullscreen',
+
+  // 获取 命令别名启动项
+  GET_ALIAS_LAUNCH = 'get_alias_launch',
 }
 
 export enum AppEvent {

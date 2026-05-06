@@ -6,6 +6,7 @@ pub mod delete_launch;
 pub mod delete_launch_by_category;
 pub mod ensure_default_category;
 pub mod exe_command;
+pub mod get_alias_launch;
 pub mod get_app_config;
 pub mod get_autocomplete;
 pub mod get_category;

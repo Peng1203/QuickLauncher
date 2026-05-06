@@ -13,7 +13,6 @@
       <Sidebar />
 
       <LaunchList />
-      {{ store.categoryOptions.length }}
     </n-layout>
 
     <Footer />

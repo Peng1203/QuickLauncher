@@ -65,6 +65,8 @@ export const useAppConfigStore = defineStore(
       showSubCategory: true,
 
       confirmBeforeDelete: true,
+
+      enableCommandAlias: true,
     }),
     actions: {
       loadConfig(initData: AppConfigState) {

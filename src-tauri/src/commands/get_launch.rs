@@ -42,6 +42,11 @@ pub async fn get_launch(
     }
 
     // ------------------------
+    // 排除 alias
+    // ------------------------
+    query = query.filter(Column::Type.ne("alias"));
+
+    // ------------------------
     // 排序字段（白名单防止乱传）
     // ------------------------
     // if let Some(sort_by) = sort_by {

@@ -123,12 +123,20 @@
         >
           <!-- @mouseenter="selectedIndex = index" -->
           <div class="flex items-center">
-            <img
-              v-if="!isWebSearchModel"
-              :src="item.icon || ''"
-              alt="icon"
-              class="!m-2 object-contain pointer-events-none w-8"
-            />
+            <template v-if="!isWebSearchModel">
+              <n-icon
+                v-if="item.type === 'alias'"
+                size="32"
+                class="iconfont icon-minglinghangchaxun !m-2 text-[32px]"
+              />
+
+              <img
+                v-else
+                :src="item.icon || ''"
+                alt="icon"
+                class="!m-2 object-contain pointer-events-none w-8 h-8"
+              />
+            </template>
 
             <span class="!ml-0.5">{{ item.name }}</span>
           </div>
@@ -287,7 +295,6 @@ function handleKeydown(e: KeyboardEvent) {
   } else {
     spaceCounter.value = 0;
   }
-  console.log(`%c aaa ----`, 'color: #fff;background-color: #000;font-size: 18px');
   // 组合按键对应的处理
   if (ctrlKey && key === 'p') {
     // 切换模式 ctrl + p
@@ -421,26 +428,14 @@ async function handleEnter() {
 }
 
 async function handleEnterLaunch() {
-  /**
-   * 查询结果列表中是否有内容
-   *  有 则执行选中启动项
-   *  没有 则判断输入框内容执行对应的操作
-   *   1.如果是文件路径则打开对应文件
-   *   2.如果是目录则打开对应目录
-   *   3.如果是 URL 则打开对应的网页
-   *   4.如果不是则将输入内容传入命令执行
-   *
-   * 根据命令行执行结果 执行后续
-   * 如果为有效命令 执行并关闭搜索框
-   * 如果为无效命令 不做响应 (无法实现)
-   */
   if (!resultList.value.length) {
     await exeCommand(keyword.value);
     addOrUpdateAutocompleteRecord(keyword.value);
   } else {
     const item = resultList.value[selectedIndex.value];
     if (!item) return;
-    // 执行启动
+
+    // if (item.type === 'alias') await exeCommand(item.path);
     await runLaunch(item.id);
     // 更新列表中的启动次数
     EventBus.emit(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, item.id);
@@ -588,6 +583,7 @@ async function handleSearch() {
     launchs = await searchLaunch(keyword.value);
     // 当完成过一次搜索时 设置搜索标志位为 true 避免用户按的太快导致搜索结果没有出来执行后报错
     if (!searchFlag.value) searchFlag.value = true;
+    if (!appConfigStore.enableCommandAlias) launchs = launchs.filter(item => item.type !== 'alias');
   }
   resultList.value = launchs;
 
@@ -595,6 +591,7 @@ async function handleSearch() {
     current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
   }
 }
+
 function handleBlur() {
   if (appConfigStore.searchLostFocusHide) handleClose();
 }
@@ -626,7 +623,8 @@ const itemDetail = ref<LaunchItem>({
   failure_count: 0,
 });
 async function handleShowContextMenu(e: MouseEvent, item: SearchLauncItem) {
-  const { id, category_id } = item;
+  const { id, category_id, type } = item;
+  if (type === 'alias') return;
   const [launch, category] = await Promise.all([getLaunchByID(id), getCategoryByID(category_id!).catch(() => null)]);
   categoryItem.value = category;
   if (!launch) {
