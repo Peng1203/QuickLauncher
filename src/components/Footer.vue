@@ -38,7 +38,7 @@
       <!-- 目录关联状态信息 -->
       <span class="flex-s-c cursor-pointer">
         <n-icon
-          v-if="activeCategory !== -1 && activeCategoryItem?.association_directory"
+          v-if="activeCategoryItem?.association_directory"
           size="16"
           title="已关联目录"
           class="iconfont icon-guanlian"
@@ -228,18 +228,18 @@ import Kbd from './Kbd.vue';
 
 const store = useStore();
 
-const { activeCategory, activeCategoryItem, launchData, activeLaunchItem } = storeToRefs(store);
+const { activeCategoryItem, launchData, activeLaunchItem } = storeToRefs(store);
 const { handleLayoutOrderSortChange } = useCategorySort(activeCategoryItem);
 
 const shortcutKeys = [
   { combKey: false, keys: ['F2'], name: '重命名' },
   { combKey: false, keys: ['F4'], name: '编 辑' },
-  { combKey: false, keys: ['F5'], name: '刷 新' },
+  // { combKey: false, keys: ['F5'], name: '刷 新' },
   { combKey: false, keys: ['Esc'], name: '关闭窗口' },
   { combKey: false, keys: ['Delete'], name: '删 除' },
   // { combKey: true, keys: ['Alt', 'N'], name: '新 建' },
   // { combKey: true, keys: ['Alt', 'C'], name: '新建分类' },
-  { combKey: true, keys: ['Ctrl', 'P'], name: '快速定位' },
+  // { combKey: true, keys: ['Ctrl', 'P'], name: '快速定位' },
   { combKey: true, keys: ['Ctrl', 'Shift', 'N'], name: '新 建' },
   { combKey: true, keys: ['Ctrl', 'Shift', 'C'], name: '新建分类' },
   // { combKey: true, keys: ['Ctrl', 'Alt', 'S'], name: '打开设置' },
@@ -249,12 +249,6 @@ const shortcutKeys = [
 const version = ref<string>();
 
 const sortInfo = computed(() => {
-  // if (activeCategory.value === -1) {
-  //   return {
-  //     title: '名称',
-  //     icon: 'icon-mingchengpaixu',
-  //   };
-  // }
   switch (activeCategoryItem.value?.sort_by) {
     case 'name':
       return {

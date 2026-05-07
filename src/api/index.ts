@@ -296,3 +296,6 @@ export function updateLaunchEnabledByCategory(categoryId: number, enabled: boole
 export function getAliasLaunch() {
   return invoke<LaunchItem[]>(InvokeMethod.GET_ALIAS_LAUNCH);
 }
+export function getCategoryTree() {
+  return invoke<[]>(InvokeMethod.GET_CATEGORY_TREE);
+}

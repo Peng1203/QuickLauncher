@@ -212,7 +212,7 @@ const maxIndex = computed(() => categoryData.value.length - 1);
 const currentIndex = computed(() => categoryData.value.findIndex(item => item.id === activeCategory.value));
 const categoryItemRefs = shallowRef<any>({});
 async function handleCategorySwitchByKey(direction: DirectionType) {
-  if (maxIndex.value <= 1 || currentIndex.value === -1) return;
+  if (maxIndex.value <= 1) return;
   let newIndex = 0;
 
   switch (direction) {
@@ -266,7 +266,6 @@ EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
   cursor: text;
 }
 
-// /* 也可以添加动画 */
 // .editable-active {
 //   animation: editablePulse 0.3s ease-in-out;
 // }

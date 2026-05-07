@@ -1,12 +1,17 @@
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isEmpty } from 'lodash-es';
 import { storeToRefs } from 'pinia';
+import { useLaunchActive } from './useLaunchActive';
 
 export function useMainWindowShortcut() {
   const store = useStore();
+
   const { activeCategoryItem, activeLaunchItem, activeCursorX, activeCursorY, launchData } = storeToRefs(store);
+
+  const { gridRowMaxItem, getPositionByIndex } = useLaunchActive();
 
   const EVENT = 'keydown';
 
@@ -19,6 +24,9 @@ export function useMainWindowShortcut() {
     // console.log(`%c altKey ----`, 'color: #fff;background-color: #000;font-size: 18px', altKey);
 
     switch (key) {
+      case 'Escape': // 关闭窗口
+        handleCloseWindow();
+        break;
       case 'F2': // 重命名
         rename(e);
         break;
@@ -47,14 +55,17 @@ export function useMainWindowShortcut() {
     // e.preventDefault();
   };
 
-  const gridRowMaxItem = computed(() => (activeCategoryItem.value?.layout === 'list' ? 1 : 6));
+  async function handleCloseWindow() {
+    const mainWindow = await WebviewWindow.getByLabel('main');
+    mainWindow?.hide();
+  }
+
   const rowTotal = computed(() => Math.ceil((launchData.value.length + 1) / gridRowMaxItem.value));
   const navigationMap = computed(() => {
     const map = new Map();
     launchData.value.forEach((item, i) => {
-      const posX = Math.ceil((i + 1) / gridRowMaxItem.value);
-      const posY = (i + 1) % gridRowMaxItem.value || gridRowMaxItem.value;
-      map.set(`${posX},${posY}`, item);
+      const { x, y } = getPositionByIndex(i);
+      map.set(`${x},${y}`, item);
     });
     return map;
   });

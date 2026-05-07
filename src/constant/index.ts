@@ -73,6 +73,8 @@ export enum InvokeMethod {
 
   // 获取 命令别名启动项
   GET_ALIAS_LAUNCH = 'get_alias_launch',
+  // 获取分类启动项树形数据
+  GET_CATEGORY_TREE = 'get_category_tree',
 }
 
 export enum AppEvent {
@@ -105,6 +107,9 @@ export enum AppEvent {
 
   // 分类重命名
   LAUNCH_RENAME = 'launch_rename',
+
+  // 启动项定位
+  LAUNCH_POSITION = 'launch_position',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];

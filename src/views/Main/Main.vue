@@ -21,11 +21,13 @@
 
 <script setup lang="ts">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { ensureDefaultCategory } from '@/api';
 import { useAppConfig } from '@/composables/useAppConfig';
 import { useAppConfigActions } from '@/composables/useAppConfigActions';
 import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
+import { useLaunchActive } from '@/composables/useLaunchActive';
 import { useLoadConfig } from '@/composables/useLoadConfig';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
@@ -34,7 +36,7 @@ import LaunchList from './components/LaunchList.vue';
 import Sidebar from './components/Sidebar.vue';
 
 const store = useStore();
-
+const { launchData, activeLaunchItem, activeCursorX, activeCursorY } = storeToRefs(store);
 const { appConfigStore } = useAppConfig();
 
 const currentWindow = getCurrentWebviewWindow();
@@ -92,6 +94,18 @@ async function initData() {
 }
 
 initData();
+
+const { getPositionByIndex } = useLaunchActive();
+EventBus.listen(AppEvent.LAUNCH_POSITION, async (item: LaunchItem) => {
+  await store.handleChangeCategory(item.category_id!);
+
+  const i = launchData.value.findIndex(({ id }) => item.id === id);
+  if (i === -1) return;
+  const { x, y } = getPositionByIndex(i);
+  activeCursorX.value = x;
+  activeCursorY.value = y;
+  activeLaunchItem.value = item;
+});
 </script>
 
 <style scoped lang="scss">

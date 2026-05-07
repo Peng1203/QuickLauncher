@@ -91,7 +91,7 @@ currentWindow.onDragDropEvent(async e => {
         run_as_admin: false,
         order_index: 0,
         enabled: true,
-        category_id: activeCategory.value === -1 ? null : activeCategory.value,
+        category_id: activeCategory.value,
         subcategory_id: null,
         extension: fileInfo.extension,
       };

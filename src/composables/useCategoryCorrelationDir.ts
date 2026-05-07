@@ -17,10 +17,7 @@ export function useCategoryCorrelationDir() {
 
   const store = useStore();
   const { activeCategory, categoryData } = storeToRefs(store);
-  const activeCategoryItem = computed(() => {
-    if (activeCategory.value === -1) return null;
-    return categoryData.value.find(item => item.id === activeCategory.value);
-  });
+  const activeCategoryItem = computed(() => categoryData.value.find(item => item.id === activeCategory.value));
 
   const isConrrelationDir = computed(() => !!activeCategoryItem.value?.association_directory);
 

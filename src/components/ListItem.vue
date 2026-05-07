@@ -59,6 +59,7 @@ import { isEmpty } from 'lodash-es';
 import { storeToRefs } from 'pinia';
 import { deleteLaunch, renameLaunch, runLaunch } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
+import { useLaunchActive } from '@/composables/useLaunchActive';
 import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
@@ -179,34 +180,18 @@ function handleShowContextMenu(e: MouseEvent) {
     });
   }, 100);
 }
-const gridRowMaxItem = computed(() => (activeCategoryItem.value?.layout === 'list' ? 1 : 6));
+
+const { getPositionByIndex } = useLaunchActive();
 
 // e?: PointerEvent
 function handleActive() {
   isEdit.value = false;
   // 手动点击选择启动项时 更新选中的坐标
   const i = launchData.value.findIndex(item => item.id === props.item.id);
-  if (i === -1) return;
-  const posX = Math.ceil((i + 1) / gridRowMaxItem.value);
-  const posY = (i + 1) % gridRowMaxItem.value || gridRowMaxItem.value;
-  activeCursorX.value = posX;
-  activeCursorY.value = posY;
+  const { x, y } = getPositionByIndex(i);
+  activeCursorX.value = x;
+  activeCursorY.value = y;
   activeLaunchItem.value = props.item;
-
-  // 当用户同时按下ctrl + 点击时为复选操作
-  // if (e?.ctrlKey) {
-  //   // 判断当前按下的启动项是否已经在复选列表中 如果存在则从复选列表中移除
-  //   if (activeItemIds.value.includes(props.item.id)) {
-  //     const index = activeItems.value?.findIndex(item => item.id === props.item.id);
-
-  //     if (!index || index === -1) return;
-  //     activeItems.value?.splice(index, 1);
-  //   } else {
-  //     activeItems.value?.push(props.item);
-  //   }
-  // } else {
-  //   activeItems.value = [props.item];
-  // }
 }
 
 const { dialog } = useNaiveUiApi();

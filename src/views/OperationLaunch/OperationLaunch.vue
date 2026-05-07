@@ -65,7 +65,7 @@
                     :span="(sItem.span as any)"
                     class="!flex justify-start items-end"
                   >
-                    <n-avatar
+                    <NAvatar
                       size="large"
                       :style="form.icon ? 'background-color: transparent' : ''"
                       :src="form.icon || ''"
@@ -104,6 +104,34 @@
                       选 择
                     </n-button>
                     *支持拖拽
+                  </n-col>
+
+                  <n-col
+                    v-else-if="sItem.slot === 'appsSelectSlot'"
+                    :span="(sItem.span as any)"
+                  >
+                    <n-form-item
+                      :label="sItem.label"
+                      :path="sItem.prop"
+                    >
+                      <!-- <n-input
+                        v-model:value="(form[sItem.prop] as any)"
+                        placeholder=""
+                        :type="sItem.type || 'text'"
+                        :theme-overrides="inputTheme"
+                      /> -->
+                      <!-- {{ appsSelectValue }}
+                      {{ form.path }} -->
+                      <n-select
+                        v-model:value="appsSelectValue"
+                        multiple
+                        filterable
+                        placeholder=""
+                        :options="options"
+                        :render-label="renderLabel"
+                        :render-tag="renderMultipleSelectTag"
+                      />
+                    </n-form-item>
                   </n-col>
 
                   <n-col
@@ -292,7 +320,6 @@
                         :default-value="null"
                         :options="(categoryOptions as any)"
                       />
-                      <!-- :disabled="activeCategory !== -1" -->
                     </n-form-item>
                   </n-col>
 
@@ -365,9 +392,10 @@ import { invoke } from '@tauri-apps/api/core';
 import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
 import { AlertCircleOutline, Close } from '@vicons/ionicons5';
+import { NAvatar, NTag } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, nextTick, ref } from 'vue';
-import { addLaunch, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
+import { addLaunch, getCategoryTree, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
 import BrowerPicker from '@/components/BrowserPicker.vue';
 import IconPicker from '@/components/IconPicker.vue';
 import { useAppConfig } from '@/composables/useAppConfig';
@@ -406,6 +434,7 @@ const launchTypes = [
   { value: 'file', label: '文 件' },
   { value: 'directory', label: '文件夹' },
   { value: 'url', label: '网 站' },
+  { value: 'apps', label: '多任务' },
 ] as const satisfies OptionItem<LaunchItemType>[];
 // ] as const satisfies { value: LaunchItemType; label: string }[]
 
@@ -503,6 +532,44 @@ const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
     { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
     { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
   ],
+  apps: [
+    { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
+    { prop: 'name', label: '名称', span: 17 },
+    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
+    {
+      prop: 'path',
+      label: '项目列表',
+      type: 'textarea',
+      span: 20,
+      slot: 'appsSelectSlot',
+    },
+    // {
+    //   prop: 'start_dir',
+    //   label: '起始位置',
+    //   span: 20,
+    //   placeholder: 'C:\\Windows\\System32',
+    // },
+    {
+      prop: 'args',
+      label: '执行间隔 (ms)',
+      span: 20,
+      placeholder: '',
+    },
+    { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
+    { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
+    {
+      prop: 'subcategory_id',
+      label: '子分类',
+      span: 20,
+      slot: 'subCategorySlot',
+    },
+
+    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+    { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
+    { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
+    { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
+  ],
+  alias: [],
 };
 
 const {
@@ -513,7 +580,7 @@ const {
   name: '',
   lnk_name: '',
   path: '',
-  type: launchTypes[0].value,
+  type: launchTypes[3].value,
   icon: '',
 
   hotkey: '',
@@ -529,6 +596,7 @@ const {
   subcategory_id: null,
   extension: null,
 });
+
 const currentFormSchemas = computed(() => formSchemas[form.value.type]);
 
 const keywordsTags = computed({
@@ -578,10 +646,16 @@ function handleTypeChange(val: LaunchItemType) {
   nextTick(() => {
     form.value.type = val;
     // 在指定分类下 新建启动项时 分类值回显
-    if (!isEdit.value && activeCategory.value !== -1) form.value.category_id = activeCategory.value;
+    if (!isEdit.value) form.value.category_id = activeCategory.value;
+    // 当切换的为多项目类型时 设置默认图标
+    if (!isEdit.value && form.value.type === 'apps') setAppsDefaultIcon();
   });
 }
-
+function setAppsDefaultIcon() {
+  const svg = `<svg t="1778134928909" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2818" width="200" height="200"><path d="M292.24751 0c-34.713988 0-72.68633 24.625627-72.686329 67.360176l0.313303 742.215151c0 42.671888 37.972341 67.360176 72.686329 67.360177h585.312936c34.713988 0 72.74899-24.688288 72.748991-67.422837l-0.313303-465.756456c0-19.174152-7.519275-37.471056-20.92865-51.131073L663.825041 21.93122C650.039702 7.895239 631.241513 0 611.628737 0H292.24751z m0.689267 803.81055L292.623474 73.062293h292.311835v293.251744h292.311834l0.313303 437.496513h-584.623669zM657.997602 293.251744V120.308408l169.622323 172.943336H657.997602zM73.373933 950.937707V292.311835h73.062293v658.563211h584.62367v73.124954h-584.62367A73.062293 73.062293 0 0 1 73.373933 950.937707z" p-id="2819"></path></svg>`;
+  const defaultBase64 = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+  form.value.icon = defaultBase64;
+}
 function setForm(fileInfo: FileInfo) {
   // 重新选择文件/文件夹时 将该参数重置
   form.value.run_as_admin = false;
@@ -644,6 +718,84 @@ async function handleConfirm() {
 
 const typesBarVisible = computed(() => (isEdit.value ? 'none' : 'initial'));
 
+const appsSelectValue = computed({
+  get: () => (form.value.path.trim() ? form.value.path.split(',') : []),
+  set: val => (form.value.path = val.join(',')),
+});
+const options = ref<any>([]);
+// const iconMap = ref(new Map());
+async function getAppsSelectOptions() {
+  const data = await getCategoryTree();
+  // console.log(`%c data ----`, 'color: #fff;background-color: #000;font-size: 18px', data);
+  options.value = data.map(category => {
+    const { id, name, icon, children = [] } = category;
+    const childrenOption = children.map((item: LaunchItem) => {
+      const { id, name, icon, type, enabled, pinyin_abbr, pinyin_full } = item;
+      // iconMap.value.set(id, icon);
+      let disabled = false;
+      disabled = !enabled;
+      // 当编辑项目时排除选择自身作为启动项 防止递归
+      if (isEdit.value && editItem.value?.id === id) disabled = true;
+      // 多任务中不支持添加新的多任务
+      if (type === 'apps') disabled = true;
+      return {
+        label: name,
+        value: `${id}`,
+        icon,
+        pinyin_abbr,
+        pinyin_full,
+        disabled,
+      };
+    });
+
+    return {
+      type: 'group',
+      icon,
+      label: name,
+      key: id,
+      children: childrenOption,
+    };
+  });
+}
+function renderLabel(option: any) {
+  const { label, icon = '' } = option;
+  if (option.type === 'group') return `${label}`;
+  return h(
+    <div class="flex">
+      {/* {{ icon }} */}
+      <img
+        src={icon}
+        alt="icon"
+        class="w-4 h-4 mr-3 shrink-0 object-contain pointer-events-none"
+      />
+
+      <span>{label}</span>
+    </div>,
+  );
+}
+function renderMultipleSelectTag({ option, handleClose }: any) {
+  const { icon, label } = option;
+  return h(
+    // size="small"
+    <NTag
+      closable
+      onClose={e => {
+        e.stopPropagation();
+        handleClose();
+      }}
+    >
+      <div class="flex">
+        <img
+          src={icon}
+          alt="icon"
+          class="w-4 h-4 mr-1 shrink-0 object-contain pointer-events-none"
+        />
+        <span>{label}</span>
+      </div>
+    </NTag>,
+  );
+}
+
 // 拖拽
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   if (isEdit.value) return;
@@ -668,13 +820,14 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
 // 打开对话框
 EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async val => {
   initForm();
+  getAppsSelectOptions();
   isEdit.value = !!val;
   editItem.value = val;
   if (isEdit.value) {
     _setForm(val!);
   } else {
     // 新建时 设置默认选中的分类
-    if (activeCategory.value !== -1) form.value.category_id = activeCategory.value;
+    form.value.category_id = activeCategory.value;
   }
 
   modalStatus.value = true;
@@ -770,6 +923,9 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
 ::v-deep(.n-input--textarea) {
   min-height: 80px !important;
 }
+::v-deep(.n-base-selection) {
+  min-height: 80px !important;
+}
 
 ::v-deep(.n-input-wrapper) {
   resize: none !important;
@@ -782,5 +938,9 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
 ::v-deep(.n-form-item-label__text) {
   display: flex;
   align-items: center;
+}
+
+::v-deep(.n-base-select-menu .n-virtual-list) {
+  max-height: 150px;
 }
 </style>

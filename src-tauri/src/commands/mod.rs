@@ -11,6 +11,7 @@ pub mod get_app_config;
 pub mod get_autocomplete;
 pub mod get_category;
 pub mod get_category_by_id;
+pub mod get_category_tree;
 pub mod get_file_info;
 pub mod get_launch;
 pub mod get_launch_by_id;

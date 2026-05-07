@@ -137,7 +137,7 @@ async function handleSelect(key: string) {
       break;
     case 'position':
       // TODO 定位
-      EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, props.item);
+      EventBus.emit(AppEvent.LAUNCH_POSITION, props.item);
       break;
     case 'increasePriority':
       EventBus.emit(AppEvent.INCREASE_PRIORITY, props.item);

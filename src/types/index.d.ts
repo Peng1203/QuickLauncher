@@ -3,7 +3,7 @@ import type { WebSearchOpenModel } from '@/constant';
 declare global {
   type DirectionType = 'up' | 'right' | 'down' | 'left';
 
-  type LaunchType = 'file' | 'directory' | 'url' | 'alias';
+  type LaunchType = 'file' | 'directory' | 'url' | 'apps' | 'alias';
   interface LaunchItem {
     id: number;
     name: string;
@@ -25,6 +25,8 @@ declare global {
     last_used_at?: string | null;
     created_at: string;
     updated_at: string;
+    pinyin_full: string;
+    pinyin_abbr: string;
 
     extension?: string | null;
     launch_count: number;
@@ -33,7 +35,14 @@ declare global {
 
   type NewLaunchItem = Omit<
     LaunchItem,
-    'id' | 'last_used_at' | 'created_at' | 'updated_at' | 'launch_count' | 'failure_count'
+    | 'id'
+    | 'last_used_at'
+    | 'created_at'
+    | 'updated_at'
+    | 'launch_count'
+    | 'failure_count'
+    | 'pinyin_full'
+    | 'pinyin_abbr'
   >;
 
   type SearchLauncItem = Pick<
