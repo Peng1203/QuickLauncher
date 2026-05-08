@@ -51,7 +51,7 @@ export const useStore = defineStore('main', {
 
     async handleChangeCategory(id: number) {
       this.activeCategory = id;
-      sessionStorage.setItem(ACTIVE_CATEGORY_LOCAL_KEY, id + '');
+      sessionStorage.setItem(ACTIVE_CATEGORY_LOCAL_KEY, `${id}`);
       this.activeCursorX = 0;
       this.activeCursorY = 0;
       await this.getLaunchData(id);

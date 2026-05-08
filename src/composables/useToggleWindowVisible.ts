@@ -1,6 +1,6 @@
+import { LogicalPosition } from '@tauri-apps/api/dpi';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { useAppConfig } from './useAppConfig';
-import { LogicalPosition } from '@tauri-apps/api/dpi';
 
 // 控制窗口 展示状态
 export function useToggleWindowVisible() {
@@ -128,5 +128,7 @@ export function useToggleWindowVisible() {
 
     getOperCategoryWindow,
     toogleOperCategoryWindowVisible,
+
+    getSearchWindow,
   };
 }

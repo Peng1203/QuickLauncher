@@ -1,9 +1,9 @@
-import { AppEvent } from '@/constant';
-import { useStore } from '@/store/useStore';
-import { EventBus } from '@/utils/eventBus';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isEmpty } from 'lodash-es';
 import { storeToRefs } from 'pinia';
+import { AppEvent } from '@/constant';
+import { useStore } from '@/store/useStore';
+import { EventBus } from '@/utils/eventBus';
 import { useLaunchActive } from './useLaunchActive';
 import { useToggleWindowVisible } from './useToggleWindowVisible';
 
@@ -199,7 +199,7 @@ export function useMainWindowShortcut() {
    *
    * 分类 src\views\Main\components\Sidebar.vue
    */
-  function rename(e: KeyboardEvent) {
+  function rename(_e: KeyboardEvent) {
     const siderEl = document.querySelector('#layoutSider');
     // const el = e.target as Node;
     // console.log(`%c siderEl ----`, 'color: #fff;background-color: #000;font-size: 18px', siderEl);

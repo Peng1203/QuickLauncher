@@ -1,10 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
 import Main from '@/views/Main/Main.vue';
+import OperationCategory from '@/views/OperationCategory/OperationCategory.vue';
+import OperationLaunch from '@/views/OperationLaunch/OperationLaunch.vue';
 import Search from '@/views/Search/Search.vue';
 import Setting from '@/views/Setting/Setting.vue';
-import OperationLaunch from '@/views/OperationLaunch/OperationLaunch.vue';
-import OperationCategory from '@/views/OperationCategory/OperationCategory.vue';
 
 export const router = createRouter({
   history: createWebHashHistory(),
