@@ -75,6 +75,10 @@ export enum InvokeMethod {
   GET_ALIAS_LAUNCH = 'get_alias_launch',
   // 获取分类启动项树形数据
   GET_CATEGORY_TREE = 'get_category_tree',
+  // 添加启动项历史
+  ADD_LAUNCH_HISTORY = 'add_launch_history',
+  // 获取历史记录
+  GET_RECENT_LAUNCH_HISTORY = 'get_recent_launch_history',
 }
 
 export enum AppEvent {

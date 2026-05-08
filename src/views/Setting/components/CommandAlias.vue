@@ -42,6 +42,8 @@
               run_as_admin: false,
               order_index: 0,
               enabled: true,
+              pinyin_full: '',
+              pinyin_abbr: '',
             })
           "
         >
@@ -77,7 +79,7 @@ import { isEqual } from 'lodash-es';
 import { NIcon, NInput } from 'naive-ui';
 import { ref } from 'vue';
 import { addLaunch, deleteLaunch, exeCommand, getAliasLaunch, updateLaunch } from '@/api';
-import { useAppConfig } from '@/composables/useAppConfig';
+import { useAppConfig } from '@/composables';
 
 const { appConfigStore } = useAppConfig();
 const dataList = ref<LaunchItem[]>([]);

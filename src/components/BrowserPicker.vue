@@ -26,7 +26,7 @@
 import type { DynamicTagsOption } from 'naive-ui';
 import { LogoChrome, LogoEdge, LogoFirefox, RefreshOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import { useNaiveUiApi } from '@/composables';
 
 const { message } = useNaiveUiApi();
 

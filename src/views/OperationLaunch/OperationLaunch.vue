@@ -389,7 +389,7 @@
 
 <script setup lang="tsx">
 import { invoke } from '@tauri-apps/api/core';
-import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
 import { AlertCircleOutline, Close } from '@vicons/ionicons5';
 import { NAvatar, NTag } from 'naive-ui';
@@ -398,9 +398,7 @@ import { computed, nextTick, ref } from 'vue';
 import { addLaunch, getCategoryTree, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
 import BrowerPicker from '@/components/BrowserPicker.vue';
 import IconPicker from '@/components/IconPicker.vue';
-import { useAppConfig } from '@/composables/useAppConfig';
-import { useFormState } from '@/composables/useFormState';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import { useAppConfig, useFormState, useNaiveUiApi, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
 import piniaStore from '@/store';
 import { useStore } from '@/store/useStore';
@@ -429,6 +427,7 @@ const { categoryOptions, activeCategory } = storeToRefs(store);
 
 const { appConfigStore } = useAppConfig();
 const { message } = useNaiveUiApi();
+const { getOperLaunchWindow, toogleOperLaunchWindowVisible } = useToggleWindowVisible();
 
 const launchTypes = [
   { value: 'file', label: '文 件' },
@@ -580,7 +579,7 @@ const {
   name: '',
   lnk_name: '',
   path: '',
-  type: launchTypes[3].value,
+  type: launchTypes[0].value,
   icon: '',
 
   hotkey: '',
@@ -619,8 +618,7 @@ const urlInfoLoading = ref(false);
 async function handleClose() {
   urlInfoLoading.value = false;
   initForm();
-  const window = await WebviewWindow.getByLabel('operLaunch');
-  window?.hide();
+  toogleOperLaunchWindowVisible();
 }
 
 async function getUrlInfo() {
@@ -816,7 +814,6 @@ getCurrentWebviewWindow().onDragDropEvent(async e => {
     }
   }
 });
-
 // 打开对话框
 EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async val => {
   initForm();
@@ -833,10 +830,9 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
   modalStatus.value = true;
 
   // 判断当前窗口是否处于展示状态
-  const window = await WebviewWindow.getByLabel('operLaunch');
+  toogleOperLaunchWindowVisible();
+  const window = await getOperLaunchWindow();
   window?.setTitle(isEdit.value ? '编辑启动项' : '新建启动项');
-  await window?.show();
-  await window?.setFocus();
 });
 </script>
 

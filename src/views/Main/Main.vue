@@ -24,11 +24,14 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { ensureDefaultCategory } from '@/api';
-import { useAppConfig } from '@/composables/useAppConfig';
-import { useAppConfigActions } from '@/composables/useAppConfigActions';
-import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
-import { useLaunchActive } from '@/composables/useLaunchActive';
-import { useLoadConfig } from '@/composables/useLoadConfig';
+import {
+  useAppConfig,
+  useAppConfigActions,
+  useCategoryCorrelationDir,
+  useLaunchActive,
+  useLoadConfig,
+  useToggleWindowVisible,
+} from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
@@ -95,8 +98,10 @@ async function initData() {
 
 initData();
 
+const { toogleMainWindowVisible } = useToggleWindowVisible();
 const { getPositionByIndex } = useLaunchActive();
 EventBus.listen(AppEvent.LAUNCH_POSITION, async (item: LaunchItem) => {
+  await toogleMainWindowVisible();
   await store.handleChangeCategory(item.category_id!);
 
   const i = launchData.value.findIndex(({ id }) => item.id === id);

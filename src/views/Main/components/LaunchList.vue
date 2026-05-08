@@ -55,7 +55,7 @@ import { nextTick, ref } from 'vue';
 import { addLaunch, getFileInfo } from '@/api';
 import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
-import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
+import { useCategoryCorrelationDir } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';

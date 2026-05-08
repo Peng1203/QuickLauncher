@@ -32,3 +32,5 @@ pub mod set_app_config;
 pub mod update_category;
 pub mod update_launch;
 pub mod update_launch_enabled_by_category;
+pub mod add_launch_history;
+pub mod get_recent_launch_history;

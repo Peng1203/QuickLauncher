@@ -5,15 +5,15 @@ import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { isEmpty } from 'lodash-es';
 import { storeToRefs } from 'pinia';
 import { useLaunchActive } from './useLaunchActive';
+import { useToggleWindowVisible } from './useToggleWindowVisible';
 
+const EVENT = 'keydown';
 export function useMainWindowShortcut() {
   const store = useStore();
-
   const { activeCategoryItem, activeLaunchItem, activeCursorX, activeCursorY, launchData } = storeToRefs(store);
 
   const { gridRowMaxItem, getPositionByIndex } = useLaunchActive();
-
-  const EVENT = 'keydown';
+  const { toogleSettingWindowVisible } = useToggleWindowVisible();
 
   const handler = (e: KeyboardEvent) => {
     const { key, ctrlKey, shiftKey, altKey } = e;
@@ -33,11 +33,17 @@ export function useMainWindowShortcut() {
       case 'F4': // 编辑
         edit();
         break;
-      case 'N': // 新建启动项
+      case 'n': // 新建启动项
+      case 'N':
         ctrlKey && shiftKey && addLaunch();
         break;
-      case 'C': // 新建分类
+      case 'c': // 新建分类
+      case 'C':
         ctrlKey && shiftKey && addCategory();
+        break;
+      case 's': // 打开设置窗口
+      case 'S':
+        altKey && toogleSettingWindowVisible();
         break;
       case 'Delete': // 删除
         handleDelete();
@@ -216,6 +222,7 @@ export function useMainWindowShortcut() {
   }
 
   function addLaunch() {
+    console.log(`%c 111 ----`, 'color: #fff;background-color: #000;font-size: 18px', 111);
     EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH);
   }
   function addCategory() {

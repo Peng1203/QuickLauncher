@@ -19,9 +19,7 @@
     </n-form-item>
 
     <n-form-item>
-      <n-checkbox v-model:checked="appConfigStore.silentStart">
-        静默启动
-      </n-checkbox>
+      <n-checkbox v-model:checked="appConfigStore.silentStart">静默启动</n-checkbox>
     </n-form-item>
 
     <!-- <n-form-item>
@@ -57,7 +55,10 @@
     </n-form-item>
 
     <h3>显示/隐藏</h3>
-    <n-form-item label="快捷键" label-width="auto">
+    <n-form-item
+      label="快捷键"
+      label-width="auto"
+    >
       <n-input
         v-model:value="shortcutKey"
         readonly
@@ -106,15 +107,8 @@
 
 <script setup lang="ts">
 import type { FormValidationStatus } from 'naive-ui';
-import { useAppConfig } from '@/composables/useAppConfig';
-import { useAppConfigActions } from '@/composables/useAppConfigActions';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
-import {
-  checkShortcutKey,
-  checkShortcutKeyComplete,
-  getShortcutKey,
-  unRegisterShortcutKey,
-} from '@/utils/shortcutKey';
+import { useAppConfig, useAppConfigActions, useNaiveUiApi } from '@/composables';
+import { checkShortcutKey, checkShortcutKeyComplete, getShortcutKey, unRegisterShortcutKey } from '@/utils/shortcutKey';
 
 const { message } = useNaiveUiApi();
 
@@ -141,10 +135,7 @@ watch(
   { immediate: true },
 );
 function handleKeydown(e: KeyboardEvent) {
-  const keyValue = getShortcutKey(
-    e,
-    appConfigStore.mainWindowGlobalShortcutKey,
-  );
+  const keyValue = getShortcutKey(e, appConfigStore.mainWindowGlobalShortcutKey);
 
   shortcutKey.value = keyValue;
 }
@@ -160,10 +151,7 @@ async function handleBlur() {
     return;
   }
 
-  const checkVal = await checkShortcutKey(
-    shortcutKey.value,
-    appConfigStore.mainWindowGlobalShortcutKey,
-  );
+  const checkVal = await checkShortcutKey(shortcutKey.value, appConfigStore.mainWindowGlobalShortcutKey);
   if (!checkVal) {
     message.warning('快捷键被占用');
     shortcutKeyInputStatus.value = 'warning';

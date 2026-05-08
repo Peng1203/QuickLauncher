@@ -184,6 +184,16 @@ declare global {
     last_used_at: string;
     launch_item_id?: number | null;
   }
+
+  type LaunchHistoryType = LaunchType | 'command';
+  interface LaunchHistory {
+    id: number;
+    command: string;
+    type: LaunchHistoryType;
+    launch_item_id: number | null;
+  }
+
+  type LaunchHistoryWithIcon = LaunchHistory & Pick<LaunchItem, 'icon'>;
 }
 
 export {};

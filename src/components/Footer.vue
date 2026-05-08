@@ -167,7 +167,7 @@
         </template>
 
         <div>
-          <h4>内置快捷键</h4>
+          <h4>快捷键</h4>
           <template
             v-for="item in shortcutKeys"
             :key="item.name"
@@ -191,6 +191,13 @@
                 </div>
 
                 <span>{{ item.name }}</span>
+
+                <span
+                  v-if="item?.global"
+                  class="ml-2"
+                >
+                  (全局)
+                </span>
               </template>
 
               <template v-else>
@@ -199,6 +206,13 @@
                 </div>
 
                 <span>{{ item.name }}</span>
+
+                <span
+                  v-if="item?.global"
+                  class="ml-2"
+                >
+                  (全局)
+                </span>
               </template>
             </div>
           </template>
@@ -218,8 +232,7 @@ import { getVersion } from '@tauri-apps/api/app';
 import { storeToRefs } from 'pinia';
 import { getLaunchByID } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
-import { useCategorySort } from '@/composables/useCategorySort';
-import { useMainWindowShortcut } from '@/composables/useMainWindowShortcut';
+import { useAppConfig, useCategorySort, useMainWindowShortcut } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { getFromNow } from '@/utils/date';
@@ -227,24 +240,40 @@ import { EventBus } from '@/utils/eventBus';
 import Kbd from './Kbd.vue';
 
 const store = useStore();
-
+const { searchGlobalShortcutKey, mainWindowGlobalShortcutKey } = useAppConfig();
 const { activeCategoryItem, launchData, activeLaunchItem } = storeToRefs(store);
 const { handleLayoutOrderSortChange } = useCategorySort(activeCategoryItem);
 
-const shortcutKeys = [
-  { combKey: false, keys: ['F2'], name: '重命名' },
-  { combKey: false, keys: ['F4'], name: '编 辑' },
-  // { combKey: false, keys: ['F5'], name: '刷 新' },
-  { combKey: false, keys: ['Esc'], name: '关闭窗口' },
-  { combKey: false, keys: ['Delete'], name: '删 除' },
-  // { combKey: true, keys: ['Alt', 'N'], name: '新 建' },
-  // { combKey: true, keys: ['Alt', 'C'], name: '新建分类' },
-  // { combKey: true, keys: ['Ctrl', 'P'], name: '快速定位' },
-  { combKey: true, keys: ['Ctrl', 'Shift', 'N'], name: '新 建' },
-  { combKey: true, keys: ['Ctrl', 'Shift', 'C'], name: '新建分类' },
-  // { combKey: true, keys: ['Ctrl', 'Alt', 'S'], name: '打开设置' },
-  // { combKey: true, keys: ['⌘', 'Alt', 'S'], name: '打开设置' },
-];
+const shortcutKeys = computed(() => {
+  // main窗口内置快捷键
+  const base = [
+    { combKey: false, keys: ['F2'], name: '重命名' },
+    { combKey: false, keys: ['F4'], name: '编 辑' },
+    // { combKey: false, keys: ['F5'], name: '刷 新' },
+    { combKey: false, keys: ['Esc'], name: '关闭窗口' },
+    { combKey: false, keys: ['Delete'], name: '删 除' },
+    // { combKey: true, keys: ['Ctrl', 'P'], name: '快速定位' },
+    { combKey: true, keys: ['Ctrl', 'Shift', 'N'], name: '新 建' },
+    { combKey: true, keys: ['Ctrl', 'Shift', 'C'], name: '新建分类' },
+    { combKey: true, keys: ['Alt', 'S'], name: '打开设置' },
+    // { combKey: true, keys: ['⌘', 'Alt', 'S'], name: '打开设置' },
+  ];
+
+  // 全局快捷键
+  const globalShortcutKeys: any = [];
+  if (searchGlobalShortcutKey.value) {
+    const keys = searchGlobalShortcutKey.value.split('+');
+    const item = { combKey: !!keys.length, keys, name: '显示/隐藏 快速搜索', global: true };
+    globalShortcutKeys.push(item);
+  }
+  if (mainWindowGlobalShortcutKey.value) {
+    const keys = mainWindowGlobalShortcutKey.value.split('+');
+    const item = { combKey: !!keys.length, keys, name: '显示/隐藏 主窗口', global: true };
+    globalShortcutKeys.push(item);
+  }
+
+  return [...base, ...globalShortcutKeys];
+});
 
 const version = ref<string>();
 

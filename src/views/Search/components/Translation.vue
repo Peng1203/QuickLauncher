@@ -68,11 +68,10 @@
 <script setup lang="ts">
 import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
 import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-// import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
 import { fetch } from '@tauri-apps/plugin-http';
 import { MD5 } from 'crypto-js';
 import { ref } from 'vue';
-import { useAppConfig } from '@/composables/useAppConfig';
+import { useAppConfig } from '@/composables';
 import { BAIDU_TRANSLATION_TO, SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from '@/constant';
 
 const props = defineProps<{ keyword: string }>();

@@ -7,19 +7,16 @@ use sea_orm::entity::prelude::*;
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: i32,
+    #[sea_orm(nullable)]
     pub launch_item_id: Option<i32>,
     #[sea_orm(column_type = "Text")]
-    pub name: String,
+    pub command: String,
     #[sea_orm(column_type = "Text")]
-    pub path: String,
-    #[sea_orm(column_type = "Text")]
-    pub status: String,
-    #[sea_orm(column_type = "Text", nullable)]
-    pub message: Option<String>,
-    #[sea_orm(column_type = "custom(\"DATETIME\")", nullable)]
-    pub started_at: Option<String>,
-    #[sea_orm(column_type = "custom(\"DATETIME\")", nullable)]
-    pub ended_at: Option<String>,
+    // type 分为2类 1属于启动项中的 file directory url apps alias 2执行为命令行的command
+    pub r#type: String,
+
+    #[sea_orm(column_type = "TimestampWithTimeZone", nullable)]
+    pub started_at: Option<DateTimeUtc>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -4,22 +4,26 @@ use crate::common::utils::is_foreground_fullscreen;
 use crate::models::app_config_state::AppConfigState;
 use commands::add_category::add_category;
 use commands::add_launch::add_launch;
+use commands::add_launch_history::add_launch_history;
 use commands::add_or_update_autocomplete::add_or_update_autocomplete;
 use commands::delete_category::delete_category;
 use commands::delete_launch::delete_launch;
 use commands::delete_launch_by_category::delete_launch_by_category;
 use commands::ensure_default_category::ensure_default_category;
 use commands::exe_command::exe_command;
+use commands::get_alias_launch::get_alias_launch;
 use commands::get_app_config::get_app_config;
 use commands::get_autocomplete::get_autocomplete;
 use commands::get_category::get_category;
 use commands::get_category_by_id::get_category_by_id;
+use commands::get_category_tree::get_category_tree;
 use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
 use commands::get_launch_by_id::get_launch_by_id;
 use commands::get_launch_by_name_and_category::get_launch_by_name_and_category;
 use commands::get_local_icon_base64::get_local_icon_base64;
 use commands::get_online_img_base64::get_online_img_base64;
+use commands::get_recent_launch_history::get_recent_launch_history;
 use commands::get_website_info::get_website_info;
 use commands::open_file_with_lnk::open_file_with_lnk;
 use commands::open_path::open_path;
@@ -35,8 +39,6 @@ use commands::update_category::update_category;
 use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
 use commands::update_launch_enabled_by_category::update_launch_enabled_by_category;
-use commands::get_alias_launch::get_alias_launch;
-use commands::get_category_tree::get_category_tree;
 
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
@@ -122,7 +124,9 @@ pub fn run() {
             get_category_by_id,
             ensure_default_category,
             get_alias_launch,
-            get_category_tree
+            get_category_tree,
+            add_launch_history,
+            get_recent_launch_history
         ])
         .setup(|app| {
             let db = tauri::async_runtime::block_on(async {
@@ -133,7 +137,6 @@ pub fn run() {
             let main_window = app.get_webview_window("main").unwrap();
             let search_window = app.get_webview_window("search").unwrap();
             let setting_window = app.get_webview_window("setting").unwrap();
-
 
             main_window.on_window_event(|event| {
                 if let WindowEvent::CloseRequested { api, .. } = event {
@@ -150,7 +153,6 @@ pub fn run() {
                     api.prevent_close();
                 }
             });
- 
 
             // 初始化应用配置
             app.manage(Mutex::new(AppConfigState::default()));

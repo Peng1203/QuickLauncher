@@ -296,6 +296,15 @@ export function updateLaunchEnabledByCategory(categoryId: number, enabled: boole
 export function getAliasLaunch() {
   return invoke<LaunchItem[]>(InvokeMethod.GET_ALIAS_LAUNCH);
 }
+
 export function getCategoryTree() {
   return invoke<[]>(InvokeMethod.GET_CATEGORY_TREE);
+}
+export function getRecentLaunchHistory() {
+  return invoke<[]>(InvokeMethod.GET_RECENT_LAUNCH_HISTORY);
+}
+
+/** 添加启动项历史 */
+export function addLaunchHistory(command: string, type: LaunchHistoryType, launchItemId?: number) {
+  return invoke<string[]>(InvokeMethod.ADD_LAUNCH_HISTORY, { command, type, launchItemId });
 }

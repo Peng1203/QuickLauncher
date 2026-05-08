@@ -13,8 +13,7 @@
 
 <script setup lang="tsx">
 import { storeToRefs } from 'pinia';
-import { useCategorySort } from '@/composables/useCategorySort';
-// import { useContextMenuClose } from '@/composables/useContextMenuClose';
+import { useCategorySort } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';

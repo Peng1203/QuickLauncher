@@ -42,7 +42,6 @@
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
-import { useAppConfig } from '@/composables/useAppConfig';
 import CommandAlias from './components/CommandAlias.vue';
 import GeneralPane from './components/General.vue';
 import NetworkPane from './components/Network.vue';
@@ -50,7 +49,6 @@ import QuickSearchPane from './components/QuickSearch.vue';
 import Translation from './components/Translation.vue';
 import WebSearchPane from './components/WebSearch.vue';
 
-const { appConfigStore } = useAppConfig();
 const currentWindow = getCurrentWebviewWindow();
 
 const settingTabs = [
@@ -62,7 +60,7 @@ const settingTabs = [
   { label: '网 络', value: 'network', contentComponent: NetworkPane },
 ];
 
-const activeTab = ref(settingTabs[3].value);
+const activeTab = ref(settingTabs[0].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 
@@ -70,14 +68,9 @@ const handleClose = async () => currentWindow?.hide();
 
 // watch(appConfigStore, val => emit(AppEvent.UPDATE_APP_CONFIG_DATA, val), { deep: true })
 
-let timer: any;
-currentWindow.onMoved(({ payload: position }) => {
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    appConfigStore.settingWindowPositionX = position.x;
-    appConfigStore.settingWindowPositionY = position.y;
-  }, 100);
-});
+onMounted(() => {});
+
+onUnmounted(() => {});
 </script>
 
 <style scoped>

@@ -134,22 +134,24 @@
 </template>
 
 <script setup lang="ts">
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { open } from '@tauri-apps/plugin-dialog';
 import { Close } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { addCategory, getLocalIconBase64, updateCategory, updateLaunchEnabledByCategory } from '@/api';
 import IconPicker from '@/components/IconPicker.vue';
-import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
-import { useFormState } from '@/composables/useFormState';
-import { useLoading } from '@/composables/useLoading';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import {
+  useCategoryCorrelationDir,
+  useFormState,
+  useLoading,
+  useNaiveUiApi,
+  useToggleWindowVisible,
+} from '@/composables';
 import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 
 const { message } = useNaiveUiApi();
 const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch } = useCategoryCorrelationDir();
-
+const { getOperCategoryWindow, toogleOperCategoryWindowVisible } = useToggleWindowVisible();
 const inputTheme = {
   borderFocus: 'inherit',
   boxShadowFocus: 'none',
@@ -173,7 +175,7 @@ const { form, initForm, setForm } = useFormState<NewCategoryItem>({
 
 async function handleClose() {
   initForm();
-  const window = await WebviewWindow.getByLabel('operCategory');
+  const window = await getOperCategoryWindow();
   window?.hide();
 }
 
@@ -230,10 +232,10 @@ EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, async v
   editItem.value = val;
   modalStatus.value = true;
   if (val) setForm(val);
-  const window = await WebviewWindow.getByLabel('operCategory');
+
+  toogleOperCategoryWindowVisible();
+  const window = await getOperCategoryWindow();
   window?.setTitle(isEdit.value ? '编辑分类' : '新建分类');
-  await window?.show();
-  await window?.setFocus();
 });
 </script>
 

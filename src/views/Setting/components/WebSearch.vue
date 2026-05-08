@@ -296,8 +296,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { ArrowUp, CodeOutline, GlobeOutline, LinkOutline, RefreshOutline } from '@vicons/ionicons5';
 import { h } from 'vue';
 import { getLocalIconBase64, getOnlineImgBase64, getWebsiteInfo } from '@/api';
-import { useAppConfig } from '@/composables/useAppConfig';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import { useAppConfig, useNaiveUiApi } from '@/composables';
 import { BASE_SOURCE, WebSearchOpenModel } from '@/constant';
 
 const { appConfigStore, webSearchSourceList } = useAppConfig();

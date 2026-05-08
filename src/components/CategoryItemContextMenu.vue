@@ -24,10 +24,7 @@ import {
   updateCategoryAssDir,
   updateLaunchEnabledByCategory,
 } from '@/api';
-import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
-import { useCategorySort } from '@/composables/useCategorySort';
-// import { useContextMenuClose } from '@/composables/useContextMenuClose';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import { useCategoryCorrelationDir, useCategorySort, useNaiveUiApi } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';

@@ -11,7 +11,7 @@
         title="设置"
         size="20"
         class="cursor-pointer"
-        @click="handleToggleSettingWindowVisible"
+        @click="toogleSettingWindowVisible"
       >
         <SettingsOutline />
       </n-icon>
@@ -45,17 +45,15 @@
 
 <script setup lang="tsx">
 import type { DropdownMixedOption } from 'naive-ui/es/dropdown/src/interface';
-import { LogicalPosition } from '@tauri-apps/api/dpi';
 import { listen } from '@tauri-apps/api/event';
-import { getCurrentWebviewWindow, WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline, MenuOutline, SettingsOutline } from '@vicons/ionicons5';
-import { useAppConfig } from '@/composables/useAppConfig';
-import { useAppConfigActions } from '@/composables/useAppConfigActions';
+import { useAppConfig, useAppConfigActions, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
 
-const { appConfigStore, settingWindowPositionX, settingWindowPositionY } = useAppConfig();
+const { appConfigStore } = useAppConfig();
 const { setAlwaysOnTop, setMainWindowCenter, setAutoStart } = useAppConfigActions();
-
+const { toogleSettingWindowVisible } = useToggleWindowVisible();
 const cuurrentWindow = getCurrentWebviewWindow();
 
 // TODO 通过个性化配置设置 为隐藏还是关闭
@@ -134,30 +132,6 @@ const options: DropdownMixedOption[] = [
   //   label: '关于',
   // },
 ];
-
-async function handleToggleSettingWindowVisible() {
-  // 获取 setting 窗口
-  const settingWindow = await WebviewWindow.getByLabel('setting');
-
-  const visbile = await settingWindow?.isVisible();
-  const focus = await settingWindow?.isFocused();
-
-  if (visbile && !focus) {
-    settingWindow?.setFocus();
-  } else if (visbile && focus) {
-    settingWindow?.hide();
-  } else {
-    const x =
-      settingWindowPositionX.value > 0 ? settingWindowPositionX.value : appConfigStore.mainWindowPositionX + 100;
-    const y = settingWindowPositionY.value > 0 ? settingWindowPositionY.value : appConfigStore.mainWindowPositionY + 50;
-
-    // 将设置窗口置于 当前主窗口之间展示
-    settingWindow?.setPosition(new LogicalPosition(x, y));
-    await settingWindow?.setAlwaysOnTop(appConfigStore.onTop);
-    settingWindow?.show();
-    settingWindow?.setFocus();
-  }
-}
 
 listen<AppConfigState>(AppEvent.UPDATE_APP_CONFIG_DATA, val => {
   for (const key in val.payload) {

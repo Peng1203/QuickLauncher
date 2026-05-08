@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAppConfig } from '@/composables/useAppConfig';
+import { useAppConfig } from '@/composables';
 
 const { appConfigStore } = useAppConfig();
 </script>

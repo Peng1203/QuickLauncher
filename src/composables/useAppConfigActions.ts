@@ -1,31 +1,19 @@
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { LogicalPosition } from '@tauri-apps/api/window';
 import { disable, enable, isEnabled } from '@tauri-apps/plugin-autostart';
-import {
-  isRegistered,
-  register,
-  unregister,
-} from '@tauri-apps/plugin-global-shortcut';
+import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut';
 import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 import { unRegisterShortcutKey } from '@/utils/shortcutKey';
 import { useAppConfig } from './useAppConfig';
-
-const mainWindow: WebviewWindow | null = null;
+import { useToggleWindowVisible } from './useToggleWindowVisible';
 
 export function useAppConfigActions() {
-  const {
-    appConfigStore,
-    silentStart,
-    mainWindowPositionX,
-    mainWindowPositionY,
-    settingWindowPositionX,
-    settingWindowPositionY,
-  } = useAppConfig();
+  const { appConfigStore, silentStart, mainWindowPositionX, mainWindowPositionY } = useAppConfig();
+  const { getMainWindow, toogleMainWindowVisible } = useToggleWindowVisible();
 
-  const getMainWindow = async () => {
-    return mainWindow || (await WebviewWindow.getByLabel('main'));
-  };
+  // const getMainWindow = async () => {
+  //   return mainWindow || (await WebviewWindow.getByLabel('main'));
+  // };
 
   const setAlwaysOnTop = () => {
     const { appConfigStore } = useAppConfig();
@@ -62,36 +50,11 @@ export function useAppConfigActions() {
     silentStart.value ? mainWindow?.hide() : mainWindow?.show();
   };
 
-  const setSettingWindowPosition = async () => {
-    const mainWindow = await WebviewWindow.getByLabel('setting');
-    const x =
-      settingWindowPositionX.value > 0 ? settingWindowPositionX.value : 0;
-    const y =
-      settingWindowPositionY.value > 0 ? settingWindowPositionY.value : 0;
-    // 设置窗口位置
-    if (x || y) {
-      mainWindow?.setPosition(new LogicalPosition(x, y));
-    }
-  };
-
   const registerMainWindowShortcutKey = async (shortcutKey: string) => {
     if (!shortcutKey.trim()) return;
     await register(shortcutKey, async e => {
-      const mainWindow = await getMainWindow();
-      const visible = await mainWindow?.isVisible();
-      const focus = await mainWindow?.isFocused();
       if (e.state === 'Released') {
-        if (visible && !focus) {
-          // 当窗口可见时 但不是在最顶层
-          mainWindow?.setFocus();
-        } else if (visible && focus) {
-          // 当窗口可见是 且在最顶层时
-          mainWindow?.hide();
-        } else {
-          // 当窗口不可见时
-          mainWindow?.setFocus();
-          mainWindow?.show();
-        }
+        toogleMainWindowVisible();
       }
     });
   };
@@ -106,21 +69,15 @@ export function useAppConfigActions() {
 
     if (appConfigStore.mainWindowGlobalShortcutKey) {
       // 注册之前先取消之前注册的快捷键
-      const isReg = await isRegistered(
-        appConfigStore.mainWindowGlobalShortcutKey
-      );
+      const isReg = await isRegistered(appConfigStore.mainWindowGlobalShortcutKey);
       if (isReg) {
-        await unRegisterShortcutKey(
-          appConfigStore.mainWindowGlobalShortcutKey
-        ).catch(() => '');
+        await unRegisterShortcutKey(appConfigStore.mainWindowGlobalShortcutKey).catch(() => '');
       }
       registerMainWindowShortcutKey(appConfigStore.mainWindowGlobalShortcutKey);
     }
   };
 
-  const registerSearchShortcutKey = async (
-    key: string = appConfigStore.searchGlobalShortcutKey
-  ) => {
+  const registerSearchShortcutKey = async (key: string = appConfigStore.searchGlobalShortcutKey) => {
     // || 'Alt+Space'
     if (!key) return;
     const isReg = await isRegistered(key);
@@ -139,7 +96,6 @@ export function useAppConfigActions() {
     setMainWindowPosition,
     setAutoStart,
     setSilentStart,
-    setSettingWindowPosition,
     registerMainWindowShortcutKey,
     initMainWindowShortcutKey,
     registerSearchShortcutKey,

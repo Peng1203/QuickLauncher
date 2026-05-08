@@ -161,9 +161,8 @@
 <script setup lang="ts">
 import type { FormValidationStatus } from 'naive-ui';
 import { ref } from 'vue';
-import { useAppConfig } from '@/composables/useAppConfig';
-import { useAppConfigActions } from '@/composables/useAppConfigActions';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import { useAppConfig, useAppConfigActions, useNaiveUiApi } from '@/composables';
+
 import { checkShortcutKey, checkShortcutKeyComplete, getShortcutKey, unRegisterShortcutKey } from '@/utils/shortcutKey';
 
 const { message } = useNaiveUiApi();
@@ -211,6 +210,7 @@ async function handleUnRegisterShortcutKey() {
 
 async function registerShortcutKey(key: string) {
   // 取消注册之前在的快捷键 并注册新的快捷键
+  await unRegisterShortcutKey(appConfigStore.searchGlobalShortcutKey);
   // 注册快捷键
   await registerSearchShortcutKey(key);
   appConfigStore.searchGlobalShortcutKey = key;

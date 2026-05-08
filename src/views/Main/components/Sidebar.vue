@@ -62,7 +62,7 @@ import { nextTick, ref, shallowRef } from 'vue';
 import { openPath, updateCategory } from '@/api';
 import CategoryContextMenu from '@/components/CategoryContextMenu.vue';
 import CategoryItemContextMenu from '@/components/CategoryItemContextMenu.vue';
-import { useCategoryCorrelationDir } from '@/composables/useCategoryCorrelationDir';
+import { useCategoryCorrelationDir } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';

@@ -148,7 +148,7 @@ import { open } from '@tauri-apps/plugin-dialog';
 import { CodeOutline, GlobeOutline, LinkOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { getLocalIconBase64, getOnlineImgBase64, getWebsiteInfo } from '@/api';
-import { useNaiveUiApi } from '@/composables/useNaiveUiApi';
+import { useNaiveUiApi } from '@/composables';
 
 const { message } = useNaiveUiApi();
 
