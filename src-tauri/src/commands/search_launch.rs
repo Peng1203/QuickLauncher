@@ -1,19 +1,21 @@
-use crate::{entity, models::launch_item::SearchLaunchItem};
+use crate::{entity, models::launch_item::SearchLaunchItem, AppState};
 use entity::{
     categories::{Column as CColumn, Entity as Categories},
     launch_items::{Column as LIColumn, Entity as LaunchItems},
 };
 use sea_orm::{
     sea_query::{Alias, Expr},
-    ColumnTrait, Condition, DatabaseConnection, EntityTrait, JoinType, QueryFilter, QueryOrder,
-    QuerySelect,
+    ColumnTrait, Condition, EntityTrait, JoinType, QueryFilter, QueryOrder, QuerySelect,
 };
 
 #[tauri::command]
 pub async fn search_launch(
     keyword: &str,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<Vec<SearchLaunchItem>, String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     let like_pattern = format!("%{}%", keyword);
 
     let results = LaunchItems::find()
@@ -64,7 +66,7 @@ pub async fn search_launch(
         .order_by_desc(LIColumn::OrderIndex)
         // 映射到自定义结构体
         .into_model::<SearchLaunchItem>()
-        .all(db.inner())
+        .all(&db)
         .await
         .map_err(|e| format!("查询失败: {}", e))?;
 

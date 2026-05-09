@@ -1,19 +1,20 @@
-use sea_orm::{
-    sea_query::Expr, ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter,
-    Set,
-};
+use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set};
 
 use crate::entity::categories;
 use crate::models::category_item::CategoryItem;
+use crate::AppState;
 
 #[tauri::command]
 pub async fn update_category(
     item: CategoryItem,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     // 先查是否存在
     let model = categories::Entity::find_by_id(item.id)
-        .one(db.inner())
+        .one(&db)
         .await
         .map_err(|e| format!("查询失败: {}", e))?;
 
@@ -38,7 +39,7 @@ pub async fn update_category(
 
     // 执行更新
     active
-        .update(db.inner())
+        .update(&db)
         .await
         .map_err(|e| format!("更新失败: {}", e))?;
 
@@ -49,11 +50,14 @@ pub async fn update_category(
 pub async fn update_category_ass_dir(
     id: i32,
     ass_dir: String,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     // 先查
     let model = categories::Entity::find_by_id(id)
-        .one(db.inner())
+        .one(&db)
         .await
         .map_err(|e| format!("查询失败: {}", e))?;
 
@@ -68,7 +72,7 @@ pub async fn update_category_ass_dir(
 
     // 执行更新
     model
-        .update(db.inner())
+        .update(&db)
         .await
         .map_err(|e| format!("更新失败: {}", e))?;
 

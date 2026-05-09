@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "一款 Windows 快速启动器"
 authors = ["Peng <2567810155@qq.com>"]
 edition = "2021"
+default-run = "quicklauncher"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -57,3 +58,7 @@ windows = { version = "0.58", features = [
   "Win32_UI_Shell_Common",
   "Win32_System_Com",
 ] }
+
+[[bin]]
+name = "updater"
+path = "src/bin/updater.rs"

@@ -1,11 +1,11 @@
 use entity::launch_history;
 use entity::launch_history::Entity as LaunchHistory;
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
-    QueryOrder, QuerySelect, Set,
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+    QuerySelect, Set,
 };
 
-use crate::entity;
+use crate::{entity, AppState};
 
 const MAX_HISTORY_COUNT: u64 = 300;
 
@@ -14,8 +14,10 @@ pub async fn add_launch_history(
     command: String,
     r#type: String,
     launch_item_id: Option<i32>,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
     let command = command.trim();
     // 空命令不记录
     if command.is_empty() {
@@ -25,7 +27,7 @@ pub async fn add_launch_history(
     // 查询最后一条历史
     let last_history = LaunchHistory::find()
         .order_by_desc(launch_history::Column::Id)
-        .one(&*db)
+        .one(&db)
         .await
         .map_err(|e| e.to_string())?;
 
@@ -48,11 +50,11 @@ pub async fn add_launch_history(
         ..Default::default()
     };
 
-    history.insert(&*db).await.map_err(|e| e.to_string())?;
+    history.insert(&db).await.map_err(|e| e.to_string())?;
 
     // 限制历史数量
     let total = LaunchHistory::find()
-        .count(&*db)
+        .count(&db)
         .await
         .map_err(|e| e.to_string())?;
 
@@ -62,7 +64,7 @@ pub async fn add_launch_history(
         let old_ids: Vec<i32> = LaunchHistory::find()
             .order_by_asc(launch_history::Column::Id)
             .limit(remove_count)
-            .all(&*db)
+            .all(&db)
             .await
             .map_err(|e| e.to_string())?
             .into_iter()
@@ -72,7 +74,7 @@ pub async fn add_launch_history(
         if !old_ids.is_empty() {
             LaunchHistory::delete_many()
                 .filter(launch_history::Column::Id.is_in(old_ids))
-                .exec(&*db)
+                .exec(&db)
                 .await
                 .map_err(|e| e.to_string())?;
         }

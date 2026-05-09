@@ -43,6 +43,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import CommandAlias from './components/CommandAlias.vue';
+import Data from './components/Data.vue';
 import GeneralPane from './components/General.vue';
 import NetworkPane from './components/Network.vue';
 import QuickSearchPane from './components/QuickSearch.vue';
@@ -58,6 +59,7 @@ const settingTabs = [
   { label: '命令别名', value: 'command_alias', contentComponent: CommandAlias },
   { label: '翻 译', value: 'translation', contentComponent: Translation },
   { label: '网 络', value: 'network', contentComponent: NetworkPane },
+  { label: '数 据', value: 'data', contentComponent: Data },
 ];
 
 const activeTab = ref(settingTabs[0].value);

@@ -1,17 +1,20 @@
 use entity::autocomplete_history::{Column, Entity as AutocompleteHistory};
 use sea_orm::sea_query::Expr;
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
 use tauri::AppHandle;
 use tauri_plugin_pinia::ManagerExt;
 
-use crate::entity;
+use crate::{entity, AppState};
 
 #[tauri::command]
 pub async fn get_autocomplete(
     keyword: &str,
     app: AppHandle,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<Vec<String>, String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     let mode = app
         .pinia()
         .get::<String>("appConfig", "autocompleteMatchMode")
@@ -52,7 +55,7 @@ pub async fn get_autocomplete(
 
     let rows = query
         .into_tuple::<String>()
-        .all(db.inner())
+        .all(&db)
         .await
         .map_err(|e| e.to_string())?;
 

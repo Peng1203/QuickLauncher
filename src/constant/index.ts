@@ -79,6 +79,11 @@ export enum InvokeMethod {
   ADD_LAUNCH_HISTORY = 'add_launch_history',
   // 获取历史记录
   GET_RECENT_LAUNCH_HISTORY = 'get_recent_launch_history',
+
+  OPEN_APP_DATA_DIR = 'open_app_data_dir',
+  BACKUP_DATABASE = 'backup_database',
+  IMPORT_DATABASE = 'import_database',
+  RESET_DATA = 'reset_data',
 }
 
 export enum AppEvent {

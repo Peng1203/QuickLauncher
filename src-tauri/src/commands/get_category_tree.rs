@@ -1,12 +1,14 @@
 use std::collections::HashMap;
 
-use crate::entity::{
-    categories,
-    launch_items::{self, Column as LaunchColumn},
+use crate::{
+    entity::{
+        categories,
+        launch_items::{self, Column as LaunchColumn},
+    },
+    AppState,
 };
 
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder};
-use tauri::State;
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
 
 #[derive(Debug, serde::Serialize)]
 pub struct CategoryWithItems {
@@ -19,14 +21,17 @@ pub struct CategoryWithItems {
 #[tauri::command]
 pub async fn get_category_tree(
     // enabled: Option<bool>,
-    db: State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<Vec<CategoryWithItems>, String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     // ------------------------
     // 查询所有分类
     // ------------------------
     let category_data = categories::Entity::find()
         .order_by_desc(categories::Column::OrderIndex)
-        .all(&*db)
+        .all(&db)
         .await
         .map_err(|e| format!("查询分类失败: {}", e))?;
 
@@ -41,7 +46,7 @@ pub async fn get_category_tree(
 
     let launch_items = launch_query
         .order_by_asc(LaunchColumn::OrderIndex)
-        .all(&*db)
+        .all(&db)
         .await
         .map_err(|e| format!("查询启动项失败: {}", e))?;
 

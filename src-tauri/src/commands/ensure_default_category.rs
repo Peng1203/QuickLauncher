@@ -1,15 +1,16 @@
-use crate::entity;
+use crate::{entity, AppState};
 use entity::categories::{ActiveModel, Entity};
 use sea_orm::{ActiveValue::Set, DatabaseConnection, EntityTrait, PaginatorTrait};
 
 // 确保默认分类存在
 #[tauri::command]
-pub async fn ensure_default_category(
-    db: tauri::State<'_, DatabaseConnection>,
-) -> Result<(), String> {
+pub async fn ensure_default_category(state: tauri::State<'_, AppState>) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     // 查询是否存在任意分类数据
     let count = Entity::find()
-        .count(&*db)
+        .count(&db)
         .await
         .map_err(|e| format!("查询分类数量失败: {}", e))?;
 
@@ -32,7 +33,7 @@ pub async fn ensure_default_category(
     };
 
     Entity::insert(model)
-        .exec(&*db)
+        .exec(&db)
         .await
         .map_err(|e| format!("创建默认分类失败: {}", e))?;
 

@@ -34,6 +34,7 @@ import {
 } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
+import { delay } from '@/utils/delay';
 import { EventBus } from '@/utils/eventBus';
 import LaunchList from './components/LaunchList.vue';
 import Sidebar from './components/Sidebar.vue';
@@ -61,10 +62,6 @@ useLoadConfig();
 useAppConfigActions().initMainWindowShortcutKey();
 
 const { registerAllCategoryDirWatch } = useCategoryCorrelationDir();
-
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 async function initCategoryData() {
   try {

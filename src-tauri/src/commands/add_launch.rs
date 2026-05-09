@@ -1,14 +1,17 @@
-use crate::{entity, models::launch_item::NewLaunchItem};
+use crate::{entity, models::launch_item::NewLaunchItem, AppState};
 use entity::prelude::LaunchItems;
-use sea_orm::{ActiveValue::Set, DatabaseConnection, EntityTrait};
+use sea_orm::{ActiveValue::Set, EntityTrait};
 
 use crate::common::utils::get_pinyin_variants;
 
 #[tauri::command]
 pub async fn add_launch(
     item: NewLaunchItem,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     dbg!(&item);
     let pinyin_value = get_pinyin_variants(&item.name);
     let pinyin_full = pinyin_value.0;
@@ -38,7 +41,7 @@ pub async fn add_launch(
     };
 
     LaunchItems::insert(model)
-        .exec(&*db)
+        .exec(&db)
         .await
         .map_err(|e| format!("插入启动项失败: {}", e))?;
 

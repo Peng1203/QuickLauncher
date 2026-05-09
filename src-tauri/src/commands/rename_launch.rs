@@ -1,13 +1,16 @@
-use crate::{common::utils::get_pinyin_variants, entity};
-use entity::launch_items::{ActiveModel, Column, Entity as LaunchItems};
-use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set};
+use crate::{common::utils::get_pinyin_variants, entity, AppState};
+use entity::launch_items::{ActiveModel, Entity as LaunchItems};
+use sea_orm::{ActiveModelTrait, EntityTrait, Set};
 
 #[tauri::command]
 pub async fn rename_launch(
     id: i32,
     name: String,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     println!("rename_launch id: {}, name: {}", id, name);
 
     // 生成拼音
@@ -15,7 +18,7 @@ pub async fn rename_launch(
 
     // 先查出来
     let model = LaunchItems::find_by_id(id)
-        .one(db.inner())
+        .one(&db)
         .await
         .map_err(|e| format!("查询失败：{}", e))?
         .ok_or("记录不存在")?;
@@ -30,7 +33,7 @@ pub async fn rename_launch(
 
     // 执行更新
     active
-        .update(db.inner())
+        .update(&db)
         .await
         .map_err(|e| format!("更新失败：{}", e))?;
 

@@ -6,6 +6,7 @@ use commands::add_category::add_category;
 use commands::add_launch::add_launch;
 use commands::add_launch_history::add_launch_history;
 use commands::add_or_update_autocomplete::add_or_update_autocomplete;
+use commands::backup_database::backup_database;
 use commands::delete_category::delete_category;
 use commands::delete_launch::delete_launch;
 use commands::delete_launch_by_category::delete_launch_by_category;
@@ -25,9 +26,12 @@ use commands::get_local_icon_base64::get_local_icon_base64;
 use commands::get_online_img_base64::get_online_img_base64;
 use commands::get_recent_launch_history::get_recent_launch_history;
 use commands::get_website_info::get_website_info;
+use commands::import_database::import_database;
+use commands::open_app_data_dir::open_app_data_dir;
 use commands::open_file_with_lnk::open_file_with_lnk;
 use commands::open_path::open_path;
 use commands::rename_launch::rename_launch;
+use commands::reset_data::reset_data;
 use commands::restart_app::restart_app;
 use commands::reveal_in_file_manager::reveal_in_file_manager;
 use commands::run_launch::run_launch;
@@ -40,6 +44,7 @@ use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
 use commands::update_launch_enabled_by_category::update_launch_enabled_by_category;
 
+use sea_orm::DatabaseConnection;
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
@@ -52,6 +57,11 @@ mod db;
 mod entity;
 mod models;
 mod tray;
+
+#[derive(Default)]
+pub struct AppState {
+    pub db: Mutex<Option<DatabaseConnection>>,
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -126,33 +136,47 @@ pub fn run() {
             get_alias_launch,
             get_category_tree,
             add_launch_history,
-            get_recent_launch_history
+            get_recent_launch_history,
+            open_app_data_dir,
+            backup_database,
+            import_database,
+            reset_data
         ])
         .setup(|app| {
             let db = tauri::async_runtime::block_on(async {
                 db::connection::init_db(app).await.unwrap()
             });
-            app.manage(db);
+            // app.manage(db);
+            app.manage(AppState {
+                db: Mutex::new(Some(db)),
+            });
+
+            use tauri::WindowEvent;
+
+            macro_rules! setup_window_hide_on_close {
+                ($window:expr) => {{
+                    let window_clone = $window.clone();
+                    $window.on_window_event(move |event| {
+                        if let WindowEvent::CloseRequested { api, .. } = event {
+                            api.prevent_close();
+                            let _ = window_clone.hide();
+                        }
+                    });
+                }};
+            }
 
             let main_window = app.get_webview_window("main").unwrap();
             let search_window = app.get_webview_window("search").unwrap();
             let setting_window = app.get_webview_window("setting").unwrap();
+            let oper_launch_window = app.get_webview_window("operLaunch").unwrap();
+            let oper_category_window = app.get_webview_window("operCategory").unwrap();
 
-            main_window.on_window_event(|event| {
-                if let WindowEvent::CloseRequested { api, .. } = event {
-                    api.prevent_close();
-                }
-            });
-            search_window.on_window_event(|event| {
-                if let WindowEvent::CloseRequested { api, .. } = event {
-                    api.prevent_close();
-                }
-            });
-            setting_window.on_window_event(|event| {
-                if let WindowEvent::CloseRequested { api, .. } = event {
-                    api.prevent_close();
-                }
-            });
+            // 为所有窗口设置关闭时隐藏
+            setup_window_hide_on_close!(main_window);
+            setup_window_hide_on_close!(search_window);
+            setup_window_hide_on_close!(setting_window);
+            setup_window_hide_on_close!(oper_launch_window);
+            setup_window_hide_on_close!(oper_category_window);
 
             // 初始化应用配置
             app.manage(Mutex::new(AppConfigState::default()));

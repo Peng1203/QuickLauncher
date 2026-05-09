@@ -1,4 +1,6 @@
-use crate::{commands::exe_command::exec_command_internal, common::utils::run_as_admin, entity};
+use crate::{
+    commands::exe_command::exec_command_internal, common::utils::run_as_admin, entity, AppState,
+};
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
 use sea_orm::{
     prelude::Expr, sea_query::prelude::Local, ColumnTrait, DatabaseConnection, DbErr, EntityTrait,
@@ -7,10 +9,13 @@ use sea_orm::{
 use std::{os::windows::process::CommandExt, process::Command};
 
 #[tauri::command]
-pub async fn run_launch(id: i32, db: tauri::State<'_, DatabaseConnection>) -> Result<(), String> {
+pub async fn run_launch(id: i32, state: tauri::State<'_, AppState>) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     // ORM 查询
     let launch_item: Model = LaunchItems::find_by_id(id)
-        .one(db.inner())
+        .one(&db)
         .await
         .map_err(|e| format!("查询启动项失败: {}", e))?
         .ok_or("启动项不存在")?;
@@ -26,18 +31,19 @@ pub async fn run_launch(id: i32, db: tauri::State<'_, DatabaseConnection>) -> Re
     } else if launch_item.r#type == "apps" {
         // let _ = run_apps(&launch_item, &db).await;
 
-        let db = db.inner().clone();
         let launch_item = launch_item.clone();
 
+        let db_clone = db.clone();
         tokio::spawn(async move {
-            if let Err(e) = run_apps(&launch_item, &db).await {
+            if let Err(e) = run_apps(&launch_item, &db_clone).await {
                 log::error!("执行 apps 失败: {}", e);
             }
+            drop(db_clone);
         });
     }
 
     // 更新启动项目的启动次数和最后使用时间
-    incr_launch_count(db.inner(), id)
+    incr_launch_count(&db, id)
         .await
         .map_err(|e| format!("更新启动次数失败: {}", e))?;
 

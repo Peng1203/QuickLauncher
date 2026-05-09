@@ -109,7 +109,7 @@
 
       <!-- 当没有输入任何内容时 -->
       <div
-        v-show="!keyword.length"
+        v-show="isDefaultModel && !keyword.length"
         class="suggestion-con"
       >
         <!-- 占位作用 -->
@@ -307,10 +307,10 @@ const SEARCH_MODEL = {
 type SearchModelType = (typeof SEARCH_MODEL)[keyof typeof SEARCH_MODEL];
 
 const menuVisible = ref(false);
-const searchModel = ref<SearchModelType>(0);
-const isWebDefaultModel = computed(() => searchModel.value === 0);
-const isWebSearchModel = computed(() => searchModel.value === 1);
-const isTranslationModel = computed(() => searchModel.value === 2);
+const searchModel = ref<SearchModelType>(SEARCH_MODEL.DEFAULT_MODEL);
+const isDefaultModel = computed(() => searchModel.value === SEARCH_MODEL.DEFAULT_MODEL);
+const isWebSearchModel = computed(() => searchModel.value === SEARCH_MODEL.SEARCH_MODEL);
+const isTranslationModel = computed(() => searchModel.value === SEARCH_MODEL.TRANSLATION_MODEL);
 
 const autocompleteList = ref<string[]>([]);
 const autocompleteIndex = ref<number>(0);
@@ -381,11 +381,7 @@ function handleKeydown(e: KeyboardEvent) {
       if (isTranslationModel.value) {
         translationRef.value?.handleEnter();
       } else {
-        if (!keyword.value.length) {
-          handleHistoryEnterLaunch();
-        } else {
-          searchFlag.value && handleEnter();
-        }
+        handleEnter();
       }
       break;
     case 27: // Esc 键 关闭搜索窗口
@@ -406,7 +402,7 @@ function handleKeydown(e: KeyboardEvent) {
       }
       break;
     case 32: // 空格键盘 判断是否呼出网络搜索
-      if (isWebDefaultModel.value && appConfigStore.enableTranslation && spaceCounter.value === 3) {
+      if (isDefaultModel.value && appConfigStore.enableTranslation && spaceCounter.value === 3) {
         handleToggleSearchModel(SEARCH_MODEL.TRANSLATION_MODEL);
       }
       // prettier-ignore
@@ -417,7 +413,7 @@ function handleKeydown(e: KeyboardEvent) {
         translationRef.value?.handleKeyUp();
       } else {
         // 历史切换模式
-        if (!keyword.value.length) {
+        if (isDefaultModel.value && !keyword.value.length) {
           handleChangeHistory('up');
         } else {
           if (selectedIndex.value === minIndex && reultCount) selectedIndex.value = reultCount - 1;
@@ -434,7 +430,7 @@ function handleKeydown(e: KeyboardEvent) {
       if (isTranslationModel.value) {
         translationRef.value?.handleKeyDown();
       } else {
-        if (!keyword.value.length) {
+        if (isDefaultModel.value && !keyword.value.length) {
           handleChangeHistory('down');
         } else {
           if (selectedIndex.value === maxIndex && reultCount) selectedIndex.value = minIndex;
@@ -475,11 +471,19 @@ const { notification } = useNaiveUiApi();
 
 async function handleEnter() {
   try {
-    if (!keyword.value.trim()) return;
+    if (!keyword.value.length) {
+      if (isDefaultModel.value) await handleHistoryEnterLaunch();
+      handleClose();
+      return;
+    }
 
+    if (!searchFlag.value) return;
     // 根据搜索模式调用不同的执行接口
-    if (!isWebSearchModel.value) await handleEnterLaunch();
-    else await handleEnterWebSearch();
+    if (isDefaultModel.value) {
+      await handleEnterLaunch();
+    } else {
+      await handleEnterWebSearch();
+    }
 
     handleClose();
   } catch (e) {
@@ -524,7 +528,7 @@ const tranStr = ref<string>('');
 
 function handleToggleSearchModel(newModel: SearchModelType) {
   // 当切换的为 翻译模式 记录当前输入框字符串
-  if (newModel === 2) tranStr.value = keyword.value;
+  if (newModel === SEARCH_MODEL.TRANSLATION_MODEL) tranStr.value = keyword.value;
   searchModel.value = newModel;
   keyword.value = '';
   handleCloseSuggestion();
@@ -599,7 +603,7 @@ async function handleHistoryEnterLaunch() {
 }
 
 function handleClose(isEscClose: boolean = false) {
-  searchModel.value = 0;
+  searchModel.value = SEARCH_MODEL.DEFAULT_MODEL;
   activeHistoryIndex.value = 0;
   // 清空输入框
   keyword.value = '';

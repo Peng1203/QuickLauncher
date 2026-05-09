@@ -300,11 +300,32 @@ export function getAliasLaunch() {
 export function getCategoryTree() {
   return invoke<[]>(InvokeMethod.GET_CATEGORY_TREE);
 }
+
 export function getRecentLaunchHistory() {
   return invoke<[]>(InvokeMethod.GET_RECENT_LAUNCH_HISTORY);
 }
 
 /** 添加启动项历史 */
 export function addLaunchHistory(command: string, type: LaunchHistoryType, launchItemId?: number) {
-  return invoke<string[]>(InvokeMethod.ADD_LAUNCH_HISTORY, { command, type, launchItemId });
+  return invoke(InvokeMethod.ADD_LAUNCH_HISTORY, { command, type, launchItemId });
+}
+
+export function openAppDataDir() {
+  return invoke<string>(InvokeMethod.OPEN_APP_DATA_DIR);
+}
+
+export function backupDatabase(backupPath: string) {
+  return invoke<string>(InvokeMethod.BACKUP_DATABASE, { backupPath });
+}
+
+export function importDatabase(importPath: string) {
+  return invoke<string>(InvokeMethod.IMPORT_DATABASE, { importPath });
+}
+
+export function resetData() {
+  return invoke<string>(InvokeMethod.RESET_DATA);
+}
+
+export function restartApp() {
+  return invoke<string>(InvokeMethod.RESET_DATA);
 }

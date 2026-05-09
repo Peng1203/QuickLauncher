@@ -1,17 +1,21 @@
-use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set};
+use sea_orm::{ActiveModelTrait, EntityTrait, Set};
 
 use crate::{
     common::utils::get_pinyin_variants, entity::launch_items, models::launch_item::LaunchItemDto,
+    AppState,
 };
 
 #[tauri::command]
 pub async fn update_launch(
     item: LaunchItemDto,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     // ✅ 1. 先查是否存在
     let model = launch_items::Entity::find_by_id(item.id)
-        .one(db.inner())
+        .one(&db)
         .await
         .map_err(|e| format!("查询失败: {}", e))?;
 
@@ -49,7 +53,7 @@ pub async fn update_launch(
 
     // ✅ 5. 执行更新
     active
-        .update(db.inner())
+        .update(&db)
         .await
         .map_err(|e| format!("更新失败: {}", e))?;
 

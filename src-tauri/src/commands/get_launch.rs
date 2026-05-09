@@ -1,10 +1,7 @@
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
-use sea_orm::{
-    ColumnTrait, Condition, DatabaseConnection, EntityTrait, Order, QueryFilter, QueryOrder,
-};
-use tauri::State;
+use sea_orm::{ColumnTrait, Condition, EntityTrait, Order, QueryFilter, QueryOrder};
 
-use crate::entity;
+use crate::{entity, AppState};
 
 #[tauri::command]
 pub async fn get_launch(
@@ -13,8 +10,11 @@ pub async fn get_launch(
     sort_by: Option<String>,
     sort_order: Option<String>,
     enabled: Option<bool>,
-    db: State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<Vec<Model>, String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     let mut query = LaunchItems::find();
 
     // 默认为 false
@@ -87,8 +87,5 @@ pub async fn get_launch(
     // ------------------------
     // 执行查询
     // ------------------------
-    query
-        .all(&*db)
-        .await
-        .map_err(|e| format!("查询失败：{}", e))
+    query.all(&db).await.map_err(|e| format!("查询失败：{}", e))
 }

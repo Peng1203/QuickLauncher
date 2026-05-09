@@ -1,6 +1,7 @@
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
 
 use crate::entity::{self, launch_history, launch_items};
+use crate::AppState;
 use entity::launch_history::Entity as LaunchHistory;
 use entity::launch_items::Entity as LaunchItem;
 
@@ -17,13 +18,16 @@ pub struct LaunchHistoryWithIcon {
 
 #[tauri::command]
 pub async fn get_recent_launch_history(
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<Vec<LaunchHistoryWithIcon>, String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     // 1. 查询最近 20 条历史记录
     let histories = LaunchHistory::find()
         .order_by_desc(launch_history::Column::Id)
         .limit(20)
-        .all(&*db)
+        .all(&db)
         .await
         .map_err(|e| e.to_string())?;
 
@@ -36,7 +40,7 @@ pub async fn get_recent_launch_history(
     } else {
         LaunchItem::find()
             .filter(launch_items::Column::Id.is_in(item_ids))
-            .all(&*db)
+            .all(&db)
             .await
             .map_err(|e| e.to_string())?
     };

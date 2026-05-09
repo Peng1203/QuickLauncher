@@ -1,17 +1,20 @@
-use crate::entity::{self, autocomplete_history::Column};
+use crate::{
+    entity::{self, autocomplete_history::Column},
+    AppState,
+};
 use entity::autocomplete_history::ActiveModel;
 use entity::prelude::AutocompleteHistory;
-use sea_orm::{
-    sea_query::Expr, sea_query::OnConflict, ActiveValue::Set, DatabaseConnection, EntityTrait,
-    ExprTrait,
-};
+use sea_orm::{sea_query::Expr, sea_query::OnConflict, ActiveValue::Set, EntityTrait, ExprTrait};
 
 #[tauri::command]
 pub async fn add_or_update_autocomplete(
     query: &str,
     launch_item_id: Option<i32>,
-    db: tauri::State<'_, DatabaseConnection>,
+    state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
+    let db = { state.db.lock().unwrap().clone() };
+    let db = db.ok_or("数据库未连接")?;
+
     let model = ActiveModel {
         query: Set(query.to_string()),
         usage_count: Set(Some(1)),
@@ -27,7 +30,7 @@ pub async fn add_or_update_autocomplete(
                 .value(Column::LastUsedAt, Expr::current_timestamp())
                 .to_owned(),
         )
-        .exec(db.inner())
+        .exec(&db)
         .await
         .map_err(|e| e.to_string())?;
 

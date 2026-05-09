@@ -71,6 +71,9 @@
         :row-props="() => ({ style: 'height: 40px' })"
       />
     </n-form-item>
+    <n-form-item>
+      <span class="text-[12px] text-gray-500">别名支持拼音搜索</span>
+    </n-form-item>
   </n-form>
 </template>
 
