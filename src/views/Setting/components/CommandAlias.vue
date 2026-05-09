@@ -72,17 +72,27 @@
       />
     </n-form-item>
     <n-form-item>
-      <span class="text-[12px] text-gray-500">别名支持拼音搜索</span>
+      <div class="flex-1 flex-sb-c">
+        <span class="text-[12px] text-gray-500">别名支持拼音搜索</span>
+        <n-button
+          type="tertiary"
+          size="tiny"
+          @click="setDefaultData"
+        >
+          默认数据
+        </n-button>
+      </div>
     </n-form-item>
   </n-form>
 </template>
 
 <script setup lang="tsx">
 import { isEqual } from 'lodash-es';
-import { NIcon, NInput } from 'naive-ui';
+import { NIcon, NInput, NSwitch } from 'naive-ui';
 import { ref } from 'vue';
 import { addLaunch, deleteLaunch, exeCommand, getAliasLaunch, updateLaunch } from '@/api';
 import { useAppConfig } from '@/composables';
+import { defaultCommandAlias } from '@/constant/data';
 
 const { appConfigStore } = useAppConfig();
 const dataList = ref<LaunchItem[]>([]);
@@ -124,7 +134,7 @@ const columns = [
   {
     title: '操作',
     key: '',
-    width: 50,
+    width: 85,
     render(row: LaunchItem) {
       return h(
         <div class="flex gap-2">
@@ -143,6 +153,11 @@ const columns = [
           >
             <NIcon class="iconfont icon-shanchufenlei " />
           </span>
+          <NSwitch
+            size="small"
+            default-value={row.enabled}
+            on-update:value={(val: boolean) => (row.enabled = val)}
+          />
         </div>,
       );
     },
@@ -197,6 +212,25 @@ async function handleDelete(row: LaunchItem) {
     await deleteLaunch(row.id);
     // getData();
   }
+}
+
+async function setDefaultData() {
+  const defaultData: LaunchItem[] = defaultCommandAlias.map(item => ({
+    id: 0,
+    type: 'alias',
+    created_at: '',
+    updated_at: '',
+    launch_count: 0,
+    failure_count: 0,
+    run_as_admin: false,
+    order_index: 0,
+    enabled: true,
+    pinyin_full: '',
+    pinyin_abbr: '',
+    ...item,
+  }));
+
+  dataList.value = [...dataList.value, ...defaultData];
 }
 </script>
 
