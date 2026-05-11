@@ -1,5 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+use crate::clipboard::listener;
 use crate::common::utils::is_foreground_fullscreen;
 use crate::models::app_config_state::AppConfigState;
 use commands::add_category::add_category;
@@ -43,20 +44,23 @@ use commands::update_category::update_category;
 use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
 use commands::update_launch_enabled_by_category::update_launch_enabled_by_category;
-
 use sea_orm::DatabaseConnection;
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_prevent_default::Flags;
-
 use tray::create_tray;
+mod clipboard;
 mod commands;
 mod common;
 mod db;
 mod entity;
 mod models;
 mod tray;
+
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::panic;
 
 #[derive(Default)]
 pub struct AppState {
@@ -65,6 +69,7 @@ pub struct AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    setup_panic_logger();
     tauri::Builder::default()
         .plugin(tauri_plugin_pinia::init())
         .plugin(tauri_plugin_fs::init())
@@ -192,8 +197,24 @@ pub fn run() {
             // 创建系统托盘
             create_tray(app);
 
+            let app_handle = app.handle().clone();
+
+            listener::start_clipboard_listener(app_handle);
+
             Ok(())
         })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn setup_panic_logger() {
+    panic::set_hook(Box::new(|info| {
+        let msg = format!("PANIC OCCURRED:\n{}\n\n", info);
+
+        let _ = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open("tauri-error.log")
+            .and_then(|mut f| f.write_all(msg.as_bytes()));
+    }));
 }

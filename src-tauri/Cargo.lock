@@ -4560,6 +4560,7 @@ dependencies = [
 name = "quicklauncher"
 version = "0.1.0"
 dependencies = [
+ "arboard",
  "base64 0.22.1",
  "encoding_rs",
  "lnk_parser",
