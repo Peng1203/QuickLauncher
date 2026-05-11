@@ -13,6 +13,9 @@ export const useStore = defineStore('main', {
     // 光标选中的启动项 左边
     activeCursorX: 0,
     activeCursorY: 0,
+
+    /** 主窗口内置的快捷键操作是否启用 */
+    enableWindoShortcuts: true,
   }),
   actions: {
     async getLaunchData(id?: number) {

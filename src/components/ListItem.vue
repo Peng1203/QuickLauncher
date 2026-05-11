@@ -73,7 +73,8 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
-const { activeCategoryItem, activeLaunchItem, launchData, activeCursorX, activeCursorY } = storeToRefs(store);
+const { activeCategoryItem, activeLaunchItem, launchData, activeCursorX, activeCursorY, enableWindoShortcuts } =
+  storeToRefs(store);
 
 // 鼠标单击选中的项
 const activeItems = defineModel<LaunchItem[]>();
@@ -94,9 +95,9 @@ function handleKeydown(e: KeyboardEvent) {
 
   console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key);
   switch (key) {
-    // case 'F2': // 113
-    //   handleEditName();
-    //   break;
+    case 'F2': // 113
+      handleEditName();
+      break;
     case 'Enter': // 13
       if (isEdit.value) {
         handleSaveEditName();
@@ -106,7 +107,7 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       break;
     case 'Escape': // 27
-      handleCancelEditName();
+      handleExitEditName(true);
       break;
     default:
       break;
@@ -123,6 +124,7 @@ function handleEditName() {
   if (activeCategoryItem.value?.association_directory) return;
   // handleActive();
   if (isEdit.value) return;
+  enableWindoShortcuts.value = false;
   newName.value = props.name;
   isEdit.value = true;
   nextTick(() => {
@@ -137,14 +139,19 @@ function handleEditName() {
   });
 }
 
-function handleCancelEditName() {
+function handleExitEditName(restore: boolean = false) {
+  if (restore) {
+    nameRef?.value && (nameRef.value.textContent = props.name);
+  }
   isEdit.value = false;
+  enableWindoShortcuts.value = true;
 }
 
 async function handleSaveEditName() {
   // @ts-ignore
   await saveEditName(nameRef.value.textContent);
-  isEdit.value = false;
+  handleExitEditName();
+  // enableWindoShortcuts.value = true;
   // 更新数据
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
 }
@@ -184,7 +191,7 @@ const { getPositionByIndex } = useLaunchActive();
 
 // e?: PointerEvent
 function handleActive() {
-  isEdit.value = false;
+  handleExitEditName();
   // 手动点击选择启动项时 更新选中的坐标
   const i = launchData.value.findIndex(item => item.id === props.item.id);
   const { x, y } = getPositionByIndex(i);

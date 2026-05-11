@@ -68,7 +68,7 @@ import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
 const store = useStore();
-const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem } = storeToRefs(store);
+const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem, enableWindoShortcuts } = storeToRefs(store);
 const { registerAllCategoryDirWatch, checkCategoryDirAndLaunchSync } = useCategoryCorrelationDir();
 
 async function getCategorys() {
@@ -136,6 +136,8 @@ function handleRename() {
   renameStatus.value = true;
   activeRenameItem.value = item;
   renameItemId.value = item.id;
+  enableWindoShortcuts.value = false;
+
   nextTick(() => {
     const nameRef = itemRefs.value[item.id];
     if (!nameRef) return;
@@ -157,6 +159,7 @@ function cancelRename(restore: boolean = true) {
   if (!renameStatus.value) return;
   renameItemId.value = 0;
   renameStatus.value = false;
+  enableWindoShortcuts.value = true;
   // 清除之前的选区
   const selection = window.getSelection();
   selection?.removeAllRanges();

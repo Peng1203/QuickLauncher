@@ -10,7 +10,8 @@ import { useToggleWindowVisible } from './useToggleWindowVisible';
 const EVENT = 'keydown';
 export function useMainWindowShortcut() {
   const store = useStore();
-  const { activeCategoryItem, activeLaunchItem, activeCursorX, activeCursorY, launchData } = storeToRefs(store);
+  const { activeCategoryItem, activeLaunchItem, activeCursorX, activeCursorY, launchData, enableWindoShortcuts } =
+    storeToRefs(store);
 
   const { gridRowMaxItem, getPositionByIndex } = useLaunchActive();
   const { toogleSettingWindowVisible } = useToggleWindowVisible();
@@ -22,6 +23,7 @@ export function useMainWindowShortcut() {
     // console.log(`%c ctrlKey ----`, 'color: #fff;background-color: #000;font-size: 18px', ctrlKey);
     // console.log(`%c shiftKey ----`, 'color: #fff;background-color: #000;font-size: 18px', shiftKey);
     // console.log(`%c altKey ----`, 'color: #fff;background-color: #000;font-size: 18px', altKey);
+    if (!enableWindoShortcuts.value) return;
 
     switch (key) {
       case 'Escape': // 关闭窗口

@@ -87,24 +87,25 @@
             <Kbd>→</Kbd>
             <span class="text-xs ml-1">补全</span>
           </span>
+
+          <!-- 当想要执行自定义命令时 存在搜索结果时 可通过关闭 && !autocompleteList.length -->
+          <!-- class="suggestion-con" -->
+          <div
+            v-show="resultList.length"
+            class="flex"
+          >
+            <!-- 占位作用 -->
+            <!-- <span class="suggestion-text"></span> -->
+
+            <span class="flex items-center select-none mr-3">
+              <Kbd>Ctrl</Kbd>
+              <span>+</span>
+              <Kbd>W</Kbd>
+
+              <span class="text-xs ml-1">关闭搜索结果</span>
+            </span>
+          </div>
         </div>
-      </div>
-
-      <!-- 当想要执行自定义命令时 存在搜索结果时 可通过关闭 -->
-      <div
-        v-show="resultList.length && !autocompleteList.length"
-        class="suggestion-con"
-      >
-        <!-- 占位作用 -->
-        <span class="suggestion-text"></span>
-
-        <span class="flex items-center select-none mr-3">
-          <Kbd>Ctrl</Kbd>
-          <span>+</span>
-          <Kbd>W</Kbd>
-
-          <span class="text-xs ml-1">关闭搜索结果</span>
-        </span>
       </div>
 
       <!-- 当没有输入任何内容时 -->
@@ -668,6 +669,8 @@ async function handleSearch() {
 
   autocompleteIndex.value = 0;
   autocompleteList.value = [];
+
+  activeHistoryIndex.value = 0;
 
   if (!keyword.value.trim()) {
     handleCloseSuggestion();
