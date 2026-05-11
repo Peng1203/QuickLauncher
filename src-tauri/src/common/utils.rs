@@ -68,12 +68,46 @@ pub fn run_as_admin(launch_item: Model) -> Result<(), String> {
 }
 
 // 是否是网站
+/// 判断输入是否是有效的网址
+///
+/// 规则（按优先级）：
+/// 1. 快速排除：包含空格 → 返回 false（排除命令组合如 "ping baidu.com"）
+/// 2. 有有效网址协议 → 返回 true（http:// https:// ftp:// ftps://）
+/// 3. 看起来像纯域名 → 检查是否有有效 TLD
 pub fn is_valid_url(input: &str) -> bool {
-    // 1️⃣ 能直接解析成功（带协议）
-    if Url::parse(input).is_ok() {
-        return true;
+    let trimmed = input.trim();
+
+    if trimmed.is_empty() {
+        return false;
     }
 
+    // ============ 规则 1: 快速排除包含空格的输入（命令组合） ============
+    // "ping baidu.com", "curl https://...", "command domain.com" 等一律排除
+    if trimmed.contains(' ') {
+        return false;
+    }
+
+    // ============ 规则 2: 检查是否有有效的网址协议 ============
+    let web_protocols = ["http://", "https://", "ftp://", "ftps://"];
+    if web_protocols.iter().any(|proto| trimmed.starts_with(proto)) {
+        // 协议后面至少要有域名字符
+        let after_protocol = trimmed.split("://").nth(1).unwrap_or("");
+        return !after_protocol.trim().is_empty();
+    }
+
+    // ============ 规则 3: 没有协议，检查是否像纯域名 ============
+
+    // 必须包含 . 才能是域名（不是单个单词）
+    if !trimmed.contains('.') {
+        return false;
+    }
+
+    // 不能只有协议符号（ms-settings: / file: / custom:）
+    if trimmed.ends_with(':') {
+        return false;
+    }
+
+    // 检查是否有有效的 TLD
     const COMMON_TLDS: [&str; 43] = [
         // 🌍 国际通用
         ".com",
@@ -125,7 +159,7 @@ pub fn is_valid_url(input: &str) -> bool {
         ".co.uk",
     ];
 
-    let lower = input.to_lowercase();
+    let lower = trimmed.to_lowercase();
 
     // 去掉 path / query 再判断后缀
     let domain_part = lower.split('/').next().unwrap_or(&lower);
