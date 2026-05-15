@@ -84,6 +84,9 @@ export enum InvokeMethod {
   BACKUP_DATABASE = 'backup_database',
   IMPORT_DATABASE = 'import_database',
   RESET_DATA = 'reset_data',
+
+  // 设置默认托盘图标
+  SET_DEFAULT_TRAY_ICON = 'set_default_tray_icon',
 }
 
 export enum AppEvent {
@@ -119,6 +122,11 @@ export enum AppEvent {
 
   // 启动项定位
   LAUNCH_POSITION = 'launch_position',
+
+  // 剪贴板通知
+  CLIPBOARD = 'clipboard',
+
+  OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL = 'open_clipboard_window_by_set_location_modal',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];

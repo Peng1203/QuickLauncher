@@ -12,6 +12,7 @@ export const useAppConfigStore = defineStore(
   //
   {
     state: (): AppConfigState => ({
+      title: 'Quick Launcher',
       saveFlag: true,
       silentStart: true,
       autoStart: false,
@@ -67,6 +68,17 @@ export const useAppConfigStore = defineStore(
       confirmBeforeDelete: true,
 
       enableCommandAlias: true,
+
+      portalEnabled: false,
+      portalOpacity: 80,
+      portalNotifyMode: 'window',
+      portalDuration: 3000,
+      portalShowPath: true,
+      portalShowProgress: true,
+      portalEnableShortcut: true,
+      portalShowShortcut: true,
+      portalWindowPositionX: 0,
+      portalWindowPositionY: 0,
     }),
     actions: {
       loadConfig(initData: AppConfigState) {

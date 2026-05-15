@@ -5,6 +5,7 @@ import OperationCategory from '@/views/OperationCategory/OperationCategory.vue';
 import OperationLaunch from '@/views/OperationLaunch/OperationLaunch.vue';
 import Search from '@/views/Search/Search.vue';
 import Setting from '@/views/Setting/Setting.vue';
+import ClipboardToast from '@/views/ClipboardToast/ClipboardToast.vue';
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -15,6 +16,7 @@ export const router = createRouter({
     { path: '/setting', name: 'Setting', component: Setting },
     { path: '/operLaunch', name: 'OperLaunch', component: OperationLaunch },
     { path: '/operCategory', name: 'OperCategory', component: OperationCategory },
+    { path: '/clipboardToast', name: 'ClipboardToast', component: ClipboardToast },
   ],
 });
 

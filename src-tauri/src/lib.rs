@@ -40,6 +40,7 @@ use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
 use commands::search_launch::search_launch;
 use commands::set_app_config::set_app_config;
+use commands::set_default_tray_icon::set_default_tray_icon;
 use commands::update_category::update_category;
 use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
@@ -145,7 +146,8 @@ pub fn run() {
             open_app_data_dir,
             backup_database,
             import_database,
-            reset_data
+            reset_data,
+            set_default_tray_icon
         ])
         .setup(|app| {
             let db = tauri::async_runtime::block_on(async {
@@ -175,6 +177,7 @@ pub fn run() {
             let setting_window = app.get_webview_window("setting").unwrap();
             let oper_launch_window = app.get_webview_window("operLaunch").unwrap();
             let oper_category_window = app.get_webview_window("operCategory").unwrap();
+            let clipboard_toast = app.get_webview_window("clipboardToast").unwrap();
 
             // 为所有窗口设置关闭时隐藏
             setup_window_hide_on_close!(main_window);
@@ -182,6 +185,7 @@ pub fn run() {
             setup_window_hide_on_close!(setting_window);
             setup_window_hide_on_close!(oper_launch_window);
             setup_window_hide_on_close!(oper_category_window);
+            setup_window_hide_on_close!(clipboard_toast);
 
             // 初始化应用配置
             app.manage(Mutex::new(AppConfigState::default()));
@@ -191,6 +195,10 @@ pub fn run() {
                 // 只有开发模式下执行
                 if let Some(main_window) = app.get_webview_window("main") {
                     main_window.open_devtools();
+                }
+                // 只有开发模式下执行
+                if let Some(clipboard_toast) = app.get_webview_window("clipboardToast") {
+                    clipboard_toast.open_devtools();
                 }
             }
 

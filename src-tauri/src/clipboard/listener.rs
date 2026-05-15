@@ -23,10 +23,11 @@ pub fn start_clipboard_listener(app: AppHandle) {
     tauri::async_runtime::spawn(async move {
         let mut clipboard = Clipboard::new().unwrap();
         let mut last = String::new();
+        let mut flag = false;
 
         loop {
             if let Ok(text) = clipboard.get_text() {
-                if text != last {
+                if text != last && flag {
                     last = text;
 
                     let payload = ClipboardPayload {
@@ -34,10 +35,9 @@ pub fn start_clipboard_listener(app: AppHandle) {
                         content_type: detect_clipboard_content(&last),
                     };
 
-                    dbg!(&payload);
-
                     let _ = app.emit("clipboard", payload);
                 }
+                flag = true
             }
 
             sleep(Duration::from_millis(300)).await;

@@ -34,6 +34,11 @@ export function useAppConfigActions() {
     }
   };
 
+  const setMainWindowTitle = async () => {
+    const mainWindow = await getMainWindow();
+    mainWindow?.setTitle(appConfigStore.title);
+  };
+
   const setMainWindowCenter = async () => {
     const mainWindow = await getMainWindow();
     appConfigStore.center && mainWindow?.center();
@@ -94,6 +99,7 @@ export function useAppConfigActions() {
     setAlwaysOnTop,
     setMainWindowCenter,
     setMainWindowPosition,
+    setMainWindowTitle,
     setAutoStart,
     setSilentStart,
     registerMainWindowShortcutKey,

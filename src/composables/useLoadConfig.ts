@@ -29,14 +29,14 @@ export async function useLoadConfig() {
     // 初始化加载时立即保存一遍数据 防止后端获取时 拿不到新添加的属性
     setTimeout(() => (saveFlag.value = !saveFlag.value), 100);
 
-    // prettier-ignore
     const {
-    setAlwaysOnTop,
-    setMainWindowCenter,
-    setAutoStart,
-    setSilentStart,
-    setMainWindowPosition,
-  } = useAppConfigActions();
+      setAlwaysOnTop,
+      setAutoStart,
+      setSilentStart,
+      setMainWindowTitle,
+      setMainWindowCenter,
+      setMainWindowPosition,
+    } = useAppConfigActions();
 
     // 获取 自启动的最新状态 防止任务管理器中被关闭 导致展示状态错误
     const isEnaAffter = await isEnabled();
@@ -44,6 +44,7 @@ export async function useLoadConfig() {
     if (!isEnaAffter) await disable().catch(() => '');
     autoStart.value = isEnaAffter;
 
+    setMainWindowTitle();
     setMainWindowPosition();
 
     // 设置窗口是否置顶、居中、静默启动、开机自启 等配置

@@ -66,7 +66,7 @@
         type="text"
         placeholder=""
         :status="shortcutKeyInputStatus"
-        @keydown.prevent="handleKeydown"
+        @keydown="handleKeydown"
         @blur="handleBlur"
         @focus="shortcutKeyInputStatus = 'success'"
         @clear="handleClear"
@@ -135,6 +135,19 @@ watch(
   { immediate: true },
 );
 function handleKeydown(e: KeyboardEvent) {
+  const target = e.target as HTMLInputElement | null;
+  if (!target) return;
+
+  // 👉 判断是否有文本被选中
+  const hasSelection =
+    target.selectionStart !== null && target.selectionEnd !== null && target.selectionStart !== target.selectionEnd;
+
+  if (hasSelection) {
+    return;
+  }
+
+  e.preventDefault();
+
   const keyValue = getShortcutKey(e, appConfigStore.mainWindowGlobalShortcutKey);
 
   shortcutKey.value = keyValue;

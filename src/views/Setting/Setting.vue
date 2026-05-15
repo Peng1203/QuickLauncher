@@ -32,6 +32,12 @@
         :tab="tab.label"
         :name="tab.value"
       >
+        <template #tab>
+          <div class="flex items-center gap-2">
+            <n-icon :class="`iconfont ${tab.icon}`" />
+            <span>{{ tab.label }}</span>
+          </div>
+        </template>
         <component :is="tab.contentComponent" />
       </n-tab-pane>
     </n-tabs>
@@ -42,10 +48,11 @@
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
-import CommandAlias from './components/CommandAlias.vue';
-import Data from './components/Data.vue';
+import CommandAliasPane from './components/CommandAlias.vue';
+import DataPane from './components/Data.vue';
 import GeneralPane from './components/General.vue';
 import NetworkPane from './components/Network.vue';
+import PortalPane from './components/Portal.vue';
 import QuickSearchPane from './components/QuickSearch.vue';
 import Translation from './components/Translation.vue';
 import WebSearchPane from './components/WebSearch.vue';
@@ -53,16 +60,17 @@ import WebSearchPane from './components/WebSearch.vue';
 const currentWindow = getCurrentWebviewWindow();
 
 const settingTabs = [
-  { label: '常 规', value: 'general', contentComponent: GeneralPane },
-  { label: '快速搜索', value: 'q_search', contentComponent: QuickSearchPane },
-  { label: '网络搜索', value: 'n_search', contentComponent: WebSearchPane },
-  { label: '命令别名', value: 'command_alias', contentComponent: CommandAlias },
-  { label: '翻 译', value: 'translation', contentComponent: Translation },
-  { label: '网 络', value: 'network', contentComponent: NetworkPane },
-  { label: '数 据', value: 'data', contentComponent: Data },
+  { label: '常 规', value: 'general', icon: 'icon-changguishezhi-moren', contentComponent: GeneralPane },
+  { label: '快速搜索', value: 'q_search', icon: 'icon-icon-sousuofenlei', contentComponent: QuickSearchPane },
+  { label: '网络搜索', value: 'n_search', icon: 'icon-wangluosousuo', contentComponent: WebSearchPane },
+  { label: '命令别名', value: 'command_alias', icon: 'icon-minglinghangchaxun', contentComponent: CommandAliasPane },
+  { label: '翻 译', value: 'translation', icon: 'icon-fanyi', contentComponent: Translation },
+  { label: '代 理', value: 'network', icon: 'icon-wangluodaili', contentComponent: NetworkPane },
+  { label: '数 据', value: 'data', icon: 'icon-shuju', contentComponent: DataPane },
+  { label: '传送门', value: 'portal', icon: 'icon-chuansongmen', contentComponent: PortalPane },
 ];
 
-const activeTab = ref(settingTabs[0].value);
+const activeTab = ref(settingTabs[7].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 

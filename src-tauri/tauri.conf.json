@@ -80,6 +80,27 @@
         "decorations": false,
         "resizable": false,
         "skipTaskbar": false
+      },
+      {
+        "title": "Clipboard Toast",
+        "label": "clipboardToast",
+        "width": 320,
+        "height": 130,
+        "center": false,
+        "visible": false,
+        "alwaysOnTop": true,
+        "decorations": false,
+        "resizable": false,
+        "maximizable": false,
+        "url": "/#/clipboardToast",
+        "backgroundColor": null,
+        "shadow": true,
+        "skipTaskbar": true,
+        "transparent": true,
+        "titleBarStyle": "Overlay",
+        "contentProtected": false,
+        "x": 1550,
+        "y": 835
       }
     ],
     "security": {
@@ -90,6 +111,7 @@
     "active": true,
     "targets": "all",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "resources": ["tray"],
     "windows": {
       "allowDowngrades": true,
       "certificateThumbprint": null,

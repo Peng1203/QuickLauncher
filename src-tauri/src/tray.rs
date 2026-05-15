@@ -1,21 +1,42 @@
 use tauri::{
-    menu::{Menu, MenuItem},
+    image::Image,
+    menu::{IconMenuItem, Menu, MenuBuilder, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     App, Manager, WebviewWindowBuilder,
 };
 use tauri_plugin_pinia::ManagerExt;
 
 pub fn create_tray(app: &App) {
+    // let restart_i = IconMenuItem::with_id(
+    //     app,
+    //     "restart",
+    //     "重 启",
+    //     true,
+    //     Some(Image::from_path("tray/active.png").unwrap()),
+    //     None::<&str>,
+    // )
+    // .unwrap();
     let restart_i = MenuItem::with_id(app, "restart", "重 启", true, None::<&str>).unwrap();
 
     let settings_i = MenuItem::with_id(app, "settings", "设 置", true, None::<&str>).unwrap();
     let quit_i = MenuItem::with_id(app, "quit", "退 出", true, None::<&str>).unwrap();
     // let menu = Menu::with_items(app, &[&settings_i, &quit_i]).unwrap();
-    let menu = Menu::with_items(app, &[&settings_i, &restart_i, &quit_i]).unwrap();
-
-    let _ = TrayIconBuilder::new()
-        .tooltip("Quick Launcher")
+    // let menu = Menu::with_items(app, &[&settings_i, &restart_i, &quit_i]).unwrap();
+    let menu = MenuBuilder::new(app)
+        .item(&settings_i)
+        .separator()
+        .item(&restart_i)
+        .item(&quit_i)
+        .build()
+        .unwrap();
+    let title = app
+        .pinia()
+        .get::<String>("appConfig", "title")
+        .unwrap_or("Quick Launcher".to_owned());
+    let _ = TrayIconBuilder::with_id("tray")
+        .tooltip(title)
         .icon(app.default_window_icon().unwrap().clone())
+        // .icon(Image::from_path("icons/32x32.png").unwrap())
         .on_tray_icon_event(|tray, event| match event {
             TrayIconEvent::Click {
                 button: MouseButton::Left,

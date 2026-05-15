@@ -81,13 +81,18 @@ pub fn is_valid_url(input: &str) -> bool {
         return false;
     }
 
-    // ============ 规则 1: 快速排除包含空格的输入（命令组合） ============
+    // ============ 快速排除包含空格的输入（命令组合） ============
     // "ping baidu.com", "curl https://...", "command domain.com" 等一律排除
-    if trimmed.contains(' ') {
+    if trimmed.contains(char::is_whitespace) {
         return false;
     }
 
-    // ============ 规则 2: 检查是否有有效的网址协议 ============
+    // ============ 排除邮箱 ============
+    if is_email(trimmed) {
+        return false;
+    }
+
+    // ============ 检查是否有有效的网址协议 ============
     let web_protocols = ["http://", "https://", "ftp://", "ftps://"];
     if web_protocols.iter().any(|proto| trimmed.starts_with(proto)) {
         // 协议后面至少要有域名字符
@@ -95,7 +100,7 @@ pub fn is_valid_url(input: &str) -> bool {
         return !after_protocol.trim().is_empty();
     }
 
-    // ============ 规则 3: 没有协议，检查是否像纯域名 ============
+    // ============ 没有协议，检查是否像纯域名 ============
 
     // 必须包含 . 才能是域名（不是单个单词）
     if !trimmed.contains('.') {
@@ -167,6 +172,74 @@ pub fn is_valid_url(input: &str) -> bool {
     COMMON_TLDS.iter().any(|tld| domain_part.ends_with(tld))
 }
 
+// ============ 邮箱检测函数 ============
+fn is_email(input: &str) -> bool {
+    let trimmed = input.trim();
+
+    // 检查是否包含 @
+    if !trimmed.contains('@') {
+        return false;
+    }
+
+    // 按 @ 分割，应该恰好有两部分
+    let parts: Vec<&str> = trimmed.split('@').collect();
+    if parts.len() != 2 {
+        return false; // 多个 @ 或没有 @
+    }
+
+    let local = parts[0]; // @ 前面的部分
+    let domain = parts[1]; // @ 后面的部分
+
+    // 检查本地部分和域名部分都不为空
+    if local.is_empty() || domain.is_empty() {
+        return false;
+    }
+
+    // 本地部分检查：允许字母、数字、点、下划线、连字符等
+    // 不能以点开头或结尾，不能有连续的点
+    if local.starts_with('.') || local.ends_with('.') || local.contains("..") {
+        return false;
+    }
+
+    // 本地部分只能包含字母、数字、点、下划线、连字符、加号
+    let valid_local_chars =
+        |c: char| c.is_alphanumeric() || c == '.' || c == '_' || c == '-' || c == '+' || c == '&';
+    if !local.chars().all(valid_local_chars) {
+        return false;
+    }
+
+    // 域名部分检查：必须包含 . 和有效的 TLD
+    if !domain.contains('.') {
+        return false;
+    }
+
+    // 检查域名部分的有效性：不能以 . 开头或结尾，不能有连续的点
+    if domain.starts_with('.') || domain.ends_with('.') || domain.contains("..") {
+        return false;
+    }
+
+    // 域名部分只能包含字母、数字、点、连字符
+    let valid_domain_chars = |c: char| c.is_alphanumeric() || c == '.' || c == '-';
+    if !domain.chars().all(valid_domain_chars) {
+        return false;
+    }
+
+    // 检查是否有有效的 TLD
+    const EMAIL_TLDS: [&str; 61] = [
+        // 常见国际 TLD
+        ".com", ".net", ".org", ".edu", ".gov", ".mil", ".info", ".biz", ".xyz", ".top", ".site",
+        ".online", ".club", ".cc", ".tv", ".io", ".ai", ".dev", ".app",
+        // 国家代码 TLD
+        ".cn", ".jp", ".kr", ".uk", ".us", ".de", ".fr", ".it", ".es", ".ca", ".au", ".sg", ".hk",
+        ".tw", ".ru", ".br", ".in", ".mx", ".nl", ".ch", ".se", ".no", ".dk", ".nz", ".za", ".tw",
+        ".th", ".vn", ".ph", ".id", ".my", ".co", ".me", ".be", ".gr",
+        // 企业/特殊
+        ".company", ".ltd", ".inc", ".corp", ".shop", ".bank", ".qq",
+    ];
+
+    let lower = domain.to_lowercase();
+    EMAIL_TLDS.iter().any(|tld| lower.ends_with(tld))
+}
 // #[tauri::command]
 // #[cfg(target_os = "windows")]
 // pub fn is_foreground_fullscreen() -> bool {

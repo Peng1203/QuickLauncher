@@ -1,4 +1,4 @@
-import { isRegistered, unregister } from '@tauri-apps/plugin-global-shortcut';
+import { register as _register, isRegistered, unregister } from '@tauri-apps/plugin-global-shortcut';
 
 const CTRL = 'Ctrl';
 const ALT = 'Alt';
@@ -14,11 +14,7 @@ const WIN = 'Super';
  * @param {boolean} [preventDefault]
  * @returns {*}
  */
-export function getShortcutKey(
-  e: KeyboardEvent,
-  originValue: string = '',
-  preventDefault: boolean = false
-) {
+export function getShortcutKey(e: KeyboardEvent, originValue: string = '', preventDefault: boolean = false) {
   if (preventDefault) e.preventDefault();
 
   const { code, key, keyCode, shiftKey, ctrlKey, metaKey, altKey } = e;
@@ -106,10 +102,7 @@ export function getShortcutKey(
  * @param {?string} [oldShortcutKey]
  * @returns {Promise<boolean>}
  */
-export async function checkShortcutKey(
-  shortcutKey: string,
-  oldShortcutKey?: string
-): Promise<boolean> {
+export async function checkShortcutKey(shortcutKey: string, oldShortcutKey?: string): Promise<boolean> {
   try {
     if (oldShortcutKey && shortcutKey === oldShortcutKey) return true;
     let flag = false;
@@ -145,8 +138,7 @@ export function checkShortcutKeyComplete(shortcutKey: string): boolean {
     if (modifierKeys.includes(key)) continue;
 
     // 当存在组合修饰键以外的按键 则为合法
-    if (key !== CTRL && key !== ALT && key !== SHIFT && key !== WIN)
-      flag = true;
+    if (key !== CTRL && key !== ALT && key !== SHIFT && key !== WIN) flag = true;
   }
 
   return flag;
@@ -156,4 +148,12 @@ export async function unRegisterShortcutKey(shortcutKey: string) {
   if (!shortcutKey.trim()) return;
   const isReg = await isRegistered(shortcutKey);
   isReg && (await unregister(shortcutKey));
+}
+
+export async function register(shortcutKey: string, cb: () => any) {
+  await _register(shortcutKey, async e => {
+    if (e.state === 'Released') {
+      cb();
+    }
+  });
 }

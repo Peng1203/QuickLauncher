@@ -64,7 +64,7 @@ const menuOptions = computed(() => {
       itemVisible: ['exe'].includes(props.item?.extension || ''),
     },
     {
-      label: `打开${props.item.type === 'file' ? '文件' : '目录'}所在位置`,
+      label: '在资源管理器中打开',
       key: 'openRevalPath',
       icon: renderIcon('icon-dakaisuozaiwenjianjia'),
       itemVisible: ['file', 'directory'].includes(props.item.type),

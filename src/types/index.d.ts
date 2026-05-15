@@ -60,6 +60,7 @@ declare global {
 
   // 应用配置状态
   interface AppConfigState {
+    title: string;
     /** 保存flag */
     saveFlag: boolean;
     /** 静默启动 */
@@ -132,7 +133,21 @@ declare global {
     confirmBeforeDelete: boolean;
     /** 启动命令别名 */
     enableCommandAlias: boolean;
+    /** 传送门相关功能 */
+    portalEnabled: boolean;
+    portalOpacity: number;
+    portalNotifyMode: PortalNotifyMode;
+    portalDuration: number;
+    portalShowPath: boolean;
+    portalShowProgress: boolean;
+    portalEnableShortcut: boolean;
+    portalShowShortcut: boolean;
+    portalWindowPositionX: number;
+    portalWindowPositionY: number;
+    portalWindowPositionY: number;
   }
+
+  type PortalNotifyMode = 'window' | 'tray' | 'silent';
 
   type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja';
 
@@ -194,6 +209,13 @@ declare global {
   }
 
   type LaunchHistoryWithIcon = LaunchHistory & Pick<LaunchItem, 'icon'>;
+
+  type ClipboardContentType = 'Url' | 'Directory' | 'Unknown';
+
+  interface ClipboardPayload {
+    content: string;
+    content_type: ClipboardContentType;
+  }
 }
 
 export {};

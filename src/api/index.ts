@@ -329,3 +329,6 @@ export function resetData() {
 export function restartApp() {
   return invoke<string>(InvokeMethod.RESET_DATA);
 }
+export function setDefaultTrayIcon() {
+  return invoke(InvokeMethod.SET_DEFAULT_TRAY_ICON);
+}

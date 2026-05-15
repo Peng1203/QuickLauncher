@@ -4,7 +4,7 @@
     :data-tauri-drag-region="!appConfigStore.center"
     class="h-8 bg-white flex items-center justify-between px-2 border-b-1 border-gray-200 z-10"
   >
-    <span class="text-gray-700">Quick Launcher</span>
+    <span class="text-gray-700">{{ appConfigStore.title }}</span>
     <!-- 右侧操作 -->
     <div class="flex items-center gap-2">
       <n-icon
