@@ -110,6 +110,7 @@
 
       <!-- 当没有输入任何内容时 -->
       <div
+        v-if="appConfigStore.showHistory"
         v-show="isDefaultModel && !keyword.length"
         class="suggestion-con"
       >
@@ -414,7 +415,7 @@ function handleKeydown(e: KeyboardEvent) {
         translationRef.value?.handleKeyUp();
       } else {
         // 历史切换模式
-        if (isDefaultModel.value && !keyword.value.length) {
+        if (appConfigStore.showHistory && isDefaultModel.value && !keyword.value.length) {
           handleChangeHistory('up');
         } else {
           if (selectedIndex.value === minIndex && reultCount) selectedIndex.value = reultCount - 1;
@@ -446,7 +447,7 @@ function handleKeydown(e: KeyboardEvent) {
 const searchSourch = ref<WebSearchSource>();
 async function handleOpenWebSearch() {
   setTimeout(() => {
-    if (!keyword.value.trim()) return;
+    if (!keyword.value.trim() || appConfigStore.webSearchOpenModel === WebSearchOpenModel.CLOSE) return;
     let flag = false;
     let key = '';
     if (appConfigStore.webSearchOpenModel === WebSearchOpenModel.KEY_SPACE) {
@@ -503,7 +504,7 @@ async function handleEnterLaunch() {
     await exeCommand(keyword.value);
     addOrUpdateAutocompleteRecord(keyword.value);
     // 添加自定义命令类型的历史记录
-    addLaunchHistory(keyword.value, 'command');
+    appConfigStore.enableHistory && addLaunchHistory(keyword.value, 'command');
   } else {
     const item = resultList.value[selectedIndex.value];
     if (!item) return;
@@ -513,7 +514,7 @@ async function handleEnterLaunch() {
     // 更新列表中的启动次数
     EventBus.emit(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, item.id);
     addOrUpdateAutocompleteRecord(keyword.value, item.id);
-    addLaunchHistory(keyword.value, item.type, item.id);
+    appConfigStore.enableHistory && addLaunchHistory(keyword.value, item.type, item.id);
   }
 }
 
@@ -594,12 +595,12 @@ async function handleHistoryEnterLaunch() {
     // 更新列表中的启动次数
     EventBus.emit(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, launch_item_id);
     addOrUpdateAutocompleteRecord(command, launch_item_id);
-    addLaunchHistory(command, type, launch_item_id);
+    appConfigStore.enableHistory && addLaunchHistory(command, type, launch_item_id);
   } else {
     await exeCommand(command);
     addOrUpdateAutocompleteRecord(command);
     // 添加自定义命令类型的历史记录
-    addLaunchHistory(command, 'command');
+    appConfigStore.enableHistory && addLaunchHistory(command, 'command');
   }
 }
 

@@ -1,159 +1,132 @@
 <template>
-  <div>
-    <n-form
-      ref="formRef"
-      size="small"
-      label-placement="left"
-      :model="appConfigStore"
-      :label-width="160"
-      :show-feedback="false"
-    >
-      <h3 class="!mt-[0]">启用</h3>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.enableSearch"
-          size="small"
-        >
-          启用快速搜索
-        </n-checkbox>
-      </n-form-item>
+  <div class="flex flex-col gap-4 p-4">
+    <SettingGroup title="启用">
+      <SettingSwitchItem
+        v-model="appConfigStore.enableSearch"
+        icon="icon-switch"
+        title="启用快速搜索"
+        description="开启后可以使用快捷键快速唤起搜索窗口"
+      />
+    </SettingGroup>
 
-      <h3>显示/隐藏</h3>
-      <n-form-item
-        label="快捷键"
-        label-width="auto"
+    <SettingGroup title="窗口">
+      <SettingSwitchItem
+        v-model="appConfigStore.searchLostFocusHide"
+        icon="icon-chuangkouzhiding"
+        title="失去焦点隐藏"
+        description="窗口失去焦点时自动隐藏"
+      />
+
+      <SettingSwitchItem
+        v-model="appConfigStore.searchHideAfterOpen"
+        icon="icon-yanjing_yincang_o"
+        title="启动后隐藏"
+        description="执行后自动隐藏窗口"
+      />
+
+      <SettingSwitchItem
+        v-model="appConfigStore.doNotDisturbMode"
+        icon="icon-wurao"
+        title="勿扰模式"
+        description="前台窗口处于全屏模式下不会弹出搜索窗口"
+      />
+
+      <SettingSwitchItem
+        v-model="appConfigStore.searchOpenOnMouseDisplay"
+        icon="icon-lcd"
+        title="跟随鼠标显示"
+        description="在多显示器环境下，搜索窗口跟随鼠标所在显示器弹出"
+      />
+
+      <SettingItem
+        icon="icon-kuaijiejian-"
+        title="全局快捷键"
+        description="唤起或隐藏搜索窗口"
       >
-        <n-input
-          v-model:value="shortcutKey"
-          readonly
-          clearable
-          type="text"
-          placeholder=""
-          :status="shortcutKeyInputStatus"
-          @keydown.prevent="handleKeydown"
-          @blur="handleBlur"
-          @focus="shortcutKeyInputStatus = 'success'"
-          @clear="handleClear"
-        />
-        <!-- @input="handleChange" -->
-      </n-form-item>
-      <div class="mt-1 flex gap-1">
-        <n-button
-          type="info"
-          size="tiny"
-          @click="registerPresetShortcutKey('Alt + Space')"
-        >
-          Alt + Space
-        </n-button>
-        <n-button
-          type="info"
-          size="tiny"
-          @click="registerPresetShortcutKey('Ctrl + Space')"
-        >
-          Ctrl + Space
-        </n-button>
-      </div>
-
-      <h3>窗口</h3>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.searchLostFocusHide"
-          size="small"
-        >
-          失去焦点隐藏
-        </n-checkbox>
-      </n-form-item>
-
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.searchHideAfterOpen"
-          size="small"
-        >
-          启动后隐藏
-        </n-checkbox>
-      </n-form-item>
-
-      <n-form-item>
-        <div class="">
-          <n-checkbox
-            v-model:checked="appConfigStore.doNotDisturbMode"
-            size="small"
+        <div class="flex gap-1 justify-end">
+          <!-- type="info" -->
+          <n-button
+            type="info"
+            size="tiny"
+            @click="registerPresetShortcutKey('Alt + Space')"
           >
-            勿扰模式
-          </n-checkbox>
-          <span class="text-[12px] text-gray-500">当显示器前台窗口处于全屏模式下不会弹出搜索窗口</span>
+            Alt + Space
+          </n-button>
+          <n-button
+            type="info"
+            size="tiny"
+            @click="registerPresetShortcutKey('Ctrl + Space')"
+          >
+            Ctrl + Space
+          </n-button>
+
+          <n-input
+            v-model:value="shortcutKey"
+            style="width: 35%"
+            class="w-1/5"
+            size="tiny"
+            readonly
+            clearable
+            type="text"
+            placeholder=""
+            :status="shortcutKeyInputStatus"
+            @keydown="handleKeydown"
+            @blur="handleBlur"
+            @focus="shortcutKeyInputStatus = 'success'"
+            @clear="handleClear"
+          />
         </div>
-      </n-form-item>
+      </SettingItem>
+    </SettingGroup>
 
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.searchOpenOnMouseDisplay"
-          size="small"
-        >
-          跟随鼠标所在显示器显示
-        </n-checkbox>
-      </n-form-item>
+    <SettingGroup title="分类">
+      <SettingSwitchItem
+        v-model="appConfigStore.showCategory"
+        icon="icon-fenlei"
+        title="展示分类"
+        description="在搜索结果中展示分类标签"
+        @update:model-value="handleShowCategory"
+      />
 
-      <!--  -->
-      <h3>分类</h3>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.showCategory"
-          size="small"
-          @update-checked="handleShowCategory"
-        >
-          <!-- @change="" -->
-          展示
-        </n-checkbox>
-      </n-form-item>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.showSubCategory"
-          size="small"
-          :disabled="!appConfigStore.showCategory"
-        >
-          子分类展示
-        </n-checkbox>
-      </n-form-item>
+      <SettingSwitchItem
+        v-model="appConfigStore.showSubCategory"
+        icon="icon-tianjiazifenlei"
+        title="展示子分类"
+        description="在搜索结果中展示子分类标签"
+      />
+    </SettingGroup>
 
-      <h3>自动补全</h3>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.enableAutocomplete"
-          size="small"
-        >
-          启动
-        </n-checkbox>
-      </n-form-item>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.enableAutocompleteFrequencyFilter"
-          size="small"
-        >
-          仅使用输入次数 ≥3 次的记录作为自动补全候选项
-        </n-checkbox>
-      </n-form-item>
-      <!-- <n-form-item>
-        <n-radio-group v-model:value="appConfigStore.autocompleteMatchMode">
-          <n-space>
-            <n-radio value="prefix">前缀匹配</n-radio>
-            <n-radio value="contains">包含匹配</n-radio>
-          </n-space>
-        </n-radio-group>
-      </n-form-item> -->
+    <SettingGroup title="自动补全">
+      <SettingSwitchItem
+        v-model="appConfigStore.enableAutocomplete"
+        icon="icon-zidongbuquanshurukuang"
+        title="启用自动补全"
+        description="输入时显示智能补全建议"
+      />
 
-      <!-- TODO -->
-      <h3>历史记录</h3>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.showHistory"
-          size="small"
-        >
-          显示
-        </n-checkbox>
-        <!-- 排序条件 -->
-      </n-form-item>
-    </n-form>
+      <SettingSwitchItem
+        v-model="appConfigStore.enableAutocompleteFrequencyFilter"
+        icon="icon-hashjinghao"
+        title="高频优先"
+        description="仅使用输入次数 ≥3 的记录"
+      />
+    </SettingGroup>
+
+    <SettingGroup title="历史记录">
+      <SettingSwitchItem
+        v-model="appConfigStore.enableHistory"
+        icon="icon-lishijilu_o"
+        title="保存历史"
+        description="记录搜索和保存历史，关闭后将不再记录"
+      />
+
+      <SettingSwitchItem
+        v-model="appConfigStore.showHistory"
+        icon="icon-switch"
+        title="历史导航"
+        description="↑ ↓ 切换历史输入"
+      />
+    </SettingGroup>
   </div>
 </template>
 

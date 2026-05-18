@@ -52,6 +52,7 @@ export const useAppConfigStore = defineStore(
       webSearchOpenModel: 0,
       webSearchSourceList: [],
 
+      enableHistory: true,
       showHistory: false,
       enableAutocomplete: true,
       autocompleteMatchMode: 'prefix',

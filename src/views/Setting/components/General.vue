@@ -1,108 +1,104 @@
 <template>
-  <n-form
-    ref="formRef"
-    size="small"
-    label-placement="left"
-    :model="appConfigStore"
-    :label-width="160"
-    :show-feedback="false"
-  >
-    <h3 class="!mt-[0]">系统</h3>
-    <n-form-item>
-      <n-checkbox
-        v-model:checked="appConfigStore.autoStart"
-        size="small"
-        @update-checked="setAutoStart"
-      >
-        开机自启
-      </n-checkbox>
-    </n-form-item>
-
-    <n-form-item>
-      <n-checkbox v-model:checked="appConfigStore.silentStart">静默启动</n-checkbox>
-    </n-form-item>
-
-    <!-- <n-form-item>
-      <n-checkbox v-model:checked="appConfigStore.autoStart"> 开机自启 </n-checkbox>
-    </n-form-item> -->
-
-    <h3>语言</h3>
-    <n-form-item class="mt-1">
-      <n-select
-        v-model:value="appConfigStore.language"
-        size="small"
-        placeholder="Select"
-        :options="languageOptions as any"
+  <div class="flex flex-col gap-4 p-4">
+    <SettingGroup title="系统">
+      <SettingSwitchItem
+        v-model="appConfigStore.autoStart"
+        icon="icon-switch"
+        title="开机自启"
+        description="系统启动时自动运行应用"
+        @update:model-value="setAutoStart"
       />
-    </n-form-item>
 
-    <h3>窗口</h3>
-    <n-form-item>
-      <n-checkbox
-        v-model:checked="appConfigStore.onTop"
-        @update-checked="setAlwaysOnTop"
-      >
-        窗口置顶
-      </n-checkbox>
-    </n-form-item>
-    <n-form-item>
-      <n-checkbox
-        v-model:checked="appConfigStore.center"
-        @update-checked="setMainWindowCenter"
-      >
-        居中显示
-      </n-checkbox>
-    </n-form-item>
-
-    <h3>显示/隐藏</h3>
-    <n-form-item
-      label="快捷键"
-      label-width="auto"
-    >
-      <n-input
-        v-model:value="shortcutKey"
-        readonly
-        clearable
-        type="text"
-        placeholder=""
-        :status="shortcutKeyInputStatus"
-        @keydown="handleKeydown"
-        @blur="handleBlur"
-        @focus="shortcutKeyInputStatus = 'success'"
-        @clear="handleClear"
+      <SettingSwitchItem
+        v-model="appConfigStore.silentStart"
+        icon="icon-wurao"
+        title="静默启动"
+        description="启动时最小化到系统托盘"
       />
-      <!-- @input="handleChange" -->
-    </n-form-item>
+    </SettingGroup>
 
-    <div class="mt-1 flex gap-1">
-      <n-button
-        type="info"
-        size="tiny"
-        @click="registerPresetShortcutKey('Alt + P')"
+    <SettingGroup title="语言">
+      <SettingItem
+        title="界面语言"
+        description="选择应用显示语言"
       >
-        Alt + P
-      </n-button>
-      <n-button
-        type="info"
-        size="tiny"
-        @click="registerPresetShortcutKey('Alt + M')"
-      >
-        Alt + M
-      </n-button>
-    </div>
+        <n-select
+          v-model:value="appConfigStore.language"
+          :consistent-menu-width="false"
+          size="small"
+          placeholder="Select"
+          :options="languageOptions as any"
+        />
+      </SettingItem>
+    </SettingGroup>
 
-    <h3>操作</h3>
-    <n-form-item>
-      <n-checkbox
-        v-model:checked="appConfigStore.confirmBeforeDelete"
-        size="small"
-      >
-        删除启动项二次确认
-      </n-checkbox>
-    </n-form-item>
+    <SettingGroup title="窗口">
+      <SettingSwitchItem
+        v-model="appConfigStore.onTop"
+        icon="icon-chuangkouzhiding"
+        title="窗口置顶"
+        description="是否将应用窗口置顶显示"
+        @update:model-value="setAlwaysOnTop"
+      />
 
-    <!-- TODO 勿扰模式 -->
-  </n-form>
+      <SettingSwitchItem
+        v-model="appConfigStore.center"
+        icon="icon-juzhongxianshi"
+        title="居中显示"
+        description="启动时窗口居中显示"
+        @update:model-value="setMainWindowCenter"
+      />
+
+      <SettingItem
+        icon="icon-kuaijiejian-"
+        title="全局快捷键"
+        description="快速唤起或隐藏主窗口"
+      >
+        <div class="flex gap-1 justify-end">
+          <!-- type="info" -->
+          <n-button
+            type="info"
+            size="tiny"
+            @click="registerPresetShortcutKey('Alt + P')"
+          >
+            Alt + P
+          </n-button>
+          <n-button
+            type="info"
+            size="tiny"
+            @click="registerPresetShortcutKey('Alt + M')"
+          >
+            Alt + M
+          </n-button>
+
+          <n-input
+            v-model:value="shortcutKey"
+            style="width: 45%"
+            class="w-1/5"
+            size="tiny"
+            readonly
+            clearable
+            type="text"
+            placeholder=""
+            :status="shortcutKeyInputStatus"
+            @keydown="handleKeydown"
+            @blur="handleBlur"
+            @focus="shortcutKeyInputStatus = 'success'"
+            @clear="handleClear"
+          />
+        </div>
+      </SettingItem>
+    </SettingGroup>
+
+    <SettingGroup title="操作">
+      <SettingSwitchItem
+        v-model="appConfigStore.confirmBeforeDelete"
+        icon="icon-shanchufenlei"
+        title="删除二次确认"
+        description="删除启动项前显示确认对话框"
+      />
+    </SettingGroup>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -197,10 +193,3 @@ function handleClear() {
   appConfigStore.mainWindowGlobalShortcutKey = '';
 }
 </script>
-
-<style scoped>
-.n-form-item {
-  width: 90%;
-  padding-left: 8px;
-}
-</style>

@@ -70,7 +70,8 @@ const settingTabs = [
   { label: '传送门', value: 'portal', icon: 'icon-chuansongmen', contentComponent: PortalPane },
 ];
 
-const activeTab = ref(settingTabs[7].value);
+const activeTab = ref(settingTabs[2].value);
+// const activeTab = ref(settingTabs[7].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 
@@ -89,6 +90,8 @@ onUnmounted(() => {});
 }
 
 .n-tab-pane {
+  padding: 0 !important;
+  padding-bottom: 0 !important;
   overflow-y: auto;
   padding-bottom: 10px !important;
 }

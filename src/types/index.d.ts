@@ -114,6 +114,7 @@ declare global {
     webSearchOpenModel: WebSearchOpenModel;
     webSearchSourceList: WebSearchSource[];
 
+    enableHistory: boolean;
     showHistory: boolean;
     enableAutocomplete: boolean;
     autocompleteMatchMode: 'prefix' | 'contains';

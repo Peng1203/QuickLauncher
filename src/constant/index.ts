@@ -134,6 +134,7 @@ export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
 export enum WebSearchOpenModel {
   KEY_SPACE = 0,
   COLON_KEY_SPACE = 1,
+  CLOSE = 2,
 }
 
 export enum AutocompleteMatchMode {

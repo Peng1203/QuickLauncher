@@ -1,88 +1,89 @@
 <template>
-  <div>
-    <n-form
-      ref="formRef"
-      size="small"
-      label-placement="left"
-      :model="appConfigStore"
-      :label-width="160"
-      :show-feedback="false"
-    >
-      <div class="flex items-center justify-between">
-        <h3 class="!mt-[0]">启用</h3>
-
+  <div class="flex flex-col gap-4 p-4">
+    <SettingGroup title="启用">
+      <SettingSwitchItem
+        v-model="appConfigStore.enableWebSearch"
+        icon="icon-switch"
+        title="启用网络搜索"
+      >
         <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1c7FKzKEc3" />
-      </div>
-      <n-form-item>
-        <n-checkbox
-          v-model:checked="appConfigStore.enableWebSearch"
-          size="small"
-        >
-          启用网络搜索
-        </n-checkbox>
-      </n-form-item>
-      <h3>呼出方式</h3>
-      <n-form-item>
-        <div class="w-full">
-          <!-- @ts-ignore -->
-          <n-select
-            v-model:value="appConfigStore.webSearchOpenModel"
-            :options="(options as any)"
-          />
-          <p class="text-[12px] leading-3.5 text-gray-500 mt-1">
-            输入
-            <b class="text-black">
-              {{ appConfigStore.webSearchOpenModel ? '(英文状态) 冒号 + 关键字 + 空格' : '关键字 + 空格' }}
-            </b>
-            使用网络搜索，例如使用谷歌搜索，输入
-            <b class="text-black">
-              {{ appConfigStore.webSearchOpenModel ? '":g"' : '"g"' }}
-            </b>
-            ，然后按下空格键，进入网络搜索模式。
-          </p>
-        </div>
-      </n-form-item>
+      </SettingSwitchItem>
+    </SettingGroup>
 
-      <h3 class="flex justify-between items-center">
-        搜索源
+    <SettingGroup title="特殊呼出">
+      <n-select
+        v-model:value="appConfigStore.webSearchOpenModel"
+        size="small"
+        :options="(options as any)"
+      />
+      <p
+        v-show="appConfigStore.webSearchOpenModel !== WebSearchOpenModel.CLOSE"
+        class="text-[12px] leading-3.5 text-gray-500 mt-1"
+      >
+        处于默认搜索模式下，输入
+        <b class="text-black">
+          {{ appConfigStore.webSearchOpenModel ? '(英文状态) 冒号 + 关键字 + 空格' : '关键字 + 空格' }}
+        </b>
+        使用网络搜索，例如使用谷歌搜索，输入
+        <b class="text-black">
+          {{ appConfigStore.webSearchOpenModel ? '":g"' : '"g"' }}
+        </b>
+        ，然后按下空格键，进入网络搜索模式。
+      </p>
+    </SettingGroup>
 
-        <n-icon
-          title="重置搜索源"
-          size="18"
-          class="cursor-pointer mr-3"
-          @click="handleResetWebSource"
-        >
-          <RefreshOutline />
-        </n-icon>
-      </h3>
-      <n-form-item>
-        <n-data-table
-          size="small"
-          max-height="160"
-          :data="webSearchSourceList"
-          :columns="columns"
-          :pagination="false"
-          :bordered="true"
-          :single-line="true"
-          :row-props="getRowProps"
-          :row-class-name="({ id }) => (id === activeRowId ? '!bg-gray-200' : '')"
-        />
-      </n-form-item>
-      <div class="mt-1 flex gap-1">
+    <SettingGroup title="搜索源">
+      <n-data-table
+        size="small"
+        max-height="160"
+        :data="webSearchSourceList"
+        :columns="columns"
+        :pagination="false"
+        :bordered="true"
+        :single-line="true"
+        :row-props="getRowProps"
+        :row-class-name="({ id }) => (id === activeRowId ? '!bg-gray-200' : '')"
+      />
+      <div class="flex-sb-c">
         <n-button
           size="small"
-          type="default"
+          type="info"
           @click="handleAdd"
         >
+          <template #icon>
+            <Icon name="icon-xinzeng" />
+          </template>
           新 增
         </n-button>
+
+        <!-- v-if="activeRowId" -->
         <n-button
-          v-if="activeRowId"
+          :disabled="!activeRowId"
           size="small"
           type="error"
           @click="handleDel"
         >
+          <template #icon>
+            <Icon
+              name="icon-shanchufenlei"
+              size="14"
+            />
+          </template>
           删 除
+        </n-button>
+
+        <n-button
+          size="small"
+          type="default"
+          @click="handleResetWebSource"
+        >
+          <template #icon>
+            <Icon
+              name="icon-shuaxin"
+              size="14"
+            />
+          </template>
+          重 置
         </n-button>
       </div>
 
@@ -98,140 +99,23 @@
         >
           <n-form-item
             label="图标"
-            class="mt-1 w-[90%]"
+            class="mt-1"
           >
             <div class="flex items-end gap-2">
               <n-avatar
-                size="medium"
+                size="small"
                 class="cursor-pointer"
                 :src="sourceForm.icon"
                 :class="[sourceForm.icon ? '!bg-transparent' : '']"
                 @click="handleGetLocalFileIcon"
               />
               <!-- <n-input v-model:value="sourceForm.icon" placeholder="" /> -->
-
-              <n-button
-                size="tiny"
-                type="default"
-                title="选择本地图标"
-                @click="handleGetLocalFileIcon"
-              >
-                <template #icon>
-                  <n-icon>
-                    <ArrowUp />
-                  </n-icon>
-                </template>
-              </n-button>
-
-              <n-tooltip
-                placement="bottom"
-                trigger="click"
-              >
-                <template #trigger>
-                  <n-button
-                    size="tiny"
-                    type="default"
-                    title="网络图片"
-                  >
-                    <template #icon>
-                      <n-icon>
-                        <LinkOutline />
-                      </n-icon>
-                    </template>
-                  </n-button>
-                </template>
-                <div class="text-gray-700">输入网络图片地址</div>
-
-                <n-input-group>
-                  <n-input
-                    v-model:value="onlineImgUrl"
-                    placeholder=""
-                  />
-                  <n-button
-                    type="info"
-                    :loading="onlineImgUrlLoading"
-                    :disabled="!onlineImgUrl.length"
-                    @click="handleGetOnlineImg"
-                  >
-                    获 取
-                  </n-button>
-                </n-input-group>
-              </n-tooltip>
-
-              <n-tooltip
-                placement="bottom"
-                trigger="click"
-                title="网站图标"
-              >
-                <template #trigger>
-                  <n-button
-                    size="tiny"
-                    type="default"
-                  >
-                    <template #icon>
-                      <n-icon>
-                        <GlobeOutline />
-                      </n-icon>
-                    </template>
-                  </n-button>
-                </template>
-                <div class="text-gray-700">输入网站地址</div>
-                <n-input-group>
-                  <n-input
-                    v-model:value="webSiteUrl"
-                    placeholder=""
-                  />
-                  <n-button
-                    type="info"
-                    :loading="webSiteUrlLoading"
-                    :disabled="!webSiteUrl.length"
-                    @click="handleGetWebSiteUrl"
-                  >
-                    获 取
-                  </n-button>
-                </n-input-group>
-              </n-tooltip>
-
-              <n-tooltip
-                placement="top"
-                trigger="click"
-                title="SVG 图标"
-              >
-                <template #trigger>
-                  <n-button
-                    size="tiny"
-                    type="default"
-                  >
-                    <template #icon>
-                      <n-icon>
-                        <CodeOutline />
-                      </n-icon>
-                    </template>
-                  </n-button>
-                </template>
-
-                <div class="w-[200px]">
-                  <div class="text-gray-700">输入 SVG 代码</div>
-                  <n-input
-                    v-model:value="svgStr"
-                    type="textarea"
-                    placeholder=""
-                    :autosize="{ minRows: 3, maxRows: 5 }"
-                  />
-                  <n-button
-                    type="info"
-                    class="!mt-1"
-                    @click="handleGetSvgBase64"
-                  >
-                    获 取
-                  </n-button>
-                </div>
-              </n-tooltip>
+              <IconPicker v-model="sourceForm.icon!" />
             </div>
           </n-form-item>
           <n-form-item
             label="名称"
-            class="mt-1 w-[90%]"
+            class="mt-1"
           >
             <n-input
               v-model:value="sourceForm.name"
@@ -241,7 +125,7 @@
 
           <n-form-item
             label="关键字"
-            class="mt-1 w-[90%]"
+            class="mt-1"
           >
             <n-input
               v-model:value="sourceForm.keywords"
@@ -251,7 +135,7 @@
 
           <n-form-item
             label="网址"
-            class="mt-1 w-[90%]"
+            class="mt-1"
           >
             <n-input
               v-model:value="sourceForm.searchApi"
@@ -261,7 +145,7 @@
 
           <n-form-item
             label="描述"
-            class="mt-1 w-[90%]"
+            class="mt-1"
           >
             <n-input
               v-model:value="sourceForm.desc"
@@ -269,33 +153,36 @@
             />
           </n-form-item>
 
-          <div class="mt-1 flex gap-1">
-            <n-button
-              size="small"
-              type="info"
-              @click="handleConfirm"
-            >
-              确 认
-            </n-button>
-            <n-button
-              size="small"
-              type="tertiary"
-              @click="handleCancel"
-            >
-              取 消
-            </n-button>
+          <div class="mt-3 flex-sb-c">
+            <DescText>动态内容使用 {w} 替换</DescText>
+
+            <div class="flex gap-1">
+              <n-button
+                size="small"
+                type="info"
+                @click="handleConfirm"
+              >
+                确 认
+              </n-button>
+              <n-button
+                size="small"
+                type="tertiary"
+                @click="handleCancel"
+              >
+                取 消
+              </n-button>
+            </div>
           </div>
         </n-form>
       </div>
-    </n-form>
+    </SettingGroup>
   </div>
 </template>
 
 <script setup lang="tsx">
 import { open } from '@tauri-apps/plugin-dialog';
-import { ArrowUp, CodeOutline, GlobeOutline, LinkOutline, RefreshOutline } from '@vicons/ionicons5';
 import { h } from 'vue';
-import { getLocalIconBase64, getOnlineImgBase64, getWebsiteInfo } from '@/api';
+import { getLocalIconBase64 } from '@/api';
 import { useAppConfig, useNaiveUiApi } from '@/composables';
 import { BASE_SOURCE, WebSearchOpenModel } from '@/constant';
 
@@ -304,6 +191,7 @@ const { appConfigStore, webSearchSourceList } = useAppConfig();
 const options: OptionItem[] = [
   { label: '关键字 + 空格', value: WebSearchOpenModel.KEY_SPACE },
   { label: '冒号 + 关键字 + 空格', value: WebSearchOpenModel.COLON_KEY_SPACE },
+  { label: '关闭', value: WebSearchOpenModel.CLOSE },
 ];
 
 const columns = [
@@ -343,7 +231,7 @@ const sourceForm = ref<WebSearchSource>({
 const activeRowId = ref<number>(0);
 function getRowProps(row: WebSearchSource) {
   return {
-    style: 'cursor: pointer; height: 40px',
+    style: 'cursor: pointer; height: 34px',
     onClick: () => {
       activeRowId.value = row.id;
 
@@ -377,48 +265,7 @@ async function handleGetLocalFileIcon() {
 }
 const { message } = useNaiveUiApi();
 
-const onlineImgUrl = ref<string>('');
-const onlineImgUrlLoading = ref<boolean>(false);
-async function handleGetOnlineImg() {
-  try {
-    onlineImgUrlLoading.value = true;
-    if (!(onlineImgUrl.value.includes('http://') || onlineImgUrl.value.includes('https://'))) {
-      onlineImgUrl.value = `https://${onlineImgUrl.value}`;
-    }
-    const base64 = await getOnlineImgBase64(onlineImgUrl.value);
-    sourceForm.value.icon = base64;
-  } catch (e) {
-    message.error(e as string);
-  } finally {
-    onlineImgUrlLoading.value = false;
-  }
-}
-
-const webSiteUrl = ref<string>('');
-const webSiteUrlLoading = ref<boolean>(false);
-async function handleGetWebSiteUrl() {
-  try {
-    webSiteUrlLoading.value = true;
-    if (!(webSiteUrl.value.includes('http://') || webSiteUrl.value.includes('https://'))) {
-      webSiteUrl.value = `https://${webSiteUrl.value}`;
-    }
-    const { icon, title }: any = await getWebsiteInfo(webSiteUrl.value);
-    sourceForm.value.icon = icon;
-    if (title && sourceForm.value.desc === '') sourceForm.value.desc = title;
-  } catch (e) {
-    message.error(e as string);
-  } finally {
-    webSiteUrlLoading.value = false;
-  }
-}
 // const data = ref<WebSearchSource[]>([...webSearchSourceList.value]);
-
-const svgStr = ref<string>('');
-async function handleGetSvgBase64() {
-  if (!svgStr.value.trim()) return;
-  const base64 = btoa(unescape(encodeURIComponent(svgStr.value)));
-  sourceForm.value.icon = `data:image/svg+xml;base64,${base64}`;
-}
 
 async function handleConfirm() {
   if (sourceForm.value.id) handleSaveEdit();
@@ -479,18 +326,11 @@ function formInit() {
     sourceForm.value.searchApi = '';
     sourceForm.value.suggestion = '';
     sourceForm.value.suggestionApi = '';
-
-    onlineImgUrl.value = '';
-    webSiteUrl.value = '';
   });
 }
 </script>
 
 <style scoped>
-.n-form-item {
-  width: 90%;
-  padding-left: 8px;
-}
 ::v-deep(.n-data-table .n-data-table-td) {
   background-color: initial !important;
 }
