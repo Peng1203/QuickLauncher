@@ -8,12 +8,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    1: typeof import('./src/components/ui/1.vue')['default']
     BrowserPicker: typeof import('./src/components/BrowserPicker.vue')['default']
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
     CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
     DescText: typeof import('./src/components/DescText.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
+    Icon: typeof import('./src/components/ui/Icon.vue')['default']
     IconPicker: typeof import('./src/components/IconPicker.vue')['default']
     Kbd: typeof import('./src/components/Kbd.vue')['default']
     ListContextMenu: typeof import('./src/components/ListContextMenu.vue')['default']
@@ -60,5 +62,8 @@ declare module 'vue' {
     OpenDemoVideo: typeof import('./src/components/OpenDemoVideo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SettingGroup: typeof import('./src/components/ui/SettingGroup.vue')['default']
+    SettingItem: typeof import('./src/components/ui/SettingItem.vue')['default']
+    SettingSwitchItem: typeof import('./src/components/ui/SettingSwitchItem.vue')['default']
   }
 }
