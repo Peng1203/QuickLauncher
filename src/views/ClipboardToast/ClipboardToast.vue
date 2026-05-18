@@ -113,7 +113,7 @@ import { TrayIcon } from '@tauri-apps/api/tray';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline, FolderOutline, LinkOutline, OpenOutline } from '@vicons/ionicons5';
 import { NButton, NIcon } from 'naive-ui';
-import { computed } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { exeCommand, openRevealManager, setDefaultTrayIcon } from '@/api';
 import { useAppConfig } from '@/composables';
 import { AppEvent } from '@/constant';

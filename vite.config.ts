@@ -1,14 +1,15 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import tailwindcss from '@tailwindcss/vite'
-import { resolve } from 'path'
-import AutoImport from 'unplugin-auto-import/vite'
-import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
-import Components from 'unplugin-vue-components/vite'
-import vueJsx from '@vitejs/plugin-vue-jsx'
-import vueDevTools from 'vite-plugin-vue-devtools'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
+import { resolve } from 'path';
+import AutoImport from 'unplugin-auto-import/vite';
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
+import Components from 'unplugin-vue-components/vite';
+import vueJsx from '@vitejs/plugin-vue-jsx';
+import vueDevTools from 'vite-plugin-vue-devtools';
 
-const host = process.env.TAURI_DEV_HOST
+const host = process.env.TAURI_DEV_HOST;
+const port = parseInt(process.env.TAURI_DEV_PORT || '') || 5173;
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -18,10 +19,7 @@ export default defineConfig(async () => ({
     // vueDevTools(),
     tailwindcss(),
     AutoImport({
-      imports: [
-        'vue',
-        { 'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'] },
-      ],
+      imports: ['vue', { 'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'] }],
     }),
     Components({
       resolvers: [NaiveUiResolver()],
@@ -34,14 +32,14 @@ export default defineConfig(async () => ({
   clearScreen: false,
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
-    port: 1420,
+    port,
     strictPort: true,
     host: host || false,
     hmr: host
       ? {
           protocol: 'ws',
           host,
-          port: 1421,
+          port,
         }
       : undefined,
     watch: {
@@ -55,4 +53,4 @@ export default defineConfig(async () => ({
       '@': resolve(__dirname, '.', 'src'),
     },
   },
-}))
+}));
