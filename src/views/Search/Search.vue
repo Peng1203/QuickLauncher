@@ -280,6 +280,7 @@ import {
   SEARCH_INPUT_HEIGHT,
   SEARCH_RESULT_ITEM_HEIGHT,
   SEARCH_WINDOW_WIDTH,
+  TranslationOpenModel,
   WebSearchOpenModel,
 } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
@@ -404,7 +405,12 @@ function handleKeydown(e: KeyboardEvent) {
       }
       break;
     case 32: // 空格键盘 判断是否呼出网络搜索
-      if (isDefaultModel.value && appConfigStore.enableTranslation && spaceCounter.value === 3) {
+      if (
+        appConfigStore.enableTranslation &&
+        appConfigStore.translationOpenModel === TranslationOpenModel.THREE_HITS_ON_SPACES &&
+        isDefaultModel.value &&
+        spaceCounter.value === 3
+      ) {
         handleToggleSearchModel(SEARCH_MODEL.TRANSLATION_MODEL);
       }
       // prettier-ignore
