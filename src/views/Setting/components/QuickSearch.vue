@@ -3,7 +3,7 @@
     <SettingGroup title="启用">
       <SettingSwitchItem
         v-model="appConfigStore.enableSearch"
-        icon="icon-switch"
+        icon="icon-icon-sousuofenlei"
         title="启用快速搜索"
         description="开启后可以使用快捷键快速唤起搜索窗口"
       />

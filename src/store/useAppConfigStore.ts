@@ -59,6 +59,7 @@ export const useAppConfigStore = defineStore(
       enableAutocompleteFrequencyFilter: true,
 
       enableTranslation: true,
+      translationOpenModel: 1,
       BDTranslationAppid: '',
       BDTranslationKey: '',
       BDTranslationTo: 'en',

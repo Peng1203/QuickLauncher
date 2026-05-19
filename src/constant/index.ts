@@ -137,6 +137,11 @@ export enum WebSearchOpenModel {
   CLOSE = 2,
 }
 
+export enum TranslationOpenModel {
+  THREE_HITS_ON_SPACES = 1,
+  CLOSE = 0,
+}
+
 export enum AutocompleteMatchMode {
   Prefix = 'prefix',
   Contains = 'contains',

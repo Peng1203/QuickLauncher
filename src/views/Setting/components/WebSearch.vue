@@ -3,7 +3,7 @@
     <SettingGroup title="启用">
       <SettingSwitchItem
         v-model="appConfigStore.enableWebSearch"
-        icon="icon-switch"
+        icon="icon-wangluosousuo"
         title="启用网络搜索"
       >
         <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1c7FKzKEc3" />
@@ -18,7 +18,7 @@
       />
       <p
         v-show="appConfigStore.webSearchOpenModel !== WebSearchOpenModel.CLOSE"
-        class="text-[12px] leading-3.5 text-gray-500 mt-1"
+        class="text-[12px] leading-3.5 text-gray-500"
       >
         处于默认搜索模式下，输入
         <b class="text-black">
@@ -46,6 +46,7 @@
       />
       <div class="flex-sb-c">
         <n-button
+          dashed
           size="small"
           type="info"
           @click="handleAdd"

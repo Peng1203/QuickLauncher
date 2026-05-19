@@ -1,36 +1,24 @@
 <template>
-  <n-form
-    ref="formRef"
-    size="small"
-    label-placement="left"
-    :model="appConfigStore"
-    :label-width="160"
-    :show-feedback="false"
-  >
-    <div class="flex items-center justify-between">
-      <h3 class="!mt-[0]">启用</h3>
-      <!-- <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1c7FKzKEc3" /> -->
-    </div>
-
-    <n-form-item>
-      <n-checkbox
-        v-model:checked="appConfigStore.enableCommandAlias"
-        size="small"
+  <div class="flex flex-col gap-4 p-4">
+    <SettingGroup title="启用">
+      <SettingSwitchItem
+        v-model="appConfigStore.enableCommandAlias"
+        icon="icon-minglinghangchaxun"
+        title="启用命令别名"
+        description="通过简短别名快速执行系统命令"
       >
-        启用命令别名
-      </n-checkbox>
-    </n-form-item>
+        <!-- <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1c7FKzKEc3" /> -->
+      </SettingSwitchItem>
+    </SettingGroup>
 
-    <h3 class="flex justify-between items-center">
-      <span>列表</span>
-
-      <div class="flex gap-2 mr-3">
+    <SettingGroup title="映射列表">
+      <div class="flex justify-end gap-2">
         <!-- {{ changed }} -->
         <n-button
           type="success"
           size="tiny"
           @click="
-            dataList.push({
+            dataList.unshift({
               id: 0,
               name: '',
               path: '',
@@ -47,6 +35,12 @@
             })
           "
         >
+          <template #icon>
+            <Icon
+              name="icon-xinzeng"
+              size="16"
+            />
+          </template>
           新 增
         </n-button>
         <n-button
@@ -55,35 +49,51 @@
           :disabled="changed"
           @click="handleSave"
         >
+          <template #icon>
+            <Icon
+              name="icon-baocun"
+              size="14"
+            />
+          </template>
           保 存
         </n-button>
       </div>
-    </h3>
-    <n-form-item>
+
       <n-data-table
         size="small"
         max-height="300"
         :data="dataList"
         :columns="columns"
         :pagination="false"
-        :bordered="true"
+        :bordered="false"
         :single-line="true"
         :row-props="() => ({ style: 'height: 40px' })"
       />
-    </n-form-item>
-    <n-form-item>
+
       <div class="flex-1 flex-sb-c">
-        <span class="text-[12px] text-gray-500">别名支持拼音搜索</span>
+        <span class="flex-s-c gap-0.5 text-[10px] text-gray-500">
+          <Icon
+            name="icon-tip"
+            size="12"
+          />
+          <span>别名支持拼音搜索</span>
+        </span>
         <n-button
           type="tertiary"
           size="tiny"
           @click="setDefaultData"
         >
+          <template #icon>
+            <Icon
+              name="icon-shuaxin"
+              size="14"
+            />
+          </template>
           默认数据
         </n-button>
       </div>
-    </n-form-item>
-  </n-form>
+    </SettingGroup>
+  </div>
 </template>
 
 <script setup lang="tsx">

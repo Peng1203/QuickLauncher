@@ -1,4 +1,4 @@
-import type { WebSearchOpenModel } from '@/constant';
+import type { WebSearchOpenModel, TranslationOpenModel } from '@/constant';
 
 declare global {
   type DirectionType = 'up' | 'right' | 'down' | 'left';
@@ -122,6 +122,7 @@ declare global {
     enableAutocompleteFrequencyFilter: boolean;
 
     enableTranslation: boolean;
+    translationOpenModel: TranslationOpenModel;
     /** 百度翻译api app id */
     BDTranslationAppid: string;
     /** 百度翻译api 密钥 */
