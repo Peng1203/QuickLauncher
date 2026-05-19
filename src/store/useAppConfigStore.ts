@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { saveAppConfig } from '@/api';
 import {
+  PortalNotifyMode,
   SEARCH_INPUT_HEIGHT,
   SEARCH_RESULT_ITEM_HEIGHT,
   SEARCH_WINDOW_MAX_HEIGHT,
@@ -73,7 +74,7 @@ export const useAppConfigStore = defineStore(
 
       portalEnabled: false,
       portalOpacity: 80,
-      portalNotifyMode: 'window',
+      portalNotifyMode: PortalNotifyMode.TRAY,
       portalDuration: 3000,
       portalShowPath: true,
       portalShowProgress: true,

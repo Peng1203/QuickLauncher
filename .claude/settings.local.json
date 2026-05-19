@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(node -e \"const vueuse = require\\('@vueuse/core'\\); console.log\\('useCloned:', typeof vueuse.useCloned\\); console.log\\('cloned:', typeof vueuse.cloned\\);\")",
+      "Bash(node -e \"import\\('@vueuse/core'\\).then\\(m => { console.log\\('useCloned:', typeof m.useCloned\\); console.log\\('cloned:', typeof m.cloned\\); }\\)\")",
+      "Bash(pnpm build *)",
+      "Bash(pnpm lint *)",
+      "Bash(pnpm lint:fix)"
     ]
   }
 }

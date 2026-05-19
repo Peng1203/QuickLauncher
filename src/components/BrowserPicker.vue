@@ -25,31 +25,19 @@
 <script setup lang="tsx">
 import type { DynamicTagsOption } from 'naive-ui';
 import { LogoChrome, LogoEdge, LogoFirefox, RefreshOutline } from '@vicons/ionicons5';
-import { ref } from 'vue';
+import { useStorage } from '@vueuse/core';
 import { useNaiveUiApi } from '@/composables';
 
 const { message } = useNaiveUiApi();
 
 const activeValue = defineModel<string>();
 
-const defaultBrowserOptions = ref([
-  {
-    label: '默认',
-    value: '',
-  },
-  {
-    label: 'Chrome',
-    value: 'chrome',
-  },
-  {
-    label: 'Edge',
-    value: 'msedge',
-  },
-  {
-    label: 'Firefox',
-    value: 'firefox',
-  },
-]);
+const defaultBrowserOptions: OptionItem[] = [
+  { label: '默认', value: '' },
+  { label: 'Chrome', value: 'chrome' },
+  { label: 'Edge', value: 'msedge' },
+  { label: 'Firefox', value: 'firefox' },
+];
 
 const browserIcons: Record<string, any> = {
   chrome: LogoChrome,
@@ -59,12 +47,7 @@ const browserIcons: Record<string, any> = {
 
 const LOCAL_BROWSER_KEY = 'local_browser_key';
 
-// 浏览器选择
-const baseBrowserOptions = ref<OptionItem[]>(
-  localStorage.getItem(LOCAL_BROWSER_KEY)
-    ? JSON.parse(localStorage.getItem(LOCAL_BROWSER_KEY) as any)
-    : defaultBrowserOptions.value,
-);
+const baseBrowserOptions = useStorage<OptionItem[]>(LOCAL_BROWSER_KEY, defaultBrowserOptions);
 
 const browserOptions = computed<OptionItem[]>({
   get: () => baseBrowserOptions.value,
@@ -98,17 +81,10 @@ function handleRenderBrowserTag(tag: OptionItem, index: number) {
   );
 }
 
-function saveBrowserOption() {
-  nextTick(() => {
-    localStorage.setItem(LOCAL_BROWSER_KEY, JSON.stringify(baseBrowserOptions.value));
-  });
-}
-
 function handleCreateBrowserOption(newTag: string) {
   const [label, value] = newTag.split('=');
 
   if (!value || !label) message.warning('输入信息有误');
-  else saveBrowserOption();
 
   return {
     label,
@@ -117,18 +93,13 @@ function handleCreateBrowserOption(newTag: string) {
 }
 
 function handleDeleteBrowserOption(item: OptionItem) {
-  // 当删除的是当前选中的浏览器 则重置为默认
   if (activeValue.value === item.value) activeValue.value = '';
-  // baseBrowserOptions.value
   const delIndex = baseBrowserOptions.value.findIndex(tag => tag.value === item.value);
   baseBrowserOptions.value.splice(delIndex, 1);
-  // 持久化保存到本地
-  saveBrowserOption();
 }
 
 function handleSetDefaultBrowserOptions() {
-  baseBrowserOptions.value = JSON.parse(JSON.stringify(defaultBrowserOptions.value));
-  saveBrowserOption();
+  baseBrowserOptions.value = [...defaultBrowserOptions];
 }
 </script>
 

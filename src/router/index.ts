@@ -1,11 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 
+import ClipboardToast from '@/views/ClipboardToast/ClipboardToast.vue';
 import Main from '@/views/Main/Main.vue';
 import OperationCategory from '@/views/OperationCategory/OperationCategory.vue';
 import OperationLaunch from '@/views/OperationLaunch/OperationLaunch.vue';
 import Search from '@/views/Search/Search.vue';
 import Setting from '@/views/Setting/Setting.vue';
-import ClipboardToast from '@/views/ClipboardToast/ClipboardToast.vue';
 
 export const router = createRouter({
   history: createWebHashHistory(),

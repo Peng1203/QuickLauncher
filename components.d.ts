@@ -8,7 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    1: typeof import('./src/components/ui/1.vue')['default']
     BrowserPicker: typeof import('./src/components/BrowserPicker.vue')['default']
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
     CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
@@ -21,11 +20,9 @@ declare module 'vue' {
     ListContextMenu: typeof import('./src/components/ListContextMenu.vue')['default']
     ListItem: typeof import('./src/components/ListItem.vue')['default']
     ListItemContextMenu: typeof import('./src/components/ListItemContextMenu.vue')['default']
-    NAlert: typeof import('naive-ui')['NAlert']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
-    NCarousel: typeof import('naive-ui')['NCarousel']
     NCheckbox: typeof import('naive-ui')['NCheckbox']
     NCol: typeof import('naive-ui')['NCol']
     NConfigProvider: typeof import('naive-ui')['NConfigProvider']
@@ -48,12 +45,10 @@ declare module 'vue' {
     NModal: typeof import('naive-ui')['NModal']
     NModalProvider: typeof import('naive-ui')['NModalProvider']
     NNotificationProvider: typeof import('naive-ui')['NNotificationProvider']
-    NPopconfirm: typeof import('naive-ui')['NPopconfirm']
     NPopover: typeof import('naive-ui')['NPopover']
     NRow: typeof import('naive-ui')['NRow']
     NSelect: typeof import('naive-ui')['NSelect']
     NSlider: typeof import('naive-ui')['NSlider']
-    NSpace: typeof import('naive-ui')['NSpace']
     NSwitch: typeof import('naive-ui')['NSwitch']
     NTabPane: typeof import('naive-ui')['NTabPane']
     NTabs: typeof import('naive-ui')['NTabs']

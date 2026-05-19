@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { useDebounceFn } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { ref } from 'vue';
 import { ensureDefaultCategory } from '@/api';
@@ -45,14 +46,12 @@ const { appConfigStore } = useAppConfig();
 
 const currentWindow = getCurrentWebviewWindow();
 
-let timer: any;
-currentWindow.onMoved(({ payload: position }) => {
-  clearTimeout(timer);
-  timer = setTimeout(() => {
-    appConfigStore.mainWindowPositionX = position.x;
-    appConfigStore.mainWindowPositionY = position.y;
-  }, 100);
-});
+const saveMainPosition = useDebounceFn((position: { x: number; y: number }) => {
+  appConfigStore.mainWindowPositionX = position.x;
+  appConfigStore.mainWindowPositionY = position.y;
+}, 100);
+
+currentWindow.onMoved(({ payload: position }) => saveMainPosition(position));
 
 EventBus.listen(AppEvent.UPDATE_LAUNCH_LIST, store.getLaunchData);
 EventBus.listen(AppEvent.UPDATE_CATEGORY_LIST, store.getCategoryData);

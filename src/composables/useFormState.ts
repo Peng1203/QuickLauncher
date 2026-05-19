@@ -1,11 +1,7 @@
-import { ref } from 'vue';
+import { useCloned } from '@vueuse/core';
 
 export function useFormState<T extends Record<string, any>>(origin: T) {
-  const form = ref<T>(JSON.parse(JSON.stringify(origin)));
-
-  const _initForm = JSON.parse(JSON.stringify(origin));
-
-  const initForm = () => (form.value = JSON.parse(JSON.stringify(_initForm)));
+  const { cloned: form, sync: initForm } = useCloned(origin);
 
   const setForm = (data: T) => {
     for (const key in form.value) {

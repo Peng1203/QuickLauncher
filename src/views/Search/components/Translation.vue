@@ -263,7 +263,7 @@ const originTranslationReslut = ref<OptionItem[]>([]);
 // 通过Tab按键触发 切换翻译语言
 function handleChangeTranslationLanguage() {
   isChangeTranslationLanguage.value = true;
-  originTranslationReslut.value = JSON.parse(JSON.stringify(resultList.value));
+  originTranslationReslut.value = structuredClone(resultList.value);
   resultList.value = BAIDU_TRANSLATION_TO;
   selectedIndex.value = 0;
   current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));

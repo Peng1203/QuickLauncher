@@ -314,7 +314,7 @@ function handleDel() {
 
 function handleResetWebSource() {
   handleCancel();
-  webSearchSourceList.value = JSON.parse(JSON.stringify(BASE_SOURCE));
+  webSearchSourceList.value = structuredClone(BASE_SOURCE);
 }
 
 function formInit() {

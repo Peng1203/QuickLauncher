@@ -2,7 +2,6 @@ export * from './useAppConfig';
 export * from './useAppConfigActions';
 export * from './useCategoryCorrelationDir';
 export * from './useCategorySort';
-export * from './useContextMenuClose';
 export * from './useFormState';
 export * from './useLaunchActive';
 export * from './useLoadConfig';

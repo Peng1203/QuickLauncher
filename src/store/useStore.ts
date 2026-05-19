@@ -1,12 +1,15 @@
+import { useSessionStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { getCategory, getLaunchs } from '@/api';
 import { ACTIVE_CATEGORY_LOCAL_KEY } from '@/constant';
+
+const activeCategoryRef = useSessionStorage(ACTIVE_CATEGORY_LOCAL_KEY, 0);
 
 export const useStore = defineStore('main', {
   state: () => ({
     launchData: <LaunchItem[]>[],
     activeLaunchItem: <LaunchItem | null>{},
-    activeCategory: Number(sessionStorage.getItem(ACTIVE_CATEGORY_LOCAL_KEY)) || 0,
+    activeCategory: activeCategoryRef.value,
     defaultCategory: <CategoryItem>{},
     categoryData: <CategoryItem[]>[],
     categoryOptions: <OptionItem[]>[],
@@ -49,12 +52,12 @@ export const useStore = defineStore('main', {
       // 找出默认分类
       this.defaultCategory = data.find(item => item.order_index === 9999)!;
 
-      if (init && !sessionStorage.getItem(ACTIVE_CATEGORY_LOCAL_KEY)) this.activeCategory = this.defaultCategory.id;
+      if (init && !activeCategoryRef.value) this.activeCategory = this.defaultCategory.id;
     },
 
     async handleChangeCategory(id: number) {
       this.activeCategory = id;
-      sessionStorage.setItem(ACTIVE_CATEGORY_LOCAL_KEY, `${id}`);
+      activeCategoryRef.value = id;
       this.activeCursorX = 0;
       this.activeCursorY = 0;
       await this.getLaunchData(id);

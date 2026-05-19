@@ -164,7 +164,7 @@
 
 <script setup lang="ts">
 import { useAppConfig } from '@/composables';
-import { AppEvent } from '@/constant';
+import { AppEvent, PortalNotifyMode } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 
 const { appConfigStore } = useAppConfig();
@@ -172,17 +172,17 @@ const { appConfigStore } = useAppConfig();
 const notifyModes: { label: string; value: PortalNotifyMode; iconClass?: string; icon?: any }[] = [
   {
     label: '弹窗通知',
-    value: 'window',
+    value: PortalNotifyMode.WINDOW,
     icon: 'icon-program-code',
   },
   {
     label: '托盘闪烁',
-    value: 'tray',
+    value: PortalNotifyMode.TRAY,
     icon: 'icon-shanshuo',
   },
   {
     label: '关闭通知',
-    value: 'silent',
+    value: PortalNotifyMode.SILENT,
     icon: 'icon-guanbitongzhi',
   },
 ];

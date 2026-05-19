@@ -1,4 +1,4 @@
-import type { WebSearchOpenModel, TranslationOpenModel } from '@/constant';
+import type { TranslationOpenModel, WebSearchOpenModel, PortalNotifyMode } from '@/constant';
 
 declare global {
   type DirectionType = 'up' | 'right' | 'down' | 'left';
@@ -149,7 +149,7 @@ declare global {
     portalWindowPositionY: number;
   }
 
-  type PortalNotifyMode = 'window' | 'tray' | 'silent';
+  // type PortalNotifyMode = 'window' | 'tray' | 'silent';
 
   type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja';
 

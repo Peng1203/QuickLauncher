@@ -112,11 +112,12 @@ import { listen } from '@tauri-apps/api/event';
 import { TrayIcon } from '@tauri-apps/api/tray';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline, FolderOutline, LinkOutline, OpenOutline } from '@vicons/ionicons5';
+import { useDebounceFn, useTimeoutFn } from '@vueuse/core';
 import { NButton, NIcon } from 'naive-ui';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { exeCommand, openRevealManager, setDefaultTrayIcon } from '@/api';
 import { useAppConfig } from '@/composables';
-import { AppEvent } from '@/constant';
+import { AppEvent, PortalNotifyMode } from '@/constant';
 import { sleep } from '@/utils/delay';
 import { EventBus } from '@/utils/eventBus';
 import { register, unRegisterShortcutKey } from '@/utils/shortcutKey';
@@ -173,15 +174,14 @@ const info = computed(() => {
 
 const currentWindow = getCurrentWebviewWindow();
 
-const timer = ref();
-
 const OPEN_SHORTCUT_KEY = 'Home';
 const OPEN_DIR_IN_MANAGER_SHORTCUT_KEY = 'PageUp';
 const shortcutRegistered = ref(false);
 
+const { start: startAutoClose, stop: stopAutoClose } = useTimeoutFn(handleClose, appConfigStore.portalDuration);
+
 async function handleClose() {
   if (currentModel.value === 'demo') return;
-  // 当处于设置位置模式时 直接关闭
   if (currentModel.value === 'setLocation') {
     await currentWindow?.hide();
     visible.value = false;
@@ -189,52 +189,47 @@ async function handleClose() {
     handleEndFlashTray();
   } else if (appConfigStore.portalNotifyMode === 'window') {
     if (!visible.value) return;
-    timer.value && clearTimeout(timer.value);
+    stopAutoClose();
     await currentWindow?.hide();
     visible.value = false;
   }
 
-  // 解除注册的快捷键打开
   if (shortcutRegistered.value) {
     unRegisterShortcutKey(OPEN_SHORTCUT_KEY);
     unRegisterShortcutKey(OPEN_DIR_IN_MANAGER_SHORTCUT_KEY);
-
     shortcutRegistered.value = false;
   }
 }
 
 const animationKey = ref(0);
-// 弹窗通知
 async function handleShowWindow() {
   animationKey.value++;
   await currentWindow?.show();
   await handleRegisterShortcutKey();
-  timer.value && clearTimeout(timer.value);
-  timer.value = setTimeout(handleClose, appConfigStore.portalDuration);
-
+  stopAutoClose();
+  startAutoClose();
   visible.value = true;
 }
 
 const flashFlag = ref(false);
-const flashTimer = ref();
-// 闪烁锁
+const { start: startFlashTimeout, stop: stopFlashTimeout } = useTimeoutFn(
+  handleEndFlashTray,
+  appConfigStore.portalDuration,
+);
 const flashLock = ref(false);
 // 托盘闪烁通知
 async function handleFlashTray() {
   const tray = await TrayIcon.getById('tray');
   flashFlag.value = true;
-  flashTimer.value && clearTimeout(flashTimer.value);
-  flashTimer.value = setTimeout(handleEndFlashTray, appConfigStore.portalDuration);
+  stopFlashTimeout();
+  startFlashTimeout();
 
   handleRegisterShortcutKey();
   if (flashLock.value) return;
   while (flashFlag.value) {
-    // console.log(`%c 托盘闪烁 ----`, 'color: #fff;background-color: #000;font-size: 18px');
     flashLock.value = true;
     tray?.setIcon(null);
     await sleep(500);
-
-    // tray?.setIcon('tray/32x32.png');
     await setDefaultTrayIcon();
     tray?.setTooltip(info.value.title);
     await sleep(500);
@@ -243,7 +238,7 @@ async function handleFlashTray() {
 // 托盘通知完毕
 async function handleEndFlashTray() {
   flashFlag.value = false;
-  flashTimer.value && clearTimeout(flashTimer.value);
+  stopFlashTimeout();
   setDefaultTrayIcon();
   const tray = await TrayIcon.getById('tray');
   tray?.setTooltip(appConfigStore.title);
@@ -278,14 +273,12 @@ async function openDirInManager() {
 
 let unlistenClipboard: (() => void) | null = null;
 
-const timer2 = ref();
-currentWindow.onMoved(({ payload: position }) => {
-  clearTimeout(timer2.value);
-  timer2.value = setTimeout(() => {
-    appConfigStore.portalWindowPositionX = position.x;
-    appConfigStore.portalWindowPositionY = position.y;
-  }, 100);
-});
+const savePortalPosition = useDebounceFn((position: { x: number; y: number }) => {
+  appConfigStore.portalWindowPositionX = position.x;
+  appConfigStore.portalWindowPositionY = position.y;
+}, 100);
+
+currentWindow.onMoved(({ payload: position }) => savePortalPosition(position));
 EventBus.listen(AppEvent.OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL, async () => {
   currentModel.value = 'setLocation';
   content.value = '拖动窗口设置位置';
@@ -305,13 +298,13 @@ onMounted(async () => {
       type.value = content_type;
 
       switch (appConfigStore.portalNotifyMode) {
-        case 'window':
+        case PortalNotifyMode.WINDOW:
           handleShowWindow();
           break;
-        case 'tray':
+        case PortalNotifyMode.TRAY:
           handleFlashTray();
           break;
-        case 'silent':
+        case PortalNotifyMode.SILENT:
           handleRegisterShortcutKey();
           break;
       }
@@ -321,8 +314,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (isDefaultModel.value) {
-    timer.value && clearTimeout(timer.value);
-    flashTimer.value && clearTimeout(flashTimer.value);
     unRegisterShortcutKey(OPEN_SHORTCUT_KEY);
     unRegisterShortcutKey(OPEN_DIR_IN_MANAGER_SHORTCUT_KEY);
     unlistenClipboard?.();

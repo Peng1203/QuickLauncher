@@ -142,6 +142,12 @@ export enum TranslationOpenModel {
   CLOSE = 0,
 }
 
+export enum PortalNotifyMode {
+  WINDOW = 'window',
+  TRAY = 'tray',
+  SILENT = 'silent',
+}
+
 export enum AutocompleteMatchMode {
   Prefix = 'prefix',
   Contains = 'contains',

@@ -176,7 +176,7 @@ const columns = [
 
 async function getData() {
   const data = await getAliasLaunch();
-  originData.value = JSON.parse(JSON.stringify(data));
+  originData.value = structuredClone(data);
   dataList.value = data;
 }
 getData();

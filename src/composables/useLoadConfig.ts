@@ -1,8 +1,8 @@
 import { disable, isEnabled } from '@tauri-apps/plugin-autostart';
-import { useAppConfig } from './useAppConfig';
-import { useAppConfigActions } from './useAppConfigActions';
 import { getAppConfig } from '@/api';
 import { delay } from '@/utils/delay';
+import { useAppConfig } from './useAppConfig';
+import { useAppConfigActions } from './useAppConfigActions';
 
 export async function useLoadConfig() {
   const retryCounter = ref(0);
