@@ -2,20 +2,21 @@
   <div :class="$attrs.class">
     <!-- Header -->
     <div>
-      <h3 class="text-[14px] font-medium uppercase tracking-wider text-muted-foreground">
-        {{ title }}
-      </h3>
+      <h3
+        class="text-[14px] font-medium uppercase tracking-wider text-muted-foreground"
+        v-html="title"
+      ></h3>
 
       <p
         v-if="description"
-        class="text-[10px] text-muted-foreground/70 whitespace-nowrap"
+        class="text-[10px] text-muted-foreground/70"
       >
         {{ description }}
       </p>
     </div>
 
     <!-- Content -->
-    <div class="flex flex-col gap-1">
+    <div class="flex flex-col gap-1 mt-1">
       <slot></slot>
     </div>
   </div>

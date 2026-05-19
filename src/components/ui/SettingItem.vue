@@ -12,14 +12,16 @@
       >
         <Icon
           :name="icon"
+          :color="iconColor"
           size="14"
         />
       </div>
 
       <div>
-        <p class="text-xs font-medium leading-tight text-foreground">
-          {{ title }}
-        </p>
+        <p
+          class="text-xs font-medium leading-tight text-foreground"
+          v-html="title"
+        ></p>
         <p
           v-if="description"
           class="text-[10px] leading-tight text-muted-foreground whitespace-nowrap"
@@ -41,6 +43,7 @@ import { computed } from 'vue';
 
 interface Props {
   icon?: any;
+  iconColor?: string;
   title: string;
   description?: string;
   className?: string;

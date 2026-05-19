@@ -7,7 +7,10 @@
     :class-name="className"
   >
     <slot></slot>
-    <n-switch v-model:value="modelValue" />
+    <n-switch
+      v-model:value="modelValue"
+      size="small"
+    />
   </SettingItem>
 </template>
 
