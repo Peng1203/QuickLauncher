@@ -13,9 +13,88 @@
       </div>
     </div>
 
+    <!-- About -->
+    <SettingGroup
+      title="关于"
+      description="应用相关信息与链接"
+    >
+      <SettingItem
+        icon="icon-wangluo"
+        title="官方网站"
+        description=""
+      >
+        <Icon
+          name="icon-waibulianjie"
+          class="cursor-pointer"
+        />
+      </SettingItem>
+
+      <SettingItem
+        icon="icon-github-fill"
+        title="GitHub"
+      >
+        <!-- :description="GITHUB_URL" -->
+        <Icon
+          name="icon-waibulianjie"
+          class="cursor-pointer"
+          @click="handleOpenGitHub"
+        />
+      </SettingItem>
+
+      <SettingItem
+        icon="icon-kaiyuanxieyi"
+        title="开源许可"
+      >
+        <!-- description="MIT license" -->
+        <Icon
+          name="icon-waibulianjie"
+          class="cursor-pointer"
+          @click="openUrl('https://github.com/Peng1203/QuickLauncher?tab=License-1-ov-file')"
+        />
+      </SettingItem>
+    </SettingGroup>
+
+    <SettingGroup title="更新">
+      <SettingItem
+        icon="icon-gengxinrizhi"
+        title="更新日志"
+        description="查看最新版本的更新内容"
+      >
+        <Icon
+          name="icon-waibulianjie"
+          class="cursor-pointer"
+          @click="openUrl('https://github.com/Peng1203/QuickLauncher/releases')"
+        />
+      </SettingItem>
+
+      <SettingItem
+        icon="icon-banbengengxin"
+        title="版本更新"
+        description="检查是否有新版本可用"
+      >
+        <!-- :loading="isChecking" -->
+        <n-button
+          size="small"
+          type="info"
+          :disabled="isChecking"
+          @click="handleCheckUpdate"
+        >
+          <template #icon>
+            <Icon
+              :class="isChecking ? 'animate-spin' : ''"
+              name="icon-jianchagengxin"
+              size="16"
+            />
+          </template>
+          {{ isChecking ? '检查中' : '检查更新' }}
+        </n-button>
+      </SettingItem>
+    </SettingGroup>
+
     <!-- Update Info -->
     <div
       v-if="hasUpdate"
+      ref="updateInfoRef"
       class="flex flex-col gap-2 rounded border border-blue-200 bg-blue-50 p-3"
     >
       <div class="flex items-center gap-1.5">
@@ -41,80 +120,6 @@
         下载并安装
       </n-button>
     </div>
-
-    <!-- About -->
-    <SettingGroup
-      title="关于"
-      description="应用相关信息与链接"
-    >
-      <SettingItem
-        icon="icon-wangluo"
-        title="官方网站"
-        :description="GITHUB_URL"
-      >
-        <Icon
-          name="icon-waibulianjie"
-          class="cursor-pointer"
-        />
-      </SettingItem>
-
-      <SettingItem
-        icon="icon-github-fill"
-        title="GitHub"
-        :description="GITHUB_URL"
-      >
-        <Icon
-          name="icon-waibulianjie"
-          class="cursor-pointer"
-          @click="handleOpenGitHub"
-        />
-      </SettingItem>
-
-      <SettingItem
-        icon="icon-kaiyuanxieyi"
-        title="开源许可"
-        description="MIT license"
-      >
-        <Icon
-          name="icon-waibulianjie"
-          class="cursor-pointer"
-        />
-      </SettingItem>
-    </SettingGroup>
-
-    <SettingGroup title="更新">
-      <SettingItem
-        icon="icon-gengxinrizhi"
-        title="更新日志"
-        description="查看最新版本的更新内容"
-      >
-        <Icon
-          name="icon-waibulianjie"
-          class="cursor-pointer"
-        />
-      </SettingItem>
-
-      <SettingItem
-        icon="icon-banbengengxin"
-        title="版本更新"
-        :description="isChecking ? '正在检查更新...' : hasUpdate ? `发现新版本 v${updateInfo?.version}` : '检查是否有新版本可用'"
-      >
-        <n-button
-          size="small"
-          type="info"
-          :loading="isChecking"
-          @click="checkUpdate"
-        >
-          <template #icon>
-            <Icon
-              name="icon-jianchagengxin"
-              size="16"
-            />
-          </template>
-          {{ hasUpdate ? '重新检查' : '检查更新' }}
-        </n-button>
-      </SettingItem>
-    </SettingGroup>
   </div>
 </template>
 
@@ -129,6 +134,14 @@ const { version, isChecking, updateInfo, hasUpdate, fetchVersion, checkUpdate, d
 
 function handleOpenGitHub() {
   openUrl(GITHUB_URL);
+}
+
+const updateInfoRef = useTemplateRef('updateInfoRef');
+
+async function handleCheckUpdate() {
+  await checkUpdate();
+  await nextTick();
+  updateInfoRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 onMounted(() => fetchVersion());

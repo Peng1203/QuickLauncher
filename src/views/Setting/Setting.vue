@@ -46,9 +46,11 @@
 </template>
 
 <script setup lang="ts">
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
+import { useToggleWindowVisible } from '@/composables';
+import { AppEvent } from '@/constant';
+import { EventBus } from '@/utils/eventBus';
 import AboutPane from './components/About.vue';
 import CommandAliasPane from './components/CommandAlias.vue';
 import DataPane from './components/Data.vue';
@@ -59,7 +61,7 @@ import QuickSearchPane from './components/QuickSearch.vue';
 import Translation from './components/Translation.vue';
 import WebSearchPane from './components/WebSearch.vue';
 
-const currentWindow = getCurrentWebviewWindow();
+const { toogleSettingWindowVisible } = useToggleWindowVisible();
 
 const settingTabs = [
   { label: '常 规', value: 'general', icon: 'icon-changguishezhi-moren', contentComponent: GeneralPane },
@@ -78,9 +80,14 @@ const activeTab = ref(settingTabs[0].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 
-const handleClose = async () => currentWindow?.hide();
+const handleClose = async () => toogleSettingWindowVisible();
 
 // watch(appConfigStore, val => emit(AppEvent.UPDATE_APP_CONFIG_DATA, val), { deep: true })
+
+EventBus.listen(AppEvent.OPEN_SETTING, (tabName?: string) => {
+  if (tabName) activeTab.value = tabName;
+  toogleSettingWindowVisible(true);
+});
 </script>
 
 <style scoped>

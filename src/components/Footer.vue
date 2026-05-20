@@ -221,7 +221,12 @@
 
       <!-- 版本号 -->
       <div class="flex-s-c gap-1">
-        <span>v{{ version }}</span>
+        <span
+          class="cursor-pointer"
+          @click="handleToSettingAbout"
+        >
+          v{{ version }}
+        </span>
       </div>
     </div>
   </n-layout-footer>
@@ -331,6 +336,10 @@ EventBus.listen(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, (id: number) => {
     findRes.last_used_at = upItem.last_used_at;
   });
 });
+
+function handleToSettingAbout() {
+  EventBus.emit(AppEvent.OPEN_SETTING, 'about');
+}
 
 useMainWindowShortcut();
 
