@@ -16,7 +16,7 @@ pub struct Model {
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
 pub enum Relation {
-  #[sea_orm(
+    #[sea_orm(
         belongs_to = "super::launch_items::Entity",
         from = "Column::LaunchItemId",
         to = "super::launch_items::Column::Id",

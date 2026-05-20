@@ -6,7 +6,9 @@
       "Bash(node -e \"import\\('@vueuse/core'\\).then\\(m => { console.log\\('useCloned:', typeof m.useCloned\\); console.log\\('cloned:', typeof m.cloned\\); }\\)\")",
       "Bash(pnpm build *)",
       "Bash(pnpm lint *)",
-      "Bash(pnpm lint:fix)"
+      "Bash(pnpm lint:fix)",
+      "Bash(pnpm tauri *)",
+      "Bash(npx tauri *)"
     ]
   }
 }

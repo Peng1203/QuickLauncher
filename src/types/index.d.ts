@@ -1,4 +1,4 @@
-import type { TranslationOpenModel, WebSearchOpenModel, PortalNotifyMode } from '@/constant';
+import type { PortalNotifyMode, TranslationOpenModel, WebSearchOpenModel } from '@/constant';
 
 declare global {
   type DirectionType = 'up' | 'right' | 'down' | 'left';

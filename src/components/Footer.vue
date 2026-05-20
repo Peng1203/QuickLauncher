@@ -228,11 +228,10 @@
 </template>
 
 <script setup lang="ts">
-import { getVersion } from '@tauri-apps/api/app';
 import { storeToRefs } from 'pinia';
 import { getLaunchByID } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
-import { useAppConfig, useCategorySort, useMainWindowShortcut } from '@/composables';
+import { useAppConfig, useAppVersion, useCategorySort, useMainWindowShortcut } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { getFromNow } from '@/utils/date';
@@ -275,7 +274,7 @@ const shortcutKeys = computed(() => {
   return [...base, ...globalShortcutKeys];
 });
 
-const version = ref<string>();
+const { version, fetchVersion } = useAppVersion();
 
 const sortInfo = computed(() => {
   switch (activeCategoryItem.value?.sort_by) {
@@ -335,7 +334,5 @@ EventBus.listen(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, (id: number) => {
 
 useMainWindowShortcut();
 
-onMounted(async () => {
-  version.value = await getVersion();
-});
+onMounted(() => fetchVersion());
 </script>

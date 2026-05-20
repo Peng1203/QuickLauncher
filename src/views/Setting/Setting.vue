@@ -49,6 +49,7 @@
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
+import AboutPane from './components/About.vue';
 import CommandAliasPane from './components/CommandAlias.vue';
 import DataPane from './components/Data.vue';
 import GeneralPane from './components/General.vue';
@@ -69,6 +70,7 @@ const settingTabs = [
   { label: '代 理', value: 'network', icon: 'icon-wangluodaili', contentComponent: ProxyPane },
   { label: '数 据', value: 'data', icon: 'icon-shuju', contentComponent: DataPane },
   { label: '传送门', value: 'portal', icon: 'icon-chuansongmen', contentComponent: PortalPane },
+  { label: '关 于', value: 'about', icon: 'icon-guanyu1', contentComponent: AboutPane },
 ];
 
 const activeTab = ref(settingTabs[0].value);

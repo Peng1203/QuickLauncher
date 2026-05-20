@@ -1,5 +1,6 @@
 export * from './useAppConfig';
 export * from './useAppConfigActions';
+export * from './useAppVersion';
 export * from './useCategoryCorrelationDir';
 export * from './useCategorySort';
 export * from './useFormState';
