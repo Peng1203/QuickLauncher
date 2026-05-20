@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Quick Launcher",
+  "productName": "QuickLauncher",
   "mainBinaryName": "Quick Launcher",
   "version": "0.1.0",
   "identifier": "com.quicklauncher.app",
