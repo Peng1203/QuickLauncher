@@ -197,10 +197,6 @@ pub fn run() {
                 if let Some(main_window) = app.get_webview_window("main") {
                     main_window.open_devtools();
                 }
-                // 只有开发模式下执行
-                if let Some(clipboard_toast) = app.get_webview_window("clipboardToast") {
-                    clipboard_toast.open_devtools();
-                }
             }
 
             // 创建系统托盘
