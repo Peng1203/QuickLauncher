@@ -127,6 +127,9 @@ export enum AppEvent {
   CLIPBOARD = 'clipboard',
 
   OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL = 'open_clipboard_window_by_set_location_modal',
+
+  // 打开设置界面
+  OPEN_SETTING = 'open_setting',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
