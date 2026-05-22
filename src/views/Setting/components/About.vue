@@ -88,7 +88,7 @@
         <n-button
           size="small"
           type="info"
-          :disabled="isChecking"
+          :disabled="isChecking || isDownloading"
           @click="handleCheckUpdate"
         >
           <template #icon>
@@ -209,8 +209,9 @@
             </div>
 
             <div class="font-semibold text-black">
-              {{ currentSpeedBytes > 0 ? Math.ceil((fileTotalBytes - downloadTotalBytes) / currentSpeedBytes) : 0 }}
-              <span class="font-medium">秒</span>
+              <!-- {{ currentSpeedBytes > 0 ? Math.ceil((fileTotalBytes - downloadTotalBytes) / currentSpeedBytes) : 0 }} -->
+              {{ formatDuration(remainingSeconds) }}
+              <!-- <span class="font-medium">秒</span> -->
             </div>
           </div>
         </div>
@@ -310,8 +311,8 @@
 
         <n-button
           v-show="isAvailable || isDownloading"
-          :disabled="isDownloading"
           class="flex-1"
+          :disabled="isDownloading"
           :color="UpdateSetupColorMap[UpdateSetup.AVAILABLE]"
           @click="handleDownload"
         >
@@ -380,7 +381,7 @@ import { openUrl } from '@tauri-apps/plugin-opener';
 import { check } from '@tauri-apps/plugin-updater';
 import { useAppVersion, useNaiveUiApi } from '@/composables';
 import { getFromNow } from '@/utils/date';
-import { formatBytes } from '@/utils/formatBytes';
+import { formatBytes, formatDuration } from '@/utils/format';
 
 const { version, isChecking, updateInfo, hasUpdate, fetchVersion, checkUpdate } = useAppVersion();
 const { notification } = useNaiveUiApi();
@@ -402,7 +403,7 @@ enum UpdateSetup {
 
 const UpdateSetupColorMap = {
   [UpdateSetup.AVAILABLE]: '#155dfc',
-  [UpdateSetup.DOWNLOADING]: '#f97316',
+  [UpdateSetup.DOWNLOADING]: '#155dfc',
   [UpdateSetup.CANCELLED]: '#6b7280',
   [UpdateSetup.DOWNLOADED]: '#009966',
   [UpdateSetup.ERROR]: '#f14444',
@@ -440,16 +441,29 @@ async function handleCheckUpdate() {
   const hasUp = await checkUpdate();
   if (hasUp === false) return;
   await nextTick();
-
   scrollToBottom();
 
   updateSetup.value = UpdateSetup.AVAILABLE;
 }
 
+const startTime = ref(0);
+
 const errorMessage = ref('');
 
+const remainingSeconds = computed(() => {
+  if (!currentSpeedBytes.value) {
+    return 0;
+  }
+
+  return Math.ceil((fileTotalBytes.value - downloadTotalBytes.value) / currentSpeedBytes.value);
+});
+
+const runTaskId = ref('');
+const timeoutTimer = ref<number | null>(null);
 async function handleDownload() {
   try {
+    runTaskId.value = crypto.randomUUID();
+    const currentTaskId = JSON.parse(JSON.stringify(runTaskId.value));
     initUpdateInfo(true);
     currentUpdate = await check();
     if (!currentUpdate) return;
@@ -459,16 +473,23 @@ async function handleDownload() {
     currentUpdate
       .download(
         e => {
-          // console.log('download e', { ...e });
+          // 当用户在下载过程中点了取消操作 修改 runTaskId 防止后续操作影响状态
+          if (currentTaskId !== runTaskId.value) return;
           // 下载进度
           const { event } = e;
           switch (event) {
             case 'Started':
+              startTime.value = Date.now();
               fileTotalBytes.value = e.data.contentLength!;
               break;
             case 'Progress':
-              currentSpeedBytes.value = e.data.chunkLength * 1024;
-              downloadTotalBytes.value += e.data.chunkLength;
+              {
+                downloadTotalBytes.value += e.data.chunkLength;
+
+                const elapsed = (Date.now() - startTime.value) / 1000;
+                currentSpeedBytes.value = downloadTotalBytes.value / elapsed;
+              }
+
               break;
             case 'Finished':
               // 由于下载无法中断 所以即使用户点击了取消下载 当判断到下载时用户点击了取消下载 在下载完成时不触发下载完成状态
@@ -476,14 +497,22 @@ async function handleDownload() {
               break;
           }
         },
-        // 设置下载超时时间为3分钟
-        { timeout: 1000 * 60 * 3 },
+        // 设置下载超时时间为1分钟
+        { timeout: 1000 * 60 },
       )
       .catch(err => {
+        if (currentTaskId !== runTaskId.value) return;
         // 设置下载状态为错误
         updateSetup.value = UpdateSetup.ERROR;
         errorMessage.value = err;
       });
+
+    // 手动添加定时器
+    timeoutTimer.value = setTimeout(() => {
+      // 设置下载状态为错误
+      updateSetup.value = UpdateSetup.ERROR;
+      errorMessage.value = 'Download timeout.';
+    }, 1000 * 60);
   } catch (e) {
     notification.error({
       title: '下载更新失败',
@@ -502,6 +531,7 @@ function handleCancelDownload() {
   if (!currentUpdate) return;
   currentUpdate?.close();
   currentUpdate = null;
+  runTaskId.value = '';
   updateSetup.value = UpdateSetup.CANCELLED;
 }
 
@@ -513,6 +543,9 @@ function initUpdateInfo(downloadBeforeInit = false) {
     updateSetup.value = null;
     updateInfo.value = null;
   }
+  runTaskId.value = '';
+  timeoutTimer.value && clearTimeout(timeoutTimer.value);
+  timeoutTimer.value = null;
   fileTotalBytes.value = 0;
   downloadTotalBytes.value = 0;
   currentSpeedBytes.value = 0;

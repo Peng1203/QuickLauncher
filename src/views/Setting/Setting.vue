@@ -76,8 +76,8 @@ const settingTabs = [
   { label: '关 于', value: 'about', icon: 'icon-guanyu1', contentComponent: AboutPane },
 ];
 
-// const activeTab = ref(settingTabs[0].value);
-const activeTab = ref(settingTabs[8].value);
+const activeTab = ref(settingTabs[0].value);
+// const activeTab = ref(settingTabs[8].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 
