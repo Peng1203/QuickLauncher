@@ -71,7 +71,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { fetch } from '@tauri-apps/plugin-http';
 import { MD5 } from 'crypto-js';
 import { ref } from 'vue';
-import { useAppConfig } from '@/composables';
+import { useAppConfig, useNaiveUiApi } from '@/composables';
 import { BAIDU_TRANSLATION_TO, SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from '@/constant';
 
 const props = defineProps<{ keyword: string }>();
@@ -118,10 +118,15 @@ function toSnakeCase(str: string) {
   return str.trim().toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
 }
 
+const { message } = useNaiveUiApi();
+
 async function baiduTranslate() {
   try {
     const { BDTranslationAppid, BDTranslationKey } = appConfigStore;
-    if (!BDTranslationAppid || !BDTranslationKey) return;
+    if (!BDTranslationAppid || !BDTranslationKey) {
+      message.warning('请先在设置中配置百度翻译的Appid和Key');
+      return [];
+    }
 
     const salt = `${Date.now()}`;
     const { from, to } = getFromTo();
@@ -367,5 +372,11 @@ ul:focus-visible {
     margin-left: 38px;
     width: fit-content;
   }
+}
+</style>
+
+<style>
+.n-message-wrapper {
+  --n-padding: 1px 10px !important;
 }
 </style>
