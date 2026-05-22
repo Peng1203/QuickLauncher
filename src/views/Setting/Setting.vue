@@ -31,8 +31,9 @@
         :key="i"
         :tab="tab.label"
         :name="tab.value"
-        display-directive="show:lazy"
+        display-directive="if"
       >
+        <!-- display-directive="show:lazy" -->
         <template #tab>
           <div class="flex items-center gap-2">
             <n-icon :class="`iconfont ${tab.icon}`" />
@@ -75,8 +76,8 @@ const settingTabs = [
   { label: '关 于', value: 'about', icon: 'icon-guanyu1', contentComponent: AboutPane },
 ];
 
-const activeTab = ref(settingTabs[0].value);
-// const activeTab = ref(settingTabs[7].value);
+// const activeTab = ref(settingTabs[0].value);
+const activeTab = ref(settingTabs[8].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
 

@@ -1,3 +1,4 @@
+import type { DownloadEvent, Update } from '@tauri-apps/plugin-updater';
 import { getVersion } from '@tauri-apps/api/app';
 import { check } from '@tauri-apps/plugin-updater';
 import { useNaiveUiApi } from './useNaiveUiApi';
@@ -8,6 +9,9 @@ export function useAppVersion() {
   const { notification } = useNaiveUiApi();
   const version = ref<string | null>(cachedVersion);
   const isChecking = ref(false);
+  // const isDownloading = ref(false);
+  const downloadProgress = ref(0);
+  const downloadContentLength = ref(0);
   const updateInfo = ref<{ version: string; date?: string; body?: string } | null>(null);
   const hasUpdate = computed(() => updateInfo.value !== null);
 
@@ -36,7 +40,7 @@ export function useAppVersion() {
           description: '当前版本为最新版本，无需更新',
           duration: 3000,
         });
-        return;
+        return false;
       }
       updateInfo.value = {
         version: result.version,
@@ -54,7 +58,32 @@ export function useAppVersion() {
     }
   }
 
-  async function downloadAndInstall() {
+  function _handleDownloadProgress(event: DownloadEvent) {
+    switch (event.event) {
+      case 'Started':
+        // isDownloading.value = true;
+        downloadProgress.value = 0;
+        downloadContentLength.value = event.data.contentLength ?? 0;
+        break;
+      case 'Progress':
+        if (downloadContentLength.value > 0) {
+          downloadProgress.value = Math.min(
+            ((downloadProgress.value * downloadContentLength.value + event.data.chunkLength) /
+              downloadContentLength.value) *
+              100,
+            100,
+          );
+        }
+        break;
+      case 'Finished':
+        // isDownloading.value = false;
+        downloadProgress.value = 100;
+        break;
+    }
+  }
+
+  async function downloadAndInstall(cb: (result: Update) => void) {
+    // if (isDownloading.value) return;
     try {
       const result = await check();
       if (!result) {
@@ -64,8 +93,11 @@ export function useAppVersion() {
         });
         return;
       }
-      await result.downloadAndInstall();
+      cb(result);
+      // await result.downloadAndInstall(handleDownloadProgress);
     } catch (e) {
+      // isDownloading.value = false;
+      downloadProgress.value = 0;
       notification.error({
         title: '下载更新失败',
         description: `${e}`,
@@ -77,6 +109,8 @@ export function useAppVersion() {
   return {
     version,
     isChecking,
+    // isDownloading,
+    downloadProgress,
     updateInfo,
     hasUpdate,
     fetchVersion,

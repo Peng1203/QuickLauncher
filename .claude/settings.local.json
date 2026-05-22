@@ -8,7 +8,14 @@
       "Bash(pnpm lint *)",
       "Bash(pnpm lint:fix)",
       "Bash(pnpm tauri *)",
-      "Bash(npx tauri *)"
+      "Bash(npx tauri *)",
+      "Bash(cat C:/workspace/Peng/QuickLauncher/src/views/Setting/components/About.vue)",
+      "Read(//tmp/**)",
+      "Bash(python3 *)",
+      "Skill(frontend-design)",
+      "Bash(where python3 *)",
+      "Bash(where python *)",
+      "Bash(python *)"
     ]
   }
 }

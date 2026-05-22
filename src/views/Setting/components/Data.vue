@@ -14,7 +14,7 @@
           type="success"
           @click="handleExportBackup"
         >
-          导出备份
+          备 份
         </n-button>
       </SettingItem>
 
@@ -28,7 +28,7 @@
           type="info"
           @click="handleImportBackup"
         >
-          导入备份
+          导 入
         </n-button>
       </SettingItem>
 
@@ -41,7 +41,7 @@
           size="small"
           @click="handleOpenDbDirectory"
         >
-          打开目录
+          打 开
         </n-button>
       </SettingItem>
     </SettingGroup>
