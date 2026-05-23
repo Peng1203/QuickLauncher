@@ -7,7 +7,9 @@ use sea_orm::{
     sea_query::{Alias, Expr},
     ColumnTrait, Condition, EntityTrait, JoinType, QueryFilter, QueryOrder, QuerySelect,
 };
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn search_launch(
     keyword: &str,
@@ -68,7 +70,12 @@ pub async fn search_launch(
         .into_model::<SearchLaunchItem>()
         .all(&db)
         .await
-        .map_err(|e| format!("查询失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "搜索启动项失败");
+            format!("查询失败: {}", e)
+        })?;
+
+    tracing::info!(keyword, "搜索启动项");
 
     Ok(results)
 }

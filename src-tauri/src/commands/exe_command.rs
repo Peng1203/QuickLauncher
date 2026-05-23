@@ -1,6 +1,8 @@
 use crate::common::utils::is_valid_url;
 use std::{os::windows::process::CommandExt, path::Path, process::Command};
+use tracing;
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn exe_command(command: String) -> Result<(), String> {
     exec_command_internal(&command)

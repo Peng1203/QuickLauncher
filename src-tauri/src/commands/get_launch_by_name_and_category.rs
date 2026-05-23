@@ -1,8 +1,10 @@
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
 use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use tracing;
 
 use crate::{entity, AppState};
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_launch_by_name_and_category(
     category_id: i32,

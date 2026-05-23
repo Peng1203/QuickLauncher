@@ -1,8 +1,10 @@
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use tracing;
 
 use crate::{entity, AppState};
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_alias_launch(state: tauri::State<'_, AppState>) -> Result<Vec<Model>, String> {
     let db = { state.db.lock().unwrap().clone() };

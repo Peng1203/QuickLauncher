@@ -1,7 +1,9 @@
 use crate::{entity, AppState};
 use entity::launch_items::Entity as LaunchItems;
 use sea_orm::EntityTrait;
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_launch(id: i32, state: tauri::State<'_, AppState>) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };
@@ -10,7 +12,12 @@ pub async fn delete_launch(id: i32, state: tauri::State<'_, AppState>) -> Result
     LaunchItems::delete_by_id(id)
         .exec(&db)
         .await
-        .map_err(|e| format!("删除启动项失败：{}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "删除启动项失败");
+            format!("删除启动项失败：{}", e)
+        })?;
+
+    tracing::info!(id, "删除启动项");
 
     Ok(())
 }

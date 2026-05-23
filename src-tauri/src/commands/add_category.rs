@@ -1,7 +1,9 @@
 use crate::{entity, models::category_item::NewCategoryItem, AppState};
 use entity::categories::{ActiveModel, Entity, Model};
 use sea_orm::{ActiveValue::Set, EntityTrait};
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_category(
     item: NewCategoryItem,
@@ -9,6 +11,8 @@ pub async fn add_category(
 ) -> Result<Model, String> {
     let db = { state.db.lock().unwrap().clone() };
     let db = db.ok_or("数据库未连接")?;
+
+    tracing::info!(name = &item.name, "添加分类");
 
     let model = ActiveModel {
         name: Set(item.name),
@@ -24,7 +28,10 @@ pub async fn add_category(
     let res = Entity::insert(model)
         .exec_with_returning(&db)
         .await
-        .map_err(|e| format!("插入分类失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "插入分类失败");
+            format!("插入分类失败: {}", e)
+        })?;
 
     Ok(res)
 }

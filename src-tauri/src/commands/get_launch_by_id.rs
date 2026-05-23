@@ -1,8 +1,10 @@
 use entity::launch_items::{Entity as LaunchItems, Model};
 use sea_orm::EntityTrait;
+use tracing;
 
 use crate::{entity, AppState};
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_launch_by_id(
     id: i32,

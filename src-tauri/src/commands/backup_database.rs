@@ -1,7 +1,9 @@
 use std::path::Path;
 use std::{fs, time::SystemTime};
 use tauri::{command, AppHandle, Manager};
+use tracing;
 
+#[tracing::instrument]
 #[command]
 pub fn backup_database(backup_path: String, app: AppHandle) -> Result<String, String> {
     let app_data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
@@ -36,8 +38,13 @@ pub fn backup_database(backup_path: String, app: AppHandle) -> Result<String, St
     }
 
     // 复制文件
-    fs::copy(&db_path, backup_file_path)
-        .map_err(|e| format!("Failed to backup database: {}", e))?;
+    fs::copy(&db_path, &backup_file_path)
+        .map_err(|e| {
+            tracing::error!(%e, "备份数据库失败");
+            format!("Failed to backup database: {}", e)
+        })?;
+
+    tracing::info!(path = backup_path, "备份数据库");
 
     Ok(format!(
         "Database backed up successfully to: {}",

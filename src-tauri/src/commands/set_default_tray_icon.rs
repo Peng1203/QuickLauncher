@@ -1,3 +1,6 @@
+use tracing;
+
+#[tracing::instrument]
 #[tauri::command]
 pub async fn set_default_tray_icon(app: tauri::AppHandle) {
     let _ = app

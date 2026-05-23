@@ -1,8 +1,9 @@
 use crate::{entity, AppState};
 use entity::categories::{ActiveModel, Entity};
 use sea_orm::{ActiveValue::Set, DatabaseConnection, EntityTrait, PaginatorTrait};
+use tracing;
 
-// 确保默认分类存在
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn ensure_default_category(state: tauri::State<'_, AppState>) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };

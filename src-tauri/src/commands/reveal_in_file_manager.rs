@@ -1,7 +1,9 @@
 use std::env::consts::OS;
 use std::path::PathBuf;
 use std::process::Command;
+use tracing;
 
+#[tracing::instrument]
 #[tauri::command]
 pub fn reveal_in_file_manager(path: String) -> Result<(), String> {
     let path = PathBuf::from(&path);

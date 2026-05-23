@@ -2,7 +2,9 @@ use entity::configs::{ActiveModel, Column, Entity as Configs};
 use sea_orm::{sea_query::OnConflict, EntityTrait, Set};
 
 use crate::{entity, AppState};
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn save_app_config(
     config: crate::models::config_item::OperConfigItem,
@@ -25,7 +27,12 @@ pub async fn save_app_config(
         )
         .exec(&db)
         .await
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            tracing::error!(%e, "保存应用配置失败");
+            e.to_string()
+        })?;
+
+    tracing::info!("保存应用配置");
 
     Ok(())
 }

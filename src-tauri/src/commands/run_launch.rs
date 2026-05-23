@@ -7,7 +7,9 @@ use sea_orm::{
     ExprTrait, QueryFilter,
 };
 use std::{os::windows::process::CommandExt, process::Command};
+use tracing;
 
+#[tracing::instrument(skip(state), fields(id))]
 #[tauri::command]
 pub async fn run_launch(id: i32, state: tauri::State<'_, AppState>) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };
@@ -21,12 +23,16 @@ pub async fn run_launch(id: i32, state: tauri::State<'_, AppState>) -> Result<()
         .ok_or("启动项不存在")?;
 
     if launch_item.r#type == "file" {
+        tracing::info!(name = launch_item.name, r#type = "file", "执行启动项");
         let _ = run_file(&launch_item).await;
     } else if launch_item.r#type == "directory" {
+        tracing::info!(name = launch_item.name, r#type = "directory", "打开目录");
         let _ = run_directory(&launch_item).await;
     } else if launch_item.r#type == "url" {
+        tracing::info!(name = launch_item.name, url = launch_item.path, "打开URL");
         let _ = run_url(&launch_item).await;
     } else if launch_item.r#type == "alias" {
+        tracing::info!(name = launch_item.name, path = launch_item.path, "执行命令别名");
         let _ = run_alias(&launch_item).await;
     } else if launch_item.r#type == "apps" {
         // let _ = run_apps(&launch_item, &db).await;
@@ -36,7 +42,7 @@ pub async fn run_launch(id: i32, state: tauri::State<'_, AppState>) -> Result<()
         let db_clone = db.clone();
         tokio::spawn(async move {
             if let Err(e) = run_apps(&launch_item, &db_clone).await {
-                log::error!("执行 apps 失败: {}", e);
+                tracing::error!(%e, "执行 apps 失败");
             }
             drop(db_clone);
         });

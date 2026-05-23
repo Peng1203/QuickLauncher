@@ -3,9 +3,11 @@ use sea_orm::sea_query::Expr;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
 use tauri::AppHandle;
 use tauri_plugin_pinia::ManagerExt;
+use tracing;
 
 use crate::{entity, AppState};
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_autocomplete(
     keyword: &str,

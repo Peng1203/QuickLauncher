@@ -1,7 +1,9 @@
 use crate::{entity, AppState};
 use entity::launch_items::{Column, Entity as LaunchItems};
 use sea_orm::{prelude::Expr, ColumnTrait, EntityTrait, QueryFilter};
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_launch_enabled_by_category(
     category_id: i32,

@@ -9,6 +9,7 @@ use crate::{
 };
 
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder};
+use tracing;
 
 #[derive(Debug, serde::Serialize)]
 pub struct CategoryWithItems {
@@ -18,6 +19,7 @@ pub struct CategoryWithItems {
     pub children: Vec<launch_items::Model>,
 }
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_category_tree(
     // enabled: Option<bool>,

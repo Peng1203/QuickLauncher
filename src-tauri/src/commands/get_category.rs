@@ -1,8 +1,10 @@
 use entity::categories::{Column, Entity as Categories, Model};
 use sea_orm::{EntityTrait, QueryOrder};
+use tracing;
 
 use crate::{entity, AppState};
 // db: tauri::State<'_, DatabaseConnection>
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_category(state: tauri::State<'_, AppState>) -> Result<Vec<Model>, String> {
     let db = { state.db.lock().unwrap().clone() };

@@ -3,7 +3,9 @@ use crate::{entity, models::app_config_state::AppConfigState};
 use entity::configs::ActiveModel;
 use entity::configs::{Column, Entity as Configs};
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_app_config(
     state: tauri::State<'_, AppState>,

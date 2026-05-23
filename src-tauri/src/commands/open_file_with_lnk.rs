@@ -9,7 +9,9 @@ use windows::Win32::UI::Shell::{
     FOS_NODEREFERENCELINKS, // 关键：不解析快捷方式
     SIGDN_FILESYSPATH,
 };
+use tracing;
 
+#[tracing::instrument]
 #[tauri::command]
 #[cfg(target_os = "windows")]
 pub fn open_file_with_lnk() -> Result<String, String> {

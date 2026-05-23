@@ -4,7 +4,9 @@ use crate::{
     common::utils::get_pinyin_variants, entity::launch_items, models::launch_item::LaunchItemDto,
     AppState,
 };
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_launch(
     item: LaunchItemDto,
@@ -17,7 +19,10 @@ pub async fn update_launch(
     let model = launch_items::Entity::find_by_id(item.id)
         .one(&db)
         .await
-        .map_err(|e| format!("查询失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "查询启动项失败");
+            format!("查询失败: {}", e)
+        })?;
 
     let model = match model {
         Some(m) => m,
@@ -31,6 +36,7 @@ pub async fn update_launch(
     let mut active: launch_items::ActiveModel = model.into();
 
     // ✅ 4. 赋值（等价 SQL SET）
+    tracing::info!(name = &item.name, "更新启动项");
     active.name = Set(item.name);
     active.path = Set(item.path);
     active.r#type = Set(item.r#type);
@@ -55,7 +61,10 @@ pub async fn update_launch(
     active
         .update(&db)
         .await
-        .map_err(|e| format!("更新失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "更新启动项失败");
+            format!("更新失败: {}", e)
+        })?;
 
     Ok(())
 }

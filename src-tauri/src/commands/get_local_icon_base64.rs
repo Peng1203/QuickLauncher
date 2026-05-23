@@ -1,5 +1,7 @@
 use windows_icons::get_icon_base64_by_path;
+use tracing;
 
+#[tracing::instrument]
 #[tauri::command]
 pub fn get_local_icon_base64(path: String) -> Result<String, String> {
     // 使用 map_err 将错误转换为 String 类型

@@ -1,7 +1,9 @@
 use crate::{common::utils::run_as_admin, entity, AppState};
 use entity::launch_items::{Entity as LaunchItems, Model};
 use sea_orm::EntityTrait;
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn run_launch_as_admin(id: i32, state: tauri::State<'_, AppState>) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };
@@ -14,10 +16,13 @@ pub async fn run_launch_as_admin(id: i32, state: tauri::State<'_, AppState>) -> 
         .map_err(|e| format!("查询失败：{}", e))?
         .ok_or("启动项不存在")?;
 
-    log::info!("id:{}, path:{}", id, launch_item.path);
+    tracing::info!(id, path = launch_item.path, "以管理员身份执行启动项");
 
     // 执行
-    run_as_admin(launch_item).map_err(|e| format!("执行失败：{}", e))?;
+    run_as_admin(launch_item).map_err(|e| {
+        tracing::error!(%e, "提权执行失败");
+        format!("执行失败：{}", e)
+    })?;
 
     Ok(())
 }

@@ -1,6 +1,8 @@
 use tauri::{AppHandle, Manager};
 use tauri_plugin_opener::OpenerExt;
+use tracing;
 
+#[tracing::instrument]
 #[tauri::command]
 pub fn open_app_data_dir(app: AppHandle) -> Result<(), String> {
     let app_data_dir = app.path().app_data_dir().map_err(|e| e.to_string())?;

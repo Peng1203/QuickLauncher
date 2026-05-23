@@ -1,6 +1,8 @@
 use crate::AppState;
 use tauri::{AppHandle, Manager};
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn reset_data(app: AppHandle, state: tauri::State<'_, AppState>) -> Result<(), ()> {
     // 先取出连接并释放锁
@@ -25,6 +27,8 @@ pub async fn reset_data(app: AppHandle, state: tauri::State<'_, AppState>) -> Re
     if target_db_path.exists() {
         std::fs::remove_file(&target_db_path).map_err(|_| ())?;
     }
+
+    tracing::info!("重置数据");
 
     // 删除 store 文件
     // app.pinia();

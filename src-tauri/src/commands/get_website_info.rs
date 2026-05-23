@@ -5,6 +5,7 @@ use tauri::{AppHandle, Url};
 use tauri_plugin_http::reqwest::{self, redirect, Client, Proxy};
 use tauri_plugin_pinia::ManagerExt;
 use ua_generator::ua::spoof_ua;
+use tracing;
 
 #[derive(serde::Serialize)]
 pub struct WebsiteInfo {
@@ -12,6 +13,7 @@ pub struct WebsiteInfo {
     pub icon: Option<String>,
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub async fn get_website_info(
     url: String,

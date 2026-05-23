@@ -4,6 +4,7 @@ use lnk_parser::LNKParser;
 use std::fs;
 use std::path::Path;
 use windows_icons::get_icon_base64_by_path;
+use tracing;
 
 // 获取文件名/目录名
 fn get_name(p: &Path) -> String {
@@ -20,6 +21,7 @@ fn get_name(p: &Path) -> String {
     }
 }
 
+#[tracing::instrument]
 #[tauri::command]
 pub fn get_file_info(path: String) -> Result<FileInfo, String> {
     dbg!(&path);

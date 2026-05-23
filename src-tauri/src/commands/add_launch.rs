@@ -3,7 +3,9 @@ use entity::prelude::LaunchItems;
 use sea_orm::{ActiveValue::Set, EntityTrait};
 
 use crate::common::utils::get_pinyin_variants;
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_launch(
     item: NewLaunchItem,
@@ -43,7 +45,12 @@ pub async fn add_launch(
     LaunchItems::insert(model)
         .exec(&db)
         .await
-        .map_err(|e| format!("插入启动项失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "插入启动项失败");
+            format!("插入启动项失败: {}", e)
+        })?;
+
+    tracing::info!(name = item.name, r#type = item.r#type, "添加启动项");
 
     Ok(())
 }

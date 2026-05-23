@@ -56,12 +56,9 @@ mod commands;
 mod common;
 mod db;
 mod entity;
+mod logging;
 mod models;
 mod tray;
-
-use std::fs::OpenOptions;
-use std::io::Write;
-use std::panic;
 
 #[derive(Default)]
 pub struct AppState {
@@ -70,7 +67,9 @@ pub struct AppState {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    setup_panic_logger();
+    // Panic hook must be set up before anything else to catch early startup failures
+    logging::setup_panic_hook();
+
     tauri::Builder::default()
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_pinia::init())
@@ -81,16 +80,6 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
-        .plugin(
-            tauri_plugin_log::Builder::new()
-                .target(tauri_plugin_log::Target::new(
-                    // tauri_plugin_log::TargetKind::Webview,
-                    tauri_plugin_log::TargetKind::LogDir {
-                        file_name: Some("logs".to_string()),
-                    },
-                ))
-                .build(),
-        )
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
             Some(vec!["--flag1", "--flag2"]),
@@ -151,6 +140,10 @@ pub fn run() {
             set_default_tray_icon
         ])
         .setup(|app| {
+            let app_data_dir = app.path().app_data_dir().expect("failed to get app data dir");
+            logging::init(&app_data_dir);
+            tracing::info!("QuickLauncher starting");
+
             let db = tauri::async_runtime::block_on(async {
                 db::connection::init_db(app).await.unwrap()
             });
@@ -212,14 +205,3 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-fn setup_panic_logger() {
-    panic::set_hook(Box::new(|info| {
-        let msg = format!("PANIC OCCURRED:\n{}\n\n", info);
-
-        let _ = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open("tauri-error.log")
-            .and_then(|mut f| f.write_all(msg.as_bytes()));
-    }));
-}

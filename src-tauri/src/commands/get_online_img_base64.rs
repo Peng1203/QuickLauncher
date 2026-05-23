@@ -4,9 +4,12 @@ use base64::{engine::general_purpose, Engine as _};
 use tauri::{AppHandle, Url};
 use tauri_plugin_http::reqwest::{redirect, Client, Proxy};
 use tauri_plugin_pinia::ManagerExt;
+use tracing;
 
 const MAX_IMAGE_SIZE: u64 = 2 * 1024 * 1024; // 2MB
 
+#[tracing::instrument]
+#[tracing::instrument]
 #[tauri::command]
 pub async fn get_online_img_base64(url: String, app: AppHandle) -> Result<String, String> {
     let proxy = app.pinia().get::<bool>("appConfig", "proxy").unwrap();

@@ -4,11 +4,13 @@ use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
     QuerySelect, Set,
 };
+use tracing;
 
 use crate::{entity, AppState};
 
 const MAX_HISTORY_COUNT: u64 = 300;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_launch_history(
     command: String,

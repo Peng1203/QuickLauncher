@@ -1,4 +1,5 @@
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter, QueryOrder, QuerySelect};
+use tracing;
 
 use crate::entity::{self, launch_history, launch_items};
 use crate::AppState;
@@ -16,6 +17,7 @@ pub struct LaunchHistoryWithIcon {
     pub icon: Option<String>,
 }
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_recent_launch_history(
     state: tauri::State<'_, AppState>,

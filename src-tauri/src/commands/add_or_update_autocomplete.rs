@@ -5,7 +5,9 @@ use crate::{
 use entity::autocomplete_history::ActiveModel;
 use entity::prelude::AutocompleteHistory;
 use sea_orm::{sea_query::Expr, sea_query::OnConflict, ActiveValue::Set, EntityTrait, ExprTrait};
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn add_or_update_autocomplete(
     query: &str,

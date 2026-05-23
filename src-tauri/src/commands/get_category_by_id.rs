@@ -1,8 +1,10 @@
 use entity::categories::{Entity as Categories, Model};
 use sea_orm::EntityTrait;
+use tracing;
 
 use crate::{entity, AppState};
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_category_by_id(
     id: i32,

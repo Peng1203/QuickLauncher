@@ -1,7 +1,9 @@
 use crate::{common::utils::get_pinyin_variants, entity, AppState};
 use entity::launch_items::{ActiveModel, Entity as LaunchItems};
 use sea_orm::{ActiveModelTrait, EntityTrait, Set};
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn rename_launch(
     id: i32,
@@ -20,13 +22,17 @@ pub async fn rename_launch(
     let model = LaunchItems::find_by_id(id)
         .one(&db)
         .await
-        .map_err(|e| format!("查询失败：{}", e))?
+        .map_err(|e| {
+            tracing::error!(%e, "查询启动项失败");
+            format!("查询失败：{}", e)
+        })?
         .ok_or("记录不存在")?;
 
     // 转 ActiveModel
     let mut active: ActiveModel = model.into();
 
     // 修改字段
+    tracing::info!(name, "更新启动项");
     active.name = Set(name);
     active.pinyin_full = Set(Some(pinyin_full));
     active.pinyin_abbr = Set(Some(pinyin_abbr));
@@ -35,7 +41,10 @@ pub async fn rename_launch(
     active
         .update(&db)
         .await
-        .map_err(|e| format!("更新失败：{}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "更新启动项失败");
+            format!("更新失败：{}", e)
+        })?;
 
     Ok(())
 }

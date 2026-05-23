@@ -3,7 +3,9 @@ use sea_orm::{ActiveModelTrait, DatabaseConnection, EntityTrait, Set};
 use crate::entity::categories;
 use crate::models::category_item::CategoryItem;
 use crate::AppState;
+use tracing;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_category(
     item: CategoryItem,
@@ -16,7 +18,10 @@ pub async fn update_category(
     let model = categories::Entity::find_by_id(item.id)
         .one(&db)
         .await
-        .map_err(|e| format!("查询失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "查询分类失败");
+            format!("查询失败: {}", e)
+        })?;
 
     let model = match model {
         Some(m) => m,
@@ -41,11 +46,17 @@ pub async fn update_category(
     active
         .update(&db)
         .await
-        .map_err(|e| format!("更新失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "更新分类失败");
+            format!("更新失败: {}", e)
+        })?;
+
+    tracing::info!(id = item.id, "更新分类");
 
     Ok(())
 }
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_category_ass_dir(
     id: i32,
@@ -59,7 +70,10 @@ pub async fn update_category_ass_dir(
     let model = categories::Entity::find_by_id(id)
         .one(&db)
         .await
-        .map_err(|e| format!("查询失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "查询分类失败");
+            format!("查询失败: {}", e)
+        })?;
 
     // 判空
     let mut model: categories::ActiveModel = match model {
@@ -74,7 +88,12 @@ pub async fn update_category_ass_dir(
     model
         .update(&db)
         .await
-        .map_err(|e| format!("更新失败: {}", e))?;
+        .map_err(|e| {
+            tracing::error!(%e, "更新分类失败");
+            format!("更新失败: {}", e)
+        })?;
+
+    tracing::info!(id, "更新分类");
 
     Ok(())
 }
