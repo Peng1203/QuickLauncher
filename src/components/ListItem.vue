@@ -4,10 +4,10 @@
     class="item cursor-pointer select-none rounded transition-colors"
     :class="[
       isGridMode
-        ? 'flex flex-col items-center min-w-20 h-18 hover:bg-gray-100/60'
-        : 'flex items-center px-3 py-2 hover:bg-gray-100',
+        ? 'flex flex-col items-center min-w-20 h-18 hover:bg-muted'
+        : 'flex items-center px-3 py-2 hover:bg-muted',
+      isActive ? 'bg-muted' : '',
     ]"
-    :style="isActive ? { backgroundColor: '#f5f5f5 !important' } : {}"
     tabindex="0"
     @click="handleActive"
     @dblclick="handleRun"
@@ -25,7 +25,7 @@
     <span
       ref="nameRef"
       :contenteditable="isEdit && isActive"
-      class="text-black pointer-events-none px-1 w-fit line-clamp-2 mt-0.5 leading-normal max-2-lines"
+      class="text-foreground pointer-events-none px-1 w-fit line-clamp-2 mt-0.5 leading-normal max-2-lines"
       :class="[isGridMode ? 'text-xs text-center px-1 mt-0.5 line-clamp-2' : 'text-sm flex-1 truncate']"
     >
       {{ name }}
@@ -33,11 +33,11 @@
 
     <!-- 右侧扩展（list模式才有） -->
     <template v-if="isListMode">
-      <div class="text-xs text-gray-400 w-24">
+      <div class="text-xs text-muted-foreground w-24">
         {{ dateFormat(item.created_at, 'YYYY/M/D H:m') || '' }}
       </div>
 
-      <div class="text-xs text-gray-400 w-12">
+      <div class="text-xs text-muted-foreground w-12">
         {{ item.extension || formatLaunchType(item.type) }}
       </div>
     </template>
@@ -250,16 +250,11 @@ defineExpose({ handleEditName, handleDelete, scrollItemIntoView });
 .item {
   border-bottom: none;
 }
-.item:hover {
-  /* background-color: #f5f5f5; */
-  background-color: #f5f5f586;
-}
 span[contenteditable='true'] {
   display: inline-block;
   max-width: 100%;
   width: fit-content;
-  border: 1px solid rgba(128, 128, 128, 0.486); /* 蓝色边框 */
-  /* padding: 4px; */
+  border: 1px solid rgba(128, 128, 128, 0.486);
   border-radius: 4px;
 }
 .max-2-lines {
@@ -268,6 +263,6 @@ span[contenteditable='true'] {
   width: fit-content;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: clip; /* 不要省略号 */
+  text-overflow: clip;
 }
 </style>

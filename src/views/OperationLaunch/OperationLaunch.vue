@@ -245,7 +245,7 @@
                                 <AlertCircleOutline />
                               </n-icon>
                             </template>
-                            <span style="color: #666">
+                            <span style="color: var(--muted-foreground)">
                               按照以下格式添加自定义浏览器
                               <br />
                               浏览器名称=浏览器exe文件地址
@@ -299,7 +299,7 @@
                         class="w-25"
                         size="small"
                       />
-                      <span class="ml-2 text-gray-400">用于搜索返回展示的优先级 数字越大越靠前</span>
+                      <span class="ml-2 text-muted-foreground">用于搜索返回展示的优先级 数字越大越靠前</span>
                     </n-form-item>
                   </n-col>
 

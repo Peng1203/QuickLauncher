@@ -2,7 +2,7 @@
   <NButton
     quaternary
     size="tiny"
-    class="text-blue-500 hover:text-blue-600 !mr-2"
+    class="text-primary hover:text-primary/80 !mr-2"
     @click="handleOpenVideoDemo"
   >
     ▶ 功能演示

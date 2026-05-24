@@ -13,7 +13,7 @@
 
       <SettingItem
         icon="icon-wangluo"
-        title="地址 <span class='text-red-500'>*</span>"
+        title="地址 <span class='text-destructive'>*</span>"
         description="代理服务器地址"
       >
         <n-input

@@ -6,7 +6,7 @@
       tabindex="-1"
       type="text"
       size="medium"
-      class="w-full h-full max-h-[45px] resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-white shadow-none rounded-[10px]"
+      class="w-full h-full max-h-[45px] resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
       :class="hasResult ? '!border-b-0 !rounded-b-none' : ''"
       :placeholder="placeholder"
     >
@@ -39,7 +39,7 @@
   <ul
     v-if="hasResult"
     tabindex="-1"
-    class="search-container absolute z-50 w-full overflow-y-scroll bg-white border-none rounded-b-[10px] !border-t-gray-200 max-h-[300px]"
+    class="search-container absolute z-50 w-full overflow-y-scroll bg-card border-none rounded-b-[10px] !border-t-border max-h-[300px]"
     :style="{
       maxHeight: `calc(${searchWindowHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
     }"
@@ -51,7 +51,7 @@
       <li
         :ref="el => (itemRefs[index] = el as any)"
         class="flex items-center h-[48px] px-4 py-2 cursor-pointer"
-        :class="[index === selectedIndex ? 'bg-[#f5f5f5]' : 'hover:bg-gray-100']"
+        :class="[index === selectedIndex ? 'bg-muted' : 'hover:bg-muted']"
         @click="
           () => {
             selectedIndex = index;

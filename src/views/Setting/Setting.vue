@@ -2,9 +2,9 @@
   <div class="h-full">
     <header
       data-tauri-drag-region
-      class="top-0 left-0 right-0 h-8 bg-white flex items-center justify-between px-2 z-10"
+      class="top-0 left-0 right-0 h-8 bg-card flex items-center justify-between px-2 z-10"
     >
-      <span class="text-gray-700">设 置</span>
+      <span class="text-foreground">设 置</span>
       <!-- {{ activeTab }} -->
       <!-- {{ appConfigStore.center }} -->
 
@@ -59,6 +59,7 @@ import GeneralPane from './components/General.vue';
 import PortalPane from './components/Portal.vue';
 import ProxyPane from './components/Proxy.vue';
 import QuickSearchPane from './components/QuickSearch.vue';
+import ThemePane from './components/Theme.vue';
 import Translation from './components/Translation.vue';
 import WebSearchPane from './components/WebSearch.vue';
 
@@ -66,6 +67,7 @@ const { toogleSettingWindowVisible } = useToggleWindowVisible();
 
 const settingTabs = [
   { label: '常 规', value: 'general', icon: 'icon-changguishezhi-moren', contentComponent: GeneralPane },
+  { label: '主 题', value: 'theme', icon: 'icon-yangshi', contentComponent: ThemePane },
   { label: '快速搜索', value: 'q_search', icon: 'icon-icon-sousuofenlei', contentComponent: QuickSearchPane },
   { label: '网络搜索', value: 'n_search', icon: 'icon-wangluosousuo', contentComponent: WebSearchPane },
   { label: '命令别名', value: 'command_alias', icon: 'icon-minglinghangchaxun', contentComponent: CommandAliasPane },
@@ -101,5 +103,58 @@ EventBus.listen(AppEvent.OPEN_SETTING, (tabName?: string) => {
   padding-bottom: 0 !important;
   overflow-y: auto;
   padding-bottom: 10px !important;
+}
+</style>
+
+<style>
+/* Setting window -- ensure Naive UI internals respect theme variables */
+
+/* Left tab navigation bar */
+.n-tabs .n-tabs-nav {
+  background-color: var(--background) !important;
+}
+
+/* Individual tabs */
+.n-tabs .n-tabs-tab {
+  color: var(--muted-foreground) !important;
+}
+
+.n-tabs .n-tabs-tab:hover {
+  background-color: var(--muted) !important;
+}
+
+.n-tabs .n-tabs-tab.n-tabs-tab--active {
+  color: var(--primary) !important;
+  background-color: var(--muted) !important;
+}
+
+/* Tab content pane */
+.n-tab-pane {
+  background-color: var(--background);
+}
+
+/* Naive UI n-layout (used in main window, but also check if any in settings) */
+.n-layout {
+  --n-color: var(--background);
+}
+
+/* DataTable and other card-like surfaces */
+.n-data-table {
+  --n-color: var(--card);
+}
+
+/* Input fields in setting forms */
+.n-input {
+  --n-color: var(--card);
+}
+
+/* Select dropdown */
+.n-base-selection {
+  --n-color: var(--card);
+}
+
+/* Popover / tooltip backgrounds */
+.n-popover {
+  --n-color: var(--popover);
 }
 </style>

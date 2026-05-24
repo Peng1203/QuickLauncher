@@ -3,17 +3,17 @@
     v-if="visible"
     style="height: calc(100% + 1px)"
     :style="{
-      background: `rgba(255, 255, 255, ${appConfigStore.portalOpacity / 100})`,
+      background: `color-mix(in srgb, var(--card) ${appConfigStore.portalOpacity}%, transparent)`,
     }"
     data-tauri-drag-region
-    class="relative box-border flex flex-col p-3 w-full overflow-hidden border border-black/5 bg-white/90 shadow-[0_6px_20px_rgba(0,0,0,.12)] dark:border-white/10 dark:bg-[#111827]/90"
+    class="relative box-border flex flex-col p-3 w-full overflow-hidden border border-border bg-card/90 shadow-[0_6px_20px_rgba(0,0,0,.12)]"
   >
     <!-- content wrapper -->
     <div class="flex flex-1 flex-col gap-2">
       <!-- header -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2">
-          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-black/5 dark:bg-white/10">
+          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/5">
             <NIcon
               size="18"
               :color="themeColor?.light"
@@ -23,7 +23,7 @@
             </NIcon>
           </div>
 
-          <div class="text-[15px] font-semibold text-[#111827] dark:text-white truncate">
+          <div class="text-[15px] font-semibold text-foreground truncate">
             {{ info.title }}
           </div>
         </div>
@@ -38,7 +38,7 @@
       </div>
 
       <!-- content -->
-      <div class="text-[12px] leading-5 text-gray-600 dark:text-white/75 truncate">
+      <div class="text-[12px] leading-5 text-muted-foreground truncate">
         <template v-if="appConfigStore.portalShowPath">
           {{ content || props.content }}
         </template>
@@ -73,7 +73,7 @@
 
       <NButton
         v-if="isDirectory"
-        color="#1766f7"
+        color="var(--primary)"
         size="tiny"
         class="!h-8 !flex-1 !rounded-lg"
         @click="openDirInManager"

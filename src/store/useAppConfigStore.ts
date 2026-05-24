@@ -82,6 +82,17 @@ export const useAppConfigStore = defineStore(
       portalShowShortcut: true,
       portalWindowPositionX: 0,
       portalWindowPositionY: 0,
+
+      appearanceMode: 'system',
+      themeColor: '#2080f0',
+      pageStyle: 'normal',
+      layoutDensity: 'default',
+      fontSize: 14,
+      borderRadius: 10,
+      backgroundBlur: 50,
+      windowOpacity: 100,
+      enableAnimation: true,
+      animationSpeed: 'normal',
     }),
     actions: {
       loadConfig(initData: AppConfigState) {

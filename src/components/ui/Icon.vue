@@ -38,7 +38,7 @@ withDefaults(defineProps<Props>(), {
     v-else
     :size="size"
     :class="`iconfont ${name} ${link ? 'cursor-pointer' : ''}`"
-    :color="link ? '#409EFF' : color"
+    :color="link ? 'var(--primary)' : color"
   />
 </template>
 
@@ -85,7 +85,7 @@ function hexToRgba(hex: string, alpha = 0.12) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-const iconColor = computed(() => (props.link ? '#409EFF' : props.color));
+const iconColor = computed(() => (props.link ? 'var(--primary)' : props.color));
 
 const backgroundStyle = computed(() => {
   const size = `${props.size}px`;

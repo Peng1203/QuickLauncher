@@ -13,7 +13,7 @@
       class="relative"
       :class="
         isListMode
-          ? 'flex flex-col divide-y divide-gray-100 mb-6'
+          ? 'flex flex-col divide-y divide-border mb-6'
           : 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 draggable gap-0.5'
       "
     >
@@ -33,7 +33,7 @@
 
     <div
       v-else
-      class="w-full h-full flex items-center justify-center text-gray-500 text-lg"
+      class="w-full h-full flex items-center justify-center text-muted-foreground text-lg"
     >
       {{ isConrrelationDir ? '空文件夹' : '拖动文件到该区域' }}
     </div>

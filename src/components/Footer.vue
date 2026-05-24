@@ -2,7 +2,7 @@
   <n-layout-footer
     bordered
     position="absolute"
-    class="h-6 px-1 border-t flex gap-4 items-center justify-between text-xs text-gray-400 z-10"
+    class="h-6 px-1 border-t border-border flex gap-4 items-center justify-between text-xs text-muted-foreground z-10"
   >
     <!-- 左侧分类信息 -->
     <div class="flex-sb-c flex-10">

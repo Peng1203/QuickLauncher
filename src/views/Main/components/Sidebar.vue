@@ -8,7 +8,7 @@
     :collapsed-width="120"
     :width="192"
     :show-collapsed-content="true"
-    class="w-48 bg-white border-r border-gray-200 flex flex-col py-1.5 px-2 z-10"
+    class="w-48 bg-card border-r border-border flex flex-col py-1.5 px-2 z-10"
     @contextmenu.prevent.stop="handleShowCategoryContextMenu"
     @keydown="handleKeydown"
   >
@@ -17,7 +17,7 @@
         v-for="item of categoryData"
         :key="item.id"
         :ref="el => (categoryItemRefs[`${item.id}`] = el)"
-        :class="[activeCategory === item.id ? 'bg-gray-100 text-blue-600' : 'hover:bg-gray-50 text-gray-700']"
+        :class="[activeCategory === item.id ? 'bg-muted text-primary' : 'hover:bg-secondary text-foreground']"
         tabindex="-1"
         class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden"
         @click="handleChangeCategory(item.id)"
@@ -261,11 +261,9 @@ EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
 
 <style lang="scss" scoped>
 .editable-active {
-  background-color: #dfdfdf81; /* 淡黄色背景 */
-  // border: 1px solid #ffc107; /* 黄色边框 */
+  background-color: color-mix(in srgb, var(--secondary) 50%, transparent);
   border-radius: 4px;
   padding: 0px 6px;
-  // box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1); /* 外发光 */
   cursor: text;
 }
 

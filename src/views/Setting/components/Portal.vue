@@ -20,8 +20,8 @@
           class="flex h-6 cursor-pointer items-center justify-center gap-2 rounded border transition-all"
           :class="
             appConfigStore.portalNotifyMode === item.value
-              ? 'border-[#16a34a] bg-[#f0fdf4] text-[#16a34a]'
-              : 'border-black/8 bg-white hover:border-[#16a34a]/40'
+              ? 'border-primary bg-primary/5 text-primary'
+              : 'border-border bg-card hover:border-primary/40'
           "
           @click="appConfigStore.portalNotifyMode = item.value"
         >
@@ -59,7 +59,7 @@
             button-placement="both"
           />
 
-          <span class="text-sm text-[#6b7280] whitespace-nowrap">ms</span>
+          <span class="text-sm text-muted-foreground whitespace-nowrap">ms</span>
         </div>
       </div>
     </SettingGroup>
@@ -111,7 +111,7 @@
         </n-button>
 
         <div class="flex items-center gap-2">
-          <span class="text-sm text-[#6b7280]">X</span>
+          <span class="text-sm text-muted-foreground">X</span>
 
           <NInputNumber
             v-model:value="appConfigStore.portalWindowPositionX"
@@ -122,7 +122,7 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <span class="text-sm text-[#6b7280]">Y</span>
+          <span class="text-sm text-muted-foreground">Y</span>
 
           <NInputNumber
             v-model:value="appConfigStore.portalWindowPositionY"
@@ -155,7 +155,7 @@
             button-placement="both"
           />
 
-          <span class="text-sm text-[#6b7280]">%</span>
+          <span class="text-sm text-muted-foreground">%</span>
         </div>
       </div>
     </SettingGroup>
@@ -199,15 +199,15 @@ function handleSetLocation() {
 }
 
 :deep(.n-slider .n-slider-rail__fill) {
-  background: #16a34a;
+  background: var(--primary);
 }
 
 :deep(.n-slider .n-slider-handle) {
-  border-color: #16a34a;
+  border-color: var(--primary);
 }
 
 :deep(.n-switch.n-switch--active .n-switch__rail) {
-  background-color: #16a34a !important;
+  background-color: var(--primary) !important;
 }
 
 :deep(.n-card__content) {

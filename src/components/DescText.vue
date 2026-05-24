@@ -22,6 +22,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const classes = computed(() => {
-  return [props.small ? 'text-[11px]' : 'text-[12px]', 'leading-6', 'text-[#6b7280]'];
+  return [props.small ? 'text-[11px]' : 'text-[12px]', 'leading-6', 'text-muted-foreground'];
 });
 </script>

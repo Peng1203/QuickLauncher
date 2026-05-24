@@ -8,7 +8,7 @@
         class="w-16 h-16"
       />
       <div class="flex flex-col items-center gap-0.5">
-        <h2 class="text-base font-semibold text-gray-800">Quick Launcher</h2>
+        <h2 class="text-base font-semibold text-foreground">Quick Launcher</h2>
         <p class="text-xs text-muted-foreground">版本 v{{ version }}</p>
       </div>
     </div>
@@ -105,7 +105,7 @@
 
     <div
       v-if="hasUpdate"
-      class="flex flex-col gap-3 overflow-hidden rounded-2xl border bg-white p-5"
+      class="flex flex-col gap-3 overflow-hidden rounded-2xl border bg-card border-border p-5"
     >
       <!-- 更新信息 -->
       <div class="flex gap-4">
@@ -118,9 +118,9 @@
 
         <div class="flex flex-col flex-1">
           <div class="flex-sb-c">
-            <h3 class="text-[13px] font-semibold text-gray-900 tracking-tight">发现新版本</h3>
+            <h3 class="text-[13px] font-semibold text-foreground tracking-tight">发现新版本</h3>
 
-            <div class="flex-sb-c gap-2 text-gray-400">
+            <div class="flex-sb-c gap-2 text-muted-foreground">
               <Icon
                 name="icon-faburiqi"
                 size="12"
@@ -129,10 +129,10 @@
             </div>
           </div>
 
-          <p class="text-[12px] text-gray-400">
+          <p class="text-[12px] text-muted-foreground">
             <span>v{{ version }}</span>
             →
-            <span class="font-semibold text-blue-500">v{{ updateInfo?.version }}</span>
+            <span class="font-semibold text-primary">v{{ updateInfo?.version }}</span>
           </p>
           <!-- <div class="flex-sb-c"></div> -->
         </div>
@@ -143,17 +143,17 @@
         <div class="flex flex-col gap-1">
           <div class="flex-sb-c">
             <div class="flex items-center justify-end gap-1">
-              <span class="text-[11px] font-medium text-gray-400 tabular-nums">
+              <span class="text-[11px] font-medium text-muted-foreground tabular-nums">
                 {{ formatBytes(downloadTotalBytes) }}
               </span>
-              <span class="text-[11px] font-medium text-gray-400">/</span>
-              <span class="text-[11px] font-medium text-gray-400 tabular-nums">
+              <span class="text-[11px] font-medium text-muted-foreground">/</span>
+              <span class="text-[11px] font-medium text-muted-foreground tabular-nums">
                 {{ formatBytes(fileTotalBytes) }}
               </span>
             </div>
 
             <!-- 已下载百分百 -->
-            <div class="text-[11px] font-medium text-blue-500">{{ Math.round(downloadProgress) }}%</div>
+            <div class="text-[11px] font-medium text-primary">{{ Math.round(downloadProgress) }}%</div>
           </div>
 
           <n-progress
@@ -167,8 +167,8 @@
 
         <!-- 下载信息 -->
         <div class="flex gap-4">
-          <div class="flex-1 rounded-2xl border border-gray-100 bg-[#f8f8fb] px-3 py-2">
-            <div class="mb-1 flex items-center gap-2 text-sm text-gray-500">
+          <div class="flex-1 rounded-2xl border border-border bg-muted px-3 py-2">
+            <div class="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
               <Icon
                 size="16"
                 name="icon-shandian"
@@ -177,14 +177,14 @@
               <span>下载速度</span>
             </div>
 
-            <div class="font-semibold text-black">
+            <div class="font-semibold text-foreground">
               {{ formatBytes(currentSpeedBytes) }}/s
               <!-- <span class="font-medium"></span> -->
             </div>
           </div>
 
-          <div class="flex-1 rounded-2xl border border-gray-100 bg-[#f8f8fb] px-3 py-2">
-            <div class="mb-1 flex items-center gap-2 text-sm text-gray-500">
+          <div class="flex-1 rounded-2xl border border-border bg-muted px-3 py-2">
+            <div class="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
               <Icon
                 name="icon-panfu"
                 color="oklch(62.7% 0.265 303.9)"
@@ -192,14 +192,14 @@
               <span>剩余大小</span>
             </div>
 
-            <div class="font-semibold text-black">
+            <div class="font-semibold text-foreground">
               {{ formatBytes(fileTotalBytes - downloadTotalBytes) }}
               <!-- <span class="font-medium">MB</span> -->
             </div>
           </div>
 
-          <div class="flex-1 rounded-2xl border border-gray-100 bg-[#f8f8fb] px-3 py-2">
-            <div class="mb-1 flex items-center gap-2 text-sm text-gray-500">
+          <div class="flex-1 rounded-2xl border border-border bg-muted px-3 py-2">
+            <div class="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
               <Icon
                 size="16"
                 name="icon-shijian"
@@ -208,7 +208,7 @@
               <span>预计剩余</span>
             </div>
 
-            <div class="font-semibold text-black">
+            <div class="font-semibold text-foreground">
               <!-- {{ currentSpeedBytes > 0 ? Math.ceil((fileTotalBytes - downloadTotalBytes) / currentSpeedBytes) : 0 }} -->
               {{ formatDuration(remainingSeconds) }}
               <!-- <span class="font-medium">秒</span> -->
@@ -220,7 +220,7 @@
       <!-- 更新完成提示 -->
       <div
         v-if="isDownloaded"
-        class="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700 text-xs"
+        class="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-primary text-xs"
       >
         <Icon
           name="icon-xiazaiwancheng"
@@ -233,12 +233,12 @@
       <!-- 下载取消提示 -->
       <div
         v-if="isCancelled"
-        class="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-600 text-xs"
+        class="flex items-center gap-2 rounded-xl border border-border bg-muted px-4 py-3 text-muted-foreground text-xs"
       >
         <Icon
           name="icon-gantanhao-xianxingyuankuang"
           size="15"
-          class="text-slate-500"
+          class="text-muted-foreground"
         />
 
         <span>下载已被取消，如需重新下载，请点击重新下载按钮。</span>
@@ -247,25 +247,25 @@
       <!-- 更新失败提示 -->
       <div
         v-if="isError"
-        class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs"
+        class="rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-xs"
       >
         <!-- 第一行：图标 + 标题 -->
-        <div class="flex items-center gap-2 text-red-700 font-medium">
+        <div class="flex items-center gap-2 text-destructive font-medium">
           <Icon
             name="icon-sanjiaogantan"
             size="14"
-            class="text-red-500"
+            class="text-destructive"
           />
           <span>下载失败</span>
         </div>
 
         <!-- 第二行：中性错误说明 -->
-        <div class="mt-1 text-slate-600 leading-5">网络连接中断或服务器响应异常，请检查网络后重试</div>
+        <div class="mt-1 text-muted-foreground leading-5">网络连接中断或服务器响应异常，请检查网络后重试</div>
 
         <!-- 第三行：错误码 + 具体错误 -->
-        <div class="mt-1 text-slate-500">
+        <div class="mt-1 text-muted-foreground">
           <span>错误代码：</span>
-          <span class="text-red-600 font-mono wrap-break-word">
+          <span class="text-destructive font-mono wrap-break-word">
             {{ errorMessage || 'UNKNOWN_ERROR' }}
           </span>
         </div>
@@ -273,8 +273,8 @@
 
       <!-- 更新日志 -->
       <div v-if="updateInfo?.body">
-        <div class="rounded-xl border-gray-100 bg-[#f8f8fb] p-3.5 max-h-32.5 overflow-y-auto">
-          <p class="text-[11px] leading-relaxed text-gray-400 whitespace-pre-wrap">
+        <div class="rounded-xl border border-border bg-muted p-3.5 max-h-32.5 overflow-y-auto">
+          <p class="text-[11px] leading-relaxed text-muted-foreground whitespace-pre-wrap">
             {{ updateInfo.body }}
           </p>
         </div>
@@ -402,6 +402,12 @@ enum UpdateSetup {
 }
 
 const UpdateSetupColorMap = {
+  // [UpdateSetup.AVAILABLE]: 'var(--info)',
+  // [UpdateSetup.DOWNLOADING]: 'var(--info)',
+  // [UpdateSetup.CANCELLED]: 'var(--muted-foreground)',
+  // [UpdateSetup.DOWNLOADED]: 'var(--success)',
+  // [UpdateSetup.ERROR]: 'var(--destructive)',
+
   [UpdateSetup.AVAILABLE]: '#155dfc',
   [UpdateSetup.DOWNLOADING]: '#155dfc',
   [UpdateSetup.CANCELLED]: '#6b7280',

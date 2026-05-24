@@ -43,7 +43,7 @@
 
       <SettingItem
         icon="icon-hashjinghao"
-        title="APP ID <span class='text-red-500'>*</span>"
+        title="APP ID <span class='text-destructive'>*</span>"
         description="百度翻译应用 ID"
       >
         <n-input
@@ -57,7 +57,7 @@
 
       <SettingItem
         icon="icon-miyue"
-        title="密钥 <span class='text-red-500'>*</span>"
+        title="密钥 <span class='text-destructive'>*</span>"
         description="百度翻译应用密钥"
       >
         <n-input

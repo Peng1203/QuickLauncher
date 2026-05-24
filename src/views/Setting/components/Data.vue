@@ -50,7 +50,7 @@
       <SettingItem
         icon-color="red"
         icon="icon-shanchufenlei"
-        title="<span style='color: #ef4444;'>重置数据</span>"
+        title="<span style='color: var(--destructive);'>重置数据</span>"
         description="清空所有本地数据，此操作不可恢复，操作前请确认已备份好数据"
       >
         <n-button

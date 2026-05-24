@@ -40,7 +40,7 @@
           </template>
         </n-button>
       </template>
-      <div class="text-gray-700">输入网络图片地址</div>
+      <div class="text-foreground">输入网络图片地址</div>
 
       <n-input-group>
         <n-input
@@ -76,7 +76,7 @@
           </template>
         </n-button>
       </template>
-      <div class="text-gray-700">输入网站地址</div>
+      <div class="text-foreground">输入网站地址</div>
       <n-input-group>
         <n-input
           v-model:value="webSiteUrl"
@@ -113,7 +113,7 @@
       </template>
 
       <div class="w-[200px]">
-        <div class="text-gray-700">输入 SVG 代码</div>
+        <div class="text-foreground">输入 SVG 代码</div>
         <n-input
           v-model:value="svgStr"
           type="textarea"

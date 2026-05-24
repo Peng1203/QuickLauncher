@@ -44,7 +44,7 @@
           新 增
         </n-button>
         <n-button
-          color="#1989fa"
+          color="var(--primary)"
           size="tiny"
           :disabled="changed"
           @click="handleSave"
@@ -71,7 +71,7 @@
       />
 
       <div class="flex-1 flex-sb-c">
-        <span class="flex-s-c gap-0.5 text-[10px] text-gray-500">
+        <span class="flex-s-c gap-0.5 text-[10px] text-muted-foreground">
           <Icon
             name="icon-tip"
             size="12"

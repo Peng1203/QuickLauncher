@@ -49,8 +49,40 @@ pub struct AppConfigState {
     pub web_search_open_model: i32,
     #[serde(default)]
     pub web_search_source_list: Vec<Value>,
+
+    // Theme
+    #[serde(default = "default_appearance_mode")]
+    pub appearance_mode: String,
+    #[serde(default = "default_theme_color")]
+    pub theme_color: String,
+    #[serde(default = "default_page_style")]
+    pub page_style: String,
+    #[serde(default = "default_layout_density")]
+    pub layout_density: String,
+    #[serde(default = "default_font_size")]
+    pub font_size: i32,
+    #[serde(default = "default_border_radius")]
+    pub border_radius: i32,
+    #[serde(default = "default_background_blur")]
+    pub background_blur: i32,
+    #[serde(default = "default_window_opacity")]
+    pub window_opacity: i32,
+    #[serde(default = "default_enable_animation")]
+    pub enable_animation: bool,
+    #[serde(default = "default_animation_speed")]
+    pub animation_speed: String,
 }
 
 fn default_language() -> String {
     "zh-CN".to_string()
 }
+fn default_appearance_mode() -> String { "system".into() }
+fn default_theme_color() -> String { "#2080f0".into() }
+fn default_page_style() -> String { "normal".into() }
+fn default_layout_density() -> String { "default".into() }
+fn default_font_size() -> i32 { 14 }
+fn default_border_radius() -> i32 { 10 }
+fn default_background_blur() -> i32 { 50 }
+fn default_window_opacity() -> i32 { 100 }
+fn default_enable_animation() -> bool { true }
+fn default_animation_speed() -> String { "normal".into() }

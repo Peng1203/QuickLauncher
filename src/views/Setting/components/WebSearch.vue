@@ -18,14 +18,14 @@
       />
       <p
         v-show="appConfigStore.webSearchOpenModel !== WebSearchOpenModel.CLOSE"
-        class="text-[12px] leading-3.5 text-gray-500"
+        class="text-[12px] leading-3.5 text-muted-foreground"
       >
         处于默认搜索模式下，输入
-        <b class="text-black">
+        <b class="text-foreground">
           {{ appConfigStore.webSearchOpenModel ? '(英文状态) 冒号 + 关键字 + 空格' : '关键字 + 空格' }}
         </b>
         使用网络搜索，例如使用谷歌搜索，输入
-        <b class="text-black">
+        <b class="text-foreground">
           {{ appConfigStore.webSearchOpenModel ? '":g"' : '"g"' }}
         </b>
         ，然后按下空格键，进入网络搜索模式。
@@ -42,7 +42,7 @@
         :bordered="true"
         :single-line="true"
         :row-props="getRowProps"
-        :row-class-name="({ id }) => (id === activeRowId ? '!bg-gray-200' : '')"
+        :row-class-name="({ id }) => (id === activeRowId ? '!bg-muted' : '')"
       />
       <div class="flex-sb-c">
         <n-button
@@ -353,7 +353,7 @@ function formInit() {
 
 <style>
 .n-popover {
-  --n-text-color: #364153;
-  --n-color: #fff !important;
+  --n-text-color: var(--foreground);
+  --n-color: var(--card) !important;
 }
 </style>

@@ -92,7 +92,7 @@
             >
               选 择
             </n-button>
-            <span class="ml-1 text-gray-400">*关联指定目录后无法操作该分类下的启动项只能作为搜索结果</span>
+            <span class="ml-1 text-muted-foreground">*关联指定目录后无法操作该分类下的启动项只能作为搜索结果</span>
           </n-col>
 
           <n-col span="22">

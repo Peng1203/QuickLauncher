@@ -146,7 +146,27 @@ declare global {
     portalShowShortcut: boolean;
     portalWindowPositionX: number;
     portalWindowPositionY: number;
-    portalWindowPositionY: number;
+
+    /** 外观模式 light | dark | system */
+    appearanceMode: 'light' | 'dark' | 'system';
+    /** 主题强调色 */
+    themeColor: string;
+    /** 界面风格 */
+    pageStyle: 'normal' | 'macos' | 'win11';
+    /** 布局紧凑度 */
+    layoutDensity: 'compact' | 'default' | 'comfortable';
+    /** 字体大小 12-18 */
+    fontSize: number;
+    /** 窗口圆角 0-24 */
+    borderRadius: number;
+    /** 背景模糊 0-100 */
+    backgroundBlur: number;
+    /** 窗口透明度 60-100 */
+    windowOpacity: number;
+    /** 启用动画 */
+    enableAnimation: boolean;
+    /** 动画速度 */
+    animationSpeed: 'fast' | 'normal' | 'slow';
   }
 
   // type PortalNotifyMode = 'window' | 'tray' | 'silent';

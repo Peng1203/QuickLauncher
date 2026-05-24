@@ -60,7 +60,7 @@ function CancelWaring() {
       {/* class="text-[12px] text-gray-500" */}
       <n-checkbox
         v-model:checked={sync_clear.value}
-        style="font-size: 12px; color: #6a7282 !important"
+        class="text-[12px] text-muted-foreground"
         size="small"
         label="同时删除该分类下所有启动项?"
       />
