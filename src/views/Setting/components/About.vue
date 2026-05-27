@@ -468,9 +468,9 @@ const runTaskId = ref('');
 const timeoutTimer = ref();
 async function handleDownload() {
   try {
-    runTaskId.value = crypto.randomUUID();
-    const currentTaskId = JSON.parse(JSON.stringify(runTaskId.value));
-    initUpdateInfo(true);
+    await initUpdateInfo(true);
+    const currentTaskId = crypto.randomUUID();
+    runTaskId.value = currentTaskId;
     currentUpdate = await check();
     if (!currentUpdate) return;
     updateSetup.value = UpdateSetup.DOWNLOADING;
@@ -541,8 +541,8 @@ function handleCancelDownload() {
   updateSetup.value = UpdateSetup.CANCELLED;
 }
 
-function initUpdateInfo(downloadBeforeInit = false) {
-  currentUpdate?.close();
+async function initUpdateInfo(downloadBeforeInit = false) {
+  await currentUpdate?.close();
   currentUpdate = null;
 
   if (!downloadBeforeInit) {
