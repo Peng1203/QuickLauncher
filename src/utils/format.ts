@@ -14,13 +14,13 @@ export function formatBytes(bytes: number, decimals = 2): string {
 
   const index = Math.floor(Math.log(bytes) / Math.log(base));
 
-  const size = bytes / Math.pow(base, index);
+  const size = bytes / base ** index;
 
   return `${size.toFixed(decimals)} ${units[index]}`;
 }
 
 export function formatDuration(seconds: number) {
-  if (!isFinite(seconds) || seconds <= 0) {
+  if (!Number.isFinite(seconds) || seconds <= 0) {
     return '0秒';
   }
 

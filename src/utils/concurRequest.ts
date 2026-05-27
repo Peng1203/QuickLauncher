@@ -23,7 +23,11 @@ export async function batchRequest(tasks: (() => Promise<any>)[], concurrency = 
   }
 
   // 启动 N 个并发 worker
-  await Promise.all(Array.from({ length: Math.min(concurrency, tasks.length) }).fill(null).map(() => worker()));
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, tasks.length) })
+      .fill(null)
+      .map(() => worker()),
+  );
 
   return results;
 }

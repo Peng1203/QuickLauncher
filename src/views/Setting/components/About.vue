@@ -465,7 +465,7 @@ const remainingSeconds = computed(() => {
 });
 
 const runTaskId = ref('');
-const timeoutTimer = ref<number | null>(null);
+const timeoutTimer = ref();
 async function handleDownload() {
   try {
     runTaskId.value = crypto.randomUUID();

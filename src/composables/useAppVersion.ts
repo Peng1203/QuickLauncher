@@ -1,4 +1,4 @@
-import type { DownloadEvent, Update } from '@tauri-apps/plugin-updater';
+import type { Update } from '@tauri-apps/plugin-updater';
 import { getVersion } from '@tauri-apps/api/app';
 import { check } from '@tauri-apps/plugin-updater';
 import { useNaiveUiApi } from './useNaiveUiApi';
@@ -11,7 +11,6 @@ export function useAppVersion() {
   const isChecking = ref(false);
   // const isDownloading = ref(false);
   const downloadProgress = ref(0);
-  const downloadContentLength = ref(0);
   const updateInfo = ref<{ version: string; date?: string; body?: string } | null>(null);
   const hasUpdate = computed(() => updateInfo.value !== null);
 
@@ -55,30 +54,6 @@ export function useAppVersion() {
       });
     } finally {
       isChecking.value = false;
-    }
-  }
-
-  function _handleDownloadProgress(event: DownloadEvent) {
-    switch (event.event) {
-      case 'Started':
-        // isDownloading.value = true;
-        downloadProgress.value = 0;
-        downloadContentLength.value = event.data.contentLength ?? 0;
-        break;
-      case 'Progress':
-        if (downloadContentLength.value > 0) {
-          downloadProgress.value = Math.min(
-            ((downloadProgress.value * downloadContentLength.value + event.data.chunkLength) /
-              downloadContentLength.value) *
-              100,
-            100,
-          );
-        }
-        break;
-      case 'Finished':
-        // isDownloading.value = false;
-        downloadProgress.value = 100;
-        break;
     }
   }
 

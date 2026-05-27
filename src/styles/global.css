@@ -31,13 +31,7 @@ body {
 /* ── Design Tokens ── */
 :root {
   --app-font-size: 14px;
-  --app-font-family:
-    Inter,
-    "PingFang SC",
-    "Hiragino Sans GB",
-    "Microsoft YaHei",
-    "Segoe UI",
-    sans-serif;
+  --app-font-family: Inter, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
   /* monospace */
 
   --background: oklch(1 0 0);
@@ -216,7 +210,6 @@ textarea {
   --n-border-focus: inherit !important;
   --n-box-shadow-focus: none !important;
 }
-
 
 /* Setting window -- ensure Naive UI internals respect theme variables */
 

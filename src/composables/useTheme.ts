@@ -1,10 +1,9 @@
+import type { GlobalThemeOverrides } from 'naive-ui';
+import { darkTheme } from 'naive-ui';
 import { useAppConfig } from './useAppConfig';
-import { darkTheme, GlobalThemeOverrides } from 'naive-ui';
 
 export function useTheme() {
   const { themeModel, themeColor, font, fontSize } = useAppConfig();
-
-  const naiveTheme = computed(() => (isDark.value ? darkTheme : undefined));
 
   const prefersDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -13,6 +12,8 @@ export function useTheme() {
     if (themeModel.value === 'light') return false;
     return prefersDark.value;
   });
+
+  const naiveTheme = computed(() => (isDark.value ? darkTheme : undefined));
 
   const themeOverrides = computed<GlobalThemeOverrides>(() => ({
     common: {

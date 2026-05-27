@@ -1,5 +1,5 @@
 // useEsc.ts
-import { onMounted, onBeforeUnmount } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 
 export function useEsc(callback: () => void) {
   const handler = (e: KeyboardEvent) => {
@@ -7,5 +7,5 @@ export function useEsc(callback: () => void) {
   };
 
   onMounted(() => window.addEventListener('keydown', handler));
-  onBeforeUnmount(() => window.removeEventListener('keydown', handler));
+  onUnmounted(() => window.removeEventListener('keydown', handler));
 }
