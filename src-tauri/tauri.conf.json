@@ -72,7 +72,7 @@
         "title": "Operation Category",
         "label": "operCategory",
         "width": 600,
-        "height": 400,
+        "height": 350,
         "url": "/#/operCategory",
         "visible": false,
         "center": false,
