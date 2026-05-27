@@ -1,136 +1,137 @@
 <template>
-  <n-modal
-    v-model:show="modalStatus"
+  <n-card
     data-tauri-drag-region
-    transform-origin="center"
-    :mask-closable="false"
-    :on-esc="handleClose"
-    @close="handleClose"
+    size="small"
+    role="dialog"
+    aria-modal="true"
+    label-placement="left"
+    :bordered="false"
+    :title="isEdit ? `编辑分类` : '新建分类'"
+    class="h-full px-5 pt-3 pb-5"
   >
-    <n-card
-      size="small"
-      role="dialog"
-      aria-modal="true"
-      label-placement="left"
-      :bordered="false"
-      :title="isEdit ? `编辑${editItem?.name}分类` : '新建分类'"
-    >
-      <template #header-extra>
-        <n-icon
-          size="20"
-          class="cursor-pointer"
-          @click="handleClose"
-        >
-          <Close />
-        </n-icon>
-      </template>
-
-      <n-form
-        ref="formRef"
-        size="small"
-        label-width="80"
-        :show-feedback="false"
-        :model="form"
-        label-placement="left"
+    <template #header-extra>
+      <n-icon
+        size="20"
+        class="cursor-pointer"
+        @click="handleClose"
       >
-        <n-row>
-          <!-- {{ form }} -->
-          <n-col span="22">
-            <n-form-item
-              label=" "
-              path="name"
-              class="!flex justify-start items-end"
-            >
-              <n-avatar
-                size="large"
-                :style="form.icon ? 'background-color: transparent' : ''"
-                :src="form.icon || ''"
-              />
+        <Close />
+      </n-icon>
+    </template>
 
-              <IconPicker v-model="form.icon!" />
-            </n-form-item>
-          </n-col>
+    <n-form
+      ref="formRef"
+      size="small"
+      label-width="80"
+      :show-feedback="false"
+      :model="form"
+      label-placement="left"
+      class="h-full"
+    >
+      <n-row
+        class="h-full"
+        align-items="center"
+        justify-content="space-between"
+      >
+        <!-- {{ form }} -->
+        <n-col span="22">
+          <n-form-item
+            label=" "
+            path="name"
+            class="icon-item"
+          >
+            <n-avatar
+              size="large"
+              :style="form.icon ? 'background-color: transparent' : ''"
+              :src="form.icon || ''"
+            />
 
-          <n-col span="22">
-            <n-form-item
-              label="名称"
-              path="name"
-            >
-              <n-input
-                v-model:value="form.name"
-                tabindex="1"
-                placeholder=""
-                type="text"
-                :theme-overrides="inputTheme"
-              />
-            </n-form-item>
-          </n-col>
+            <IconPicker v-model="form.icon!" />
+          </n-form-item>
+        </n-col>
 
-          <n-col span="22">
-            <n-form-item
-              label="关联目录"
-              path="association_directory"
-            >
-              <n-input
-                v-model:value="form.association_directory"
-                tabindex="1"
-                placeholder=""
-                type="textarea"
-                readonly
-                :theme-overrides="inputTheme"
-              />
-              <!-- @click="handleSelectDir" -->
-            </n-form-item>
-            <n-button
-              style="margin-left: 80px"
-              class="!mt-1"
-              size="small"
-              color="lightgray"
-              text-color="gary"
-              :disabled="isEdit"
-              @click="handleSelectDir"
-            >
-              选 择
-            </n-button>
-            <span class="ml-1 text-muted-foreground">*关联指定目录后无法操作该分类下的启动项只能作为搜索结果</span>
-          </n-col>
+        <n-col span="22">
+          <n-form-item
+            label="名称"
+            path="name"
+          >
+            <n-input
+              v-model:value="form.name"
+              tabindex="1"
+              placeholder=""
+              type="text"
+              :theme-overrides="inputTheme"
+            />
+          </n-form-item>
+        </n-col>
 
-          <n-col span="22">
-            <n-form-item
-              label="搜索排除"
-              path="exclude"
-            >
+        <n-col span="22">
+          <n-form-item
+            label="关联目录"
+            path="association_directory"
+          >
+            <n-input
+              v-model:value="form.association_directory"
+              tabindex="1"
+              placeholder=""
+              type="textarea"
+              readonly
+              :theme-overrides="inputTheme"
+            />
+            <!-- @click="handleSelectDir" -->
+          </n-form-item>
+          <n-button
+            style="margin-left: 80px"
+            class="mt-1!"
+            size="small"
+            color="lightgray"
+            text-color="gary"
+            :disabled="isEdit"
+            @click="handleSelectDir"
+          >
+            选 择
+          </n-button>
+          <span class="ml-1 text-muted-foreground text-[12px]">
+            *关联指定目录后无法操作该分类下的启动项只能作为搜索结果
+          </span>
+        </n-col>
+
+        <n-col span="22">
+          <n-form-item
+            label="搜索排除"
+            path="exclude"
+          >
+            <div class="flex-s-c">
               <n-switch
                 v-model:value="form.exclude"
-                :checked-value="true"
-                :unchecked-value="false"
+                size="small"
               />
-            </n-form-item>
-          </n-col>
-        </n-row>
-      </n-form>
+            </div>
+          </n-form-item>
+        </n-col>
+      </n-row>
+    </n-form>
 
-      <template #footer>
-        <div class="flex justify-end gap-4">
-          <n-button
-            size="small"
-            type="info"
-            :loading="loading"
-            :disabled="!form.name"
-            @click="handleConfirm"
-          >
-            确 认
-          </n-button>
-          <n-button
-            size="small"
-            @click="handleClose"
-          >
-            取 消
-          </n-button>
-        </div>
-      </template>
-    </n-card>
-  </n-modal>
+    <template #footer>
+      <div class="flex justify-end gap-4">
+        <n-button
+          size="small"
+          type="info"
+          :loading="loading"
+          :disabled="!form.name"
+          @click="handleConfirm"
+        >
+          确 认
+        </n-button>
+        <n-button
+          size="small"
+          @click="handleClose"
+        >
+          取 消
+        </n-button>
+      </div>
+    </template>
+  </n-card>
 </template>
 
 <script setup lang="ts">
@@ -141,6 +142,7 @@ import { addCategory, getLocalIconBase64, updateCategory, updateLaunchEnabledByC
 import IconPicker from '@/components/IconPicker.vue';
 import {
   useCategoryCorrelationDir,
+  useEsc,
   useFormState,
   useLoading,
   useNaiveUiApi,
@@ -237,45 +239,34 @@ EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, async v
   const window = await getOperCategoryWindow();
   window?.setTitle(isEdit.value ? '编辑分类' : '新建分类');
 });
+
+useEsc(handleClose);
 </script>
 
-<style scoped>
-.n-modal {
-  padding: 10px;
+<style scoped lang="scss">
+.n-input * {
   transition: none !important;
 }
 
-.n-card {
-  width: 600px;
-  height: 400px;
-}
-
-.n-col {
-  margin-top: 10px;
+::v-deep(.n-input:not(.n-input--disabled).n-input--focus) {
+  background: var(--n-color) !important;
 }
 
 ::v-deep(.n-card-header),
-::v-deep(.n-card__content),
+::v-deep(.n-card-content),
 ::v-deep(.n-card__footer) {
-  padding: 0;
+  padding: 0 !important;
 }
-
-/* ::v-deep(.n-card__content) {
-  max-height: 200px;
-} */
 
 ::v-deep(.n-input) {
-  transition: none !important;
-}
-
-.n-input * {
   transition: none !important;
 }
 
 ::v-deep(.n-input-wrapper) {
   resize: none !important;
 }
-::v-deep(.n-form-item-blank) {
+
+::v-deep(.icon-item .n-form-item-blank) {
   display: flex;
   align-items: end;
   gap: 10px;

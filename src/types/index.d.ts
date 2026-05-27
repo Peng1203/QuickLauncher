@@ -58,6 +58,8 @@ declare global {
     'name' | 'lnk_name' | 'path' | 'icon' | 'type' | 'extension' | 'args' | 'remarks' | 'start_dir'
   > & { size: number };
 
+  type ThemeModel = 'light' | 'dark' | 'system';
+
   // 应用配置状态
   interface AppConfigState {
     title: string;
@@ -148,13 +150,15 @@ declare global {
     portalWindowPositionY: number;
 
     /** 外观模式 light | dark | system */
-    appearanceMode: 'light' | 'dark' | 'system';
+    themeModel: ThemeModel;
     /** 主题强调色 */
     themeColor: string;
     /** 界面风格 */
     pageStyle: 'normal' | 'macos' | 'win11';
     /** 布局紧凑度 */
     layoutDensity: 'compact' | 'default' | 'comfortable';
+    /** 字体 */
+    font: string;
     /** 字体大小 12-18 */
     fontSize: number;
     /** 窗口圆角 0-24 */
@@ -178,6 +182,7 @@ declare global {
     value: T;
     icon?: any;
     type?: any;
+    style?: string | CSSProperties;
   }
 
   type LayoutType = 'list' | 'grid';

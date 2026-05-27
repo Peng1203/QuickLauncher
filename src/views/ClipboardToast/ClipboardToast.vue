@@ -47,7 +47,7 @@
 
     <!-- actions -->
     <div class="flex items-center gap-2">
-      <NButton
+      <n-button
         type="success"
         size="tiny"
         class="!h-8 !flex-1 !rounded-lg"
@@ -69,11 +69,11 @@
 
         {{ info.actionText }}
         <template v-if="appConfigStore.portalShowShortcut">(Home)</template>
-      </NButton>
+      </n-button>
 
-      <NButton
+      <n-button
         v-if="isDirectory"
-        color="var(--primary)"
+        type="primary"
         size="tiny"
         class="!h-8 !flex-1 !rounded-lg"
         @click="openDirInManager"
@@ -86,7 +86,7 @@
         </template>
         资源管理器中打开
         <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template>
-      </NButton>
+      </n-button>
     </div>
 
     <div
@@ -113,7 +113,7 @@ import { TrayIcon } from '@tauri-apps/api/tray';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline, FolderOutline, LinkOutline, OpenOutline } from '@vicons/ionicons5';
 import { useDebounceFn, useTimeoutFn } from '@vueuse/core';
-import { NButton, NIcon } from 'naive-ui';
+import { NIcon } from 'naive-ui';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { exeCommand, openRevealManager, setDefaultTrayIcon } from '@/api';
 import { useAppConfig } from '@/composables';

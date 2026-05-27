@@ -11,6 +11,7 @@ declare module 'vue' {
     BrowserPicker: typeof import('./src/components/BrowserPicker.vue')['default']
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
     CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
+    copy: typeof import('./src/components/ui/SettingSwitchItem copy.vue')['default']
     DescText: typeof import('./src/components/DescText.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
@@ -20,6 +21,7 @@ declare module 'vue' {
     ListContextMenu: typeof import('./src/components/ListContextMenu.vue')['default']
     ListItem: typeof import('./src/components/ListItem.vue')['default']
     ListItemContextMenu: typeof import('./src/components/ListItemContextMenu.vue')['default']
+    'n-button': typeof import('naive-ui')['n-button']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
@@ -61,6 +63,8 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SettingGroup: typeof import('./src/components/ui/SettingGroup.vue')['default']
     SettingItem: typeof import('./src/components/ui/SettingItem.vue')['default']
+    SettingSelectItem: typeof import('./src/components/ui/SettingSelectItem.vue')['default']
     SettingSwitchItem: typeof import('./src/components/ui/SettingSwitchItem.vue')['default']
+    ThemeSwitch: typeof import('./src/components/ThemeSwitch.vue')['default']
   }
 }

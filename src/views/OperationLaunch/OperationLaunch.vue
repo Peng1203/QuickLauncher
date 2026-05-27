@@ -1,390 +1,383 @@
 <template>
-  <n-modal
-    v-model:show="modalStatus"
+  <n-card
     data-tauri-drag-region
-    transform-origin="center"
-    :mask-closable="false"
-    :on-esc="handleClose"
-    @close="handleClose"
+    size="small"
+    role="dialog"
+    aria-modal="true"
+    :bordered="false"
+    :title="isEdit ? '编辑项目' : '新建项目'"
+    class="h-full px-5 pt-3 pb-5"
   >
-    <n-card
-      size="small"
-      role="dialog"
-      aria-modal="true"
-      :bordered="false"
-      :title="isEdit ? '编辑项目' : '新建项目'"
-    >
-      <template #header-extra>
-        <n-icon
-          size="20"
-          class="cursor-pointer"
-          @click="handleClose"
-        >
-          <Close />
-        </n-icon>
-      </template>
-      <n-tabs
-        v-model:value="form.type"
-        animated
-        type="bar"
-        placement="left"
-        size="small"
-        :default-value="form.type"
-        :on-update:value="handleTypeChange"
-        :style="`--n-tabs-nav-visbile: ${typesBarVisible}`"
+    <template #header-extra>
+      <n-icon
+        size="20"
+        class="cursor-pointer"
+        @click="handleClose"
       >
-        <n-tab-pane
-          v-for="item in launchTypes"
-          :key="item.value"
-          :disabled="isEdit || urlInfoLoading"
-          :name="item.value"
-          :tab="item.label"
-        >
-          <div style="max-height: 310px; overflow-y: auto">
-            <!-- {{ { ...form, icon: '' } }} -->
-            <!-- -- {{ appConfigStore }} -->
+        <Close />
+      </n-icon>
+    </template>
+    <n-tabs
+      v-model:value="form.type"
+      animated
+      type="bar"
+      placement="left"
+      size="small"
+      :default-value="form.type"
+      :on-update:value="handleTypeChange"
+      :style="`--n-tabs-nav-visbile: ${typesBarVisible}`"
+    >
+      <n-tab-pane
+        v-for="item in launchTypes"
+        :key="item.value"
+        :disabled="isEdit || urlInfoLoading"
+        :name="item.value"
+        :tab="item.label"
+      >
+        <div style="max-height: 310px; overflow-y: auto">
+          <!-- {{ { ...form, icon: '' } }} -->
+          <!-- -- {{ appConfigStore }} -->
 
-            <n-form
-              ref="formRef"
-              size="small"
-              label-width="80"
-              :show-feedback="false"
-              :model="form"
-              :rules="formRules"
-            >
-              <!-- {{ isEdit }} <br /> -->
-              <!-- {{ currentFormSchemas }} -->
-              <!-- {{ form }} -->
-              <n-row>
-                <template
-                  v-for="sItem in currentFormSchemas"
-                  :key="sItem.prop"
+          <n-form
+            ref="formRef"
+            size="small"
+            label-width="80"
+            :show-feedback="false"
+            :model="form"
+            :rules="formRules"
+          >
+            <!-- {{ isEdit }} <br /> -->
+            <!-- {{ currentFormSchemas }} -->
+            <!-- {{ form }} -->
+            <n-row>
+              <template
+                v-for="sItem in currentFormSchemas"
+                :key="sItem.prop"
+              >
+                <n-col
+                  v-if="sItem.slot === 'iconSlot'"
+                  :span="(sItem.span as any)"
+                  class="!flex justify-start items-end"
                 >
-                  <n-col
-                    v-if="sItem.slot === 'iconSlot'"
-                    :span="(sItem.span as any)"
-                    class="!flex justify-start items-end"
+                  <NAvatar
+                    size="large"
+                    :style="form.icon ? 'background-color: transparent' : ''"
+                    :src="form.icon || ''"
+                  />
+                </n-col>
+                <n-col
+                  v-else-if="sItem.slot === 'selectIconSlot'"
+                  :span="(sItem.span as any)"
+                  class="!flex justify-start items-end"
+                >
+                  <IconPicker v-model="form.icon!" />
+                </n-col>
+
+                <n-col
+                  v-else-if="sItem.slot === 'pathSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <NAvatar
-                      size="large"
-                      :style="form.icon ? 'background-color: transparent' : ''"
-                      :src="form.icon || ''"
+                    <n-input
+                      v-model:value="(form[sItem.prop] as any)"
+                      placeholder=""
+                      :type="sItem.type || 'text'"
+                      :theme-overrides="inputTheme"
                     />
-                  </n-col>
-                  <n-col
-                    v-else-if="sItem.slot === 'selectIconSlot'"
-                    :span="(sItem.span as any)"
-                    class="!flex justify-start items-end"
+                  </n-form-item>
+                  <n-button
+                    class="!mt-1"
+                    size="small"
+                    color="lightgray"
+                    text-color="gary"
+                    @click="handleSelectLaunch"
                   >
-                    <IconPicker v-model="form.icon!" />
-                  </n-col>
+                    选 择
+                  </n-button>
+                  *支持拖拽
+                </n-col>
 
-                  <n-col
-                    v-else-if="sItem.slot === 'pathSlot'"
-                    :span="(sItem.span as any)"
+                <n-col
+                  v-else-if="sItem.slot === 'appsSelectSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <n-input
-                        v-model:value="(form[sItem.prop] as any)"
-                        placeholder=""
-                        :type="sItem.type || 'text'"
-                        :theme-overrides="inputTheme"
-                      />
-                    </n-form-item>
-                    <n-button
-                      class="!mt-1"
-                      size="small"
-                      color="lightgray"
-                      text-color="gary"
-                      @click="handleSelectLaunch"
-                    >
-                      选 择
-                    </n-button>
-                    *支持拖拽
-                  </n-col>
-
-                  <n-col
-                    v-else-if="sItem.slot === 'appsSelectSlot'"
-                    :span="(sItem.span as any)"
-                  >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <!-- <n-input
+                    <!-- <n-input
                         v-model:value="(form[sItem.prop] as any)"
                         placeholder=""
                         :type="sItem.type || 'text'"
                         :theme-overrides="inputTheme"
                       /> -->
-                      <!-- {{ appsSelectValue }}
+                    <!-- {{ appsSelectValue }}
                       {{ form.path }} -->
-                      <n-select
-                        v-model:value="appsSelectValue"
-                        multiple
-                        filterable
-                        placeholder=""
-                        :options="options"
-                        :render-label="renderLabel"
-                        :render-tag="renderMultipleSelectTag"
-                      />
-                    </n-form-item>
-                  </n-col>
+                    <n-select
+                      v-model:value="appsSelectValue"
+                      multiple
+                      filterable
+                      placeholder=""
+                      :options="options"
+                      :render-label="renderLabel"
+                      :render-tag="renderMultipleSelectTag"
+                    />
+                  </n-form-item>
+                </n-col>
 
-                  <n-col
-                    v-else-if="sItem.slot === 'urlSlot'"
-                    :span="(sItem.span as any)"
+                <n-col
+                  v-else-if="sItem.slot === 'urlSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <n-input
-                        v-model:value="(form[sItem.prop] as any)"
-                        placeholder="https://www.bilibili.com"
-                        :type="sItem.type || 'text'"
-                        :theme-overrides="inputTheme"
-                      />
-                    </n-form-item>
-                    <n-button
-                      class="!mt-1"
-                      size="small"
-                      type="info"
-                      :loading="urlInfoLoading"
-                      @click="getUrlInfo"
-                    >
-                      获取网址信息
-                    </n-button>
-
-                    <n-checkbox
-                      v-model:checked="appConfigStore.proxy"
-                      class="ml-3"
-                      size="small"
-                      :checked-value="true"
-                      :unchecked-value="false"
-                      :default-checked="appConfigStore.proxy"
-                      :on-update:checked="handleSwitchProxy"
-                    >
-                      代理
-                    </n-checkbox>
-                  </n-col>
-
-                  <n-col
-                    v-else-if="sItem.slot === 'hotkeySlot'"
-                    :span="(sItem.span as any)"
+                    <n-input
+                      v-model:value="(form[sItem.prop] as any)"
+                      placeholder="https://www.bilibili.com"
+                      :type="sItem.type || 'text'"
+                      :theme-overrides="inputTheme"
+                    />
+                  </n-form-item>
+                  <n-button
+                    class="!mt-1"
+                    size="small"
+                    type="info"
+                    :loading="urlInfoLoading"
+                    @click="getUrlInfo"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <n-input
-                        v-model:value="(form[sItem.prop] as any)"
-                        placeholder=""
-                        :type="sItem.type || 'text'"
-                        :theme-overrides="inputTheme"
-                      />
-                    </n-form-item>
-                    <!-- class="mt-1" -->
+                    获取网址信息
+                  </n-button>
+
+                  <n-checkbox
+                    v-model:checked="appConfigStore.proxy"
+                    class="ml-3"
+                    size="small"
+                    :checked-value="true"
+                    :unchecked-value="false"
+                    :default-checked="appConfigStore.proxy"
+                    :on-update:checked="handleSwitchProxy"
+                  >
+                    代理
+                  </n-checkbox>
+                </n-col>
+
+                <n-col
+                  v-else-if="sItem.slot === 'hotkeySlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
+                  >
+                    <n-input
+                      v-model:value="(form[sItem.prop] as any)"
+                      placeholder=""
+                      :type="sItem.type || 'text'"
+                      :theme-overrides="inputTheme"
+                    />
+                  </n-form-item>
+                  <!-- class="mt-1" -->
+                  <n-checkbox
+                    v-model:checked="form.hotkey_global"
+                    size="small"
+                    :checked-value="true"
+                    :unchecked-value="false"
+                    :default-checked="false"
+                    :disabled="!form.hotkey"
+                  >
+                    全局快捷键
+                  </n-checkbox>
+                </n-col>
+
+                <n-col
+                  v-else-if="sItem.slot === 'runAsAdminSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
+                    class="run_as_admin"
+                  >
                     <n-checkbox
-                      v-model:checked="form.hotkey_global"
+                      v-model:checked="form.run_as_admin"
                       size="small"
                       :checked-value="true"
                       :unchecked-value="false"
                       :default-checked="false"
-                      :disabled="!form.hotkey"
+                      :disabled="form.extension !== 'exe'"
                     >
-                      全局快捷键
+                      以管理员身份运行
                     </n-checkbox>
-                  </n-col>
+                  </n-form-item>
+                </n-col>
 
-                  <n-col
-                    v-else-if="sItem.slot === 'runAsAdminSlot'"
-                    :span="(sItem.span as any)"
+                <!-- 网址选择指定浏览器打开 -->
+                <n-col
+                  v-else-if="sItem.slot === 'browserSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                      class="run_as_admin"
-                    >
-                      <n-checkbox
-                        v-model:checked="form.run_as_admin"
-                        size="small"
-                        :checked-value="true"
-                        :unchecked-value="false"
-                        :default-checked="false"
-                        :disabled="form.extension !== 'exe'"
-                      >
-                        以管理员身份运行
-                      </n-checkbox>
-                    </n-form-item>
-                  </n-col>
+                    <template #label>
+                      <div class="flex">
+                        <span class="mr-1">{{ sItem.label }}</span>
 
-                  <!-- 网址选择指定浏览器打开 -->
-                  <n-col
-                    v-else-if="sItem.slot === 'browserSlot'"
-                    :span="(sItem.span as any)"
+                        <n-tooltip trigger="hover">
+                          <template #trigger>
+                            <n-icon
+                              size="16"
+                              class="cursor-pointer"
+                            >
+                              <!-- @click="handleClose" -->
+                              <AlertCircleOutline />
+                            </n-icon>
+                          </template>
+                          <span style="color: var(--muted-foreground)">
+                            按照以下格式添加自定义浏览器
+                            <br />
+                            浏览器名称=浏览器exe文件地址
+                            <br />
+                            例: QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
+                          </span>
+                        </n-tooltip>
+                      </div>
+                    </template>
+
+                    <!--  -->
+                    <template v-if="form.type === 'url'">
+                      <BrowerPicker v-model="(form.args as string)" />
+                    </template>
+                  </n-form-item>
+                </n-col>
+
+                <!-- 关键字 -->
+                <n-col
+                  v-else-if="sItem.slot === 'keywordsSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <template #label>
-                        <div class="flex">
-                          <span class="mr-1">{{ sItem.label }}</span>
+                    <n-dynamic-tags
+                      v-model:value="keywordsTags"
+                      type="info"
+                      size="small"
+                    />
+                  </n-form-item>
+                </n-col>
 
-                          <n-tooltip trigger="hover">
-                            <template #trigger>
-                              <n-icon
-                                size="16"
-                                class="cursor-pointer"
-                              >
-                                <!-- @click="handleClose" -->
-                                <AlertCircleOutline />
-                              </n-icon>
-                            </template>
-                            <span style="color: var(--muted-foreground)">
-                              按照以下格式添加自定义浏览器
-                              <br />
-                              浏览器名称=浏览器exe文件地址
-                              <br />
-                              例: QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
-                            </span>
-                          </n-tooltip>
-                        </div>
-                      </template>
-
-                      <!--  -->
-                      <template v-if="form.type === 'url'">
-                        <BrowerPicker v-model="(form.args as string)" />
-                      </template>
-                    </n-form-item>
-                  </n-col>
-
-                  <!-- 关键字 -->
-                  <n-col
-                    v-else-if="sItem.slot === 'keywordsSlot'"
-                    :span="(sItem.span as any)"
+                <!-- 排序 -->
+                <n-col
+                  v-else-if="sItem.slot === 'orderSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <n-dynamic-tags
-                        v-model:value="keywordsTags"
-                        type="info"
-                        size="small"
-                      />
-                    </n-form-item>
-                  </n-col>
+                    <!-- borderFocus: 'inherit', -->
+                    <!-- boxShadowFocus: 'none', -->
+                    <!-- caretColor: 'inherit', -->
+                    <!-- borderHover: 'inherit', -->
+                    <n-input-number
+                      v-model:value.number="form.order_index"
+                      placeholder=""
+                      class="w-25"
+                      size="small"
+                    />
+                    <span class="ml-2 text-muted-foreground">用于搜索返回展示的优先级 数字越大越靠前</span>
+                  </n-form-item>
+                </n-col>
 
-                  <!-- 排序 -->
-                  <n-col
-                    v-else-if="sItem.slot === 'orderSlot'"
-                    :span="(sItem.span as any)"
+                <!-- 启动项分类 -->
+                <n-col
+                  v-else-if="sItem.slot === 'categorySlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <!-- borderFocus: 'inherit', -->
-                      <!-- boxShadowFocus: 'none', -->
-                      <!-- caretColor: 'inherit', -->
-                      <!-- borderHover: 'inherit', -->
-                      <n-input-number
-                        v-model:value.number="form.order_index"
-                        placeholder=""
-                        class="w-25"
-                        size="small"
-                      />
-                      <span class="ml-2 text-muted-foreground">用于搜索返回展示的优先级 数字越大越靠前</span>
-                    </n-form-item>
-                  </n-col>
+                    <!-- TODO 使用级联选择器 -->
+                    <n-select
+                      v-model:value="form.category_id"
+                      clearable
+                      placeholder=""
+                      :default-value="null"
+                      :options="(categoryOptions as any)"
+                    />
+                  </n-form-item>
+                </n-col>
 
-                  <!-- 启动项分类 -->
-                  <n-col
-                    v-else-if="sItem.slot === 'categorySlot'"
-                    :span="(sItem.span as any)"
+                <n-col
+                  v-else-if="sItem.slot === 'enabledSlot'"
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <!-- TODO 使用级联选择器 -->
-                      <n-select
-                        v-model:value="form.category_id"
-                        clearable
-                        placeholder=""
-                        :default-value="null"
-                        :options="(categoryOptions as any)"
-                      />
-                    </n-form-item>
-                  </n-col>
+                    <n-switch
+                      v-model:value="form.enabled"
+                      :default-value="true"
+                      :checked-value="true"
+                      :unchecked-value="false"
+                    />
+                  </n-form-item>
+                </n-col>
 
-                  <n-col
-                    v-else-if="sItem.slot === 'enabledSlot'"
-                    :span="(sItem.span as any)"
+                <n-col
+                  v-else
+                  :span="(sItem.span as any)"
+                >
+                  <n-form-item
+                    :label="sItem.label"
+                    :path="sItem.prop"
                   >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <n-switch
-                        v-model:value="form.enabled"
-                        :default-value="true"
-                        :checked-value="true"
-                        :unchecked-value="false"
-                      />
-                    </n-form-item>
-                  </n-col>
-
-                  <n-col
-                    v-else
-                    :span="(sItem.span as any)"
-                  >
-                    <n-form-item
-                      :label="sItem.label"
-                      :path="sItem.prop"
-                    >
-                      <n-input
-                        v-model:value="(form[sItem.prop] as any)"
-                        :theme-overrides="inputTheme"
-                        :type="sItem.type || 'text'"
-                        :placeholder="sItem.placeholder || ''"
-                      />
-                    </n-form-item>
-                  </n-col>
-                </template>
-              </n-row>
-            </n-form>
-          </div>
-        </n-tab-pane>
-      </n-tabs>
-      <!-- {{ editItemWithCategory }} -->
-      <!-- {{ form }} -->
-
-      <template #footer>
-        <div class="flex justify-end gap-4">
-          <n-button
-            size="small"
-            type="info"
-            :disabled="!form.name || !form.path"
-            @click="handleConfirm"
-          >
-            确 认
-          </n-button>
-          <n-button
-            size="small"
-            @click="handleClose"
-          >
-            取 消
-          </n-button>
+                    <n-input
+                      v-model:value="(form[sItem.prop] as any)"
+                      :theme-overrides="inputTheme"
+                      :type="sItem.type || 'text'"
+                      :placeholder="sItem.placeholder || ''"
+                    />
+                  </n-form-item>
+                </n-col>
+              </template>
+            </n-row>
+          </n-form>
         </div>
-      </template>
-    </n-card>
-  </n-modal>
+      </n-tab-pane>
+    </n-tabs>
+    <!-- {{ editItemWithCategory }} -->
+    <!-- {{ form }} -->
+
+    <template #footer>
+      <div class="flex justify-end gap-4">
+        <n-button
+          size="small"
+          type="info"
+          :disabled="!form.name || !form.path"
+          @click="handleConfirm"
+        >
+          确 认
+        </n-button>
+        <n-button
+          size="small"
+          @click="handleClose"
+        >
+          取 消
+        </n-button>
+      </div>
+    </template>
+  </n-card>
 </template>
 
 <script setup lang="tsx">
@@ -398,7 +391,7 @@ import { computed, nextTick, ref } from 'vue';
 import { addLaunch, getCategoryTree, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
 import BrowerPicker from '@/components/BrowserPicker.vue';
 import IconPicker from '@/components/IconPicker.vue';
-import { useAppConfig, useFormState, useNaiveUiApi, useToggleWindowVisible } from '@/composables';
+import { useAppConfig, useEsc, useFormState, useNaiveUiApi, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
 import piniaStore from '@/store';
 import { useStore } from '@/store/useStore';
@@ -794,6 +787,10 @@ function renderMultipleSelectTag({ option, handleClose }: any) {
   );
 }
 
+const baseSelectionHeight = computed(() => {
+  return form.value.type === 'apps' ? '80px' : 'initial';
+});
+
 // 拖拽
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   if (isEdit.value) return;
@@ -834,9 +831,14 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
   const window = await getOperLaunchWindow();
   window?.setTitle(isEdit.value ? '编辑启动项' : '新建启动项');
 });
+
+useEsc(handleClose);
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.n-tabs {
+  --background: initial !important;
+}
 .n-modal {
   padding: 10px;
   transition: none !important;
@@ -869,16 +871,24 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
   --n-label-height: 0px !important;
 }
 
-::v-deep(.n-input--focus:hover) {
-  background-color: inherit !important;
-}
+// ::v-deep(.n-input) {
+//   transition: none !important;
+//   // --n-color-focus: initial !important;
+// }
 
-::v-deep(.n-input) {
-  transition: none !important;
+::v-deep(.n-base-selection:not(.n-base-selection--disabled).n-base-selection--active .n-base-selection-tags) {
+  background-color: initial !important;
+}
+::v-deep(.n-base-selection-tags) {
+  background-color: initial !important;
 }
 
 .n-input * {
   transition: none !important;
+}
+
+::v-deep(.n-input:not(.n-input--disabled).n-input--focus) {
+  background: var(--n-color) !important;
 }
 
 ::v-deep(.n-input-number > .n-input) {
@@ -914,13 +924,17 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
   --n-box-shadow-active: inherit !important;
   --n-box-shadow-focus: inherit !important;
   transition: none !important;
+
+  background-color: var(--n-color);
 }
 
 ::v-deep(.n-input--textarea) {
   min-height: 80px !important;
 }
 ::v-deep(.n-base-selection) {
-  min-height: 80px !important;
+  min-height: v-bind('baseSelectionHeight') !important;
+  // background-color: transparent !important;
+  background-color: var(--n-color);
 }
 
 ::v-deep(.n-input-wrapper) {

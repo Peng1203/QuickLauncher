@@ -4,9 +4,12 @@
     :data-tauri-drag-region="!appConfigStore.center"
     class="h-8 bg-card flex items-center justify-between px-2 border-b-1 border-border z-10"
   >
-    <span class="text-foreground">{{ appConfigStore.title }}</span>
+    <!-- text-foreground -->
+    <span class="color-[inherit]">{{ appConfigStore.title }}</span>
     <!-- 右侧操作 -->
     <div class="flex items-center gap-2">
+      <ThemeSwitch />
+
       <n-icon
         title="设置"
         size="20"

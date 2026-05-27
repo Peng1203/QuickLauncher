@@ -83,10 +83,11 @@ export const useAppConfigStore = defineStore(
       portalWindowPositionX: 0,
       portalWindowPositionY: 0,
 
-      appearanceMode: 'system',
+      themeModel: 'system',
       themeColor: '#2080f0',
       pageStyle: 'normal',
       layoutDensity: 'default',
+      font: '',
       fontSize: 14,
       borderRadius: 10,
       backgroundBlur: 50,

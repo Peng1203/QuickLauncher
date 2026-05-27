@@ -25,7 +25,7 @@
     <span
       ref="nameRef"
       :contenteditable="isEdit && isActive"
-      class="text-foreground pointer-events-none px-1 w-fit line-clamp-2 mt-0.5 leading-normal max-2-lines"
+      class="text-foreground pointer-events-none px-1 w-fit line-clamp-2 mt-0.5 leading-normal max-2-lines item-name"
       :class="[isGridMode ? 'text-xs text-center px-1 mt-0.5 line-clamp-2' : 'text-sm flex-1 truncate']"
     >
       {{ name }}
@@ -33,13 +33,13 @@
 
     <!-- 右侧扩展（list模式才有） -->
     <template v-if="isListMode">
-      <div class="text-xs text-muted-foreground w-24">
+      <span class="text-xs text-muted-foreground whitespace-nowrap w-36">
         {{ dateFormat(item.created_at, 'YYYY/M/D H:m') || '' }}
-      </div>
+      </span>
 
-      <div class="text-xs text-muted-foreground w-12">
+      <span class="text-xs text-muted-foreground whitespace-nowrap w-12">
         {{ item.extension || formatLaunchType(item.type) }}
-      </div>
+      </span>
     </template>
 
     <LaunchItemContextMenu
@@ -250,6 +250,10 @@ defineExpose({ handleEditName, handleDelete, scrollItemIntoView });
 .item {
   border-bottom: none;
 }
+.item-name {
+  color: inherit !important;
+}
+
 span[contenteditable='true'] {
   display: inline-block;
   max-width: 100%;

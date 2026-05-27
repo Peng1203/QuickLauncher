@@ -1,5 +1,8 @@
 <template>
-  <NConfigProvider :theme="naiveTheme" :theme-overrides="themeOverrides">
+  <NConfigProvider
+    :theme="naiveTheme"
+    :theme-overrides="themeOverrides"
+  >
     <NDialogProvider>
       <NNotificationProvider>
         <NMessageProvider>
@@ -13,41 +16,72 @@
 </template>
 
 <script setup lang="ts">
-import { darkTheme } from 'naive-ui';
-import { useAppConfig } from '@/composables';
+import { storeToRefs } from 'pinia';
+import { useTheme } from './composables/useTheme';
+import { useStore } from './store/useStore';
 
-const { appConfigStore } = useAppConfig();
+const { globalSetThemeFlag } = storeToRefs(useStore());
 
-const prefersDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches);
+const {
+  font,
+  fontSize,
+  themeModel, //
+  naiveTheme,
+  themeOverrides,
+  mediaQuery,
+  initThemeClass,
+  setHTMLThemeClass,
+  onOsThemeChange,
+  handleOnOSThemeChange,
+  setFontFamily,
+  setFontSize,
+} = useTheme();
 
-const isDark = computed(() => {
-  if (appConfigStore.appearanceMode === 'dark') return true;
-  if (appConfigStore.appearanceMode === 'light') return false;
-  return prefersDark.value;
-});
-
-const naiveTheme = computed(() => (isDark.value ? darkTheme : undefined));
-
-const themeOverrides = computed(() => ({
-  common: {
-    primaryColor: appConfigStore.themeColor,
-    primaryColorHover: appConfigStore.themeColor,
+watch(
+  () => themeModel.value,
+  val => {
+    if (!globalSetThemeFlag.value) return;
+    if (val === 'system') {
+      const { matches } = window.matchMedia('(prefers-color-scheme: dark)');
+      handleOnOSThemeChange(matches);
+    } else {
+      setHTMLThemeClass();
+    }
   },
-}));
+);
 
-// Toggle .dark class on root element for Tailwind dark: utilities
-watchEffect(() => {
-  document.documentElement.classList.toggle('dark', isDark.value);
-});
+watch(() => font.value, setFontFamily);
+watch(() => fontSize.value, setFontSize);
 
-// Listen for OS theme changes (for "follow system" mode)
-const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-function onOsThemeChange(e: MediaQueryListEvent) {
-  prefersDark.value = e.matches;
-}
-mediaQuery.addEventListener('change', onOsThemeChange);
+initThemeClass();
+setFontFamily();
+setFontSize();
 
-onUnmounted(() => {
-  mediaQuery.removeEventListener('change', onOsThemeChange);
-});
+onMounted(() => mediaQuery.addEventListener('change', onOsThemeChange));
+onUnmounted(() => mediaQuery.removeEventListener('change', onOsThemeChange));
 </script>
+
+<style>
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+  mix-blend-mode: normal !important;
+}
+
+/* 进入dark模式和退出dark模式时，两个图像的位置顺序正好相反 */
+[class='dark']::view-transition-old(root) {
+  z-index: 10000;
+}
+
+[class='dark']::view-transition-new(root) {
+  z-index: 99999;
+}
+
+::view-transition-old(root) {
+  z-index: 99999;
+}
+
+::view-transition-new(root) {
+  z-index: 10000;
+}
+</style>

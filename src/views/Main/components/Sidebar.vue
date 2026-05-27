@@ -17,7 +17,7 @@
         v-for="item of categoryData"
         :key="item.id"
         :ref="el => (categoryItemRefs[`${item.id}`] = el)"
-        :class="[activeCategory === item.id ? 'bg-muted text-primary' : 'hover:bg-secondary text-foreground']"
+        :class="[activeCategory === item.id ? 'bg-muted active-category' : 'hover:bg-secondary text-foreground']"
         tabindex="-1"
         class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden"
         @click="handleChangeCategory(item.id)"
@@ -62,7 +62,7 @@ import { nextTick, ref, shallowRef } from 'vue';
 import { openPath, updateCategory } from '@/api';
 import CategoryContextMenu from '@/components/CategoryContextMenu.vue';
 import CategoryItemContextMenu from '@/components/CategoryItemContextMenu.vue';
-import { useCategoryCorrelationDir } from '@/composables';
+import { useAppConfig, useCategoryCorrelationDir } from '@/composables';
 import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
@@ -70,6 +70,7 @@ import { EventBus } from '@/utils/eventBus';
 const store = useStore();
 const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem, enableWindoShortcuts } = storeToRefs(store);
 const { registerAllCategoryDirWatch, checkCategoryDirAndLaunchSync } = useCategoryCorrelationDir();
+const { themeColor } = useAppConfig();
 
 async function getCategorys() {
   await store.getCategoryData();
@@ -266,7 +267,9 @@ EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
   padding: 0px 6px;
   cursor: text;
 }
-
+.active-category {
+  color: v-bind('themeColor') !important;
+}
 // .editable-active {
 //   animation: editablePulse 0.3s ease-in-out;
 // }

@@ -26,7 +26,6 @@
           :item="item"
           :icon="item.icon!"
           :name="item.name"
-          :active-category-item="activeCategoryItem!"
         />
       </template>
     </transition-group>

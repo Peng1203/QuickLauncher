@@ -44,7 +44,7 @@
           新 增
         </n-button>
         <n-button
-          color="var(--primary)"
+          type="primary"
           size="tiny"
           :disabled="changed"
           @click="handleSave"
@@ -98,9 +98,10 @@
 
 <script setup lang="tsx">
 import { isEqual } from 'lodash-es';
-import { NIcon, NInput, NSwitch } from 'naive-ui';
+import { NInput, NSwitch } from 'naive-ui';
 import { ref } from 'vue';
 import { addLaunch, deleteLaunch, exeCommand, getAliasLaunch, updateLaunch } from '@/api';
+import Icon from '@/components/ui/Icon.vue';
 import { useAppConfig } from '@/composables';
 import { defaultCommandAlias } from '@/constant/data';
 
@@ -153,7 +154,10 @@ const columns = [
             class="cursor-pointer"
             onClick={() => handleRun(row)}
           >
-            <NIcon class="iconfont icon-yunhang" />
+            <Icon
+              name="icon-yunhang"
+              size="16"
+            />
           </span>
 
           <span
@@ -161,7 +165,10 @@ const columns = [
             class="cursor-pointer"
             onClick={() => handleDelete(row)}
           >
-            <NIcon class="iconfont icon-shanchufenlei " />
+            <Icon
+              name="icon-shanchufenlei"
+              size="16"
+            />
           </span>
           <NSwitch
             size="small"

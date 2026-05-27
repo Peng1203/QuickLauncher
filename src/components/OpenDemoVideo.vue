@@ -1,12 +1,12 @@
 <template>
-  <NButton
+  <n-button
     quaternary
     size="tiny"
     class="text-primary hover:text-primary/80 !mr-2"
     @click="handleOpenVideoDemo"
   >
     ▶ 功能演示
-  </NButton>
+  </n-button>
 </template>
 
 <script setup lang="ts">

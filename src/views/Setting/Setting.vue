@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
-import { useToggleWindowVisible } from '@/composables';
+import { useAppConfig, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
 import AboutPane from './components/About.vue';
@@ -64,10 +64,11 @@ import Translation from './components/Translation.vue';
 import WebSearchPane from './components/WebSearch.vue';
 
 const { toogleSettingWindowVisible } = useToggleWindowVisible();
+const { themeColor } = useAppConfig();
 
 const settingTabs = [
   { label: '常 规', value: 'general', icon: 'icon-changguishezhi-moren', contentComponent: GeneralPane },
-  { label: '主 题', value: 'theme', icon: 'icon-yangshi', contentComponent: ThemePane },
+  { label: '主 题', value: 'theme', icon: 'icon-zhuti_tiaosepan', contentComponent: ThemePane },
   { label: '快速搜索', value: 'q_search', icon: 'icon-icon-sousuofenlei', contentComponent: QuickSearchPane },
   { label: '网络搜索', value: 'n_search', icon: 'icon-wangluosousuo', contentComponent: WebSearchPane },
   { label: '命令别名', value: 'command_alias', icon: 'icon-minglinghangchaxun', contentComponent: CommandAliasPane },
@@ -93,7 +94,7 @@ EventBus.listen(AppEvent.OPEN_SETTING, (tabName?: string) => {
 });
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .n-tabs {
   height: calc(100% - 32px) !important;
 }
@@ -104,57 +105,10 @@ EventBus.listen(AppEvent.OPEN_SETTING, (tabName?: string) => {
   overflow-y: auto;
   padding-bottom: 10px !important;
 }
-</style>
 
-<style>
-/* Setting window -- ensure Naive UI internals respect theme variables */
-
-/* Left tab navigation bar */
-.n-tabs .n-tabs-nav {
-  background-color: var(--background) !important;
-}
-
-/* Individual tabs */
-.n-tabs .n-tabs-tab {
-  color: var(--muted-foreground) !important;
-}
-
-.n-tabs .n-tabs-tab:hover {
-  background-color: var(--muted) !important;
-}
-
-.n-tabs .n-tabs-tab.n-tabs-tab--active {
-  color: var(--primary) !important;
-  background-color: var(--muted) !important;
-}
-
-/* Tab content pane */
-.n-tab-pane {
-  background-color: var(--background);
-}
-
-/* Naive UI n-layout (used in main window, but also check if any in settings) */
-.n-layout {
-  --n-color: var(--background);
-}
-
-/* DataTable and other card-like surfaces */
-.n-data-table {
-  --n-color: var(--card);
-}
-
-/* Input fields in setting forms */
-.n-input {
-  --n-color: var(--card);
-}
-
-/* Select dropdown */
-.n-base-selection {
-  --n-color: var(--card);
-}
-
-/* Popover / tooltip backgrounds */
-.n-popover {
-  --n-color: var(--popover);
+::v-deep(.n-tabs .n-tabs-tab.n-tabs-tab--active) {
+  color: v-bind('themeColor') !important;
 }
 </style>
+
+<style></style>

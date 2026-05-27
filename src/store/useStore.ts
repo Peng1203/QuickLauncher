@@ -19,6 +19,8 @@ export const useStore = defineStore('main', {
 
     /** 主窗口内置的快捷键操作是否启用 */
     enableWindoShortcuts: true,
+
+    globalSetThemeFlag: true,
   }),
   actions: {
     async getLaunchData(id?: number) {

@@ -7,15 +7,15 @@
     @close-window="handleClose"
   />
   <template v-else>
-    <label class="input-container max-h-[45px]">
+    <label class="input-container max-h-11.25">
       <n-input
         ref="searchInputRef"
         v-model:value="keyword"
         tabindex="-1"
         type="text"
         size="medium"
-        class="w-full h-full max-h-[45px] resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
-        :class="hasResult ? '!border-b-0 !rounded-b-none' : ''"
+        class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
+        :class="hasResult ? 'border-b-0! rounded-b-none!' : ''"
         :placeholder="activeHistory?.command || placeholder"
       >
         <!-- @keydown="handleKeydown" -->
@@ -814,10 +814,6 @@ onUnmounted(() => {
   border-radius: 5px;
   border: none !important;
   /* border-color: !important; */
-  background-color: rgb(255, 255, 255) !important;
-}
-.dark .n-input {
-  background-color: rgb(0, 0, 0) !important;
 }
 
 ::v-deep(.n-input__placeholder) {
@@ -883,5 +879,10 @@ ul:focus-visible {
 <style>
 .n-config-provider {
   height: 100%;
+}
+
+.n-input {
+  --n-color: var(--search-bg) !important;
+  --n-color-focus: var(--search-bg) !important;
 }
 </style>

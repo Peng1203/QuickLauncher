@@ -10,3 +10,5 @@ export * from './useLoading';
 export * from './useMainWindowShortcut';
 export * from './useNaiveUiApi';
 export * from './useToggleWindowVisible';
+export * from './useTheme';
+export * from './useEsc';

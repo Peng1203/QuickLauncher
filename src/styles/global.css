@@ -1,10 +1,14 @@
 @import 'tailwindcss';
 
-@variant dark (&:where(.dark, .dark *));
-
 *:focus-visible {
   outline: none;
   box-shadow: none;
+}
+
+::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none;
 }
 
 html,
@@ -19,14 +23,23 @@ body,
   -ms-overflow-style: none;
 }
 
-::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  display: none;
+body {
+  font-family: var(--app-font-family);
+  font-size: var(--app-font-size);
 }
 
 /* ── Design Tokens ── */
 :root {
+  --app-font-size: 14px;
+  --app-font-family:
+    Inter,
+    "PingFang SC",
+    "Hiragino Sans GB",
+    "Microsoft YaHei",
+    "Segoe UI",
+    sans-serif;
+  /* monospace */
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.15 0.005 250);
 
@@ -72,11 +85,13 @@ body,
   --sidebar-accent: oklch(0.92 0.005 250);
   --sidebar-accent-foreground: oklch(0.18 0.005 250);
   --sidebar-border: oklch(0.88 0.003 250);
+
+  --search-bg: rgb(255, 255, 255);
 }
 
 .dark {
   --background: oklch(0.13 0.005 250);
-  --foreground: oklch(0.94 0 0);
+  --foreground: oklch(0.9 0 0);
 
   --card: oklch(0.17 0.005 250);
   --card-foreground: oklch(0.94 0 0);
@@ -120,6 +135,8 @@ body,
   --sidebar-accent: oklch(0.2 0.01 250);
   --sidebar-accent-foreground: oklch(0.94 0 0);
   --sidebar-border: oklch(0.22 0.005 250);
+
+  --search-bg: rgb(0, 0, 0);
 }
 
 @theme inline {
@@ -162,16 +179,27 @@ body,
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
-.flex-c-c  { @apply flex items-center justify-center; }
-.flex-s-c  { @apply flex items-center justify-start; }
-.flex-sb-c { @apply flex items-center justify-between; }
+.flex-c-c {
+  @apply flex items-center justify-center;
+}
 
-textarea { resize: none; }
+.flex-s-c {
+  @apply flex items-center justify-start;
+}
+
+.flex-sb-c {
+  @apply flex items-center justify-between;
+}
+
+textarea {
+  resize: none;
+}
 
 .n-input {
   transition: none !important;
@@ -187,4 +215,56 @@ textarea { resize: none; }
   --n-border-hover: inherit !important;
   --n-border-focus: inherit !important;
   --n-box-shadow-focus: none !important;
+}
+
+
+/* Setting window -- ensure Naive UI internals respect theme variables */
+
+/* Left tab navigation bar */
+.n-tabs .n-tabs-nav {
+  background-color: var(--background) !important;
+}
+
+/* Individual tabs */
+/* .n-tabs .n-tabs-tab {
+  color: var(--muted-foreground) !important;
+} */
+
+.n-tabs .n-tabs-tab:hover {
+  background-color: var(--muted) !important;
+}
+
+.n-tabs .n-tabs-tab.n-tabs-tab--active {
+  /* color: var(--primary) !important; */
+  background-color: var(--muted) !important;
+}
+
+/* Tab content pane */
+.n-tab-pane {
+  background-color: var(--background);
+}
+
+/* Naive UI n-layout (used in main window, but also check if any in settings) */
+.n-layout {
+  --n-color: var(--background);
+}
+
+/* DataTable and other card-like surfaces */
+.n-data-table {
+  --n-color: var(--card);
+}
+
+/* Input fields in setting forms */
+.n-input {
+  --n-color: var(--card);
+}
+
+/* Select dropdown */
+.n-base-selection {
+  --n-color: var(--card);
+}
+
+/* Popover / tooltip backgrounds */
+.n-popover {
+  --n-color: var(--popover);
 }
