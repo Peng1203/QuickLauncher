@@ -13,28 +13,23 @@
       <!-- header -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2">
-          <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/5">
-            <NIcon
-              size="18"
-              :color="themeColor?.light"
-            >
-              <FolderOutline v-if="isDirectory" />
-              <LinkOutline v-else />
-            </NIcon>
-          </div>
+          <Icon
+            background
+            :name="isDirectory ? 'icon-wj-wjj' : 'icon-url'"
+            :color="themeColor?.light"
+          />
 
           <div class="text-[15px] font-semibold text-foreground truncate">
             {{ info.title }}
           </div>
         </div>
 
-        <NIcon
-          class="cursor-pointer"
+        <Icon
+          name="icon-guanbichuangkou"
           size="14"
+          class="cursor-pointer"
           @click="handleClose"
-        >
-          <CloseOutline />
-        </NIcon>
+        />
       </div>
 
       <!-- content -->
@@ -50,48 +45,60 @@
       <n-button
         type="success"
         size="tiny"
-        class="!h-8 !flex-1 !rounded-lg"
+        class="h-8! flex-1! rounded-lg!"
         @click="open"
       >
         <template #icon>
-          <NIcon
-            v-if="isDirectory"
+          <Icon
+            :name="isDirectory ? 'icon-wj-wjj' : 'icon-waibulianjie'"
             size="14"
-            class="iconfont iconfont icon-wj-wjj"
           />
-          <NIcon
-            v-else
-            size="14"
-          >
-            <OpenOutline />
-          </NIcon>
         </template>
 
         {{ info.actionText }}
-        <template v-if="appConfigStore.portalShowShortcut">(Home)</template>
+        <!-- <template v-if="appConfigStore.portalShowShortcut">(Home)</template> -->
       </n-button>
 
       <n-button
         v-if="isDirectory"
         type="primary"
         size="tiny"
-        class="!h-8 !flex-1 !rounded-lg"
+        class="h-8! flex-1! rounded-lg!"
         @click="openDirInManager"
       >
         <template #icon>
-          <NIcon
+          <Icon
+            name="icon-dakaisuozaiwenjianjia"
             size="12"
-            class="iconfont icon-dakaisuozaiwenjianjia"
           />
         </template>
         资源管理器中打开
-        <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template>
+        <!-- <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template> -->
+      </n-button>
+
+      <n-button
+        v-if="isDirectory"
+        color="#1F1F1F"
+        text-color="#67C23A"
+        size="tiny"
+        class="h-8! flex-1! rounded-lg!"
+        @click="openDirTerminal"
+      >
+        <template #icon>
+          <Icon
+            name="icon-minglinghang"
+            size="12"
+          />
+        </template>
+        终端中打开
+        <!-- <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template> -->
       </n-button>
     </div>
+    <!-- <div class="flex items-center gap-2"></div> -->
 
     <div
       v-if="appConfigStore.portalShowProgress"
-      class="absolute bottom-0 left-0 h-[5px] w-full overflow-hidden bg-transparent"
+      class="absolute bottom-0 left-0 h-1.25 w-full overflow-hidden bg-transparent"
     >
       <div
         :key="animationKey"
@@ -111,11 +118,9 @@
 import { listen } from '@tauri-apps/api/event';
 import { TrayIcon } from '@tauri-apps/api/tray';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { CloseOutline, FolderOutline, LinkOutline, OpenOutline } from '@vicons/ionicons5';
 import { useDebounceFn, useTimeoutFn } from '@vueuse/core';
-import { NIcon } from 'naive-ui';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { exeCommand, openRevealManager, setDefaultTrayIcon } from '@/api';
+import { exeCommand, openDirInTerminal, openRevealManager, setDefaultTrayIcon } from '@/api';
 import { useAppConfig } from '@/composables';
 import { AppEvent, PortalNotifyMode } from '@/constant';
 import { sleep } from '@/utils/delay';
@@ -173,9 +178,9 @@ const info = computed(() => {
 });
 
 const currentWindow = getCurrentWebviewWindow();
-
-const OPEN_SHORTCUT_KEY = 'Home';
-const OPEN_DIR_IN_MANAGER_SHORTCUT_KEY = 'PageUp';
+// const appConfigStore.portalOpenShortcutKey = 'Ctrl + Insert';
+// const appConfigStore.portalOpenDirInManagerShortcutKey = 'Ctrl + Home';
+// const appConfigStore.portalOpenDirInTerminalShortcutKey = 'Ctrl + PageUp';
 const shortcutRegistered = ref(false);
 
 const { start: startAutoClose, stop: stopAutoClose } = useTimeoutFn(handleClose, appConfigStore.portalDuration);
@@ -195,8 +200,9 @@ async function handleClose() {
   }
 
   if (shortcutRegistered.value) {
-    unRegisterShortcutKey(OPEN_SHORTCUT_KEY);
-    unRegisterShortcutKey(OPEN_DIR_IN_MANAGER_SHORTCUT_KEY);
+    unRegisterShortcutKey(appConfigStore.portalOpenShortcutKey);
+    unRegisterShortcutKey(appConfigStore.portalOpenDirInManagerShortcutKey);
+    unRegisterShortcutKey(appConfigStore.portalOpenDirInTerminalShortcutKey);
     shortcutRegistered.value = false;
   }
 }
@@ -248,12 +254,14 @@ async function handleEndFlashTray() {
 async function handleRegisterShortcutKey() {
   if (shortcutRegistered.value || !appConfigStore.portalEnableShortcut) return;
   await Promise.all([
-    unRegisterShortcutKey(OPEN_SHORTCUT_KEY),
-    unRegisterShortcutKey(OPEN_DIR_IN_MANAGER_SHORTCUT_KEY),
+    unRegisterShortcutKey(appConfigStore.portalOpenShortcutKey),
+    unRegisterShortcutKey(appConfigStore.portalOpenDirInManagerShortcutKey),
+    unRegisterShortcutKey(appConfigStore.portalOpenDirInTerminalShortcutKey),
   ]);
 
-  register(OPEN_SHORTCUT_KEY, open);
-  isDirectory.value && register(OPEN_DIR_IN_MANAGER_SHORTCUT_KEY, openDirInManager);
+  register(appConfigStore.portalOpenShortcutKey, open);
+  isDirectory.value && register(appConfigStore.portalOpenDirInManagerShortcutKey, openDirInManager);
+  isDirectory.value && register(appConfigStore.portalOpenDirInTerminalShortcutKey, openDirTerminal);
   shortcutRegistered.value = true;
 }
 
@@ -268,6 +276,16 @@ async function openDirInManager() {
   if (!isDirectory.value) return;
   if (!isDefaultModel.value) return;
   await openRevealManager(content.value);
+  handleClose();
+}
+
+async function openDirTerminal() {
+  if (!isDirectory.value) return;
+  if (!isDefaultModel.value) return;
+  // const command = `cdr ${content.value}`;
+  // const command = `start cmd /k "cd /d ${content.value}"`;
+  // await exeCommand(command);
+  await openDirInTerminal(content.value);
   handleClose();
 }
 
@@ -314,8 +332,9 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (isDefaultModel.value) {
-    unRegisterShortcutKey(OPEN_SHORTCUT_KEY);
-    unRegisterShortcutKey(OPEN_DIR_IN_MANAGER_SHORTCUT_KEY);
+    unRegisterShortcutKey(appConfigStore.portalOpenShortcutKey);
+    unRegisterShortcutKey(appConfigStore.portalOpenDirInManagerShortcutKey);
+    unRegisterShortcutKey(appConfigStore.portalOpenDirInTerminalShortcutKey);
     unlistenClipboard?.();
   }
 });
