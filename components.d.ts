@@ -9,14 +9,15 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BrowserPicker: typeof import('./src/components/BrowserPicker.vue')['default']
+    CardSwitch: typeof import('./src/components/ui/CardSwitch.vue')['default']
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
     CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
-    DescText: typeof import('./src/components/DescText.vue')['default']
+    DescText: typeof import('./src/components/ui/DescText.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     Icon: typeof import('./src/components/ui/Icon.vue')['default']
     IconPicker: typeof import('./src/components/IconPicker.vue')['default']
-    Kbd: typeof import('./src/components/Kbd.vue')['default']
+    Kbd: typeof import('./src/components/ui/Kbd.vue')['default']
     ListContextMenu: typeof import('./src/components/ListContextMenu.vue')['default']
     ListItem: typeof import('./src/components/ListItem.vue')['default']
     ListItemContextMenu: typeof import('./src/components/ListItemContextMenu.vue')['default']
@@ -62,6 +63,9 @@ declare module 'vue' {
     SettingItem: typeof import('./src/components/ui/SettingItem.vue')['default']
     SettingSelectItem: typeof import('./src/components/ui/SettingSelectItem.vue')['default']
     SettingSwitchItem: typeof import('./src/components/ui/SettingSwitchItem.vue')['default']
+    ShortcutKbd: typeof import('./src/components/ui/ShortcutKbd.vue')['default']
+    ShortcutKeyInput: typeof import('./src/components/ui/ShortcutKeyInput.vue')['default']
     ThemeSwitch: typeof import('./src/components/ThemeSwitch.vue')['default']
+    ToggleGroup: typeof import('./src/components/ui/ToggleGroup.vue')['default']
   }
 }

@@ -5,7 +5,7 @@ use tracing;
 
 #[tracing::instrument]
 #[tauri::command]
-pub fn reveal_in_file_manager(path: String) -> Result<(), String> {
+pub fn open_reveal_manager(path: String) -> Result<(), String> {
     let path = PathBuf::from(&path);
 
     if !path.exists() {

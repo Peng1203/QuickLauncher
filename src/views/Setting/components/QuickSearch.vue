@@ -45,7 +45,7 @@
       >
         <div class="flex gap-1 justify-end">
           <!-- type="info" -->
-          <n-button
+          <!-- <n-button
             type="info"
             size="tiny"
             @click="registerPresetShortcutKey('Alt + Space')"
@@ -58,22 +58,13 @@
             @click="registerPresetShortcutKey('Ctrl + Space')"
           >
             Ctrl + Space
-          </n-button>
+          </n-button> -->
 
-          <n-input
-            v-model:value="shortcutKey"
-            style="width: 35%"
-            class="w-1/5"
-            size="tiny"
-            readonly
-            clearable
-            type="text"
-            placeholder=""
-            :status="shortcutKeyInputStatus"
-            @keydown="handleKeydown"
-            @blur="handleBlur"
-            @focus="shortcutKeyInputStatus = 'success'"
+          <ShortcutKeyInput
+            v-model="appConfigStore.searchGlobalShortcutKey"
+            :presets="['Alt + Space', 'Ctrl + Space']"
             @clear="handleClear"
+            @commit="registerShortcutKey"
           />
         </div>
       </SettingItem>
@@ -131,17 +122,12 @@
 </template>
 
 <script setup lang="ts">
-import type { FormValidationStatus } from 'naive-ui';
-import { ref } from 'vue';
-import { useAppConfig, useAppConfigActions, useNaiveUiApi } from '@/composables';
+import { useAppConfig, useAppConfigActions } from '@/composables';
+import { unRegisterShortcutKey } from '@/utils/shortcutKey';
 
-import { checkShortcutKey, checkShortcutKeyComplete, getShortcutKey, unRegisterShortcutKey } from '@/utils/shortcutKey';
-
-const { message } = useNaiveUiApi();
 const { appConfigStore } = useAppConfig();
 const { registerSearchShortcutKey } = useAppConfigActions();
 
-const shortcutKeyInputStatus = ref<FormValidationStatus>('success');
 const shortcutKey = ref('');
 watch(
   () => appConfigStore.searchGlobalShortcutKey,
@@ -149,35 +135,8 @@ watch(
   { immediate: true },
 );
 
-function handleKeydown(e: KeyboardEvent) {
-  const keyValue = getShortcutKey(e, appConfigStore.searchGlobalShortcutKey);
-
-  shortcutKey.value = keyValue;
-}
-
-async function handleBlur() {
-  // 清空快捷键值 则进行取消绑定的操作
-  if (!shortcutKey.value) return handleUnRegisterShortcutKey();
-
-  const isComplete = checkShortcutKeyComplete(shortcutKey.value);
-  if (!isComplete) {
-    message.error('快捷键输入不完整');
-    shortcutKeyInputStatus.value = 'error';
-    return;
-  }
-
-  const checkVal = await checkShortcutKey(shortcutKey.value, appConfigStore.searchGlobalShortcutKey);
-  if (!checkVal) {
-    message.warning('快捷键被占用');
-    shortcutKeyInputStatus.value = 'warning';
-    return;
-  }
-  registerShortcutKey(shortcutKey.value);
-}
-
 async function handleUnRegisterShortcutKey() {
   await unRegisterShortcutKey(appConfigStore.searchGlobalShortcutKey);
-  shortcutKeyInputStatus.value = 'success';
 }
 
 async function registerShortcutKey(key: string) {
@@ -186,11 +145,6 @@ async function registerShortcutKey(key: string) {
   // 注册快捷键
   await registerSearchShortcutKey(key);
   appConfigStore.searchGlobalShortcutKey = key;
-}
-
-async function registerPresetShortcutKey(key: string) {
-  shortcutKey.value = key;
-  await registerShortcutKey(key);
 }
 
 function handleClear() {

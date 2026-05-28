@@ -148,6 +148,9 @@ declare global {
     portalShowShortcut: boolean;
     portalWindowPositionX: number;
     portalWindowPositionY: number;
+    portalOpenShortcutKey: string;
+    portalOpenDirInManagerShortcutKey: string;
+    portalOpenDirInTerminalShortcutKey: string;
 
     /** 外观模式 light | dark | system */
     themeModel: ThemeModel;

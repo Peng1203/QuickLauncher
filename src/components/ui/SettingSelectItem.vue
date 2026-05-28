@@ -6,15 +6,17 @@
     :description="description"
     :class-name="className"
   >
-    <slot></slot>
-    <n-select
-      v-model:value="modelValue"
-      size="small"
-      filterable
-      :consistent-menu-width="false"
-      :placeholder="placeholder"
-      :options="options"
-    />
+    <slot>
+      <n-select
+        v-model:value="modelValue"
+        size="small"
+        filterable
+        :consistent-menu-width="false"
+        :placeholder="placeholder"
+        :options="options"
+        v-bind="$attrs"
+      />
+    </slot>
   </SettingItem>
 </template>
 

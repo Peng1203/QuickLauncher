@@ -77,18 +77,48 @@
         title="显示倒计时条"
         description="在窗口底部显示进度条"
       />
+      <!-- v-model:expanded="visible" -->
       <SettingSwitchItem
         v-model="appConfigStore.portalEnableShortcut"
+        expandable
         icon="icon-kuaijiejian-"
         title="启用快捷键"
         description="允许使用快捷键快速访问传送门"
-      />
-      <SettingSwitchItem
+      >
+        <template #expand>
+          <div>
+            <!-- icon="icon-kuaijiejian-" -->
+            <SettingItem title="打开">
+              <ShortcutKbd
+                class="w-30"
+                :value="appConfigStore.portalOpenShortcutKey"
+              />
+              <!-- <ShortcutKeyInput
+                  v-model="test"
+                  @commit="handleSave"
+                /> -->
+            </SettingItem>
+            <SettingItem title="资源管理器中打开">
+              <ShortcutKbd
+                class="w-30"
+                :value="appConfigStore.portalOpenDirInManagerShortcutKey"
+              />
+            </SettingItem>
+            <SettingItem title="终端中打开">
+              <ShortcutKbd
+                class="w-30"
+                :value="appConfigStore.portalOpenDirInTerminalShortcutKey"
+              />
+            </SettingItem>
+          </div>
+        </template>
+      </SettingSwitchItem>
+      <!-- <SettingSwitchItem
         v-model="appConfigStore.portalShowShortcut"
         icon="icon-jujiao"
         title="显示快捷键提示"
         description="在窗口中显示快捷键说明"
-      />
+      /> -->
     </SettingGroup>
 
     <SettingGroup

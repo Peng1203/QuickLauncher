@@ -29,17 +29,12 @@
       title="百度翻译"
       description="配置百度翻译 API 凭证"
     >
-      <SettingItem
+      <SettingSelectItem
+        v-model="appConfigStore.BDTranslationTo"
         title="目标语言"
         description="翻译结果的目标语言"
-      >
-        <n-select
-          v-model:value="appConfigStore.BDTranslationTo"
-          size="small"
-          :consistent-menu-width="false"
-          :options="targetLanguageOptions"
-        />
-      </SettingItem>
+        :options="targetLanguageOptions"
+      />
 
       <SettingItem
         icon="icon-hashjinghao"

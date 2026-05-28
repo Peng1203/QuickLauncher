@@ -82,6 +82,9 @@ export const useAppConfigStore = defineStore(
       portalShowShortcut: true,
       portalWindowPositionX: 0,
       portalWindowPositionY: 0,
+      portalOpenShortcutKey: 'Ctrl + Insert',
+      portalOpenDirInManagerShortcutKey: 'Ctrl + Home',
+      portalOpenDirInTerminalShortcutKey: 'Ctrl + PageUp',
 
       themeModel: 'system',
       themeColor: '#2080f0',
@@ -108,7 +111,7 @@ export const useAppConfigStore = defineStore(
     },
     tauri: {
       autoStart: true,
-      saveInterval: 1000,
+      saveInterval: 2000,
       saveStrategy: 'debounce',
 
       hooks: {

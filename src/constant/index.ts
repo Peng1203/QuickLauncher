@@ -25,7 +25,8 @@ export enum SearchWindow {
 
 export enum InvokeMethod {
   OPEN_PATH = 'open_path',
-  REVEAL_IN_FILE_MANAGER = 'reveal_in_file_manager',
+  OPEN_REVEAL_MANAGER = 'open_reveal_manager',
+  OPEN_DIR_IN_TERMINAL = 'open_dir_in_terminal',
 
   GET_APP_CONFIG = 'get_app_config',
   SAVE_APP_CONFIG = 'save_app_config',
@@ -87,6 +88,9 @@ export enum InvokeMethod {
 
   // 设置默认托盘图标
   SET_DEFAULT_TRAY_ICON = 'set_default_tray_icon',
+
+  // 获取系统字体
+  GET_LOCAL_FONTS = 'get_local_fonts',
 }
 
 export enum AppEvent {

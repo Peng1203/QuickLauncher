@@ -23,18 +23,20 @@ use commands::get_file_info::get_file_info;
 use commands::get_launch::get_launch;
 use commands::get_launch_by_id::get_launch_by_id;
 use commands::get_launch_by_name_and_category::get_launch_by_name_and_category;
+use commands::get_local_fonts::get_local_fonts;
 use commands::get_local_icon_base64::get_local_icon_base64;
 use commands::get_online_img_base64::get_online_img_base64;
 use commands::get_recent_launch_history::get_recent_launch_history;
 use commands::get_website_info::get_website_info;
 use commands::import_database::import_database;
 use commands::open_app_data_dir::open_app_data_dir;
+use commands::open_dir_in_terminal::open_dir_in_terminal;
 use commands::open_file_with_lnk::open_file_with_lnk;
 use commands::open_path::open_path;
+use commands::open_reveal_manager::open_reveal_manager;
 use commands::rename_launch::rename_launch;
 use commands::reset_data::reset_data;
 use commands::restart_app::restart_app;
-use commands::reveal_in_file_manager::reveal_in_file_manager;
 use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
@@ -108,7 +110,7 @@ pub fn run() {
             exe_command,
             save_app_config,
             get_app_config,
-            reveal_in_file_manager,
+            open_reveal_manager,
             get_website_info,
             add_category,
             get_category,
@@ -137,10 +139,15 @@ pub fn run() {
             backup_database,
             import_database,
             reset_data,
-            set_default_tray_icon
+            set_default_tray_icon,
+            open_dir_in_terminal,
+            get_local_fonts
         ])
         .setup(|app| {
-            let app_data_dir = app.path().app_data_dir().expect("failed to get app data dir");
+            let app_data_dir = app
+                .path()
+                .app_data_dir()
+                .expect("failed to get app data dir");
             logging::init(&app_data_dir);
             tracing::info!("QuickLauncher starting");
 
@@ -187,9 +194,9 @@ pub fn run() {
             #[cfg(debug_assertions)]
             {
                 // 只有开发模式下执行
-                if let Some(main_window) = app.get_webview_window("main") {
-                    main_window.open_devtools();
-                }
+                // if let Some(main_window) = app.get_webview_window("main") {
+                //     main_window.open_devtools();
+                // }
             }
 
             // 创建系统托盘
@@ -204,4 +211,3 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-

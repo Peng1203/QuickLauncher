@@ -1,40 +1,54 @@
 <!-- SettingItem.vue -->
 <template>
-  <div
-    :class="rootClass"
-    class="setting-item flex items-center justify-between gap-2 rounded bg-secondary/50 px-2.5 py-2 transition-colors hover:bg-secondary/80"
-  >
-    <!-- Left -->
-    <div class="flex items-center gap-2">
-      <div
-        v-if="icon"
-        class="flex h-6 w-6 items-center justify-center rounded bg-accent text-muted-foreground"
-      >
-        <Icon
-          :name="icon"
-          :color="iconColor"
-          size="14"
-        />
-      </div>
-
-      <div>
-        <p
-          class="text-xs font-medium leading-tight text-foreground"
-          v-html="title"
-        ></p>
-        <p
-          v-if="description"
-          class="text-[10px] leading-tight text-muted-foreground whitespace-nowrap"
+  <div>
+    <div
+      :class="rootClass"
+      class="setting-item flex items-center justify-between gap-2 rounded bg-secondary/50 px-2.5 py-2 transition-colors hover:bg-secondary/80"
+    >
+      <!-- Left -->
+      <div class="flex items-center gap-2">
+        <div
+          v-if="icon"
+          class="flex h-6 w-6 items-center justify-center rounded bg-accent text-muted-foreground"
         >
-          {{ description }}
-        </p>
+          <Icon
+            :name="icon"
+            :color="iconColor"
+            size="14"
+          />
+        </div>
+
+        <div>
+          <p
+            class="text-xs font-medium leading-tight text-foreground"
+            :class="props.expandable ? 'cursor-pointer text-[var(--primary)]!' : ''"
+            @click="handleToggle"
+            v-html="title"
+          ></p>
+          <p
+            v-if="description"
+            class="text-[10px] leading-tight text-muted-foreground whitespace-nowrap"
+          >
+            {{ description }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Right slot -->
+      <div>
+        <slot></slot>
       </div>
     </div>
 
-    <!-- Right slot -->
-    <div>
-      <slot></slot>
-    </div>
+    <!-- Expand content -->
+    <Transition name="expand">
+      <div
+        v-if="expandable && expanded"
+        class="overflow-hidden rounded-b-md border-t border-white/10 bg-secondary/60 dark:bg-white/5 px-2.5 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+      >
+        <slot name="expand"></slot>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -47,13 +61,25 @@ interface Props {
   title: string;
   description?: string;
   className?: string;
+  expandable?: boolean;
+  expanded?: boolean;
 }
 
 const props = defineProps<Props>();
 
+const expanded = defineModel<boolean>('expanded', {
+  default: false,
+});
+
 const rootClass = computed(() => {
   return ['', '', props.className].filter(Boolean).join(' ');
 });
+
+function handleToggle() {
+  if (!props.expandable) return;
+
+  expanded.value = !expanded.value;
+}
 </script>
 
 <style lang="scss" scoped>

@@ -7,6 +7,10 @@
     :class-name="className"
   >
     <slot></slot>
+    <template #expand>
+      <slot name="expand"></slot>
+    </template>
+
     <n-switch
       v-model:value="modelValue"
       size="small"

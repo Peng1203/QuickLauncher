@@ -216,6 +216,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from 'pinia';
+import { getLocalFonts } from '@/api';
 import { useAppConfig, useTheme } from '@/composables';
 import { useStore } from '@/store/useStore';
 
@@ -284,29 +285,45 @@ function handleSwitchTheme(e: PointerEvent, newMode: ThemeModel) {
 // ];
 
 async function getSystemFonts() {
+  const fonts = await getLocalFonts();
+  const fontData = fonts.map(item => ({
+    label: item.family,
+    value: item.family,
+    style: `font-family: "${item.family}"`,
+  }));
+  const options: any = [
+    { label: '默认', value: '' },
+    { label: '跟随系统', value: 'system-ui', style: 'font-family: system-ui' },
+    ...fontData,
+  ];
+  fontOptions.value = options;
+
+  // const permission = await navigator.permissions.query({
+  //   // @ts-ignore
+  //   name: 'local-fonts',
+  // });
+  // console.log(`%c permission ----`, 'color: #fff;background-color: #000;font-size: 18px', permission);
   // @ts-ignore
-  if (window.queryLocalFonts) {
-    // @ts-ignore
-    const fonts = await window.queryLocalFonts();
-    const options: any = [{ label: '默认', value: '' }];
-    fonts.forEach((fontItem: any) => {
-      const { family, fullName, style } = fontItem;
-      // 只添加每种字体的 Regular/Normal 风格
-      // @ts-ignore
-      const findRes = options.find(item => item.value === family);
-      if (findRes) return;
-
-      if (style === 'Regular') {
-        options.push({
-          label: fullName,
-          value: family,
-          style: `font-family: "${family}"`,
-        });
-      }
-    });
-
-    fontOptions.value = options;
-  }
+  // if (window.queryLocalFonts) {
+  //   // @ts-ignore
+  //   const fonts = await window.queryLocalFonts();
+  //   const options: any = [{ label: '默认', value: '' }];
+  //   fonts.forEach((fontItem: any) => {
+  //     const { family, fullName, style } = fontItem;
+  //     // 只添加每种字体的 Regular/Normal 风格
+  //     // @ts-ignore
+  //     const findRes = options.find(item => item.value === family);
+  //     if (findRes) return;
+  //     if (style === 'Regular') {
+  //       options.push({
+  //         label: fullName,
+  //         value: family,
+  //         style: `font-family: "${family}"`,
+  //       });
+  //     }
+  //   });
+  //   fontOptions.value = options;
+  // }
 }
 
 onMounted(() => {

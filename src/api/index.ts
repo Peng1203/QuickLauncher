@@ -12,7 +12,18 @@ const { message } = createDiscreteApi(['message']);
  * @returns {*}
  */
 export function openRevealManager(path: string) {
-  return invoke(InvokeMethod.REVEAL_IN_FILE_MANAGER, { path }).catch(e => message.error(e));
+  return invoke(InvokeMethod.OPEN_REVEAL_MANAGER, { path }).catch(e => message.error(e));
+}
+
+/**
+ * @description 终端中打开目录
+ * @author Peng
+ *
+ * @param {string} path
+ * @returns {*}
+ */
+export function openDirInTerminal(path: string) {
+  return invoke(InvokeMethod.OPEN_DIR_IN_TERMINAL, { path }).catch(e => message.error(e));
 }
 
 /**
@@ -329,6 +340,11 @@ export function resetData() {
 export function restartApp() {
   return invoke<string>(InvokeMethod.RESET_DATA);
 }
+
 export function setDefaultTrayIcon() {
   return invoke(InvokeMethod.SET_DEFAULT_TRAY_ICON);
+}
+
+export function getLocalFonts(): Promise<any[]> {
+  return invoke(InvokeMethod.GET_LOCAL_FONTS);
 }

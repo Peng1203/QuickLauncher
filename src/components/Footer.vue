@@ -241,7 +241,6 @@ import { AppEvent } from '@/constant';
 import { useStore } from '@/store/useStore';
 import { getFromNow } from '@/utils/date';
 import { EventBus } from '@/utils/eventBus';
-import Kbd from './Kbd.vue';
 
 const store = useStore();
 const { searchGlobalShortcutKey, mainWindowGlobalShortcutKey } = useAppConfig();

@@ -18,16 +18,21 @@
     </SettingGroup>
 
     <SettingGroup title="语言">
+      <!-- <SettingSelectItem
+        v-model="appConfigStore.language"
+        title="界面语言"
+        description="选择应用显示语言"
+        :options="languageOptions"
+      /> -->
+
       <SettingItem
         title="界面语言"
         description="选择应用显示语言"
       >
-        <n-select
-          v-model:value="appConfigStore.language"
-          :consistent-menu-width="false"
-          size="small"
-          placeholder="Select"
-          :options="languageOptions as any"
+        <ToggleGroup
+          v-model="appConfigStore.language"
+          size="sm"
+          :options="languageOptions"
         />
       </SettingItem>
     </SettingGroup>
@@ -55,36 +60,11 @@
         description="快速唤起或隐藏主窗口"
       >
         <div class="flex gap-1 justify-end">
-          <!-- type="info" -->
-          <n-button
-            type="info"
-            size="tiny"
-            @click="registerPresetShortcutKey('Alt + P')"
-          >
-            Alt + P
-          </n-button>
-          <n-button
-            type="info"
-            size="tiny"
-            @click="registerPresetShortcutKey('Alt + M')"
-          >
-            Alt + M
-          </n-button>
-
-          <n-input
-            v-model:value="shortcutKey"
-            style="width: 45%"
-            class="w-1/5"
-            size="tiny"
-            readonly
-            clearable
-            type="text"
-            placeholder=""
-            :status="shortcutKeyInputStatus"
-            @keydown="handleKeydown"
-            @blur="handleBlur"
-            @focus="shortcutKeyInputStatus = 'success'"
+          <ShortcutKeyInput
+            v-model="appConfigStore.mainWindowGlobalShortcutKey"
+            :presets="['Alt + P', 'Alt + M']"
             @clear="handleClear"
+            @commit="registerShortcutKey"
           />
         </div>
       </SettingItem>
@@ -102,11 +82,8 @@
 </template>
 
 <script setup lang="ts">
-import type { FormValidationStatus } from 'naive-ui';
-import { useAppConfig, useAppConfigActions, useNaiveUiApi } from '@/composables';
-import { checkShortcutKey, checkShortcutKeyComplete, getShortcutKey, unRegisterShortcutKey } from '@/utils/shortcutKey';
-
-const { message } = useNaiveUiApi();
+import { useAppConfig, useAppConfigActions } from '@/composables';
+import { unRegisterShortcutKey } from '@/utils/shortcutKey';
 
 const { appConfigStore } = useAppConfig();
 const {
@@ -123,55 +100,15 @@ const languageOptions: OptionItem<LanguageType>[] = [
   { label: '日本語', value: 'ja' },
 ];
 
-const shortcutKeyInputStatus = ref<FormValidationStatus>('success');
 const shortcutKey = ref('');
 watch(
   () => appConfigStore.mainWindowGlobalShortcutKey,
   val => (shortcutKey.value = val),
   { immediate: true },
 );
-function handleKeydown(e: KeyboardEvent) {
-  const target = e.target as HTMLInputElement | null;
-  if (!target) return;
-
-  // 👉 判断是否有文本被选中
-  const hasSelection =
-    target.selectionStart !== null && target.selectionEnd !== null && target.selectionStart !== target.selectionEnd;
-
-  if (hasSelection) {
-    return;
-  }
-
-  e.preventDefault();
-
-  const keyValue = getShortcutKey(e, appConfigStore.mainWindowGlobalShortcutKey);
-
-  shortcutKey.value = keyValue;
-}
-
-async function handleBlur() {
-  // 清空快捷键值 则进行取消绑定的操作
-  if (!shortcutKey.value) return handleUnRegisterShortcutKey();
-
-  const isComplete = checkShortcutKeyComplete(shortcutKey.value);
-  if (!isComplete) {
-    message.error('快捷键输入不完整');
-    shortcutKeyInputStatus.value = 'error';
-    return;
-  }
-
-  const checkVal = await checkShortcutKey(shortcutKey.value, appConfigStore.mainWindowGlobalShortcutKey);
-  if (!checkVal) {
-    message.warning('快捷键被占用');
-    shortcutKeyInputStatus.value = 'warning';
-    return;
-  }
-  registerShortcutKey(shortcutKey.value);
-}
 
 async function handleUnRegisterShortcutKey() {
   await unRegisterShortcutKey(appConfigStore.mainWindowGlobalShortcutKey);
-  shortcutKeyInputStatus.value = 'success';
 }
 
 async function registerShortcutKey(key: string) {
@@ -181,11 +118,6 @@ async function registerShortcutKey(key: string) {
   // 注册快捷键
   await registerMainWindowShortcutKey(key);
   appConfigStore.mainWindowGlobalShortcutKey = key;
-}
-
-async function registerPresetShortcutKey(key: string) {
-  shortcutKey.value = key;
-  await registerShortcutKey(key);
 }
 
 function handleClear() {
