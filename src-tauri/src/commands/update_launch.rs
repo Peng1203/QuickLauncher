@@ -58,13 +58,10 @@ pub async fn update_launch(
     active.category_id = Set(item.category_id);
 
     // ✅ 5. 执行更新
-    active
-        .update(&db)
-        .await
-        .map_err(|e| {
-            tracing::error!(%e, "更新启动项失败");
-            format!("更新失败: {}", e)
-        })?;
+    active.update(&db).await.map_err(|e| {
+        tracing::error!(%e, "更新启动项失败");
+        format!("更新失败: {}", e)
+    })?;
 
     Ok(())
 }

@@ -38,11 +38,10 @@ pub fn backup_database(backup_path: String, app: AppHandle) -> Result<String, St
     }
 
     // 复制文件
-    fs::copy(&db_path, &backup_file_path)
-        .map_err(|e| {
-            tracing::error!(%e, "备份数据库失败");
-            format!("Failed to backup database: {}", e)
-        })?;
+    fs::copy(&db_path, &backup_file_path).map_err(|e| {
+        tracing::error!(%e, "备份数据库失败");
+        format!("Failed to backup database: {}", e)
+    })?;
 
     tracing::info!(path = backup_path, "备份数据库");
 

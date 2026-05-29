@@ -38,13 +38,10 @@ pub async fn rename_launch(
     active.pinyin_abbr = Set(Some(pinyin_abbr));
 
     // 执行更新
-    active
-        .update(&db)
-        .await
-        .map_err(|e| {
-            tracing::error!(%e, "更新启动项失败");
-            format!("更新失败：{}", e)
-        })?;
+    active.update(&db).await.map_err(|e| {
+        tracing::error!(%e, "更新启动项失败");
+        format!("更新失败：{}", e)
+    })?;
 
     Ok(())
 }

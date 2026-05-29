@@ -1,5 +1,5 @@
-use windows_icons::get_icon_base64_by_path;
 use tracing;
+use windows_icons::get_icon_base64_by_path;
 
 #[tracing::instrument]
 #[tauri::command]

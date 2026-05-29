@@ -48,11 +48,8 @@ pub fn init(app_data_dir: &std::path::Path) {
     let log_dir = app_data_dir.join("logs");
     std::fs::create_dir_all(&log_dir).ok();
 
-    let file_appender = tracing_appender::rolling::RollingFileAppender::new(
-        Rotation::DAILY,
-        log_dir,
-        "app.log",
-    );
+    let file_appender =
+        tracing_appender::rolling::RollingFileAppender::new(Rotation::DAILY, log_dir, "app.log");
 
     let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
     std::mem::forget(Box::new(guard));
@@ -64,8 +61,7 @@ pub fn init(app_data_dir: &std::path::Path) {
         .with_ansi(false)
         .with_writer(non_blocking);
 
-    let env_filter =
-        EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
+    let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
 
     #[cfg(debug_assertions)]
     tracing_subscriber::registry()

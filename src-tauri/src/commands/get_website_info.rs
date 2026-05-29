@@ -4,8 +4,8 @@ use std::time::Duration;
 use tauri::{AppHandle, Url};
 use tauri_plugin_http::reqwest::{self, redirect, Client, Proxy};
 use tauri_plugin_pinia::ManagerExt;
-use ua_generator::ua::spoof_ua;
 use tracing;
+use ua_generator::ua::spoof_ua;
 
 #[derive(serde::Serialize)]
 pub struct WebsiteInfo {

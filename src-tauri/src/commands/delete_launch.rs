@@ -9,13 +9,10 @@ pub async fn delete_launch(id: i32, state: tauri::State<'_, AppState>) -> Result
     let db = { state.db.lock().unwrap().clone() };
     let db = db.ok_or("数据库未连接")?;
 
-    LaunchItems::delete_by_id(id)
-        .exec(&db)
-        .await
-        .map_err(|e| {
-            tracing::error!(%e, "删除启动项失败");
-            format!("删除启动项失败：{}", e)
-        })?;
+    LaunchItems::delete_by_id(id).exec(&db).await.map_err(|e| {
+        tracing::error!(%e, "删除启动项失败");
+        format!("删除启动项失败：{}", e)
+    })?;
 
     tracing::info!(id, "删除启动项");
 

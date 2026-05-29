@@ -76,13 +76,33 @@ pub struct AppConfigState {
 fn default_language() -> String {
     "zh-CN".to_string()
 }
-fn default_appearance_mode() -> String { "system".into() }
-fn default_theme_color() -> String { "#2080f0".into() }
-fn default_page_style() -> String { "normal".into() }
-fn default_layout_density() -> String { "default".into() }
-fn default_font_size() -> i32 { 14 }
-fn default_border_radius() -> i32 { 10 }
-fn default_background_blur() -> i32 { 50 }
-fn default_window_opacity() -> i32 { 100 }
-fn default_enable_animation() -> bool { true }
-fn default_animation_speed() -> String { "normal".into() }
+fn default_appearance_mode() -> String {
+    "system".into()
+}
+fn default_theme_color() -> String {
+    "#2080f0".into()
+}
+fn default_page_style() -> String {
+    "normal".into()
+}
+fn default_layout_density() -> String {
+    "default".into()
+}
+fn default_font_size() -> i32 {
+    14
+}
+fn default_border_radius() -> i32 {
+    10
+}
+fn default_background_blur() -> i32 {
+    50
+}
+fn default_window_opacity() -> i32 {
+    100
+}
+fn default_enable_animation() -> bool {
+    true
+}
+fn default_animation_speed() -> String {
+    "normal".into()
+}

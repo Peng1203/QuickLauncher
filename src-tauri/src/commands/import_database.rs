@@ -98,11 +98,10 @@ pub async fn import_database(
     }
 
     // 复制导入文件
-    fs::copy(import_file_path, &target_db_path)
-        .map_err(|e| {
-            tracing::error!(%e, "导入数据库失败");
-            format!("Failed to import database: {}", e)
-        })?;
+    fs::copy(import_file_path, &target_db_path).map_err(|e| {
+        tracing::error!(%e, "导入数据库失败");
+        format!("Failed to import database: {}", e)
+    })?;
 
     tracing::info!(path = import_path, "导入数据库");
 

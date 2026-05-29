@@ -43,13 +43,10 @@ pub async fn update_category(
     active.order_index = Set(item.order_index);
 
     // 执行更新
-    active
-        .update(&db)
-        .await
-        .map_err(|e| {
-            tracing::error!(%e, "更新分类失败");
-            format!("更新失败: {}", e)
-        })?;
+    active.update(&db).await.map_err(|e| {
+        tracing::error!(%e, "更新分类失败");
+        format!("更新失败: {}", e)
+    })?;
 
     tracing::info!(id = item.id, "更新分类");
 
@@ -85,13 +82,10 @@ pub async fn update_category_ass_dir(
     model.association_directory = Set(Some(ass_dir));
 
     // 执行更新
-    model
-        .update(&db)
-        .await
-        .map_err(|e| {
-            tracing::error!(%e, "更新分类失败");
-            format!("更新失败: {}", e)
-        })?;
+    model.update(&db).await.map_err(|e| {
+        tracing::error!(%e, "更新分类失败");
+        format!("更新失败: {}", e)
+    })?;
 
     tracing::info!(id, "更新分类");
 

@@ -42,13 +42,10 @@ pub async fn add_launch(
         ..Default::default()
     };
 
-    LaunchItems::insert(model)
-        .exec(&db)
-        .await
-        .map_err(|e| {
-            tracing::error!(%e, "插入启动项失败");
-            format!("插入启动项失败: {}", e)
-        })?;
+    LaunchItems::insert(model).exec(&db).await.map_err(|e| {
+        tracing::error!(%e, "插入启动项失败");
+        format!("插入启动项失败: {}", e)
+    })?;
 
     tracing::info!(name = item.name, r#type = item.r#type, "添加启动项");
 

@@ -32,7 +32,11 @@ pub async fn run_launch(id: i32, state: tauri::State<'_, AppState>) -> Result<()
         tracing::info!(name = launch_item.name, url = launch_item.path, "打开URL");
         let _ = run_url(&launch_item).await;
     } else if launch_item.r#type == "alias" {
-        tracing::info!(name = launch_item.name, path = launch_item.path, "执行命令别名");
+        tracing::info!(
+            name = launch_item.name,
+            path = launch_item.path,
+            "执行命令别名"
+        );
         let _ = run_alias(&launch_item).await;
     } else if launch_item.r#type == "apps" {
         // let _ = run_apps(&launch_item, &db).await;

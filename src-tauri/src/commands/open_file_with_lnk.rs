@@ -1,3 +1,4 @@
+use tracing;
 use windows::Win32::System::Com::{
     CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_INPROC_SERVER,
     COINIT_APARTMENTTHREADED,
@@ -9,7 +10,6 @@ use windows::Win32::UI::Shell::{
     FOS_NODEREFERENCELINKS, // 关键：不解析快捷方式
     SIGDN_FILESYSPATH,
 };
-use tracing;
 
 #[tracing::instrument]
 #[tauri::command]
