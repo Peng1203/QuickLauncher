@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd C:/workspace/Peng/QuickLauncher && pnpm fmt 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
