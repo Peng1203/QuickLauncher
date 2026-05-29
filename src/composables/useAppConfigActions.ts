@@ -26,8 +26,10 @@ export function useAppConfigActions() {
 
   const setMainWindowPosition = async () => {
     const mainWindow = await getMainWindow();
-    const x = mainWindowPositionX.value > 0 ? mainWindowPositionX.value : 0;
-    const y = mainWindowPositionY.value > 0 ? mainWindowPositionY.value : 0;
+    const x = mainWindowPositionX.value;
+    const y = mainWindowPositionY.value;
+    // const x = mainWindowPositionX.value > 0 ? mainWindowPositionX.value : 0;
+    // const y = mainWindowPositionY.value > 0 ? mainWindowPositionY.value : 0;
     // 设置窗口位置
     if (x || y) {
       mainWindow?.setPosition(new LogicalPosition(x, y));
