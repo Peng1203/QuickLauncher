@@ -84,6 +84,10 @@ Date: YYYY-MM-DD
 
 ---
 
+## 其他补充
+禁止自动执行 git commit 相关操作
+可参考 git-commit skill 中的规则进行git相关操作
+
 ## Example Output
 
 ### 日常开发记录
@@ -107,4 +111,5 @@ Type: 功能开发
 ### 后续工作
 - [ ] 支持配置监控间隔
 - [ ] 支持剪贴板历史记录
+
 ```

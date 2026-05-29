@@ -29,6 +29,7 @@ description: 生成面向用户的 CHANGELOG。当用户想要发布新版本、
 3. 判断发布状态：
    - **HEAD 已打 tag**：使用版本号作为标题，如 `## [v0.2.0] - 2026-05-29`
    - **HEAD 未打 tag**：使用 `## [Unreleased]` 作为标题，待发布时替换
+   - 当发现git tag的最新tag版本高于 `CHANGELOG.md` 的中的最新记录则不使用 `## [Unreleased]` 而是使用最新的git tag 版本
 
 4. 检查 `CHANGELOG.md` 是否已有 `[Unreleased]` 块：
    - **有**：将新变更合并追加到该块，不新建
@@ -125,6 +126,10 @@ description: 生成面向用户的 CHANGELOG。当用户想要发布新版本、
 | **破坏性变更** | 配置格式变更、API 变更、行为不兼容 | — |
 
 ---
+
+## 其他补充
+禁止自动执行 git commit 相关操作
+可参考 git-commit skill 中的规则进行git相关操作
 
 ## Example Output
 
