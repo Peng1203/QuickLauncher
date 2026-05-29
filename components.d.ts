@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     BrowserPicker: typeof import('./src/components/BrowserPicker.vue')['default']
-    CardSwitch: typeof import('./src/components/ui/CardSwitch.vue')['default']
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
     CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
     DescText: typeof import('./src/components/ui/DescText.vue')['default']
