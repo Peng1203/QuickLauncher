@@ -32,13 +32,16 @@
 - 系统托盘图标（左键显示/隐藏，右键菜单：设置、重启、退出）
 - 开机自启动、静默启动
 - 剪贴板轮询 — 复制 URL 或文件夹路径时弹出 Toast 快捷操作
+- 在命令行中打开目录（传送门功能增强）
 - 文件管理器定位（`explorer /select,`）和快捷方式（`.lnk`）路径保留选择
 - 图标自动提取（EXE/DLL 系统图标、`.lnk` 目标图标、网站 favicon）
+- 系统字体枚举 — 获取本地所有可用字体列表
 
 ### 现代化界面
 - 基于 Naive UI 的简洁界面
-- 暗色/亮色主题切换
+- 暗色/亮色/跟随系统主题切换
 - 无边框窗口设计，6 个独立窗口各司其职
+- 自定义快捷键录制和显示组件
 
 ## 技术栈
 
@@ -49,7 +52,7 @@
 | 状态管理 | Pinia + pinia-plugin-persistedstate + @tauri-store/pinia（跨窗口同步） |
 | 后端框架 | Tauri 2                                                           |
 | 系统语言 | Rust (Edition 2021)                                                |
-| 数据库   | SQLite（SeaORM ORM + rusqlite）                                   |
+| 数据库   | SQLite（SeaORM ORM）                                              |
 
 ### Tauri 插件
 
@@ -65,12 +68,16 @@
 | `plugin-http`                           | HTTP 请求（代理支持） |
 | `plugin-opener`                         | 用默认程序打开 |
 | `plugin-log`                            | 日志记录       |
+| `plugin-updater`                        | 自动更新       |
+| `plugin-pinia`                          | 跨窗口状态同步 |
 
 ## 怎么获取
 
 ### 方式一：下载安装包（推荐）
 
-前往 [Releases](https://github.com/your-repo/quicklauncher/releases) 页面下载最新的 `.msi` 或 `.exe` 安装包，双击安装即可。
+前往 [Releases](https://github.com/Peng1203/QuickLauncher/releases) 页面下载最新的 `.exe` 安装包，双击安装即可。
+
+应用支持自动更新，有新版本时会提示更新。
 
 ### 方式二：从源码构建
 
@@ -78,13 +85,13 @@
 
 - **Node.js** >= 18
 - **Rust** >= 1.70
-- **pnpm** >= 8（推荐）
+- **pnpm** >= 10（推荐）
 - **Windows 10/11**（主要支持平台）
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/your-repo/quicklauncher.git
-cd quicklauncher
+git clone https://github.com/Peng1203/QuickLauncher.git
+cd QuickLauncher
 
 # 2. 安装前端依赖
 pnpm install
@@ -96,7 +103,7 @@ pnpm tauri dev
 pnpm tauri build
 ```
 
-构建产物位于 `src-tauri/target/release/`。
+构建产物位于 `src-tauri/target/release/bundle/nsis/`。
 
 ### 卸载
 
@@ -139,18 +146,20 @@ pnpm tauri build
 
 ### 设置面板
 
-右键托盘图标 → 设置，或主界面右上角齿轮图标打开。包含 8 个设置页：
+右键托盘图标 → 设置，或主界面右上角齿轮图标打开。包含 10 个设置页：
 
 | 设置页   | 功能                                       |
 | -------- | ------------------------------------------ |
 | 常规     | 开机自启、静默启动、窗口置顶/居中、快捷键配置 |
+| 主题     | 亮色/暗色/跟随系统主题、字体、圆角、模糊、透明度 |
 | 快速搜索 | 搜索快捷键、聚焦行为、免打扰模式、自动补全   |
 | 网络搜索 | 自定义搜索引擎（名称/关键词/搜索地址/图标）    |
 | 命令别名 | 系统命令快捷方式（控制面板、任务管理器等）     |
 | 翻译     | Baidu 翻译 API 配置（App ID / Key）          |
 | 网络     | HTTP 代理设置（主机/用户名/密码）             |
 | 数据     | 数据库备份、导入、重置、打开数据目录          |
-| 传送门   | （功能占位）                                 |
+| 传送门   | 剪贴板监控、命令行集成配置                    |
+| 关于     | 版本信息、检查更新、开源协议                  |
 
 ### 快捷键汇总
 
@@ -164,8 +173,9 @@ pnpm tauri build
 | `→`         | 接受自动补全       |
 | `Enter`      | 执行选中项          |
 | `Ctrl+Enter` | 以管理员权限运行    |
-| `Home`       | 打开剪贴板 URL/目录 |
-| `PageUp`     | 文件管理器定位剪贴板路径 |
+| `Ctrl+Insert`       | 打开剪贴板 URL/目录(传送门) |
+| `Ctrl+PageUp`     | 文件管理器定位剪贴板路径(传送门) |
+| `Ctrl+PageDown`     | 终端命令行中打开路径(传送门) |
 
 ### 启动项类型
 
@@ -193,17 +203,18 @@ quicklauncher/
 │   ├── assets/                       # 静态资源
 │   ├── common/                       # 公共工具函数
 │   ├── components/                   # 通用组件
+│   │   └── ui/                       # 基础 UI 组件（ShortcutKbd、ToggleGroup 等）
 │   ├── composables/                  # 组合式函数（Vue Composables）
 │   ├── constant/                     # 常量、枚举、默认数据
 │   ├── router/                       # 路由配置（6 个路由）
 │   ├── store/                        # Pinia 状态管理
-│   ├── styles/                       # 全局样式
+│   ├── styles/                       # 全局样式和设计令牌
 │   ├── types/                        # TypeScript 类型声明
 │   ├── utils/                        # 工具函数（事件总线、快捷键解析等）
 │   └── views/                        # 页面视图
 │       ├── Main/                     # 主界面（分类侧边栏 + 启动项列表）
 │       ├── Search/                   # 快速搜索窗口
-│       ├── Setting/                  # 设置窗口
+│       ├── Setting/                  # 设置窗口（10 个设置面板）
 │       ├── OperationLaunch/          # 添加/编辑启动项弹窗
 │       ├── OperationCategory/        # 添加/编辑分类弹窗
 │       └── ClipboardToast/           # 剪贴板 Toast 通知
@@ -212,13 +223,18 @@ quicklauncher/
 │   │   ├── main.rs                   # 入口
 │   │   ├── lib.rs                    # Tauri 应用初始化、窗口管理、命令注册
 │   │   ├── tray.rs                   # 系统托盘
+│   │   ├── logging.rs                # 日志系统
 │   │   ├── clipboard/                # 剪贴板轮询监听
-│   │   ├── commands/                 # Tauri 命令（40+，CRUD/搜索/执行等）
+│   │   ├── commands/                 # Tauri 命令（44 个，CRUD/搜索/执行等）
 │   │   ├── common/utils.rs           # 拼音生成、管理员运行、URL 验证、全屏检测
 │   │   ├── db/connection.rs          # SQLite 数据库初始化
 │   │   ├── entity/                   # SeaORM 实体（5 张表）
 │   │   └── models/                   # DTO 数据模型
 │   └── Cargo.toml                    # Rust 依赖
+├── script/                           # 工具脚本
+│   └── updateVersion.js             # 发布自动化脚本
+├── .devlog/                          # 开发日志
+│   └── DEVLOG.md                     # 项目开发历史记录
 ├── package.json                      # 前端依赖与脚本
 ├── tsconfig.json                     # TypeScript 配置
 └── vite.config.ts                    # Vite 构建配置
@@ -303,6 +319,18 @@ quicklauncher/
 2. 手动删除数据目录 `%APPDATA%/com.quicklauncher.app/`
 3. 如需保留数据，卸载前先备份数据库
 
+### 如何发布新版本？
+
+1. 确保已安装所有依赖：`pnpm install`
+2. 运行发布脚本：`pnpm release`
+3. 按提示选择版本更新类型（重大/功能/次要/自定义/跳过）
+4. 脚本会自动完成：
+   - 更新版本号（package.json、Cargo.toml、tauri.conf.json）
+   - 构建应用并生成签名
+   - 自动生成发布说明（从 Git 提交历史）
+   - 创建 Git 标签
+5. 在浏览器中打开的 GitHub 页面上传构建产物
+
 ## 性能和稳定性
 
 ### 资源占用
@@ -330,11 +358,32 @@ quicklauncher/
 ## 开发
 
 ```bash
-pnpm lint         # ESLint 代码检查
-pnpm lint:fix     # ESLint 自动修复
-pnpm format       # Prettier 格式化
-pnpm build        # 类型检查 + 生产构建
+pnpm dev              # 启动开发服务器
+pnpm tauri dev        # 以开发模式启动应用
+pnpm build            # 类型检查 + 生产构建
+pnpm tauri build      # 完整构建（前端 + Rust + 打包）
+pnpm lint             # ESLint 代码检查
+pnpm lint:fix         # ESLint 自动修复
+pnpm format           # Prettier 格式化前端代码
+pnpm fmt              # 同时格式化前端和后端代码
+pnpm release          # 交互式发布脚本
 ```
+
+## 发布流程
+
+使用自动化发布脚本：
+
+```bash
+pnpm release
+```
+
+脚本会引导你完成：
+1. 选择版本更新类型（重大/功能/次要/自定义/跳过）
+2. 自动更新版本号（package.json、Cargo.toml、tauri.conf.json）
+3. 构建应用并生成签名
+4. 自动生成发布说明（从 Git 提交历史）
+5. 创建 Git 标签
+6. 打开 GitHub 发布页面
 
 ## 许可证
 
