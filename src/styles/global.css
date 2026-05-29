@@ -213,32 +213,6 @@ textarea {
   --n-box-shadow-focus: none !important;
 }
 
-/* Setting window -- ensure Naive UI internals respect theme variables */
-
-/* Left tab navigation bar */
-.n-tabs .n-tabs-nav {
-  background-color: var(--background) !important;
-}
-
-/* Individual tabs */
-/* .n-tabs .n-tabs-tab {
-  color: var(--muted-foreground) !important;
-} */
-
-.n-tabs .n-tabs-tab:hover {
-  background-color: var(--muted) !important;
-}
-
-.n-tabs .n-tabs-tab.n-tabs-tab--active {
-  /* color: var(--primary) !important; */
-  background-color: var(--muted) !important;
-}
-
-/* Tab content pane */
-.n-tab-pane {
-  background-color: var(--background);
-}
-
 /* Naive UI n-layout (used in main window, but also check if any in settings) */
 .n-layout {
   --n-color: var(--background);

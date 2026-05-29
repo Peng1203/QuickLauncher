@@ -97,6 +97,7 @@ EventBus.listen(AppEvent.OPEN_SETTING, (tabName?: string) => {
 <style scoped lang="scss">
 .n-tabs {
   height: calc(100% - 32px) !important;
+  background-color: var(--background) !important;
 }
 
 .n-tab-pane {
@@ -104,11 +105,11 @@ EventBus.listen(AppEvent.OPEN_SETTING, (tabName?: string) => {
   padding-bottom: 0 !important;
   overflow-y: auto;
   padding-bottom: 10px !important;
+  background-color: var(--background);
 }
 
 ::v-deep(.n-tabs .n-tabs-tab.n-tabs-tab--active) {
   color: v-bind('themeColor') !important;
+  background-color: var(--muted) !important;
 }
 </style>
-
-<style></style>

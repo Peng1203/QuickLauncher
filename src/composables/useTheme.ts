@@ -1,11 +1,15 @@
 import type { GlobalThemeOverrides } from 'naive-ui';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { usePreferredDark } from '@vueuse/core';
 import { darkTheme } from 'naive-ui';
+import { AppEvent } from '@/constant';
+import { EventBus } from '@/utils/eventBus';
 import { useAppConfig } from './useAppConfig';
 
 export function useTheme() {
   const { themeModel, themeColor, font, fontSize } = useAppConfig();
 
-  const prefersDark = ref(window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const prefersDark = usePreferredDark();
 
   const isDark = computed(() => {
     if (themeModel.value === 'dark') return true;
@@ -22,101 +26,179 @@ export function useTheme() {
     },
   }));
 
-  const HTML = document.documentElement as HTMLElement;
-  // 获取最新的主题 light/dark
-  function getChangeToModel() {
+  const HTML = document.documentElement;
+
+  function getThemeName() {
     return isDark.value ? 'dark' : 'light';
   }
-  function initThemeClass() {
-    HTML.className = getChangeToModel();
+
+  function setThemeClass() {
+    HTML.className = getThemeName();
   }
 
-  function setThemeModel() {
-    const newTheme = isDark.value ? 'light' : 'dark';
-    themeModel.value = newTheme;
+  async function setThemeModel(newModel: ThemeModel) {
+    themeModel.value = newModel;
+    let newTheme: string;
+    if (themeModel.value === 'system') {
+      newTheme = prefersDark.value ? 'dark' : 'light';
+    } else {
+      newTheme = isDark.value ? 'light' : 'dark';
+    }
+    const currentWindow = await getCurrentWindow();
+    EventBus.emit(AppEvent.CHANGE_THEME, currentWindow.label);
     return newTheme;
   }
 
   function setHTMLThemeClass(val?: string, pointerEvent?: PointerEvent) {
-    !val && (val = getChangeToModel());
+    val ??= getThemeName();
 
-    /**
-     * ViewTransition API 只有 Chrome 和 Edge 以及部分浏览器才支持 并不是 标注的API
-     */
-
-    // @ts-ignore
+    // @ts-ignore - ViewTransition API 非标准，仅 Chrome/Edge 支持
     if (document?.startViewTransition) {
-      // 没有 event 时默认从窗口中心开始扩散
-      const x = pointerEvent?.clientX ?? innerWidth / 2;
-      const y = pointerEvent?.clientY ?? innerHeight / 2;
-
-      const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
       // @ts-ignore
       const transition = document.startViewTransition(() => (HTML.className = val));
 
       transition.ready.then(() => {
+        const pseudo = isDark.value ? '::view-transition-new(root)' : '::view-transition-old(root)';
+
+        // ===== 圆形扩散 =====
+        const x = pointerEvent?.clientX ?? innerWidth / 2;
+        const y = pointerEvent?.clientY ?? innerHeight / 2;
+        const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
         const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`];
         document.documentElement.animate(
-          {
-            clipPath: isDark.value ? clipPath : [...clipPath].reverse(),
-          },
-          {
-            duration: 400,
-            easing: 'ease-in',
-            pseudoElement: isDark.value ? '::view-transition-new(root)' : '::view-transition-old(root)',
-          },
+          { clipPath: isDark.value ? clipPath : [...clipPath].reverse() },
+          { duration: 400, easing: 'ease-in', fill: 'forwards', pseudoElement: pseudo },
         );
+
+        // ===== 圆形扩散 + 模糊 =====
+        // document.documentElement.animate(
+        //   {
+        //     clipPath: isDark.value ? clipPath : [...clipPath].reverse(),
+        //     filter: ['blur(12px)', 'blur(0px)'],
+        //   },
+        //   {
+        //     duration: 400,
+        //     easing: 'ease-in',
+        //     fill: 'forwards',
+        //     pseudoElement: pseudo,
+        //   },
+        // );
+
+        // // ===== 菱形扩散 =====
+        // const diamond = [
+        //   `polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)`,
+        //   `polygon(50% -50%, 150% 50%, 50% 150%, -50% 50%)`,
+        // ];
+        // document.documentElement.animate(
+        //   { clipPath: isDark.value ? diamond : [...diamond].reverse() },
+        //   { duration: 400, easing: 'ease-in', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // ===== 左侧滑入 =====
+        // document.documentElement.animate(
+        //   { transform: isDark.value ? ['translateX(-100%)', 'translateX(0)'] : ['translateX(0)', 'translateX(-100%)'] },
+        //   { duration: 400, easing: 'ease-in-out', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // ===== 右侧滑入 =====
+        // document.documentElement.animate(
+        //   { transform: isDark.value ? ['translateX(100%)', 'translateX(0)'] : ['translateX(0)', 'translateX(100%)'] },
+        //   { duration: 400, easing: 'ease-in-out', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // // ===== 顶部滑入 =====
+        // document.documentElement.animate(
+        //   { transform: isDark.value ? ['translateY(-100%)', 'translateY(0)'] : ['translateY(0)', 'translateY(-100%)'] },
+        //   { duration: 400, easing: 'ease-in-out', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // // ===== 底部滑入 =====
+        // document.documentElement.animate(
+        //   { transform: isDark.value ? ['translateY(100%)', 'translateY(0)'] : ['translateY(0)', 'translateY(100%)'] },
+        //   { duration: 400, easing: 'ease-in-out', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // // ===== 淡入淡出 =====
+        // document.documentElement.animate(
+        //   { opacity: isDark.value ? ['0', '1'] : ['1', '0'] },
+        //   { duration: 400, easing: 'ease-in-out', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // ===== 缩放 =====
+        // document.documentElement.animate(
+        //   { transform: isDark.value ? ['scale(0)', 'scale(1)'] : ['scale(1)', 'scale(0)'] },
+        //   { duration: 400, easing: 'ease-in', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // ===== 水平百叶窗 =====
+        // const blinds = {
+        //   clipPath: [`inset(0 100% 0 0)`, `inset(0 0 0 0)`],
+        // };
+        // document.documentElement.animate(isDark.value ? blinds : { clipPath: blinds.clipPath.slice().reverse() }, {
+        //   duration: 400,
+        //   easing: 'ease-in-out',
+        //   fill: 'forwards',
+        //   pseudoElement: pseudo,
+        // });
+
+        // // ===== 垂直分割 =====
+        // const verticalSplit = [
+        //   `inset(0 50% 0 50%)`,
+        //   `inset(0 0 0 0)`,
+        // ];
+        // document.documentElement.animate(
+        //   { clipPath: isDark.value ? verticalSplit : [...verticalSplit].reverse() },
+        //   { duration: 400, easing: 'ease-in-out', fill: 'forwards', pseudoElement: pseudo },
+        // );
+
+        // // ===== 翻页 =====
+        // document.documentElement.animate(
+        //   {
+        //     transform: isDark.value
+        //       ? ['perspective(1200px) rotateY(0deg)', 'perspective(1200px) rotateY(-90deg)']
+        //       : ['perspective(1200px) rotateY(0deg)', 'perspective(1200px) rotateY(90deg)'],
+        //     opacity: isDark.value ? ['1', '0.3'] : ['1', '0.3'],
+        //     transformOrigin: isDark.value ? 'left center' : 'right center',
+        //   },
+        //   { duration: 400, easing: 'ease-in', fill: 'forwards', pseudoElement: '::view-transition-old(root)' },
+        // );
+        // document.documentElement.animate(
+        //   {
+        //     transform: isDark.value
+        //       ? ['perspective(1200px) rotateY(90deg)', 'perspective(1200px) rotateY(0deg)']
+        //       : ['perspective(1200px) rotateY(-90deg)', 'perspective(1200px) rotateY(0deg)'],
+        //     opacity: isDark.value ? ['0.3', '1'] : ['0.3', '1'],
+        //     transformOrigin: isDark.value ? 'right center' : 'left center',
+        //   },
+        //   { duration: 400, easing: 'ease-out', fill: 'forwards', pseudoElement: '::view-transition-new(root)', delay: 200 },
+        // );
       });
     } else {
       HTML.className = val;
     }
   }
 
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  function onOsThemeChange(e: MediaQueryListEvent) {
-    handleOnOSThemeChange(e.matches);
-  }
-
-  function handleOnOSThemeChange(isDark: boolean) {
-    if (themeModel.value !== 'system') return;
-    // 当系统切到黑色模式是 e.matches 是true 白色默认时为false
-    prefersDark.value = isDark;
-    const newTheme = isDark ? 'dark' : 'light';
-    setHTMLThemeClass(newTheme);
-  }
+  const DEFAULT_FONT = 'Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif';
 
   function setFontFamily() {
-    if (font.value) {
-      document.documentElement.style.setProperty('--app-font-family', `"${font.value}", sans-serif`);
-    } else {
-      // 设置默认字体
-      const defaultFont = `Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif`;
-      document.documentElement.style.setProperty('--app-font-family', defaultFont);
-    }
+    HTML.style.setProperty('--app-font-family', `"${font.value || DEFAULT_FONT}", sans-serif`);
   }
 
   function setFontSize() {
-    if (fontSize.value) {
-      document.documentElement.style.setProperty('--app-font-size', `${fontSize.value}px`);
-    } else {
-      document.documentElement.style.setProperty('--app-font-size', `14px`);
-    }
+    HTML.style.setProperty('--app-font-size', `${fontSize.value || 14}px`);
   }
 
   return {
     font,
     fontSize,
-    mediaQuery,
     themeModel,
     prefersDark,
     isDark,
     naiveTheme,
     themeOverrides,
     setThemeModel,
-    initThemeClass,
-    onOsThemeChange,
+    setThemeClass,
     setHTMLThemeClass,
-    handleOnOSThemeChange,
     setFontFamily,
     setFontSize,
   };

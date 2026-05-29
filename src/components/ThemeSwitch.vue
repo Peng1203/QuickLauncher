@@ -106,14 +106,11 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useTheme } from '@/composables';
-import { useStore } from '@/store/useStore';
 
 // const { themeModel } = useAppConfig();
-const { globalSetThemeFlag } = storeToRefs(useStore());
-const { themeModel, isDark, mediaQuery, setThemeModel, setHTMLThemeClass } = useTheme();
+const { isDark, setThemeModel, setHTMLThemeClass } = useTheme();
 
 function $(s: string) {
   const dom = document.querySelectorAll(s);
@@ -188,41 +185,18 @@ function initSwitchBtnStyle() {
 }
 
 // 更新按钮样式
-function handleToggleTheme(e: PointerEvent) {
+async function handleToggleTheme(e: PointerEvent) {
   isDark.value ? handleChangeSwitchLightStyle() : handleChangeSwitchDarkStyle();
-  globalSetThemeFlag.value = false;
-  const newTheme = setThemeModel();
-  nextTick(() => {
-    setHTMLThemeClass(newTheme, e);
-    globalSetThemeFlag.value = true;
-  });
-}
-
-watch(
-  () => themeModel.value,
-  val => {
-    if (val === 'system') {
-      const { matches } = window.matchMedia('(prefers-color-scheme: dark)');
-      syncSwitchState(matches);
-    } else {
-      syncSwitchState(isDark.value);
-    }
-  },
-);
-
-function onOsThemeChange(e: MediaQueryListEvent) {
-  if (themeModel.value !== 'system') return;
-  syncSwitchState(e.matches);
+  const newTheme = isDark.value ? 'light' : 'dark';
+  await setThemeModel(newTheme);
+  setHTMLThemeClass(newTheme, e);
 }
 
 // 同步回显switch按钮的样式
-function syncSwitchState(isDark: boolean) {
-  isDark ? handleChangeSwitchDarkStyle() : handleChangeSwitchLightStyle();
-}
+watch(isDark, val => (val ? handleChangeSwitchDarkStyle() : handleChangeSwitchLightStyle()));
 
 onMounted(() => {
   initSwitchBtnStyle();
-  mediaQuery.addEventListener('change', onOsThemeChange);
 
   // 当鼠标挪入按钮时，按钮移动事件
   // mainButton.addEventListener('mousemove', () => {
@@ -321,7 +295,6 @@ onMounted(() => {
     }, 1000);
   });
 });
-onUnmounted(() => mediaQuery.removeEventListener('change', onOsThemeChange));
 </script>
 
 <style scoped lang="scss">
@@ -337,14 +310,15 @@ onUnmounted(() => mediaQuery.removeEventListener('change', onOsThemeChange));
   --m-btn-h: 55px;
   width: var(--con-w);
   height: var(--con-h);
-  margin: 0 -48px 0 -22px;
+  margin: 0 -58px 0 -22px;
   background-color: rgba(70, 133, 192, 1); /* 按钮背景颜色 */
   border-radius: 100px;
   box-shadow: inset 0 0 5px 3px rgba(0, 0, 0, 0.5); /* 按钮的内阴影,实现立体感 */
   overflow: hidden;
   transition: 0.7s;
   transition-timing-function: cubic-bezier(0, 0.5, 1, 1);
-  transform: scale(0.38);
+  transform: scale(0.33);
+
   cursor: pointer;
 
   /* 主要按钮样式 */

@@ -215,14 +215,10 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
 import { getLocalFonts } from '@/api';
 import { useAppConfig, useTheme } from '@/composables';
-import { useStore } from '@/store/useStore';
 
-const { globalSetThemeFlag } = storeToRefs(useStore());
-
-const { setHTMLThemeClass } = useTheme();
+const { prefersDark, setHTMLThemeClass, setThemeModel } = useTheme();
 const { appConfigStore } = useAppConfig();
 
 interface AppearanceMode {
@@ -266,17 +262,17 @@ const pageStyleOptions: OptionItem<string>[] = [
 
 const fontOptions = ref([]);
 
-function handleSwitchTheme(e: PointerEvent, newMode: ThemeModel) {
-  if (appConfigStore.themeModel === newMode) return;
+async function handleSwitchTheme(e: PointerEvent, newTheme: ThemeModel) {
+  if (appConfigStore.themeModel === newTheme) return;
 
-  if (newMode === 'system') return (appConfigStore.themeModel = newMode);
+  let toTheme = newTheme;
+  // if (newTheme === 'system') return (appConfigStore.themeModel = newTheme);
+  if (newTheme === 'system') {
+    toTheme = prefersDark.value ? 'dark' : 'light';
+  }
+  await setThemeModel(newTheme);
 
-  globalSetThemeFlag.value = false;
-  appConfigStore.themeModel = newMode;
-  nextTick(() => {
-    setHTMLThemeClass(newMode, e);
-    globalSetThemeFlag.value = true;
-  });
+  setHTMLThemeClass(toTheme, e);
 }
 // const speedOptions: OptionItem<string>[] = [
 //   { label: '较快', value: 'fast' },

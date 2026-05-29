@@ -134,6 +134,9 @@ export enum AppEvent {
 
   // 打开设置界面
   OPEN_SETTING = 'open_setting',
+
+  // 主题切换事件通知
+  CHANGE_THEME = 'change_theme',
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];

@@ -81,12 +81,3 @@ function handleToggle() {
   expanded.value = !expanded.value;
 }
 </script>
-
-<style lang="scss" scoped>
-.setting-item {
-  // 额外可扩展 hover / 动效
-  // &:hover {
-  //   transform: translateY(-1px);
-  // }
-}
-</style>

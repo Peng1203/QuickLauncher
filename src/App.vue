@@ -16,49 +16,34 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { watchImmediate } from '@vueuse/core';
 import { useTheme } from './composables/useTheme';
-import { useStore } from './store/useStore';
-
-const { globalSetThemeFlag } = storeToRefs(useStore());
+import { AppEvent } from './constant';
+import { EventBus } from './utils/eventBus';
 
 const {
-  font,
+  font, //
   fontSize,
-  themeModel, //
   naiveTheme,
   themeOverrides,
-  mediaQuery,
-  initThemeClass,
+  setThemeClass,
   setHTMLThemeClass,
-  onOsThemeChange,
-  handleOnOSThemeChange,
   setFontFamily,
   setFontSize,
 } = useTheme();
 
-watch(
-  () => themeModel.value,
-  val => {
-    if (!globalSetThemeFlag.value) return;
-    if (val === 'system') {
-      const { matches } = window.matchMedia('(prefers-color-scheme: dark)');
-      handleOnOSThemeChange(matches);
-    } else {
-      setHTMLThemeClass();
-    }
-  },
-);
+// 跨窗口主题同步
+EventBus.listen(AppEvent.CHANGE_THEME, async (windowLabel: string) => {
+  const currentWindow = await getCurrentWindow();
+  if (currentWindow.label === windowLabel) return;
 
-watch(() => font.value, setFontFamily);
-watch(() => fontSize.value, setFontSize);
+  setHTMLThemeClass();
+});
 
-initThemeClass();
-setFontFamily();
-setFontSize();
-
-onMounted(() => mediaQuery.addEventListener('change', onOsThemeChange));
-onUnmounted(() => mediaQuery.removeEventListener('change', onOsThemeChange));
+setThemeClass();
+watchImmediate(font, setFontFamily);
+watchImmediate(fontSize, setFontSize);
 </script>
 
 <style>
