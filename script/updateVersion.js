@@ -10,9 +10,12 @@ config({ path: join(resolve(import.meta.dirname, '..'), '.env.local') });
 
 const ROOT_DIR = resolve(import.meta.dirname, '..');
 const PACKAGE_JSON_PATH = join(ROOT_DIR, 'package.json');
-const LATEST_JSON_PATH = join(ROOT_DIR, 'latest.json');
+const NSIS_BUNDLE_DIR = join(ROOT_DIR, 'src-tauri', 'target', 'release', 'bundle', 'nsis');
+const LATEST_JSON_PATH = join(NSIS_BUNDLE_DIR, 'latest.json');
 const CARGO_TOML_PATH = join(ROOT_DIR, 'src-tauri', 'Cargo.toml');
 const TAURI_CONF_PATH = join(ROOT_DIR, 'src-tauri', 'tauri.conf.json');
+
+const CHANGELOG_PATH = join(ROOT_DIR, 'CHANGELOG.md');
 
 const TAURI_SIGNING_PRIVATE_KEY = process.env.TAURI_SIGNING_PRIVATE_KEY;
 const TAURI_SIGNING_PRIVATE_KEY_PASSWORD = process.env.TAURI_SIGNING_PRIVATE_KEY_PASSWORD;
@@ -64,76 +67,43 @@ function bumpPatch(version) {
   return formatVersion({ major: v.major, minor: v.minor, patch: v.patch + 1 });
 }
 
-function generateReleaseNotes() {
-  // 获取最新 tag
-  const lastTagResult = spawnSync('git', ['describe', '--tags', '--abbrev=0'], {
-    cwd: ROOT_DIR,
-    shell: true,
-    stdio: 'pipe',
-  });
-  const lastTag = lastTagResult.stdout?.toString().trim() || '';
-
-  // 获取从上次 tag 到 HEAD 的提交记录
-  const logArgs = lastTag
-    ? ['log', `${lastTag}..HEAD`, '--oneline', '--no-merges']
-    : ['log', '--oneline', '--no-merges', '-20'];
-
-  const logResult = spawnSync('git', logArgs, {
-    cwd: ROOT_DIR,
-    shell: true,
-    stdio: 'pipe',
-  });
-
-  const logOutput = logResult.stdout?.toString().trim() || '';
-  if (!logOutput) {
+function generateReleaseNotes(version) {
+  let content;
+  try {
+    content = readFileSync(CHANGELOG_PATH, 'utf-8');
+  } catch {
     return '';
   }
 
-  // 按类型分组
-  const groups = {
-    feat: [],
-    fix: [],
-    refactor: [],
-    perf: [],
-    pref: [],
-    style: [],
-    chore: [],
-    other: [],
-  };
+  // 匹配版本段落: ## [v0.1.2] - 2026-05-29 或 ## [Unreleased]
+  const versionPattern = new RegExp(`^## \\[v?${version.replace(/\./g, '\\.')}\\]\\s*[-—].*$`, 'm');
+  const unreleasedPattern = /^## \[Unreleased\]\s*(?:\S.*)?$/m;
 
-  for (const line of logOutput.split('\n')) {
-    const msg = line.replace(/^[a-f0-9]+\s+/, '').trim();
-    const match = msg.match(/^(feat|fix|refactor|perf|pref|style|chore)/);
-    if (match) {
-      groups[match[1]].push(msg);
-    } else {
-      groups.other.push(msg);
-    }
+  const versionMatch = content.match(versionPattern);
+  const sectionRegex = versionMatch
+    ? new RegExp(`^## \\[v?${version.replace(/\./g, '\\.')}\\]\\s*[-—].*$`, 'm')
+    : content.match(unreleasedPattern)
+      ? /^## \[Unreleased\]\s*(?:\S.*)?$/m
+      : null;
+
+  if (!sectionRegex) {
+    return '';
   }
 
-  // 格式化为 Markdown
-  const sections = [];
-  const typeLabels = {
-    feat: '新功能',
-    fix: '问题修复',
-    refactor: '重构',
-    perf: '性能优化',
-    pref: '性能优化',
-    style: '代码格式',
-    chore: '杂项',
-    other: '其他',
-  };
-
-  for (const [type, items] of Object.entries(groups)) {
-    if (items.length > 0) {
-      sections.push(`## ${typeLabels[type]}`);
-      for (const item of items) {
-        sections.push(`- ${item}`);
-      }
-    }
+  const match = content.match(sectionRegex);
+  if (!match) {
+    return '';
   }
 
-  return sections.join('\n');
+  const startIndex = match.index + match[0].length;
+
+  // 查找下一个 ## 或 --- 作为段落结束
+  const afterSection = content.slice(startIndex);
+  const endMatch = afterSection.match(/^(## \[|---\s*$)/m);
+  const endIndex = endMatch ? startIndex + endMatch.index : content.length;
+
+  const section = content.slice(startIndex, endIndex).trim();
+  return section || '';
 }
 
 function findSignatureFile(version) {
@@ -275,7 +245,7 @@ async function main() {
   }
 
   // 生成发布说明
-  const notes = generateReleaseNotes();
+  const notes = generateReleaseNotes(newVersion);
   if (notes) {
     console.log('\n发布说明:\n');
     console.log(notes);
@@ -306,7 +276,7 @@ async function main() {
 
     if (shouldCommit) {
       // git commit
-      spawnSync('git', ['add', 'package.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock', 'latest.json'], {
+      spawnSync('git', ['add', 'package.json', 'src-tauri/Cargo.toml', 'src-tauri/Cargo.lock'], {
         cwd: ROOT_DIR,
         shell: true,
         stdio: 'inherit',
@@ -330,8 +300,18 @@ async function main() {
 
   console.log('\n构建完成!');
 
-  // 打开 GitHub 新建发布页面
-  if (choice !== 'skip') {
+  // 打开构建产物目录
+  spawnSync('explorer', [NSIS_BUNDLE_DIR], {
+    shell: true,
+    stdio: 'ignore',
+  });
+
+  // 询问是否打开 GitHub 新建发布页面
+  const openGitHub = await confirm({
+    message: '是否打开 GitHub 新建发布页面?',
+    default: true,
+  });
+  if (openGitHub) {
     spawnSync('start', ['https://github.com/Peng1203/QuickLauncher/releases/new'], {
       shell: true,
       stdio: 'ignore',
