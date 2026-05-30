@@ -17,7 +17,7 @@ export function useToggleWindowVisible() {
   // 分类操作窗口 600*400
   const getOperCategoryWindow = async () => await WebviewWindow.getByLabel('operCategory');
 
-  async function toogleMainWindowVisible() {
+  async function toogleMainWindowVisible(center: boolean = false) {
     const window = await getMainWindow();
     const visible = await window?.isVisible();
     const focus = await window?.isFocused();
@@ -30,8 +30,11 @@ export function useToggleWindowVisible() {
       window?.hide();
     } else {
       // 当窗口不可见时
-      window?.setFocus();
-      window?.show();
+      await window?.show();
+      setTimeout(() => {
+        window?.setFocus();
+      });
+      center && window?.center();
     }
   }
 

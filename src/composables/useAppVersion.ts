@@ -1,6 +1,7 @@
 import type { Update } from '@tauri-apps/plugin-updater';
 import { getVersion } from '@tauri-apps/api/app';
 import { check } from '@tauri-apps/plugin-updater';
+import { t } from '@/i18n';
 import { useNaiveUiApi } from './useNaiveUiApi';
 
 let cachedVersion: string | null = null;
@@ -35,8 +36,8 @@ export function useAppVersion() {
       const result = await check();
       if (!result) {
         notification.success({
-          title: '已是最新版本',
-          description: '当前版本为最新版本，无需更新',
+          title: t('update.latestVersion'),
+          description: t('update.latestVersionDesc'),
           duration: 3000,
         });
         return false;
@@ -48,7 +49,7 @@ export function useAppVersion() {
       };
     } catch (e) {
       notification.error({
-        title: '检查更新失败',
+        title: t('update.checkFailed'),
         description: `${e}`,
         duration: 5000,
       });
@@ -63,7 +64,7 @@ export function useAppVersion() {
       const result = await check();
       if (!result) {
         notification.info({
-          title: '没有可用的更新',
+          title: t('update.noUpdate'),
           duration: 3000,
         });
         return;
@@ -74,7 +75,7 @@ export function useAppVersion() {
       // isDownloading.value = false;
       downloadProgress.value = 0;
       notification.error({
-        title: '下载更新失败',
+        title: t('update.downloadFailed'),
         description: `${e}`,
         duration: 5000,
       });

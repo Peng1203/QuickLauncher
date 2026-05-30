@@ -6,6 +6,7 @@ import { exit } from '@tauri-apps/plugin-process';
 import { t } from '@/i18n';
 import { useAppConfig } from './useAppConfig';
 import { useToggleWindowVisible } from './useToggleWindowVisible';
+import { defaultWindowIcon } from '@tauri-apps/api/app';
 
 export function useTray() {
   const { appConfigStore } = useAppConfig();
@@ -35,9 +36,11 @@ export function useTray() {
       await existing.setTooltip(appConfigStore.title || 'Quick Launcher');
       return;
     }
+    const icon = await defaultWindowIcon();
 
     await TrayIcon.new({
       id: 'tray',
+      icon: icon ?? undefined,
       tooltip: appConfigStore.title || 'Quick Launcher',
       menu,
       menuOnLeftClick: false,
@@ -45,8 +48,7 @@ export function useTray() {
       action: event => {
         switch (event.type) {
           case 'Click':
-            event.button === 'Left' && toogleMainWindowVisible();
-            // toogleMainWindowVisible();
+            event.button === 'Left' && event.buttonState === 'Up' && toogleMainWindowVisible(true);
             break;
         }
       },

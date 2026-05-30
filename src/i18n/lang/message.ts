@@ -5,7 +5,7 @@
  * 语言索引由 LANG_INDEX 常量定义
  */
 
-export const LANG_INDEX = { 'zh-CN': 0, 'zh-HK': 1, en: 2, ja: 3 } as const;
+export const LANG_INDEX = { 'zh-CN': 0, 'zh-HK': 1, 'en': 2, 'ja': 3 } as const;
 
 export const messages = {
   // ========== 通用文本 ==========
@@ -818,5 +818,30 @@ export const messages = {
     settings: ['设 置', '設 置', 'Settings', '設定'],
     restart: ['重 启', '重 啟', 'Restart', '再起動'],
     quit: ['退 出', '退 出', 'Quit', '終了'],
+  },
+
+  // ========== 更新相关 ==========
+  update: {
+    latestVersion: ['已是最新版本', '已是最新版本', 'Already up to date', '最新バージョンです'],
+    latestVersionDesc: [
+      '当前版本为最新版本，无需更新',
+      '目前版本為最新版本，無需更新',
+      'Current version is the latest, no update needed',
+      '現在のバージョンは最新です。更新の必要はありません',
+    ],
+    checkFailed: ['检查更新失败', '檢查更新失敗', 'Update check failed', 'アップデートの確認に失敗しました'],
+    noUpdate: ['没有可用的更新', '沒有可用的更新', 'No update available', '利用可能なアップデートがありません'],
+    downloadFailed: ['下载更新失败', '下載更新失敗', 'Download failed', 'ダウンロードに失敗しました'],
+  },
+
+  // ========== 分类关联目录 ==========
+  categoryDir: {
+    dirDeleted: [
+      '关联目录已被删除，是否删除当前分类？',
+      '關聯目錄已被刪除，是否刪除目前分類？',
+      'Associated directory deleted. Delete this category?',
+      '関連ディレクトリが削除されました。このカテゴリを削除しますか？',
+    ],
+    confirmed: ['操作成功', '操作成功', 'Success', '操作成功'],
   },
 };

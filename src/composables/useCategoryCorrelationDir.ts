@@ -3,6 +3,7 @@ import { differenceBy } from 'lodash-es';
 import { storeToRefs } from 'pinia';
 import { computed, h, nextTick } from 'vue';
 import { addLaunch, deleteCategory, deleteLaunch, getFileInfo, getLaunchByNameAndCategory, updateLaunch } from '@/api';
+import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { batchRequest } from '@/utils/concurRequest';
 import { useNaiveUiApi } from './useNaiveUiApi';
@@ -149,15 +150,15 @@ export function useCategoryCorrelationDir() {
     // 判断目录是否存在 不存在则返回提示
     if (!(await exists(association_directory).catch(() => false))) {
       dialog.warning({
-        title: '提示',
-        content: () => h('div', ['关联目录已被删除,是否删除当前分类？', h('br'), association_directory]),
-        positiveText: '确 定',
-        negativeText: '取 消',
+        title: t('common.tip'),
+        content: () => h('div', [t('categoryDir.dirDeleted'), h('br'), association_directory]),
+        positiveText: t('common.confirm'),
+        negativeText: t('common.cancel'),
         draggable: true,
         onPositiveClick: async () => {
           // TODO 删除分类
           await deleteCategory(category.id);
-          message.success('确定');
+          message.success(t('categoryDir.confirmed'));
         },
       });
       return;
