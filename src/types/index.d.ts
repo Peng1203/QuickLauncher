@@ -246,6 +246,18 @@ declare global {
     content: string;
     content_type: ClipboardContentType;
   }
+
+  type NestedKeys<T extends object> = T extends object
+    ? {
+        [K in keyof T]: K extends string
+          ? T[K] extends any[]
+            ? `${K}`
+            : T[K] extends object
+              ? `${K}` | `${K}.${NestedKeys<T[K]>}`
+              : `${K}`
+          : never;
+      }[keyof T]
+    : never;
 }
 
 export {};

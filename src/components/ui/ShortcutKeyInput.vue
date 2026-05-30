@@ -19,15 +19,16 @@
     <!-- 输入框 -->
     <n-input
       v-model:value="innerValue"
+      :style="{ width: `calc(${innerValue.length}ch + 36px ) !important`, minWidth: `calc(50px + 36px ) !important` }"
       size="tiny"
       readonly
       clearable
       :status="status"
-      placeholder="按快捷键录入"
+      :placeholder="t('shortcutKeyInput.placeholder')"
       @keydown="handleKeydown"
       @blur="handleBlur"
-      @focus="status = 'success'"
       @clear="handleClear"
+      @focus="status = 'success'"
     />
   </div>
 </template>
@@ -35,6 +36,7 @@
 <script setup lang="ts">
 import type { FormValidationStatus } from 'naive-ui';
 import { useNaiveUiApi } from '@/composables';
+import { t } from '@/i18n';
 import { checkShortcutKey, checkShortcutKeyComplete, getShortcutKey } from '@/utils/shortcutKey';
 
 defineProps<{
@@ -54,6 +56,8 @@ const innerValue = ref(modelValue.value || '');
 const status = ref<FormValidationStatus>('success');
 
 function handleKeydown(e: KeyboardEvent) {
+  e.preventDefault();
+
   const target = e.target as HTMLInputElement | null;
   if (!target) return;
 
@@ -65,7 +69,6 @@ function handleKeydown(e: KeyboardEvent) {
     return;
   }
 
-  e.preventDefault();
   const keyValue = getShortcutKey(e, '');
   innerValue.value = keyValue;
 }
@@ -77,14 +80,14 @@ async function handleBlur() {
 
   const isComplete = checkShortcutKeyComplete(innerValue.value);
   if (!isComplete) {
-    message.error('快捷键输入不完整');
+    message.error(t('shortcutKeyInput.incomplete'));
     status.value = 'error';
     return;
   }
 
-  const checkVal = await checkShortcutKey(innerValue.value);
-  if (!checkVal) {
-    message.warning('快捷键被占用');
+  const { checked, message: msg } = await checkShortcutKey(innerValue.value);
+  if (!checked) {
+    msg && message.warning(msg);
     status.value = 'warning';
     return;
   }
@@ -103,4 +106,13 @@ function handlePreset(val: string) {
   status.value = 'success';
   nextTick(() => emit('commit', val));
 }
+
+watch(
+  () => modelValue.value,
+  val => {
+    if (!val) return;
+    innerValue.value = val;
+    status.value = 'success';
+  },
+);
 </script>

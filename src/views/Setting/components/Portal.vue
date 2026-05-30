@@ -1,17 +1,17 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <SettingGroup title="启用">
+    <SettingGroup :title="t('portal.groupEnable')">
       <SettingSwitchItem
         v-model="appConfigStore.portalEnabled"
         icon="icon-chuansongmen"
-        title="启用传送门"
-        description="开启后，当检测到复制目录地址、链接等内容时显示提示"
+        :title="t('portal.enableTitle')"
+        :description="t('portal.enableDesc')"
       />
     </SettingGroup>
 
     <SettingGroup
-      title="通知方式"
-      description="选择提示出现的通知形式"
+      :title="t('portal.groupNotify')"
+      :description="t('portal.notifyDesc')"
     >
       <div class="grid grid-cols-3 gap-4">
         <div
@@ -38,8 +38,8 @@
     </SettingGroup>
 
     <SettingGroup
-      title="持续时长"
-      description="提示窗口自动关闭前的持续时间"
+      :title="t('portal.groupDuration')"
+      :description="t('portal.durationDesc')"
     >
       <div class="flex items-center gap-8">
         <n-slider
@@ -64,31 +64,31 @@
       </div>
     </SettingGroup>
 
-    <SettingGroup title="显示选项">
+    <SettingGroup :title="t('portal.groupDisplay')">
       <SettingSwitchItem
         v-model="appConfigStore.portalShowPath"
         icon="icon-icon-flowpath"
-        title="显示路径"
-        description="在通知中展示完整路径或链接"
+        :title="t('portal.showPathTitle')"
+        :description="t('portal.showPathDesc')"
       />
       <SettingSwitchItem
         v-model="appConfigStore.portalShowProgress"
         icon="icon-daojishi"
-        title="显示倒计时条"
-        description="在窗口底部显示进度条"
+        :title="t('portal.showProgressTitle')"
+        :description="t('portal.showProgressDesc')"
       />
       <!-- v-model:expanded="visible" -->
       <SettingSwitchItem
         v-model="appConfigStore.portalEnableShortcut"
         expandable
         icon="icon-kuaijiejian-"
-        title="启用快捷键"
-        description="允许使用快捷键快速访问传送门"
+        :title="t('portal.enableShortcutTitle')"
+        :description="t('portal.enableShortcutDesc')"
       >
         <template #expand>
           <div>
             <!-- icon="icon-kuaijiejian-" -->
-            <SettingItem title="打开">
+            <SettingItem :title="t('portal.openTitle')">
               <ShortcutKbd
                 class="w-30"
                 :value="appConfigStore.portalOpenShortcutKey"
@@ -98,13 +98,13 @@
                   @commit="handleSave"
                 /> -->
             </SettingItem>
-            <SettingItem title="资源管理器中打开">
+            <SettingItem :title="t('portal.openInExplorer')">
               <ShortcutKbd
                 class="w-30"
                 :value="appConfigStore.portalOpenDirInManagerShortcutKey"
               />
             </SettingItem>
-            <SettingItem title="终端中打开">
+            <SettingItem :title="t('portal.openInTerminal')">
               <ShortcutKbd
                 class="w-30"
                 :value="appConfigStore.portalOpenDirInTerminalShortcutKey"
@@ -122,8 +122,8 @@
     </SettingGroup>
 
     <SettingGroup
-      title="通知位置"
-      description="选择提示窗口出现的位置，以通知窗口的左上角坐标位置为准"
+      :title="t('portal.groupPosition')"
+      :description="t('portal.positionDesc')"
     >
       <div class="flex gap-5">
         <n-button
@@ -137,7 +137,7 @@
               size="14"
             />
           </template>
-          选择展示位置
+          {{ t('portal.selectPosition') }}
         </n-button>
 
         <div class="flex items-center gap-2">
@@ -165,8 +165,8 @@
     </SettingGroup>
 
     <SettingGroup
-      title="窗口透明度"
-      description="调整窗口背景透明度（含模糊效果）"
+      :title="t('portal.groupOpacity')"
+      :description="t('portal.opacityDesc')"
     >
       <div class="flex items-center gap-8">
         <NSlider
@@ -195,27 +195,28 @@
 <script setup lang="ts">
 import { useAppConfig } from '@/composables';
 import { AppEvent, PortalNotifyMode } from '@/constant';
+import { t } from '@/i18n';
 import { EventBus } from '@/utils/eventBus';
 
 const { appConfigStore } = useAppConfig();
 
-const notifyModes: { label: string; value: PortalNotifyMode; iconClass?: string; icon?: any }[] = [
+const notifyModes = computed<{ label: string; value: PortalNotifyMode; iconClass?: string; icon?: any }[]>(() => [
   {
-    label: '弹窗通知',
+    label: t('portal.notifyWindow'),
     value: PortalNotifyMode.WINDOW,
     icon: 'icon-program-code',
   },
   {
-    label: '托盘闪烁',
+    label: t('portal.notifyTray'),
     value: PortalNotifyMode.TRAY,
     icon: 'icon-shanshuo',
   },
   {
-    label: '关闭通知',
+    label: t('portal.notifySilent'),
     value: PortalNotifyMode.SILENT,
     icon: 'icon-guanbitongzhi',
   },
-];
+]);
 
 function handleSetLocation() {
   // 通过事件总线通知剪贴板窗口进入设置位置模式

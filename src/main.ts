@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import { transparent } from './directives';
+import { i18n } from './i18n';
 // import { setupApp } from './app/setupApp';
 import router from './router';
 import store from './store';
@@ -13,4 +14,5 @@ createApp(App)
   .directive('transparent', transparent)
   .use(router)
   .use(store)
+  .use(i18n)
   .mount('#app');

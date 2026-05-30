@@ -61,6 +61,7 @@ import { deleteLaunch, renameLaunch, runLaunch } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
 import { useLaunchActive, useNaiveUiApi } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { dateFormat } from '@/utils/date';
 import { EventBus } from '@/utils/eventBus';
@@ -215,10 +216,10 @@ async function handleDelete() {
 
   const answer = await new Promise(resolve => {
     dialog.warning({
-      title: '提示',
-      content: `是否删除 ${props.item.name} ?`,
-      positiveText: '确 定',
-      negativeText: '取 消',
+      title: t('common.tip'),
+      content: `${t('common.deletePlain')} ${props.item.name} ?`,
+      positiveText: t('common.confirmDelete'),
+      negativeText: t('common.cancel'),
       draggable: true,
       onPositiveClick: async () => resolve(true),
       onNegativeClick: () => resolve(false),

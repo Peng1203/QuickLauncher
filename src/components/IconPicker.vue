@@ -3,7 +3,7 @@
     <n-button
       size="tiny"
       type="default"
-      title="选择目录图标"
+      :title="t('iconPicker.selectDirIcon')"
       @click="handleGetLocalDirIcon"
     >
       <template #icon>
@@ -14,7 +14,7 @@
     <n-button
       size="tiny"
       type="default"
-      title="选择文件图标"
+      :title="t('iconPicker.selectFileIcon')"
       @click="handleGetLocalFileIcon"
     >
       <template #icon>
@@ -25,13 +25,13 @@
     <n-tooltip
       placement="bottom"
       trigger="click"
-      title="网络图片"
+      :title="t('iconPicker.networkImage')"
     >
       <template #trigger>
         <n-button
           size="tiny"
           type="default"
-          title="网络图片"
+          :title="t('iconPicker.networkImage')"
         >
           <template #icon>
             <n-icon>
@@ -53,7 +53,7 @@
           :disabled="!onlineImgUrl.length"
           @click="handleGetOnlineImg"
         >
-          获 取
+          {{ t('iconPicker.get') }}
         </n-button>
       </n-input-group>
     </n-tooltip>
@@ -61,13 +61,13 @@
     <n-tooltip
       placement="bottom"
       trigger="click"
-      title="网站图标"
+      :title="t('iconPicker.websiteIcon')"
     >
       <template #trigger>
         <n-button
           size="tiny"
           type="default"
-          title="网站图标"
+          :title="t('iconPicker.websiteIcon')"
         >
           <template #icon>
             <n-icon>
@@ -88,7 +88,7 @@
           :disabled="!webSiteUrl.length"
           @click="handleGetWebSiteUrl"
         >
-          获 取
+          {{ t('iconPicker.get') }}
         </n-button>
       </n-input-group>
     </n-tooltip>
@@ -96,13 +96,13 @@
     <n-tooltip
       placement="top"
       trigger="click"
-      title="SVG 图标"
+      :title="t('iconPicker.svgIcon')"
     >
       <template #trigger>
         <n-button
           size="tiny"
           type="default"
-          title="SVG 图标"
+          :title="t('iconPicker.svgIcon')"
         >
           <template #icon>
             <n-icon>
@@ -125,7 +125,7 @@
           class="!mt-1"
           @click="handleGetSvgBase64"
         >
-          获 取
+          {{ t('iconPicker.get') }}
         </n-button>
       </div>
     </n-tooltip>
@@ -133,7 +133,7 @@
     <n-button
       size="tiny"
       type="default"
-      title="重置图标"
+      :title="t('iconPicker.resetIcon')"
       @click="handleResetIcon"
     >
       <template #icon>
@@ -149,6 +149,7 @@ import { CodeOutline, GlobeOutline, LinkOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { getLocalIconBase64, getOnlineImgBase64, getWebsiteInfo } from '@/api';
 import { useNaiveUiApi } from '@/composables';
+import { t } from '@/i18n';
 
 const { message } = useNaiveUiApi();
 
@@ -156,7 +157,7 @@ const iconValue = defineModel<string>();
 
 async function handleGetLocalFileIcon() {
   const path = await open({
-    title: '选择文件图标',
+    title: t('iconPicker.selectFileIcon'),
     multiple: false,
     directory: false,
   });
@@ -168,7 +169,7 @@ async function handleGetLocalFileIcon() {
 
 async function handleGetLocalDirIcon() {
   const path = await open({
-    title: '选择目录图标',
+    title: t('iconPicker.selectDirIcon'),
     multiple: false,
     directory: true,
   });

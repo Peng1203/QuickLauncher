@@ -77,7 +77,7 @@
             class="flex items-center select-none"
           >
             <Kbd>Tab</Kbd>
-            <span class="text-xs ml-1">切换</span>
+            <span class="text-xs ml-1">{{ t('search.switch') }}</span>
           </span>
 
           <span
@@ -85,7 +85,7 @@
             class="flex items-center select-none"
           >
             <Kbd>→</Kbd>
-            <span class="text-xs ml-1">补全</span>
+            <span class="text-xs ml-1">{{ t('search.autocomplete') }}</span>
           </span>
 
           <!-- 当想要执行自定义命令时 存在搜索结果时 可通过关闭 && !autocompleteList.length -->
@@ -102,7 +102,7 @@
               <span>+</span>
               <Kbd>W</Kbd>
 
-              <span class="text-xs ml-1">关闭搜索结果</span>
+              <span class="text-xs ml-1">{{ t('search.closeResults') }}</span>
             </span>
           </div>
         </div>
@@ -123,7 +123,7 @@
             class="flex items-center select-none"
           >
             <Kbd>Enter</Kbd>
-            <span class="text-xs ml-1">确认</span>
+            <span class="text-xs ml-1">{{ t('search.confirm') }}</span>
           </span>
 
           <span class="flex gap-1">
@@ -132,7 +132,7 @@
             </span>
             <span class="flex items-center select-none">
               <Kbd>↓</Kbd>
-              <span class="text-xs ml-1">历史</span>
+              <span class="text-xs ml-1">{{ t('search.history') }}</span>
             </span>
           </span>
         </div>
@@ -202,7 +202,7 @@
               size="small"
               type="info"
             >
-              命令别名
+              {{ t('search.commandAlias') }}
             </n-tag>
 
             <template v-else>
@@ -283,12 +283,13 @@ import {
   TranslationOpenModel,
   WebSearchOpenModel,
 } from '@/constant';
+import { t } from '@/i18n';
 import { EventBus } from '@/utils/eventBus';
 import Translation from './components/Translation.vue';
 
 const { appConfigStore } = useAppConfig();
 // prettier-ignore
-const placeTip = '名称 / 拼音首字母 / 关键字 / 文件或目录路径 / URL / 系统命令';
+const placeTip = t('search.placeholder');
 const placeholder = ref(placeTip);
 const inputRef = useTemplateRef('searchInputRef');
 
@@ -496,7 +497,7 @@ async function handleEnter() {
     handleClose();
   } catch (e) {
     notification.error({
-      content: '启动失败',
+      content: t('search.launchFailed'),
       meta: e as string,
       duration: 3000,
       keepAliveOnHover: true,
@@ -747,8 +748,8 @@ async function handleShowContextMenu(e: MouseEvent, item: SearchLauncItem) {
   categoryItem.value = category;
   if (!launch) {
     return notification.error({
-      content: '查询失败',
-      meta: '未找到启动项详情',
+      content: t('search.queryFailed'),
+      meta: t('search.notFound'),
       duration: 3000,
       keepAliveOnHover: true,
     });

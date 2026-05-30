@@ -12,7 +12,7 @@
       class="!mt-1"
       size="tiny"
       type="info"
-      title="重置默认选项"
+      :title="t('browserPicker.resetDefault')"
       @click="handleSetDefaultBrowserOptions"
     >
       <n-icon size="16">
@@ -27,6 +27,7 @@ import type { DynamicTagsOption } from 'naive-ui';
 import { LogoChrome, LogoEdge, LogoFirefox, RefreshOutline } from '@vicons/ionicons5';
 import { useStorage } from '@vueuse/core';
 import { useNaiveUiApi } from '@/composables';
+import { t } from '@/i18n';
 
 const { message } = useNaiveUiApi();
 
@@ -84,7 +85,7 @@ function handleRenderBrowserTag(tag: OptionItem, index: number) {
 function handleCreateBrowserOption(newTag: string) {
   const [label, value] = newTag.split('=');
 
-  if (!value || !label) message.warning('输入信息有误');
+  if (!value || !label) message.warning(t('browserPicker.inputError'));
 
   return {
     label,

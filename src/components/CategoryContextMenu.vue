@@ -13,14 +13,16 @@
 
 <script setup lang="tsx">
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { EventBus } from '@/utils/eventBus';
+
+defineProps<{ position: { x: number; y: number } }>();
 
 export interface MenuAction {
   label: string;
   onClick: () => void;
 }
 
-defineProps<{ position: { x: number; y: number } }>();
 const visible = defineModel<boolean>();
 
 function handleClose() {
@@ -30,7 +32,7 @@ function handleClose() {
 // 默认菜单项
 const menuOptions = computed(() => [
   {
-    label: '新建分类',
+    label: t('contextMenu.newCategory'),
     key: 'add',
     icon: () => h(<i class="iconfont icon-xinjian" />),
   },

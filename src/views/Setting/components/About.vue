@@ -15,12 +15,12 @@
 
     <!-- About -->
     <SettingGroup
-      title="关于"
-      description="应用相关信息与链接"
+      :title="t('about.groupAbout')"
+      :description="t('about.aboutDesc')"
     >
       <SettingItem
         icon="icon-wangluo"
-        title="官方网站"
+        :title="t('about.officialSite')"
         description=""
       >
         <Icon
@@ -44,7 +44,7 @@
 
       <SettingItem
         icon="icon-kaiyuanxieyi"
-        title="开源许可"
+        :title="t('about.openSourceLicense')"
       >
         <!-- description="MIT license" -->
         <Icon
@@ -56,7 +56,7 @@
 
       <SettingItem
         icon="icon-wodefankui"
-        title="功能/bug反馈"
+        :title="t('about.feedback')"
       >
         <Icon
           link
@@ -66,11 +66,11 @@
       </SettingItem>
     </SettingGroup>
 
-    <SettingGroup title="更新">
+    <SettingGroup :title="t('about.groupUpdate')">
       <SettingItem
         icon="icon-gengxinrizhi"
-        title="更新日志"
-        description="查看最新版本的更新内容"
+        :title="t('about.changelog')"
+        :description="t('about.changelogDesc')"
       >
         <Icon
           link
@@ -81,8 +81,8 @@
 
       <SettingItem
         icon="icon-banbengengxin"
-        title="版本更新"
-        description="检查是否有新版本可用"
+        :title="t('about.versionUpdate')"
+        :description="t('about.versionUpdateDesc')"
       >
         <!-- :loading="isChecking" -->
         <n-button
@@ -98,7 +98,7 @@
               size="16"
             />
           </template>
-          {{ isChecking ? '检查中' : '检查更新' }}
+          {{ isChecking ? t('about.checking') : t('about.checkUpdate') }}
         </n-button>
       </SettingItem>
     </SettingGroup>
@@ -118,7 +118,7 @@
 
         <div class="flex flex-col flex-1">
           <div class="flex-sb-c">
-            <h3 class="text-[13px] font-semibold text-foreground tracking-tight">发现新版本</h3>
+            <h3 class="text-[13px] font-semibold text-foreground tracking-tight">{{ t('about.newVersion') }}</h3>
 
             <div class="flex-sb-c gap-2 text-muted-foreground">
               <Icon
@@ -174,7 +174,7 @@
                 name="icon-shandian"
                 color="oklch(62.3% 0.214 259.815)"
               />
-              <span>下载速度</span>
+              <span>{{ t('about.downloadSpeed') }}</span>
             </div>
 
             <div class="font-semibold text-foreground">
@@ -189,7 +189,7 @@
                 name="icon-panfu"
                 color="oklch(62.7% 0.265 303.9)"
               />
-              <span>剩余大小</span>
+              <span>{{ t('about.remainingSize') }}</span>
             </div>
 
             <div class="font-semibold text-foreground">
@@ -205,7 +205,7 @@
                 name="icon-shijian"
                 color="oklch(70.5% 0.213 47.604)"
               />
-              <span>预计剩余</span>
+              <span>{{ t('about.estimatedTime') }}</span>
             </div>
 
             <div class="font-semibold text-foreground">
@@ -227,7 +227,7 @@
           size="14"
         />
 
-        <span>文件已下载完成，点击“立即安装”以应用更新，应用将重新启动。</span>
+        <span>{{ t('about.downloadComplete') }}</span>
       </div>
 
       <!-- 下载取消提示 -->
@@ -241,7 +241,7 @@
           class="text-muted-foreground"
         />
 
-        <span>下载已被取消，如需重新下载，请点击重新下载按钮。</span>
+        <span>{{ t('about.downloadCancelled') }}</span>
       </div>
 
       <!-- 更新失败提示 -->
@@ -256,15 +256,15 @@
             size="14"
             class="text-destructive"
           />
-          <span>下载失败</span>
+          <span>{{ t('about.downloadFailed') }}</span>
         </div>
 
         <!-- 第二行：中性错误说明 -->
-        <div class="mt-1 text-muted-foreground leading-5">网络连接中断或服务器响应异常，请检查网络后重试</div>
+        <div class="mt-1 text-muted-foreground leading-5">{{ t('about.networkError') }}</div>
 
         <!-- 第三行：错误码 + 具体错误 -->
         <div class="mt-1 text-muted-foreground">
-          <span>错误代码：</span>
+          <span>{{ t('about.errorCode') }}：</span>
           <span class="text-destructive font-mono wrap-break-word">
             {{ errorMessage || 'UNKNOWN_ERROR' }}
           </span>
@@ -292,7 +292,7 @@
           <template #icon>
             <Icon name="icon-guanbichuangkou" />
           </template>
-          取消下载
+          {{ t('about.cancelDownload') }}
         </n-button>
 
         <n-button
@@ -306,7 +306,7 @@
               size="14"
             />
           </template>
-          取消更新
+          {{ t('about.cancelUpdate') }}
         </n-button>
 
         <n-button
@@ -324,7 +324,9 @@
             />
           </template>
 
-          {{ isDownloading ? `等待下载完成...${Math.round(downloadProgress)}%` : '立即下载' }}
+          {{
+            isDownloading ? `${t('about.downloadWaiting')}...${Math.round(downloadProgress)}%` : t('about.downloadNow')
+          }}
         </n-button>
 
         <n-button
@@ -338,7 +340,7 @@
               size="14"
             />
           </template>
-          稍后
+          {{ t('about.later') }}
         </n-button>
 
         <n-button
@@ -353,7 +355,7 @@
               size="14"
             />
           </template>
-          重新下载
+          {{ t('about.reDownload') }}
         </n-button>
 
         <n-button
@@ -368,7 +370,7 @@
               size="14"
             />
           </template>
-          立即安装
+          {{ t('about.installNow') }}
         </n-button>
       </div>
     </div>
@@ -380,6 +382,7 @@ import type { Update } from '@tauri-apps/plugin-updater';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { check } from '@tauri-apps/plugin-updater';
 import { useAppVersion, useNaiveUiApi } from '@/composables';
+import { t } from '@/i18n';
 import { getFromNow } from '@/utils/date';
 import { formatBytes, formatDuration } from '@/utils/format';
 
@@ -521,7 +524,7 @@ async function handleDownload() {
     }, 1000 * 60);
   } catch (e) {
     notification.error({
-      title: '下载更新失败',
+      title: t('about.downloadUpdateFailed'),
       description: `${e}`,
       duration: 5000,
     });

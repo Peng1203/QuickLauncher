@@ -26,6 +26,7 @@ import {
 } from '@/api';
 import { useCategoryCorrelationDir, useCategorySort, useNaiveUiApi } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 
@@ -56,13 +57,13 @@ const sync_clear = ref<boolean>(false);
 function CancelWaring() {
   return h(
     <>
-      <p>是否取消关联目录?</p>
+      <p>{t('category.cancelAssociate')}</p>
       {/* class="text-[12px] text-gray-500" */}
       <n-checkbox
         v-model:checked={sync_clear.value}
         class="text-[12px] text-muted-foreground"
         size="small"
-        label="同时删除该分类下所有启动项?"
+        label={t('category.alsoDeleteItems')}
       />
     </>,
   );
@@ -72,7 +73,7 @@ function CancelWaring() {
 const menuOptions = computed(() => [
   {
     // TODO
-    label: props.item?.exclude ? '搜索排除 (✅)' : '搜索排除',
+    label: props.item?.exclude ? `${t('common.searchExclude')} (✅)` : t('common.searchExclude'),
     key: 'exclude',
     icon: renderIcon('icon-paichusousuo'),
     show: isDefaultCategory.value,
@@ -81,7 +82,7 @@ const menuOptions = computed(() => [
     },
   },
   {
-    label: isAssociationDirectory.value ? '关联目录 (✅)' : '关联目录',
+    label: isAssociationDirectory.value ? `${t('common.associateDir')} (✅)` : t('common.associateDir'),
     key: 'correlation',
     icon: renderIcon('icon-guanlian'),
     show: isDefaultCategory.value,
@@ -90,7 +91,7 @@ const menuOptions = computed(() => [
     },
   },
   {
-    label: '打开关联目录',
+    label: t('common.openAssociatedDir'),
     key: 'openCorrelationDir',
     icon: renderIcon('icon-wj-wjj'),
     show: isAssociationDirectory.value,
@@ -101,7 +102,7 @@ const menuOptions = computed(() => [
     show: isDefaultCategory.value,
   },
   {
-    label: '重命名',
+    label: t('common.rename'),
     key: 'rename',
     icon: renderIcon('icon-zhongmingming'),
   },
@@ -111,19 +112,19 @@ const menuOptions = computed(() => [
   //   icon: renderIcon('icon-zhongmingming'),
   // },
   {
-    label: '编 辑',
+    label: t('common.edit'),
     key: 'edit',
     icon: renderIcon('icon-bianji'),
   },
   {
     // TODO
-    label: '创建子分类',
+    label: t('common.createSubcategory'),
     key: 'create-sub-category',
     icon: renderIcon('icon-tianjiazifenlei'),
     show: isDefaultCategory.value,
   },
   {
-    label: '删 除',
+    label: t('common.delete'),
     key: 'delete',
     icon: renderIcon('icon-shanchufenlei'),
     show: isDefaultCategory.value,
@@ -133,12 +134,12 @@ const menuOptions = computed(() => [
     key: 'd2',
   },
   {
-    label: '布局展示',
+    label: t('common.layout'),
     key: 'layout',
     icon: renderIcon('icon-buju'),
     children: [
       {
-        label: props.item?.layout === 'grid' ? '平铺 (✅)' : '平铺',
+        label: props.item?.layout === 'grid' ? `${t('common.tile')} (✅)` : t('common.tile'),
         key: 'layout-grid',
         props: {
           style: props.item?.layout === 'grid' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -146,7 +147,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-24gl-appsSmall'),
       },
       {
-        label: props.item?.layout === 'list' ? '列表 (✅)' : '列表',
+        label: props.item?.layout === 'list' ? `${t('common.list')} (✅)` : t('common.list'),
         key: 'layout-list',
         props: {
           style: props.item?.layout === 'list' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -156,12 +157,12 @@ const menuOptions = computed(() => [
     ],
   },
   {
-    label: '排序方式',
+    label: t('common.sortOrder'),
     key: 'order',
     icon: renderIcon('icon-paixufangshi'),
     children: [
       {
-        label: props.item?.sort_by === 'name' ? '名称 (✅)' : '名称',
+        label: props.item?.sort_by === 'name' ? `${t('common.name')} (✅)` : t('common.name'),
         key: 'order-name',
         props: {
           style: props.item?.sort_by === 'name' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -169,7 +170,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-mingchengpaixu'),
       },
       {
-        label: props.item?.sort_by === 'type' ? '类型 (✅)' : '类型',
+        label: props.item?.sort_by === 'type' ? `${t('common.type')} (✅)` : t('common.type'),
         key: 'order-type',
         props: {
           style: props.item?.sort_by === 'type' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -177,7 +178,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-anleixingpaixu'),
       },
       {
-        label: props.item?.sort_by === 'time' ? '日期 (✅)' : '日期',
+        label: props.item?.sort_by === 'time' ? `${t('common.date')} (✅)` : t('common.date'),
         key: 'order-time',
         props: {
           style: props.item?.sort_by === 'time' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -185,7 +186,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-anchuangjianshijianpaixu'),
       },
       {
-        label: props.item?.sort_by === 'order' ? '搜索优先级 (✅)' : '搜索优先级',
+        label: props.item?.sort_by === 'order' ? `${t('common.searchPriority')} (✅)` : t('common.searchPriority'),
         key: 'order-index',
         props: {
           style: props.item?.sort_by === 'order' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -202,7 +203,7 @@ const menuOptions = computed(() => [
         key: 'd3',
       },
       {
-        label: props.item?.sort_order === 'asc' ? '升序 (✅)' : '升序',
+        label: props.item?.sort_order === 'asc' ? `${t('common.ascending')} (✅)` : t('common.ascending'),
         key: 'sort-asc',
         props: {
           style: props.item?.sort_order === 'asc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -210,7 +211,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-shengxu'),
       },
       {
-        label: props.item?.sort_order === 'desc' ? '降序 (✅)' : '降序',
+        label: props.item?.sort_order === 'desc' ? `${t('common.descending')} (✅)` : t('common.descending'),
         key: 'sort-desc',
         props: {
           style: props.item?.sort_order === 'desc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -224,7 +225,7 @@ const menuOptions = computed(() => [
 async function handleAssDir() {
   // 选择关联目录
   const association_directory = await open({
-    title: '选择关联目录',
+    title: t('category.selectDir'),
     multiple: false,
     directory: true,
   });
@@ -234,10 +235,10 @@ async function handleAssDir() {
   if (hasAssDir) {
     const isConfirm = await new Promise(resolve => {
       dialog.warning({
-        title: '提示',
-        content: `选中目录已存在关联的分类(${hasAssDir.name}) 是否继续关联?`,
-        positiveText: '确 定',
-        negativeText: '取 消',
+        title: t('common.tip'),
+        content: `${t('category.dirConflict')}(${hasAssDir.name}) ${t('category.dirContinue')}`,
+        positiveText: t('common.confirmDelete'),
+        negativeText: t('common.cancel'),
         draggable: true,
         onPositiveClick: () => resolve(true),
         onNegativeClick: () => resolve(false),
@@ -350,10 +351,10 @@ async function handleToggleAssDir() {
   if (!store.launchData.length) return handleAssDir();
 
   dialog.warning({
-    title: isAssociationDirectory.value ? '提示' : '警告',
-    content: isAssociationDirectory.value ? CancelWaring : '关联目录将清空该分类下的所有启动项 是否继续关联?',
-    positiveText: '确 定',
-    negativeText: '取 消',
+    title: isAssociationDirectory.value ? t('common.tip') : t('common.warning'),
+    content: isAssociationDirectory.value ? CancelWaring : t('category.dirClearWarning'),
+    positiveText: t('common.confirmDelete'),
+    negativeText: t('common.cancel'),
     draggable: true,
     onPositiveClick: async () => {
       // message.success('确定');
@@ -368,10 +369,10 @@ async function handleToggleAssDir() {
 async function handleDelete() {
   return new Promise(resolve => {
     dialog.warning({
-      title: '提示',
-      content: `是否删除 ${props.item?.name || activeCategoryItem.value.name} 分类?`,
-      positiveText: '确 定',
-      negativeText: '取 消',
+      title: t('common.tip'),
+      content: `${t('category.deleteConfirm')} ${props.item?.name || activeCategoryItem.value.name} ${t('category.deleteCategory')}`,
+      positiveText: t('common.confirmDelete'),
+      negativeText: t('common.cancel'),
       draggable: true,
       onPositiveClick: async () => {
         const id = props.item?.id || activeCategoryItem.value.id;

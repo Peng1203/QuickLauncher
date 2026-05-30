@@ -11,7 +11,7 @@
       <ThemeSwitch />
 
       <n-icon
-        title="设置"
+        :title="t('main.settings')"
         size="20"
         class="cursor-pointer"
         @click="toogleSettingWindowVisible"
@@ -35,7 +35,7 @@
       </n-dropdown>
 
       <n-icon
-        title="关闭窗口"
+        :title="t('main.closeWindow')"
         size="25"
         class="cursor-pointer"
         @click="handleClose"
@@ -53,6 +53,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { CloseOutline, MenuOutline, SettingsOutline } from '@vicons/ionicons5';
 import { useAppConfig, useAppConfigActions, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 
 const { appConfigStore } = useAppConfig();
 const { setAlwaysOnTop, setMainWindowCenter, setAutoStart } = useAppConfigActions();
@@ -65,7 +66,7 @@ const handleClose = async () => cuurrentWindow?.hide();
 const options: DropdownMixedOption[] = [
   {
     key: 'onTop',
-    label: '窗口置顶',
+    label: t('common.windowPin'),
     type: 'render',
     render: () =>
       h(
@@ -75,7 +76,7 @@ const options: DropdownMixedOption[] = [
         <n-checkbox
           size="small"
           class="mx-2"
-          label="窗口置顶"
+          label={t('common.windowPin')}
           default-checked={appConfigStore.onTop}
           v-model:checked={appConfigStore.onTop}
           onUpdate-checked={setAlwaysOnTop}
@@ -84,14 +85,14 @@ const options: DropdownMixedOption[] = [
   },
   {
     key: 'center',
-    label: '居中显示',
+    label: t('common.centerDisplay'),
     type: 'render',
     render: () =>
       h(
         <n-checkbox
           size="small"
           class="mx-2"
-          label="居中显示"
+          label={t('common.centerDisplay')}
           default-checked={appConfigStore.center}
           v-model:checked={appConfigStore.center}
           onUpdate-checked={setMainWindowCenter}
@@ -100,14 +101,14 @@ const options: DropdownMixedOption[] = [
   },
   {
     key: 'silentStart',
-    label: '静默启动',
+    label: t('common.silentStart'),
     type: 'render',
     render: () =>
       h(
         <n-checkbox
           size="small"
           class="mx-2"
-          label="静默启动"
+          label={t('common.silentStart')}
           default-checked={appConfigStore.silentStart}
           v-model:checked={appConfigStore.silentStart}
         />,
@@ -115,14 +116,14 @@ const options: DropdownMixedOption[] = [
   },
   {
     key: 'autoStart',
-    label: '开机自启',
+    label: t('common.autoStart'),
     type: 'render',
     render: () =>
       h(
         <n-checkbox
           size="small"
           class="mx-2"
-          label="开机自启"
+          label={t('common.autoStart')}
           default-checked={appConfigStore.autoStart}
           v-model:checked={appConfigStore.autoStart}
           onUpdate-checked={setAutoStart}

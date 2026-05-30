@@ -1,16 +1,16 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <SettingGroup title="启用">
+    <SettingGroup :title="t('quickSearch.groupEnable')">
       <SettingSwitchItem
         v-model="appConfigStore.enableWebSearch"
         icon="icon-wangluosousuo"
-        title="启用网络搜索"
+        :title="t('webSearch.enableTitle')"
       >
         <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1c7FKzKEc3" />
       </SettingSwitchItem>
     </SettingGroup>
 
-    <SettingGroup title="特殊呼出">
+    <SettingGroup :title="t('webSearch.groupSpecial')">
       <n-select
         v-model:value="appConfigStore.webSearchOpenModel"
         size="small"
@@ -20,19 +20,19 @@
         v-show="appConfigStore.webSearchOpenModel !== WebSearchOpenModel.CLOSE"
         class="text-[12px] leading-3.5 text-muted-foreground"
       >
-        处于默认搜索模式下，输入
+        {{ t('webSearchExtra.searchModeHint') }}
         <b class="text-foreground">
-          {{ appConfigStore.webSearchOpenModel ? '(英文状态) 冒号 + 关键字 + 空格' : '关键字 + 空格' }}
+          {{ appConfigStore.webSearchOpenModel ? t('webSearch.colonKeySpace') : t('webSearch.keySpace') }}
         </b>
-        使用网络搜索，例如使用谷歌搜索，输入
+        {{ t('webSearchExtra.searchModeHint2') }}
         <b class="text-foreground">
           {{ appConfigStore.webSearchOpenModel ? '":g"' : '"g"' }}
         </b>
-        ，然后按下空格键，进入网络搜索模式。
+        {{ t('webSearchExtra.searchModeHint3') }}
       </p>
     </SettingGroup>
 
-    <SettingGroup title="搜索源">
+    <SettingGroup :title="t('webSearch.groupSource')">
       <n-data-table
         size="small"
         max-height="160"
@@ -54,7 +54,7 @@
           <template #icon>
             <Icon name="icon-xinzeng" />
           </template>
-          新 增
+          {{ t('common.add') }}
         </n-button>
 
         <!-- v-if="activeRowId" -->
@@ -70,7 +70,7 @@
               size="14"
             />
           </template>
-          删 除
+          {{ t('common.delete') }}
         </n-button>
 
         <n-button
@@ -84,12 +84,12 @@
               size="14"
             />
           </template>
-          重 置
+          {{ t('common.reset') }}
         </n-button>
       </div>
 
       <div v-show="operationFormVisible">
-        <h3>编辑</h3>
+        <h3>{{ t('webSearch.edit') }}</h3>
         <n-form
           ref="formRef"
           size="small"
@@ -99,7 +99,7 @@
           :show-feedback="false"
         >
           <n-form-item
-            label="图标"
+            :label="t('common.icon')"
             class="mt-1"
           >
             <div class="flex items-end gap-2">
@@ -115,7 +115,7 @@
             </div>
           </n-form-item>
           <n-form-item
-            label="名称"
+            :label="t('common.name')"
             class="mt-1"
           >
             <n-input
@@ -125,7 +125,7 @@
           </n-form-item>
 
           <n-form-item
-            label="关键字"
+            :label="t('common.keywords')"
             class="mt-1"
           >
             <n-input
@@ -135,7 +135,7 @@
           </n-form-item>
 
           <n-form-item
-            label="网址"
+            :label="t('common.url')"
             class="mt-1"
           >
             <n-input
@@ -145,7 +145,7 @@
           </n-form-item>
 
           <n-form-item
-            label="描述"
+            :label="t('common.description')"
             class="mt-1"
           >
             <n-input
@@ -155,7 +155,7 @@
           </n-form-item>
 
           <div class="mt-3 flex-sb-c">
-            <DescText>动态内容使用 {w} 替换</DescText>
+            <DescText>{{ t('webSearch.dynamicContent') }}</DescText>
 
             <div class="flex gap-1">
               <n-button
@@ -163,14 +163,14 @@
                 type="info"
                 @click="handleConfirm"
               >
-                确 认
+                {{ t('common.confirm') }}
               </n-button>
               <n-button
                 size="small"
                 type="tertiary"
                 @click="handleCancel"
               >
-                取 消
+                {{ t('common.cancel') }}
               </n-button>
             </div>
           </div>
@@ -186,18 +186,19 @@ import { h } from 'vue';
 import { getLocalIconBase64 } from '@/api';
 import { useAppConfig, useNaiveUiApi } from '@/composables';
 import { BASE_SOURCE, WebSearchOpenModel } from '@/constant';
+import { t } from '@/i18n';
 
 const { appConfigStore, webSearchSourceList } = useAppConfig();
 
-const options: OptionItem[] = [
-  { label: '关键字 + 空格', value: WebSearchOpenModel.KEY_SPACE },
-  { label: '冒号 + 关键字 + 空格', value: WebSearchOpenModel.COLON_KEY_SPACE },
-  { label: '关闭', value: WebSearchOpenModel.CLOSE },
-];
+const options = computed<OptionItem[]>(() => [
+  { label: t('webSearch.keySpace'), value: WebSearchOpenModel.KEY_SPACE },
+  { label: t('webSearch.colonKeySpace'), value: WebSearchOpenModel.COLON_KEY_SPACE },
+  { label: t('webSearch.close'), value: WebSearchOpenModel.CLOSE },
+]);
 
-const columns = [
+const columns = computed(() => [
   {
-    title: '图标',
+    title: t('common.icon'),
     key: 'icon',
     // prettier-ignore
     width: 50,
@@ -210,12 +211,12 @@ const columns = [
         />,
       ),
   },
-  { title: '名称', key: 'name', width: 80, ellipsis: true },
-  { title: '关键字', key: 'keywords', width: 100, ellipsis: true },
-  { title: '描述', key: 'desc', width: 180, ellipsis: true },
+  { title: t('common.name'), key: 'name', width: 80, ellipsis: true },
+  { title: t('common.keywords'), key: 'keywords', width: 100, ellipsis: true },
+  { title: t('common.description'), key: 'desc', width: 180, ellipsis: true },
   // { title: '搜索建议', key: 'suggestion' },
   // TODO 使用指定浏览器打开
-];
+]);
 
 const operationFormVisible = ref<boolean>(false);
 const sourceForm = ref<WebSearchSource>({
@@ -256,7 +257,7 @@ function handleAdd() {
 
 async function handleGetLocalFileIcon() {
   const path = await open({
-    title: '选择图标',
+    title: t('webSearch.selectIcon'),
     multiple: false,
     directory: false,
   });
@@ -288,7 +289,7 @@ function handleSaveEdit() {
 function handleSaveAdd() {
   const exists = webSearchSourceList.value.some(item => item.keywords === sourceForm.value.keywords);
 
-  if (exists) return message.warning('已存在相同关键字');
+  if (exists) return message.warning(t('webSearch.duplicateKeyword'));
   webSearchSourceList.value.push({
     ...sourceForm.value,
     id: Date.now(),

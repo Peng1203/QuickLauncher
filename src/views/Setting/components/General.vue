@@ -1,23 +1,23 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <SettingGroup title="系统">
+    <SettingGroup :title="t('general.groupSystem')">
       <SettingSwitchItem
         v-model="appConfigStore.autoStart"
         icon="icon-switch"
-        title="开机自启"
-        description="系统启动时自动运行应用"
+        :title="t('general.autoStartTitle')"
+        :description="t('general.autoStartDesc')"
         @update:model-value="setAutoStart"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.silentStart"
         icon="icon-wurao"
-        title="静默启动"
-        description="启动时最小化到系统托盘"
+        :title="t('general.silentStartTitle')"
+        :description="t('general.silentStartDesc')"
       />
     </SettingGroup>
 
-    <SettingGroup title="语言">
+    <SettingGroup :title="t('general.groupLanguage')">
       <!-- <SettingSelectItem
         v-model="appConfigStore.language"
         title="界面语言"
@@ -26,8 +26,8 @@
       /> -->
 
       <SettingItem
-        title="界面语言"
-        description="选择应用显示语言"
+        :title="t('general.languageTitle')"
+        :description="t('general.languageDesc')"
       >
         <ToggleGroup
           v-model="appConfigStore.language"
@@ -37,45 +37,62 @@
       </SettingItem>
     </SettingGroup>
 
-    <SettingGroup title="窗口">
+    <SettingGroup :title="t('general.groupWindow')">
       <SettingSwitchItem
         v-model="appConfigStore.onTop"
         icon="icon-chuangkouzhiding"
-        title="窗口置顶"
-        description="是否将应用窗口置顶显示"
+        :title="t('general.pinTitle')"
+        :description="t('general.pinDesc')"
         @update:model-value="setAlwaysOnTop"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.center"
         icon="icon-juzhongxianshi"
-        title="居中显示"
-        description="启动时窗口居中显示"
+        :title="t('general.centerTitle')"
+        :description="t('general.centerDesc')"
         @update:model-value="setMainWindowCenter"
       />
 
       <SettingItem
+        expandable
         icon="icon-kuaijiejian-"
-        title="全局快捷键"
-        description="快速唤起或隐藏主窗口"
+        :title="t('general.shortcutKeyTitle')"
+        :description="t('general.shortcutKeyDesc')"
       >
-        <div class="flex gap-1 justify-end">
-          <ShortcutKeyInput
-            v-model="appConfigStore.mainWindowGlobalShortcutKey"
-            :presets="['Alt + P', 'Alt + M']"
-            @clear="handleClear"
-            @commit="registerShortcutKey"
-          />
-        </div>
+        <template #expand>
+          <SettingItem
+            v-for="preItem of ['Alt + P', 'Alt + M']"
+            :key="preItem"
+          >
+            <template #title>
+              <n-button
+                type="info"
+                size="tiny"
+                @click="registerShortcutKey(preItem)"
+              >
+                {{ $t('common.usePreset') }}
+              </n-button>
+            </template>
+            <ShortcutKbd :value="preItem" />
+          </SettingItem>
+        </template>
+
+        <!-- :presets="['Alt + P', 'Alt + M']" -->
+        <ShortcutKeyInput
+          v-model="appConfigStore.mainWindowGlobalShortcutKey"
+          @clear="handleClear"
+          @commit="registerShortcutKey"
+        />
       </SettingItem>
     </SettingGroup>
 
-    <SettingGroup title="操作">
+    <SettingGroup :title="t('general.groupOperation')">
       <SettingSwitchItem
         v-model="appConfigStore.confirmBeforeDelete"
         icon="icon-shanchufenlei"
-        title="删除二次确认"
-        description="删除启动项前显示确认对话框"
+        :title="t('general.confirmDeleteTitle')"
+        :description="t('general.confirmDeleteDesc')"
       />
     </SettingGroup>
   </div>
@@ -83,6 +100,7 @@
 
 <script setup lang="ts">
 import { useAppConfig, useAppConfigActions } from '@/composables';
+import { t } from '@/i18n';
 import { unRegisterShortcutKey } from '@/utils/shortcutKey';
 
 const { appConfigStore } = useAppConfig();

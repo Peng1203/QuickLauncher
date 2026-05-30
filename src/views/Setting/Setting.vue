@@ -4,7 +4,7 @@
       data-tauri-drag-region
       class="top-0 left-0 right-0 h-8 bg-card flex items-center justify-between px-2 z-10"
     >
-      <span class="text-foreground">设 置</span>
+      <span class="text-foreground">{{ t('setting.title') }}</span>
       <!-- {{ activeTab }} -->
       <!-- {{ appConfigStore.center }} -->
 
@@ -51,6 +51,7 @@ import { CloseOutline } from '@vicons/ionicons5';
 import { ref } from 'vue';
 import { useAppConfig, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { EventBus } from '@/utils/eventBus';
 import AboutPane from './components/About.vue';
 import CommandAliasPane from './components/CommandAlias.vue';
@@ -66,20 +67,35 @@ import WebSearchPane from './components/WebSearch.vue';
 const { toogleSettingWindowVisible } = useToggleWindowVisible();
 const { themeColor } = useAppConfig();
 
-const settingTabs = [
-  { label: '常 规', value: 'general', icon: 'icon-changguishezhi-moren', contentComponent: GeneralPane },
-  { label: '主 题', value: 'theme', icon: 'icon-zhuti_tiaosepan', contentComponent: ThemePane },
-  { label: '快速搜索', value: 'q_search', icon: 'icon-icon-sousuofenlei', contentComponent: QuickSearchPane },
-  { label: '网络搜索', value: 'n_search', icon: 'icon-wangluosousuo', contentComponent: WebSearchPane },
-  { label: '命令别名', value: 'command_alias', icon: 'icon-minglinghangchaxun', contentComponent: CommandAliasPane },
-  { label: '翻 译', value: 'translation', icon: 'icon-fanyi', contentComponent: Translation },
-  { label: '代 理', value: 'network', icon: 'icon-wangluodaili', contentComponent: ProxyPane },
-  { label: '数 据', value: 'data', icon: 'icon-shuju', contentComponent: DataPane },
-  { label: '传送门', value: 'portal', icon: 'icon-chuansongmen', contentComponent: PortalPane },
-  { label: '关 于', value: 'about', icon: 'icon-guanyu1', contentComponent: AboutPane },
-];
+const settingTabs = computed(() => [
+  {
+    label: t('setting.tabGeneral'),
+    value: 'general',
+    icon: 'icon-changguishezhi-moren',
+    contentComponent: GeneralPane,
+  },
+  { label: t('setting.tabTheme'), value: 'theme', icon: 'icon-zhuti_tiaosepan', contentComponent: ThemePane },
+  {
+    label: t('setting.tabQuickSearch'),
+    value: 'q_search',
+    icon: 'icon-icon-sousuofenlei',
+    contentComponent: QuickSearchPane,
+  },
+  { label: t('setting.tabWebSearch'), value: 'n_search', icon: 'icon-wangluosousuo', contentComponent: WebSearchPane },
+  {
+    label: t('setting.tabCommandAlias'),
+    value: 'command_alias',
+    icon: 'icon-minglinghangchaxun',
+    contentComponent: CommandAliasPane,
+  },
+  { label: t('setting.tabTranslation'), value: 'translation', icon: 'icon-fanyi', contentComponent: Translation },
+  { label: t('setting.tabProxy'), value: 'network', icon: 'icon-wangluodaili', contentComponent: ProxyPane },
+  { label: t('setting.tabData'), value: 'data', icon: 'icon-shuju', contentComponent: DataPane },
+  { label: t('setting.tabPortal'), value: 'portal', icon: 'icon-chuansongmen', contentComponent: PortalPane },
+  { label: t('setting.tabAbout'), value: 'about', icon: 'icon-guanyu1', contentComponent: AboutPane },
+]);
 
-const activeTab = ref(settingTabs[0].value);
+const activeTab = ref(settingTabs.value[0].value);
 // const activeTab = ref(settingTabs[8].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);

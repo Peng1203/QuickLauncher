@@ -2,6 +2,8 @@
   <NConfigProvider
     :theme="naiveTheme"
     :theme-overrides="themeOverrides"
+    :locale="naiveLocale"
+    :date-locale="naiveDateLocale"
   >
     <NDialogProvider>
       <NNotificationProvider>
@@ -16,10 +18,16 @@
 </template>
 
 <script setup lang="ts">
+import type { NDateLocale, NLocale } from 'naive-ui';
+
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { watchImmediate } from '@vueuse/core';
+import { dateEnUS, dateJaJP, dateZhCN, dateZhTW, enUS, jaJP, zhCN, zhTW } from 'naive-ui';
+
+import { useAppConfig } from './composables';
 import { useTheme } from './composables/useTheme';
 import { AppEvent } from './constant';
+import { i18n } from './i18n';
 import { EventBus } from './utils/eventBus';
 
 const {
@@ -32,6 +40,38 @@ const {
   setFontFamily,
   setFontSize,
 } = useTheme();
+
+const { appConfigStore } = useAppConfig();
+
+const naiveLocaleMap: Record<string, NLocale> = {
+  'zh-CN': zhCN,
+  'zh-HK': zhTW,
+  // prettier-ignore
+  'en': enUS,
+  // prettier-ignore
+  'ja': jaJP,
+};
+
+const naiveDateLocaleMap: Record<string, NDateLocale> = {
+  'zh-CN': dateZhCN,
+  'zh-HK': dateZhTW,
+  // prettier-ignore
+  'en': dateEnUS,
+  // prettier-ignore
+  'ja': dateJaJP,
+};
+
+const naiveLocale = computed(() => naiveLocaleMap[appConfigStore.language] ?? zhCN);
+const naiveDateLocale = computed(() => naiveDateLocaleMap[appConfigStore.language] ?? dateZhCN);
+
+// 语言切换联动
+watch(
+  () => appConfigStore.language,
+  lang => {
+    i18n.global.locale.value = lang;
+  },
+  { immediate: true },
+);
 
 // 跨窗口主题同步
 EventBus.listen(AppEvent.CHANGE_THEME, async (windowLabel: string) => {

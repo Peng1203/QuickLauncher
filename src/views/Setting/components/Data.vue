@@ -1,64 +1,64 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
     <SettingGroup
-      title="数据"
-      description="备份应用配置、分类、启动项、历史记录等数据"
+      :title="t('data.groupData')"
+      :description="t('data.dataDesc')"
     >
       <SettingItem
         icon="icon-daochu"
-        title="数据备份"
-        description="导出当前所有数据到本地文件"
+        :title="t('data.backupTitle')"
+        :description="t('data.backupDesc')"
       >
         <n-button
           size="small"
           type="success"
           @click="handleExportBackup"
         >
-          备 份
+          {{ t('common.backup') }}
         </n-button>
       </SettingItem>
 
       <SettingItem
         icon="icon-daoru"
-        title="数据导入"
-        description="从备份文件恢复应用数据，导入成功后应用会重启"
+        :title="t('data.importTitle')"
+        :description="t('data.importDesc')"
       >
         <n-button
           size="small"
           type="info"
           @click="handleImportBackup"
         >
-          导 入
+          {{ t('common.import') }}
         </n-button>
       </SettingItem>
 
       <SettingItem
         icon="icon-dakaiweizhi"
-        title="数据目录"
-        description="打开数据库与应用数据存放位置"
+        :title="t('data.dirTitle')"
+        :description="t('data.dirDesc')"
       >
         <n-button
           size="small"
           @click="handleOpenDbDirectory"
         >
-          打 开
+          {{ t('common.open') }}
         </n-button>
       </SettingItem>
     </SettingGroup>
 
-    <SettingGroup title="危险操作">
+    <SettingGroup :title="t('data.groupDanger')">
       <SettingItem
         icon-color="red"
         icon="icon-shanchufenlei"
-        title="<span style='color: var(--destructive);'>重置数据</span>"
-        description="清空所有本地数据，此操作不可恢复，操作前请确认已备份好数据"
+        :title="`<span style='color: var(--destructive);'>${t('data.resetTitle')}</span>`"
+        :description="t('data.resetDesc')"
       >
         <n-button
           type="error"
           size="small"
           @click="handleResetData"
         >
-          重 置
+          {{ t('common.reset') }}
         </n-button>
       </SettingItem>
     </SettingGroup>
@@ -69,24 +69,25 @@
 import { open } from '@tauri-apps/plugin-dialog';
 import { backupDatabase, importDatabase, openAppDataDir, resetData } from '@/api';
 import { useNaiveUiApi } from '@/composables';
+import { t } from '@/i18n';
 
 const { notification } = useNaiveUiApi();
 
 async function handleExportBackup() {
   // 选择保存位置
   const filePath = await open({
-    title: '找个地儿 存住吧 😋',
+    title: t('data.exportDialogTitle'),
     directory: true,
     multiple: false,
   });
   if (!filePath) return;
   const message = await backupDatabase(filePath);
-  notification.success({ content: message, title: '备份成功', duration: 2000 });
+  notification.success({ content: message, title: t('data.backupSuccess'), duration: 2000 });
 }
 
 async function handleImportBackup() {
   const filePath = await open({
-    title: '回来吧 我最骄傲的数据 😭',
+    title: t('data.importDialogTitle'),
     directory: false,
     multiple: false,
     filters: [

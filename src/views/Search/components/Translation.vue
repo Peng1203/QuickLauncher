@@ -73,6 +73,7 @@ import { MD5 } from 'crypto-js';
 import { ref } from 'vue';
 import { useAppConfig, useNaiveUiApi } from '@/composables';
 import { BAIDU_TRANSLATION_TO, SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from '@/constant';
+import { t } from '@/i18n';
 
 const props = defineProps<{ keyword: string }>();
 const emits = defineEmits(['closeWindow']);
@@ -124,7 +125,7 @@ async function baiduTranslate() {
   try {
     const { BDTranslationAppid, BDTranslationKey } = appConfigStore;
     if (!BDTranslationAppid || !BDTranslationKey) {
-      message.warning('请先在设置中配置百度翻译的Appid和Key');
+      message.warning(t('search.baiduConfigWarning'));
       return [];
     }
 

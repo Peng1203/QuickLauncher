@@ -2,8 +2,8 @@
   <div class="flex flex-col gap-4 p-4">
     <!-- 外观模式 -->
     <SettingGroup
-      title="外观模式"
-      description="切换应用的主题明暗"
+      :title="t('theme.appearanceMode')"
+      :description="t('themeExtra.appearanceDesc')"
     >
       <div class="flex gap-2">
         <div
@@ -25,8 +25,8 @@
 
     <!-- 主题色 -->
     <SettingGroup
-      title="主题色"
-      description="选择应用的强调色"
+      :title="t('theme.themeColor')"
+      :description="t('themeExtra.themeColorDesc')"
     >
       <div class="flex flex-wrap gap-2">
         <button
@@ -56,12 +56,12 @@
     </SettingGroup>
 
     <!-- 页面风格 & 布局 -->
-    <SettingGroup title="页面风格">
+    <SettingGroup :title="t('theme.pageStyle')">
       <SettingSelectItem
         v-model="appConfigStore.pageStyle"
         icon="icon-jiemianfengge"
-        title="界面风格"
-        description="调整整体视觉风格"
+        :title="t('theme.interfaceStyle')"
+        :description="t('themeExtra.pageStyleDesc')"
         :options="pageStyleOptions"
       />
 
@@ -76,15 +76,15 @@
       <SettingSelectItem
         v-model="appConfigStore.font"
         icon="icon-ziti"
-        title="字体切换"
-        description="调整界面字体(使用系统字体)"
+        :title="t('theme.fontSwitch')"
+        :description="t('themeExtra.fontSwitchDesc')"
         :options="fontOptions"
       />
 
       <SettingItem
         icon="icon-zitidaxiao"
-        title="字体大小"
-        description="调整界面字体大小"
+        :title="t('theme.fontSize')"
+        :description="t('themeExtra.fontSizeDesc')"
       >
         <div class="flex items-center gap-2 min-w-40">
           <span class="text-[10px] text-muted-foreground">A</span>
@@ -217,6 +217,7 @@
 <script setup lang="ts">
 import { getLocalFonts } from '@/api';
 import { useAppConfig, useTheme } from '@/composables';
+import { t } from '@/i18n';
 
 const { prefersDark, setHTMLThemeClass, setThemeModel } = useTheme();
 const { appConfigStore } = useAppConfig();
@@ -227,11 +228,11 @@ interface AppearanceMode {
   icon: string;
 }
 
-const appearanceModes: AppearanceMode[] = [
-  { label: '浅色', value: 'light', icon: 'icon-taiyang' },
-  { label: '深色', value: 'dark', icon: 'icon-yueliang' },
-  { label: '跟随系统', value: 'system', icon: 'icon-gensuixitong1' },
-];
+const appearanceModes = computed<AppearanceMode[]>(() => [
+  { label: t('theme.light'), value: 'light', icon: 'icon-taiyang' },
+  { label: t('theme.dark'), value: 'dark', icon: 'icon-yueliang' },
+  { label: t('theme.system'), value: 'system', icon: 'icon-gensuixitong1' },
+]);
 
 const presetColors = [
   '#2080f0',
@@ -248,11 +249,11 @@ const presetColors = [
   '#00695c',
 ];
 
-const pageStyleOptions: OptionItem<string>[] = [
-  { label: '默认', value: 'normal' },
+const pageStyleOptions = computed<OptionItem<string>[]>(() => [
+  { label: t('theme.styleDefault'), value: 'normal' },
   { label: 'macOS', value: 'macos' },
   { label: 'Windows 11', value: 'win11' },
-];
+]);
 
 // const densityOptions: OptionItem<string>[] = [
 //   { label: '紧凑', value: 'compact' },
@@ -288,8 +289,8 @@ async function getSystemFonts() {
     style: `font-family: "${item.family}"`,
   }));
   const options: any = [
-    { label: '默认', value: '' },
-    { label: '跟随系统', value: 'system-ui', style: 'font-family: system-ui' },
+    { label: t('theme.styleDefault'), value: '' },
+    { label: t('theme.system'), value: 'system-ui', style: 'font-family: system-ui' },
     ...fontData,
   ];
   fontOptions.value = options;

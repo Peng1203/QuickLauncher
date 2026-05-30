@@ -1,9 +1,49 @@
 import { register as _register, isRegistered, unregister } from '@tauri-apps/plugin-global-shortcut';
+import { t } from '@/i18n';
 
 const CTRL = 'Ctrl';
 const ALT = 'Alt';
 const SHIFT = 'Shift';
-const WIN = 'Super';
+const WIN = '⌘';
+
+// 系统 / 浏览器 / IDE 高频保留快捷键（可持续扩展）
+const SYSTEM_HOTKEYS = new Set([
+  // 浏览器
+  'Ctrl + L',
+  'Ctrl + T',
+  'Ctrl + W',
+  'Ctrl + N',
+  'Ctrl + R',
+  'Ctrl + Shift + R',
+  'Ctrl + Tab',
+
+  // 编辑常用
+  'Ctrl + C',
+  'Ctrl + V',
+  'Ctrl + X',
+  'Ctrl + A',
+  'Ctrl + Z',
+  'Ctrl + Y',
+  'Ctrl + S',
+  'Ctrl + F',
+  'Ctrl + P',
+
+  // Windows 系统
+  'Alt + Tab',
+  'Alt + F4',
+  'Win + D',
+  'Win + L',
+
+  // mac（你这里 WIN 实际是 ⌘）
+  '⌘ + Space',
+  '⌘ + Q',
+  '⌘ + W',
+  '⌘ + Tab',
+  '⌘ + C',
+  '⌘ + V',
+  '⌘ + X',
+  '⌘ + Z',
+]);
 
 /**
  * 获取输入的快捷键
@@ -100,20 +140,27 @@ export function getShortcutKey(e: KeyboardEvent, originValue: string = '', preve
  * @async
  * @param {string} shortcutKey
  * @param {?string} [oldShortcutKey]
- * @returns {Promise<boolean>}
+ * @returns {Promise<{checked: boolean, message: string}>}
  */
-export async function checkShortcutKey(shortcutKey: string, oldShortcutKey?: string): Promise<boolean> {
+export async function checkShortcutKey(
+  shortcutKey: string,
+  oldShortcutKey?: string,
+): Promise<{ checked: boolean; message: string }> {
   try {
-    if (oldShortcutKey && shortcutKey === oldShortcutKey) return true;
+    if (oldShortcutKey && shortcutKey === oldShortcutKey) return { checked: true, message: '' };
     let flag = false;
+    // 系统快捷键校验
+    const isSystemHotkey = checkSystemHotkey(shortcutKey);
+    if (!isSystemHotkey) return { checked: false, message: t('shortcutKeyInput.reserved') };
+
     // 检验快捷键是否在全局注册过
     const isReg = await isRegistered(shortcutKey);
     flag = !isReg;
-    // TODO 校验快捷键是否在应用内其他地方被注册
-    return flag;
+
+    return { checked: flag, message: flag ? '' : t('shortcutKeyInput.occupied') };
   } catch (e) {
     console.log('e', e);
-    return false;
+    return { checked: false, message: e as string };
   }
 }
 
@@ -156,4 +203,19 @@ export async function register(shortcutKey: string, cb: () => any) {
       cb();
     }
   });
+}
+
+/**
+ * 校验是否为系统常用快捷键
+ * 命中则返回 false + console 提示
+ */
+export function checkSystemHotkey(shortcutKey: string): boolean {
+  if (!shortcutKey) return true;
+
+  const normalized = shortcutKey.trim();
+  console.log(`%c shortcutKey ----`, 'color: #fff;background-color: #000;font-size: 18px', shortcutKey);
+  console.log(`%c normalized ----`, 'color: #fff;background-color: #000;font-size: 18px', normalized);
+  if (SYSTEM_HOTKEYS.has(normalized)) return false;
+
+  return true;
 }

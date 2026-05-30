@@ -34,7 +34,7 @@
       v-else
       class="w-full h-full flex items-center justify-center text-muted-foreground text-lg"
     >
-      {{ isConrrelationDir ? '空文件夹' : '拖动文件到该区域' }}
+      {{ isConrrelationDir ? t('main.emptyFolder') : t('main.dragHere') }}
     </div>
   </n-layout-content>
 
@@ -56,6 +56,7 @@ import ListContextMenu from '@/components/ListContextMenu.vue';
 import ListItem from '@/components/ListItem.vue';
 import { useCategoryCorrelationDir } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
 

@@ -15,15 +15,17 @@
 import { storeToRefs } from 'pinia';
 import { useCategorySort } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
+
+defineProps<{ position: { x: number; y: number } }>();
 
 export interface MenuAction {
   label: string;
   onClick: () => void;
 }
 
-defineProps<{ position: { x: number; y: number } }>();
 const visible = defineModel<boolean>();
 
 const store = useStore();
@@ -41,17 +43,17 @@ function renderIcon(icon: string) {
 // 默认菜单项
 const menuOptions = computed(() => [
   {
-    label: '新建启动项',
+    label: t('contextMenu.newLaunchItem'),
     key: 'add',
     icon: () => h(<i class="iconfont icon-xinjian" />),
   },
   {
-    label: '布局展示',
+    label: t('common.layout'),
     key: 'layout',
     icon: renderIcon('icon-buju'),
     children: [
       {
-        label: activeCategoryItem.value?.layout === 'grid' ? '平铺 (✅)' : '平铺',
+        label: activeCategoryItem.value?.layout === 'grid' ? `${t('common.tile')} (✅)` : t('common.tile'),
         key: 'layout-grid',
         props: {
           style: activeCategoryItem.value?.layout === 'grid' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -59,7 +61,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-24gl-appsSmall'),
       },
       {
-        label: activeCategoryItem.value?.layout === 'list' ? '列表 (✅)' : '列表',
+        label: activeCategoryItem.value?.layout === 'list' ? `${t('common.list')} (✅)` : t('common.list'),
         key: 'layout-list',
         props: {
           style: activeCategoryItem.value?.layout === 'list' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -69,12 +71,12 @@ const menuOptions = computed(() => [
     ],
   },
   {
-    label: '排序方式',
+    label: t('common.sortOrder'),
     key: 'order',
     icon: renderIcon('icon-paixufangshi'),
     children: [
       {
-        label: activeCategoryItem.value?.sort_by === 'name' ? '名称 (✅)' : '名称',
+        label: activeCategoryItem.value?.sort_by === 'name' ? `${t('common.name')} (✅)` : t('common.name'),
         key: 'order-name',
         props: {
           style: activeCategoryItem.value?.sort_by === 'name' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -82,7 +84,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-mingchengpaixu'),
       },
       {
-        label: activeCategoryItem.value?.sort_by === 'type' ? '类型 (✅)' : '类型',
+        label: activeCategoryItem.value?.sort_by === 'type' ? `${t('common.type')} (✅)` : t('common.type'),
         key: 'order-type',
         props: {
           style: activeCategoryItem.value?.sort_by === 'type' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -90,7 +92,7 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-anleixingpaixu'),
       },
       {
-        label: activeCategoryItem.value?.sort_by === 'time' ? '日期 (✅)' : '日期',
+        label: activeCategoryItem.value?.sort_by === 'time' ? `${t('common.date')} (✅)` : t('common.date'),
         key: 'order-time',
         props: {
           style: activeCategoryItem.value?.sort_by === 'time' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -98,7 +100,10 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-anchuangjianshijianpaixu'),
       },
       {
-        label: activeCategoryItem.value?.sort_by === 'order' ? '搜索优先级 (✅)' : '搜索优先级',
+        label:
+          activeCategoryItem.value?.sort_by === 'order'
+            ? `${t('common.searchPriority')} (✅)`
+            : t('common.searchPriority'),
         key: 'order-index',
         props: {
           style: activeCategoryItem.value?.sort_by === 'order' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
@@ -115,7 +120,7 @@ const menuOptions = computed(() => [
         key: 'd3',
       },
       {
-        label: activeCategoryItem.value?.sort_order === 'asc' ? '升序 (✅)' : '升序',
+        label: activeCategoryItem.value?.sort_order === 'asc' ? `${t('common.ascending')} (✅)` : t('common.ascending'),
         key: 'sort-asc',
         props: {
           style:
@@ -124,7 +129,8 @@ const menuOptions = computed(() => [
         icon: renderIcon('icon-shengxu'),
       },
       {
-        label: activeCategoryItem.value?.sort_order === 'desc' ? '降序 (✅)' : '降序',
+        label:
+          activeCategoryItem.value?.sort_order === 'desc' ? `${t('common.descending')} (✅)` : t('common.descending'),
         key: 'sort-desc',
         props: {
           style:

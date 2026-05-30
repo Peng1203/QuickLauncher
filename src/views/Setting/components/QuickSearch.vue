@@ -1,48 +1,66 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <SettingGroup title="启用">
+    <SettingGroup :title="t('quickSearch.groupEnable')">
       <SettingSwitchItem
         v-model="appConfigStore.enableSearch"
         icon="icon-icon-sousuofenlei"
-        title="启用快速搜索"
-        description="开启后可以使用快捷键快速唤起搜索窗口"
+        :title="t('quickSearch.enableTitle')"
+        :description="t('quickSearch.enableDesc')"
       />
     </SettingGroup>
 
-    <SettingGroup title="窗口">
+    <SettingGroup :title="t('quickSearch.groupWindow')">
       <SettingSwitchItem
         v-model="appConfigStore.searchLostFocusHide"
         icon="icon-chuangkouzhiding"
-        title="失去焦点隐藏"
-        description="窗口失去焦点时自动隐藏"
+        :title="t('quickSearch.lostFocusTitle')"
+        :description="t('quickSearch.lostFocusDesc')"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.searchHideAfterOpen"
         icon="icon-yanjing_yincang_o"
-        title="启动后隐藏"
-        description="执行后自动隐藏窗口"
+        :title="t('quickSearch.hideAfterOpenTitle')"
+        :description="t('quickSearch.hideAfterOpenDesc')"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.doNotDisturbMode"
         icon="icon-wurao"
-        title="勿扰模式"
-        description="前台窗口处于全屏模式下不会弹出搜索窗口"
+        :title="t('quickSearch.dndTitle')"
+        :description="t('quickSearch.dndDesc')"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.searchOpenOnMouseDisplay"
         icon="icon-lcd"
-        title="跟随鼠标显示"
-        description="在多显示器环境下，搜索窗口跟随鼠标所在显示器弹出"
+        :title="t('quickSearch.followMouseTitle')"
+        :description="t('quickSearch.followMouseDesc')"
       />
 
       <SettingItem
+        expandable
         icon="icon-kuaijiejian-"
-        title="全局快捷键"
-        description="唤起或隐藏搜索窗口"
+        :title="t('general.shortcutKeyTitle')"
+        :description="t('quickSearch.shortcutKeyDesc')"
       >
+        <template #expand>
+          <SettingItem
+            v-for="preItem of ['Alt + Space', 'Ctrl + Space']"
+            :key="preItem"
+          >
+            <template #title>
+              <n-button
+                type="info"
+                size="tiny"
+                @click="registerShortcutKey(preItem)"
+              >
+                {{ $t('common.usePreset') }}
+              </n-button>
+            </template>
+            <ShortcutKbd :value="preItem" />
+          </SettingItem>
+        </template>
         <div class="flex gap-1 justify-end">
           <!-- type="info" -->
           <!-- <n-button
@@ -60,9 +78,9 @@
             Ctrl + Space
           </n-button> -->
 
+          <!-- :presets="['Alt + Space', 'Ctrl + Space']" -->
           <ShortcutKeyInput
             v-model="appConfigStore.searchGlobalShortcutKey"
-            :presets="['Alt + Space', 'Ctrl + Space']"
             @clear="handleClear"
             @commit="registerShortcutKey"
           />
@@ -70,52 +88,52 @@
       </SettingItem>
     </SettingGroup>
 
-    <SettingGroup title="分类">
+    <SettingGroup :title="t('quickSearch.groupCategory')">
       <SettingSwitchItem
         v-model="appConfigStore.showCategory"
         icon="icon-fenlei"
-        title="展示分类"
-        description="在搜索结果中展示分类标签"
+        :title="t('quickSearch.showCategoryTitle')"
+        :description="t('quickSearch.showCategoryDesc')"
         @update:model-value="handleShowCategory"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.showSubCategory"
         icon="icon-tianjiazifenlei"
-        title="展示子分类"
-        description="在搜索结果中展示子分类标签"
+        :title="t('quickSearch.showSubCategoryTitle')"
+        :description="t('quickSearch.showSubCategoryDesc')"
       />
     </SettingGroup>
 
-    <SettingGroup title="自动补全">
+    <SettingGroup :title="t('quickSearch.groupAutocomplete')">
       <SettingSwitchItem
         v-model="appConfigStore.enableAutocomplete"
         icon="icon-zidongbuquanshurukuang"
-        title="启用自动补全"
-        description="输入时显示智能补全建议"
+        :title="t('quickSearch.autocompleteTitle')"
+        :description="t('quickSearch.autocompleteDesc')"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.enableAutocompleteFrequencyFilter"
         icon="icon-hashjinghao"
-        title="高频优先"
-        description="仅使用输入次数 ≥3 的记录"
+        :title="t('quickSearch.frequencyTitle')"
+        :description="t('quickSearch.frequencyDesc')"
       />
     </SettingGroup>
 
-    <SettingGroup title="历史记录">
+    <SettingGroup :title="t('quickSearch.groupHistory')">
       <SettingSwitchItem
         v-model="appConfigStore.enableHistory"
         icon="icon-lishijilu_o"
-        title="保存历史"
-        description="记录搜索和保存历史，关闭后将不再记录"
+        :title="t('quickSearch.historyTitle')"
+        :description="t('quickSearch.historyDesc')"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.showHistory"
         icon="icon-switch"
-        title="历史导航"
-        description="↑ ↓ 切换历史输入"
+        :title="t('quickSearch.historyNavTitle')"
+        :description="t('quickSearch.historyNavDesc')"
       />
     </SettingGroup>
   </div>
@@ -123,6 +141,7 @@
 
 <script setup lang="ts">
 import { useAppConfig, useAppConfigActions } from '@/composables';
+import { t } from '@/i18n';
 import { unRegisterShortcutKey } from '@/utils/shortcutKey';
 
 const { appConfigStore } = useAppConfig();

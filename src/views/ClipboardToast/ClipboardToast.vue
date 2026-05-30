@@ -72,7 +72,7 @@
             size="12"
           />
         </template>
-        资源管理器中打开
+        {{ t('clipboard.openInExplorer') }}
         <!-- <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template> -->
       </n-button>
 
@@ -90,7 +90,7 @@
             size="12"
           />
         </template>
-        终端中打开
+        {{ t('clipboard.openInTerminal') }}
         <!-- <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template> -->
       </n-button>
     </div>
@@ -123,6 +123,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { exeCommand, openDirInTerminal, openRevealManager, setDefaultTrayIcon } from '@/api';
 import { useAppConfig } from '@/composables';
 import { AppEvent, PortalNotifyMode } from '@/constant';
+import { t } from '@/i18n';
 import { sleep } from '@/utils/delay';
 import { EventBus } from '@/utils/eventBus';
 import { register, unRegisterShortcutKey } from '@/utils/shortcutKey';
@@ -162,18 +163,18 @@ const themeColor = computed(() => {
 const info = computed(() => {
   if (currentModel.value === 'setLocation') {
     return {
-      title: '设置窗口位置',
-      actionText: '确认',
+      title: t('clipboard.setWindowPosition'),
+      actionText: t('clipboard.confirm'),
     };
   }
   return isDirectory.value
     ? {
-        title: '目录已复制',
-        actionText: '打开',
+        title: t('clipboard.dirCopied'),
+        actionText: t('common.openPlain'),
       }
     : {
-        title: '链接已复制',
-        actionText: '打开',
+        title: t('clipboard.linkCopied'),
+        actionText: t('common.openPlain'),
       };
 });
 
@@ -299,7 +300,7 @@ const savePortalPosition = useDebounceFn((position: { x: number; y: number }) =>
 currentWindow.onMoved(({ payload: position }) => savePortalPosition(position));
 EventBus.listen(AppEvent.OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL, async () => {
   currentModel.value = 'setLocation';
-  content.value = '拖动窗口设置位置';
+  content.value = t('clipboard.dragToSetPosition');
   visible.value = true;
   await currentWindow?.show();
 });

@@ -6,7 +6,7 @@
     aria-modal="true"
     label-placement="left"
     :bordered="false"
-    :title="isEdit ? `编辑分类` : '新建分类'"
+    :title="isEdit ? t('category.editCategory') : t('category.newCategory')"
     class="h-full px-5 pt-3 pb-5"
   >
     <template #header-extra>
@@ -52,7 +52,7 @@
 
         <n-col span="22">
           <n-form-item
-            label="名称"
+            :label="t('category.labelName')"
             path="name"
           >
             <n-input
@@ -67,7 +67,7 @@
 
         <n-col span="22">
           <n-form-item
-            label="关联目录"
+            :label="t('category.labelDir')"
             path="association_directory"
           >
             <n-input
@@ -89,16 +89,16 @@
             :disabled="isEdit"
             @click="handleSelectDir"
           >
-            选 择
+            {{ t('common.select') }}
           </n-button>
           <span class="ml-1 text-muted-foreground text-[12px]">
-            *关联指定目录后无法操作该分类下的启动项只能作为搜索结果
+            {{ t('category.dirHint') }}
           </span>
         </n-col>
 
         <n-col span="22">
           <n-form-item
-            label="搜索排除"
+            :label="t('category.labelExclude')"
             path="exclude"
           >
             <div class="flex-s-c">
@@ -121,13 +121,13 @@
           :disabled="!form.name"
           @click="handleConfirm"
         >
-          确 认
+          {{ t('common.confirm') }}
         </n-button>
         <n-button
           size="small"
           @click="handleClose"
         >
-          取 消
+          {{ t('common.cancel') }}
         </n-button>
       </div>
     </template>
@@ -149,6 +149,7 @@ import {
   useToggleWindowVisible,
 } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { EventBus } from '@/utils/eventBus';
 
 const { message } = useNaiveUiApi();
@@ -237,7 +238,7 @@ EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, async v
 
   toogleOperCategoryWindowVisible();
   const window = await getOperCategoryWindow();
-  window?.setTitle(isEdit.value ? '编辑分类' : '新建分类');
+  window?.setTitle(isEdit.value ? t('category.editCategory') : t('category.newCategory'));
 });
 
 useEsc(handleClose);

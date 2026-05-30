@@ -5,7 +5,7 @@
     role="dialog"
     aria-modal="true"
     :bordered="false"
-    :title="isEdit ? '编辑项目' : '新建项目'"
+    :title="isEdit ? t('launch.editItem') : t('launch.newItem')"
     class="h-full px-5 pt-3 pb-5"
   >
     <template #header-extra>
@@ -95,9 +95,9 @@
                     text-color="gary"
                     @click="handleSelectLaunch"
                   >
-                    选 择
+                    {{ t('common.select') }}
                   </n-button>
-                  *支持拖拽
+                  {{ t('common.dragSupport') }}
                 </n-col>
 
                 <n-col
@@ -150,7 +150,7 @@
                     :loading="urlInfoLoading"
                     @click="getUrlInfo"
                   >
-                    获取网址信息
+                    {{ t('common.fetchUrlInfo') }}
                   </n-button>
 
                   <n-checkbox
@@ -162,7 +162,7 @@
                     :default-checked="appConfigStore.proxy"
                     :on-update:checked="handleSwitchProxy"
                   >
-                    代理
+                    {{ t('common.proxy') }}
                   </n-checkbox>
                 </n-col>
 
@@ -190,7 +190,7 @@
                     :default-checked="false"
                     :disabled="!form.hotkey"
                   >
-                    全局快捷键
+                    {{ t('general.shortcutKeyTitle') }}
                   </n-checkbox>
                 </n-col>
 
@@ -211,7 +211,7 @@
                       :default-checked="false"
                       :disabled="form.extension !== 'exe'"
                     >
-                      以管理员身份运行
+                      {{ t('common.adminRun') }}
                     </n-checkbox>
                   </n-form-item>
                 </n-col>
@@ -240,11 +240,11 @@
                             </n-icon>
                           </template>
                           <span style="color: var(--muted-foreground)">
-                            按照以下格式添加自定义浏览器
+                            {{ t('launch.browserFormat') }}
                             <br />
-                            浏览器名称=浏览器exe文件地址
+                            {{ t('launch.browserExample') }}
                             <br />
-                            例: QQ浏览器=C:\Application\QQBrowser\QQBrowser.exe
+                            {{ t('launch.browserExampleValue') }}
                           </span>
                         </n-tooltip>
                       </div>
@@ -293,7 +293,7 @@
                       class="w-25"
                       size="small"
                     />
-                    <span class="ml-2 text-muted-foreground">用于搜索返回展示的优先级 数字越大越靠前</span>
+                    <span class="ml-2 text-muted-foreground">{{ t('launch.sortHint') }}</span>
                   </n-form-item>
                 </n-col>
 
@@ -367,13 +367,13 @@
           :disabled="!form.name || !form.path"
           @click="handleConfirm"
         >
-          确 认
+          {{ t('common.confirm') }}
         </n-button>
         <n-button
           size="small"
           @click="handleClose"
         >
-          取 消
+          {{ t('common.cancel') }}
         </n-button>
       </div>
     </template>
@@ -393,6 +393,7 @@ import BrowerPicker from '@/components/BrowserPicker.vue';
 import IconPicker from '@/components/IconPicker.vue';
 import { useAppConfig, useEsc, useFormState, useNaiveUiApi, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import piniaStore from '@/store';
 import { useStore } from '@/store/useStore';
 import { EventBus } from '@/utils/eventBus';
@@ -422,147 +423,148 @@ const { appConfigStore } = useAppConfig();
 const { message } = useNaiveUiApi();
 const { getOperLaunchWindow, toogleOperLaunchWindowVisible } = useToggleWindowVisible();
 
-const launchTypes = [
-  { value: 'file', label: '文 件' },
-  { value: 'directory', label: '文件夹' },
-  { value: 'url', label: '网 站' },
-  { value: 'apps', label: '多任务' },
-] as const satisfies OptionItem<LaunchItemType>[];
-// ] as const satisfies { value: LaunchItemType; label: string }[]
+const launchTypes = computed<OptionItem<LaunchItemType>[]>(() => [
+  { value: 'file', label: t('launch.tabFile') },
+  { value: 'directory', label: t('launch.tabFolder') },
+  { value: 'url', label: t('launch.tabWebsite') },
+  { value: 'apps', label: t('launch.tabApps') },
+]);
 
-const formSchemas: Record<LaunchItemType, FieldSchema[]> = {
-  file: [
-    { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
-    { prop: 'name', label: '名称', span: 17 },
-    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
-    {
-      prop: 'path',
-      label: '路径',
-      type: 'textarea',
-      span: 20,
-      slot: 'pathSlot',
-    },
+function getFormSchemas(): Record<LaunchItemType, FieldSchema[]> {
+  return {
+    file: [
+      { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
+      { prop: 'name', label: t('common.name'), span: 17 },
+      { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
+      {
+        prop: 'path',
+        label: t('common.path'),
+        type: 'textarea',
+        span: 20,
+        slot: 'pathSlot',
+      },
 
-    {
-      prop: 'start_dir',
-      label: '起始位置',
-      span: 20,
-      placeholder: 'C:\\Windows\\System32',
-    },
-    {
-      prop: 'args',
-      label: '启动参数',
-      span: 20,
-      placeholder: 'chrome.exe --incognito',
-    },
-    { prop: 'run_as_admin', label: '', span: 20, slot: 'runAsAdminSlot' },
+      {
+        prop: 'start_dir',
+        label: t('launch.labelStartDir'),
+        span: 20,
+        placeholder: 'C:\\Windows\\System32',
+      },
+      {
+        prop: 'args',
+        label: t('launch.labelArgs'),
+        span: 20,
+        placeholder: 'chrome.exe --incognito',
+      },
+      { prop: 'run_as_admin', label: '', span: 20, slot: 'runAsAdminSlot' },
 
-    { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
-    { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
-    {
-      prop: 'subcategory_id',
-      label: '子分类',
-      span: 20,
-      slot: 'subCategorySlot',
-    },
+      { prop: 'keywords', label: t('common.searchKeyword'), span: 20, slot: 'keywordsSlot' },
+      { prop: 'category_id', label: t('common.category'), span: 20, slot: 'categorySlot' },
+      {
+        prop: 'subcategory_id',
+        label: t('common.subcategory'),
+        span: 20,
+        slot: 'subCategorySlot',
+      },
 
-    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
-    { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
-    { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
-    { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
-  ],
-  directory: [
-    { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
-    { prop: 'name', label: '名称', span: 17 },
-    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
-    {
-      prop: 'path',
-      label: '路径',
-      type: 'textarea',
-      span: 20,
-      slot: 'pathSlot',
-    },
+      // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+      { prop: 'enabled', label: t('common.enableSearch'), span: 20, slot: 'enabledSlot' },
+      { prop: 'order_index', label: t('common.sort'), span: 20, slot: 'orderSlot' },
+      { prop: 'remarks', label: t('common.note'), type: 'textarea', span: 20 },
+    ],
+    directory: [
+      { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
+      { prop: 'name', label: t('common.name'), span: 17 },
+      { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
+      {
+        prop: 'path',
+        label: t('common.path'),
+        type: 'textarea',
+        span: 20,
+        slot: 'pathSlot',
+      },
 
-    { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
-    { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
-    {
-      prop: 'subcategory_id',
-      label: '子分类',
-      span: 20,
-      slot: 'subCategorySlot',
-    },
+      { prop: 'keywords', label: t('common.searchKeyword'), span: 20, slot: 'keywordsSlot' },
+      { prop: 'category_id', label: t('common.category'), span: 20, slot: 'categorySlot' },
+      {
+        prop: 'subcategory_id',
+        label: t('common.subcategory'),
+        span: 20,
+        slot: 'subCategorySlot',
+      },
 
-    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
-    { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
-    { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
-    { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
-  ],
-  url: [
-    { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
-    { prop: 'name', label: '名称', span: 17 },
-    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
-    {
-      prop: 'path',
-      label: '网址',
-      type: 'textarea',
-      span: 20,
-      slot: 'urlSlot',
-    },
-    { prop: 'args', label: '浏览器', span: 20, slot: 'browserSlot' },
+      // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+      { prop: 'enabled', label: t('common.enableSearch'), span: 20, slot: 'enabledSlot' },
+      { prop: 'order_index', label: t('common.sort'), span: 20, slot: 'orderSlot' },
+      { prop: 'remarks', label: t('common.note'), type: 'textarea', span: 20 },
+    ],
+    url: [
+      { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
+      { prop: 'name', label: t('common.name'), span: 17 },
+      { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
+      {
+        prop: 'path',
+        label: t('common.url'),
+        type: 'textarea',
+        span: 20,
+        slot: 'urlSlot',
+      },
+      { prop: 'args', label: t('launch.labelBrowser'), span: 20, slot: 'browserSlot' },
 
-    { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
-    { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
-    {
-      prop: 'subcategory_id',
-      label: '子分类',
-      span: 20,
-      slot: 'subCategorySlot',
-    },
+      { prop: 'keywords', label: t('common.searchKeyword'), span: 20, slot: 'keywordsSlot' },
+      { prop: 'category_id', label: t('common.category'), span: 20, slot: 'categorySlot' },
+      {
+        prop: 'subcategory_id',
+        label: t('common.subcategory'),
+        span: 20,
+        slot: 'subCategorySlot',
+      },
 
-    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
-    { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
-    { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
-    { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
-  ],
-  apps: [
-    { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
-    { prop: 'name', label: '名称', span: 17 },
-    { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
-    {
-      prop: 'path',
-      label: '项目列表',
-      type: 'textarea',
-      span: 20,
-      slot: 'appsSelectSlot',
-    },
-    // {
-    //   prop: 'start_dir',
-    //   label: '起始位置',
-    //   span: 20,
-    //   placeholder: 'C:\\Windows\\System32',
-    // },
-    {
-      prop: 'args',
-      label: '执行间隔 (ms)',
-      span: 20,
-      placeholder: '',
-    },
-    { prop: 'keywords', label: '搜索关键字', span: 20, slot: 'keywordsSlot' },
-    { prop: 'category_id', label: '分类', span: 20, slot: 'categorySlot' },
-    {
-      prop: 'subcategory_id',
-      label: '子分类',
-      span: 20,
-      slot: 'subCategorySlot',
-    },
+      // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+      { prop: 'enabled', label: t('common.enableSearch'), span: 20, slot: 'enabledSlot' },
+      { prop: 'order_index', label: t('common.sort'), span: 20, slot: 'orderSlot' },
+      { prop: 'remarks', label: t('common.note'), type: 'textarea', span: 20 },
+    ],
+    apps: [
+      { prop: 'icon', label: '', span: 3, slot: 'iconSlot' },
+      { prop: 'name', label: t('common.name'), span: 17 },
+      { prop: 'name', label: '', span: 20, slot: 'selectIconSlot' },
+      {
+        prop: 'path',
+        label: t('launch.labelItemList'),
+        type: 'textarea',
+        span: 20,
+        slot: 'appsSelectSlot',
+      },
+      // {
+      //   prop: 'start_dir',
+      //   label: '起始位置',
+      //   span: 20,
+      //   placeholder: 'C:\\Windows\\System32',
+      // },
+      {
+        prop: 'args',
+        label: t('launch.labelInterval'),
+        span: 20,
+        placeholder: '',
+      },
+      { prop: 'keywords', label: t('common.searchKeyword'), span: 20, slot: 'keywordsSlot' },
+      { prop: 'category_id', label: t('common.category'), span: 20, slot: 'categorySlot' },
+      {
+        prop: 'subcategory_id',
+        label: t('common.subcategory'),
+        span: 20,
+        slot: 'subCategorySlot',
+      },
 
-    // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
-    { prop: 'enabled', label: '启用搜索', span: 20, slot: 'enabledSlot' },
-    { prop: 'order_index', label: '排序', span: 20, slot: 'orderSlot' },
-    { prop: 'remarks', label: '备注', type: 'textarea', span: 20 },
-  ],
-  alias: [],
-};
+      // { prop: 'hotkey', label: '快捷键', span: 20, slot: 'hotkeySlot' },
+      { prop: 'enabled', label: t('common.enableSearch'), span: 20, slot: 'enabledSlot' },
+      { prop: 'order_index', label: t('common.sort'), span: 20, slot: 'orderSlot' },
+      { prop: 'remarks', label: t('common.note'), type: 'textarea', span: 20 },
+    ],
+    alias: [],
+  };
+}
 
 const {
   form,
@@ -572,7 +574,7 @@ const {
   name: '',
   lnk_name: '',
   path: '',
-  type: launchTypes[0].value,
+  type: launchTypes.value[0].value,
   icon: '',
 
   hotkey: '',
@@ -589,7 +591,7 @@ const {
   extension: null,
 });
 
-const currentFormSchemas = computed(() => formSchemas[form.value.type]);
+const currentFormSchemas = computed(() => getFormSchemas()[form.value.type]);
 
 const keywordsTags = computed({
   get: () => (form.value?.keywords || '').split(',').filter(item => item),
@@ -673,7 +675,7 @@ function handleSwitchProxy(val: boolean) {
   if (appConfigStore.proxyHost && val) {
     appConfigStore.proxy = true;
   } else if (!appConfigStore.proxyHost && val) {
-    message.warning('请先设置代理地址');
+    message.warning(t('common.proxyFirst'));
     appConfigStore.proxy = false;
   } else {
     appConfigStore.proxy = false;
@@ -829,7 +831,7 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
   // 判断当前窗口是否处于展示状态
   toogleOperLaunchWindowVisible();
   const window = await getOperLaunchWindow();
-  window?.setTitle(isEdit.value ? '编辑启动项' : '新建启动项');
+  window?.setTitle(isEdit.value ? t('launch.editLaunchItem') : t('launch.newLaunchItem'));
 });
 
 useEsc(handleClose);

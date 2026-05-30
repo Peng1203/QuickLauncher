@@ -16,6 +16,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 import { useMessage } from 'naive-ui';
 import { openRevealManager, runLaunchAsAdmin } from '@/api';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { EventBus } from '@/utils/eventBus';
 
 export interface MenuAction {
@@ -58,48 +59,48 @@ const isSearchLaunchList = computed(() => props.type === 'SearchLaunchList');
 const menuOptions = computed(() => {
   const menus = [
     {
-      label: '以管理员身份运行',
+      label: t('common.adminRun'),
       key: 'runAsAdmin',
       icon: renderIcon('icon-guanliyuan_jiaoseguanli'),
       itemVisible: ['exe'].includes(props.item?.extension || ''),
     },
     {
-      label: '在资源管理器中打开',
+      label: t('common.openInExplorer'),
       key: 'openRevalPath',
       icon: renderIcon('icon-dakaisuozaiwenjianjia'),
       itemVisible: ['file', 'directory'].includes(props.item.type),
     },
     {
-      label: '复制路径',
+      label: t('common.copyPath'),
       key: 'copyPath',
       icon: renderIcon('icon-fuzhilujing'),
     },
     {
-      label: '重命名',
+      label: t('common.rename'),
       key: 'rename',
       icon: renderIcon('icon-zhongmingming'),
       itemVisible: isLaunchList.value,
     },
     {
-      label: '删 除',
+      label: t('common.delete'),
       key: 'delete',
       icon: renderIcon('icon-shanchufenlei'),
       itemVisible: isLaunchList.value,
     },
     {
-      label: '编 辑',
+      label: t('common.edit'),
       key: 'edit',
       icon: renderIcon('icon-bianji'),
       itemVisible: props.categoryItem === null ? true : !props.categoryItem?.association_directory,
     },
     {
-      label: '定 位',
+      label: t('common.locate'),
       key: 'position',
       icon: renderIcon('icon-address'),
       itemVisible: isSearchLaunchList.value,
     },
     {
-      label: '提高优先级',
+      label: t('common.increasePriority'),
       key: 'increasePriority',
       icon: renderIcon('icon-youxianji1'),
       itemVisible: isSearchLaunchList.value,
@@ -124,7 +125,7 @@ async function handleSelect(key: string) {
       break;
     case 'copyPath':
       await writeText(props.itemPath);
-      message.success('复制成功');
+      message.success(t('common.copySuccess'));
       break;
     case 'rename':
       emit('rename');

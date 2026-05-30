@@ -9,7 +9,7 @@
       <!-- <div class="flex"></div> -->
       <!-- <span>当前分类：</span> -->
       <span
-        title="当前分类"
+        :title="t('main.currentCategory')"
         class="flex-s-c w-[90px] gap-1 overflow-hidden cursor-pointer"
       >
         <n-icon
@@ -23,7 +23,7 @@
 
       <!-- <span>🚀：</span> -->
       <span
-        title="启动项数量"
+        :title="t('main.itemCount')"
         class="flex-s-c w-[60px] gap-1 overflow-hidden cursor-pointer"
       >
         <span>🚀</span>
@@ -40,13 +40,13 @@
         <n-icon
           v-if="activeCategoryItem?.association_directory"
           size="16"
-          title="已关联目录"
+          :title="t('main.associatedDir')"
           class="iconfont icon-guanlian"
         />
         <n-icon
           v-else
           size="14"
-          title="未关联目录"
+          :title="t('main.unassociatedDir')"
           class="iconfont icon-mti-weiguanlian"
         />
       </span>
@@ -63,7 +63,7 @@
           class="flex w-full min-w-0"
         >
           <span class="flex overflow-hidden whitespace-nowrap min-w-0 flex-20">
-            <span>已选中:</span>
+            <span>{{ t('footerExtra.selected') }}</span>
             <b
               class="inline-block max-w-[115px] overflow-hidden ml-1"
               :title="activeLaunchItem.name"
@@ -73,14 +73,14 @@
           </span>
 
           <span class="overflow-hidden whitespace-nowrap min-w-0 flex-10">
-            <span>类型:</span>
+            <span>{{ t('footerExtra.typeLabel') }}</span>
             <b class="ml-1">{{ formatLaunchType(activeLaunchItem.type) }}</b>
           </span>
 
           <span class="flex-s-c gap-1 overflow-hidden whitespace-nowrap min-w-0 flex-8">
             <n-icon
               size="14"
-              title="启动次数"
+              :title="t('footerExtra.launchCount')"
               class="iconfont icon-qidongcishu cursor-pointer"
             />
 
@@ -90,7 +90,7 @@
           <span class="flex-s-c gap-1 overflow-hidden whitespace-nowrap min-w-0 flex-10">
             <n-icon
               size="14"
-              title="最近一次启动日期"
+              :title="t('footerExtra.lastLaunch')"
               class="iconfont icon-zuijinshiyong cursor-pointer"
             />
 
@@ -134,7 +134,7 @@
       <!-- 布局 -->
       <n-icon
         size="16"
-        :title="activeCategoryItem?.layout === 'grid' ? '平铺' : '列表'"
+        :title="activeCategoryItem?.layout === 'grid' ? t('common.tile') : t('common.list')"
         :class="`iconfont ${activeCategoryItem?.layout === 'grid' ? 'icon-24gl-appsSmall' : 'icon-liebiao'} cursor-pointer`"
         @click="handleLayoutOrderSortChange(activeCategoryItem?.layout === 'grid' ? 'list' : 'grid', 'layout')"
       />
@@ -150,7 +150,7 @@
       <!-- 排序方式 -->
       <n-icon
         size="16"
-        :title="activeCategoryItem?.sort_order === 'asc' ? '升序' : '降序'"
+        :title="activeCategoryItem?.sort_order === 'asc' ? t('common.ascending') : t('common.descending')"
         :class="`iconfont ${activeCategoryItem?.sort_order === 'asc' ? 'icon-shengxu' : 'icon-jiangxu'} cursor-pointer`"
         @click="
           handleLayoutOrderSortChange(activeCategoryItem?.sort_order === 'asc' ? 'desc' : 'asc', 'sort_order', true)
@@ -167,7 +167,7 @@
         </template>
 
         <div>
-          <h4>快捷键</h4>
+          <h4>{{ t('main.shortcutKeys') }}</h4>
           <template
             v-for="item in shortcutKeys"
             :key="item.name"
@@ -196,7 +196,7 @@
                   v-if="item?.global"
                   class="ml-2"
                 >
-                  (全局)
+                  {{ t('common.global') }}
                 </span>
               </template>
 
@@ -211,7 +211,7 @@
                   v-if="item?.global"
                   class="ml-2"
                 >
-                  (全局)
+                  {{ t('common.global') }}
                 </span>
               </template>
             </div>
@@ -238,6 +238,7 @@ import { getLaunchByID } from '@/api';
 import { formatLaunchType } from '@/common/formatLaunchType';
 import { useAppConfig, useAppVersion, useCategorySort, useMainWindowShortcut } from '@/composables';
 import { AppEvent } from '@/constant';
+import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
 import { getFromNow } from '@/utils/date';
 import { EventBus } from '@/utils/eventBus';
@@ -250,15 +251,15 @@ const { handleLayoutOrderSortChange } = useCategorySort(activeCategoryItem);
 const shortcutKeys = computed(() => {
   // main窗口内置快捷键
   const base = [
-    { combKey: false, keys: ['F2'], name: '重命名' },
-    { combKey: false, keys: ['F4'], name: '编 辑' },
+    { combKey: false, keys: ['F2'], name: t('main.rename') },
+    { combKey: false, keys: ['F4'], name: t('main.edit') },
     // { combKey: false, keys: ['F5'], name: '刷 新' },
-    { combKey: false, keys: ['Esc'], name: '关闭窗口' },
-    { combKey: false, keys: ['Delete'], name: '删 除' },
+    { combKey: false, keys: ['Esc'], name: t('main.close') },
+    { combKey: false, keys: ['Delete'], name: t('main.delete') },
     // { combKey: true, keys: ['Ctrl', 'P'], name: '快速定位' },
-    { combKey: true, keys: ['Ctrl', 'Shift', 'N'], name: '新 建' },
-    { combKey: true, keys: ['Ctrl', 'Shift', 'C'], name: '新建分类' },
-    { combKey: true, keys: ['Alt', 'S'], name: '打开设置' },
+    { combKey: true, keys: ['Ctrl', 'Shift', 'N'], name: t('main.create') },
+    { combKey: true, keys: ['Ctrl', 'Shift', 'C'], name: t('main.createCategory') },
+    { combKey: true, keys: ['Alt', 'S'], name: t('main.openSettings') },
     // { combKey: true, keys: ['⌘', 'Alt', 'S'], name: '打开设置' },
   ];
 
@@ -266,12 +267,12 @@ const shortcutKeys = computed(() => {
   const globalShortcutKeys: any = [];
   if (searchGlobalShortcutKey.value) {
     const keys = searchGlobalShortcutKey.value.split('+');
-    const item = { combKey: !!keys.length, keys, name: '显示/隐藏 快速搜索', global: true };
+    const item = { combKey: !!keys.length, keys, name: t('main.toggleSearch'), global: true };
     globalShortcutKeys.push(item);
   }
   if (mainWindowGlobalShortcutKey.value) {
     const keys = mainWindowGlobalShortcutKey.value.split('+');
-    const item = { combKey: !!keys.length, keys, name: '显示/隐藏 主窗口', global: true };
+    const item = { combKey: !!keys.length, keys, name: t('main.toggleMain'), global: true };
     globalShortcutKeys.push(item);
   }
 
@@ -284,28 +285,28 @@ const sortInfo = computed(() => {
   switch (activeCategoryItem.value?.sort_by) {
     case 'name':
       return {
-        title: '名称',
+        title: t('common.name'),
         icon: 'icon-mingchengpaixu',
       };
     case 'type':
       return {
-        title: '类型',
+        title: t('common.type'),
         icon: 'icon-anleixingpaixu',
       };
     case 'time':
       return {
-        title: '日期',
+        title: t('common.date'),
         icon: 'icon-anchuangjianshijianpaixu',
       };
     case 'order':
       return {
-        title: '搜索优先级',
+        title: t('common.searchPriority'),
         icon: 'icon-youxianji',
       };
 
     default:
       return {
-        title: '名称',
+        title: t('common.name'),
         icon: 'icon-mingchengpaixu',
       };
   }

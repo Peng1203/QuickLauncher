@@ -3,7 +3,7 @@
     <!-- Header -->
     <div>
       <h3
-        class="text-[14px] font-medium uppercase tracking-wider text-muted-foreground"
+        class="text-[14px] font-medium text-muted-foreground truncate"
         v-html="title"
       ></h3>
 

@@ -1,11 +1,13 @@
-const TYPE_MAP: Record<LaunchType, string> = {
-  directory: '文件夹',
-  file: '文件',
-  url: '网站',
-  alias: '别名',
-  apps: '多任务',
+import { t } from '@/i18n';
+
+const TYPE_MAP: Record<LaunchType, () => string> = {
+  directory: () => t('format.folder'),
+  file: () => t('format.file'),
+  url: () => t('format.website'),
+  alias: () => t('format.alias'),
+  apps: () => t('format.apps'),
 };
 
 export function formatLaunchType(type: LaunchType) {
-  return TYPE_MAP[type] || '未知';
+  return TYPE_MAP[type]?.() || t('format.unknown');
 }

@@ -1,20 +1,20 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <SettingGroup title="启用">
+    <SettingGroup :title="t('quickSearch.groupEnable')">
       <SettingSwitchItem
         v-model="appConfigStore.enableTranslation"
         icon="icon-fanyi"
-        title="启用翻译"
-        description="开启快捷翻译功能"
+        :title="t('translation.enableTitle')"
+        :description="t('translation.enableDesc')"
       >
         <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1fnFKzAEC4" />
       </SettingSwitchItem>
     </SettingGroup>
 
-    <SettingGroup title="特殊呼出">
+    <SettingGroup :title="t('translation.groupTrigger')">
       <SettingItem
-        title="触发方式"
-        description="处于默认搜索模式下，快速唤起翻译的操作方式"
+        :title="t('translation.triggerTitle')"
+        :description="t('translation.triggerDesc')"
       >
         <n-select
           v-model:value="appConfigStore.translationOpenModel"
@@ -26,20 +26,20 @@
     </SettingGroup>
 
     <SettingGroup
-      title="百度翻译"
-      description="配置百度翻译 API 凭证"
+      :title="t('translation.baiduTranslate')"
+      :description="t('translation.baiduDesc')"
     >
       <SettingSelectItem
         v-model="appConfigStore.BDTranslationTo"
-        title="目标语言"
-        description="翻译结果的目标语言"
+        :title="t('translation.targetLanguage')"
+        :description="t('translation.targetLanguageDesc')"
         :options="targetLanguageOptions"
       />
 
       <SettingItem
         icon="icon-hashjinghao"
-        title="APP ID <span class='text-destructive'>*</span>"
-        description="百度翻译应用 ID"
+        :title="`${t('translation.appId')} <span class='text-destructive'>*</span>`"
+        :description="t('translation.appIdDesc')"
       >
         <n-input
           v-model:value="appConfigStore.BDTranslationAppid"
@@ -52,8 +52,8 @@
 
       <SettingItem
         icon="icon-miyue"
-        title="密钥 <span class='text-destructive'>*</span>"
-        description="百度翻译应用密钥"
+        :title="`${t('translation.secretKey')} <span class='text-destructive'>*</span>`"
+        :description="t('translation.secretKeyDesc')"
       >
         <n-input
           v-model:value="appConfigStore.BDTranslationKey"
@@ -75,7 +75,7 @@
           href="https://fanyi-api.baidu.com/product/113"
           class="inline-flex items-center gap-1 text-[10px] text-primary hover:underline"
         >
-          API 文档
+          {{ t('translation.apiDoc') }}
         </a>
       </div>
     </SettingGroup>
@@ -86,12 +86,13 @@
 import OpenDemoVideo from '@/components/OpenDemoVideo.vue';
 import { useAppConfig } from '@/composables';
 import { BAIDU_TRANSLATION_TO, TranslationOpenModel } from '@/constant';
+import { t } from '@/i18n';
 
 const { appConfigStore } = useAppConfig();
-const options: any[] = [
-  { label: '快速点击 3 次空格', value: TranslationOpenModel.THREE_HITS_ON_SPACES },
-  { label: '关闭', value: TranslationOpenModel.CLOSE },
-];
+const options = computed<any[]>(() => [
+  { label: t('translation.threeHits'), value: TranslationOpenModel.THREE_HITS_ON_SPACES },
+  { label: t('webSearch.close'), value: TranslationOpenModel.CLOSE },
+]);
 
 const targetLanguageOptions = BAIDU_TRANSLATION_TO as any;
 </script>

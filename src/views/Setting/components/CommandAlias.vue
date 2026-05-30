@@ -1,17 +1,17 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <SettingGroup title="启用">
+    <SettingGroup :title="t('quickSearch.groupEnable')">
       <SettingSwitchItem
         v-model="appConfigStore.enableCommandAlias"
         icon="icon-minglinghangchaxun"
-        title="启用命令别名"
-        description="通过简短别名快速执行系统命令"
+        :title="t('commandAlias.enableTitle')"
+        :description="t('commandAlias.enableDesc')"
       >
         <!-- <OpenDemoVideo video-url="https://www.bilibili.com/video/BV1c7FKzKEc3" /> -->
       </SettingSwitchItem>
     </SettingGroup>
 
-    <SettingGroup title="映射列表">
+    <SettingGroup :title="t('commandAlias.groupList')">
       <div class="flex justify-end gap-2">
         <!-- {{ changed }} -->
         <n-button
@@ -41,7 +41,7 @@
               size="16"
             />
           </template>
-          新 增
+          {{ t('common.add') }}
         </n-button>
         <n-button
           type="primary"
@@ -55,7 +55,7 @@
               size="14"
             />
           </template>
-          保 存
+          {{ t('common.save') }}
         </n-button>
       </div>
 
@@ -76,7 +76,7 @@
             name="icon-tip"
             size="12"
           />
-          <span>别名支持拼音搜索</span>
+          <span>{{ t('commandAlias.aliasPinyinTip') }}</span>
         </span>
         <n-button
           type="tertiary"
@@ -89,7 +89,7 @@
               size="14"
             />
           </template>
-          默认数据
+          {{ t('commandAlias.defaultData') }}
         </n-button>
       </div>
     </SettingGroup>
@@ -104,14 +104,15 @@ import { addLaunch, deleteLaunch, exeCommand, getAliasLaunch, updateLaunch } fro
 import Icon from '@/components/ui/Icon.vue';
 import { useAppConfig } from '@/composables';
 import { defaultCommandAlias } from '@/constant/data';
+import { t } from '@/i18n';
 
 const { appConfigStore } = useAppConfig();
 const dataList = ref<LaunchItem[]>([]);
 const originData = ref<LaunchItem[]>([]);
 const changed = computed(() => isEqual(originData.value, dataList.value));
-const columns = [
+const columns = computed(() => [
   {
-    title: '别名',
+    title: t('commandAlias.alias'),
     key: 'name',
     width: 150,
     render(row: LaunchItem, i: number) {
@@ -127,7 +128,7 @@ const columns = [
     ellipsis: true,
   },
   {
-    title: '命令',
+    title: t('commandAlias.command'),
     key: 'path',
     width: 150,
     render(row: any, i: number) {
@@ -143,14 +144,14 @@ const columns = [
     ellipsis: true,
   },
   {
-    title: '操作',
+    title: t('common.operation'),
     key: '',
     width: 85,
     render(row: LaunchItem) {
       return h(
         <div class="flex gap-2">
           <span
-            title="运行"
+            title={t('commandAlias.run')}
             class="cursor-pointer"
             onClick={() => handleRun(row)}
           >
@@ -161,7 +162,7 @@ const columns = [
           </span>
 
           <span
-            title="删除"
+            title={t('common.deletePlain')}
             class="cursor-pointer"
             onClick={() => handleDelete(row)}
           >
@@ -179,7 +180,7 @@ const columns = [
       );
     },
   },
-];
+]);
 
 async function getData() {
   const data = await getAliasLaunch();

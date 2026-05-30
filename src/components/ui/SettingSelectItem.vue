@@ -14,6 +14,7 @@
         :consistent-menu-width="false"
         :placeholder="placeholder"
         :options="options"
+        style="width: 160px"
         v-bind="$attrs"
       />
     </slot>
