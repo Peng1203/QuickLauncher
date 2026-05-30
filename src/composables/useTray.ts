@@ -10,7 +10,7 @@ import { defaultWindowIcon } from '@tauri-apps/api/app';
 
 export function useTray() {
   const { appConfigStore } = useAppConfig();
-  const { toogleSettingWindowVisible, toogleMainWindowVisible } = useToggleWindowVisible();
+  const { toogleMainWindowVisible, toogleSettingWindowVisible } = useToggleWindowVisible();
 
   async function createTray() {
     const currentWindow = await getCurrentWebviewWindow();
@@ -48,7 +48,7 @@ export function useTray() {
       action: event => {
         switch (event.type) {
           case 'Click':
-            event.button === 'Left' && event.buttonState === 'Up' && toogleMainWindowVisible(true);
+            event.button === 'Left' && event.buttonState === 'Up' && toogleMainWindowVisible();
             break;
         }
       },
