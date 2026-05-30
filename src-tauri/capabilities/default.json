@@ -15,6 +15,7 @@
     "core:window:allow-set-position",
     "core:window:allow-set-ignore-cursor-events",
     "core:window:allow-set-title",
+    "core:app:allow-default-window-icon",
 
     "opener:default",
 
