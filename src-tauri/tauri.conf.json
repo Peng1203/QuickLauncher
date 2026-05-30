@@ -126,7 +126,7 @@
       },
       "wix": null
     },
-    "createUpdaterArtifacts": false
+    "createUpdaterArtifacts": true
   },
   "plugins": {
     "updater": {
