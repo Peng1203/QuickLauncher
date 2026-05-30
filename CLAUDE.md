@@ -52,6 +52,9 @@ src/
 │   ├── useStore.ts            # 主数据存储（启动项、分类）
 │   └── useAppConfigStore.ts   # ~80 个配置字段
 ├── composables/               # 14 个组合式函数（useTheme, useToggleWindowVisible 等）
+├── i18n/                      # 国际化
+│   ├── index.ts               # vue-i18n 实例 + 数组转对象转换函数
+│   └── lang.ts                # 所有翻译数据（单一文件，数组格式 [zh-CN, zh-HK, en, ja]）
 ├── views/
 │   ├── Main/                  # 主启动器窗口
 │   ├── Search/                # 快速搜索覆盖层
@@ -69,6 +72,7 @@ src/
 - 跨窗口同步通过 `@tauri-store/pinia` 插件
 - 跨窗口事件通过 `src/utils/eventBus.ts`（Tauri 事件系统）
 - UI：Naive UI + Tailwind CSS 4，自动导入（`unplugin-vue-components`）
+- 国际化：vue-i18n，翻译数据集中在 `src/i18n/lang.ts`，使用数组格式 `[zh-CN, zh-HK, en, ja]`，通过 `useI18n()` 的 `t()` 函数在组件中使用
 
 ### Rust 后端结构
 
@@ -329,6 +333,7 @@ git log v0.1.1..HEAD --oneline  # 查看上次发布以来的提交
 | 状态管理 | Pinia | 3.x |
 | 多窗口同步 | @tauri-store/pinia | 4.x |
 | 路由 | Vue Router | 4.x |
+| 国际化 | vue-i18n | 11.x |
 | 后端语言 | Rust | — |
 | ORM | SeaORM | 2.0.0-rc |
 | 数据库 | SQLite | — |
@@ -352,5 +357,7 @@ git log v0.1.1..HEAD --oneline  # 查看上次发布以来的提交
 | `src/api/index.ts` | 前端 API 层（~50 个 invoke 封装） |
 | `src/store/` | Pinia 存储（主存储 + 应用配置） |
 | `src/constant/index.ts` | 枚举：InvokeMethod, AppEvent |
+| `src/i18n/lang.ts` | 所有翻译数据（数组格式，顺序：zh-CN, zh-HK, en, ja） |
+| `src/i18n/index.ts` | vue-i18n 实例，数组→对象转换函数 |
 | `script/updateVersion.js` | 发布自动化脚本 |
 | `latest.json` | Tauri 更新器清单 |

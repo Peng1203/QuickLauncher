@@ -13,6 +13,10 @@ description: 智能 Git 提交。当用户想要提交代码、记录变更时�
 
 ## Workflow
 
+### Step 0 - 询问生成开发日志
+
+可以先询问用户是否需要先执行 生成开发日志的skill `generate-devlog` 当用户选择了 是则先执行 `generate-devlog` 再进行后续的操作
+
 ### Step 1 - 获取变更文件
 
 ```bash
@@ -30,6 +34,7 @@ git diff --stat             # 查看具体改动量
 - **重构相关**：同一模块的重构文件
 
 **归组原则：**
+
 - 一个 commit 只做一件事
 - 同一功能的前后端文件归为一组
 - 不相关的文件拆分到不同 commit
@@ -74,18 +79,19 @@ git commit -m "<message>"
 <type>(<scope>): <subject>
 **type 对照：**
 
-| type | 场景 |
-|---|---|
-| `feat` | 新功能 |
-| `fix` | Bug 修复 |
+| type       | 场景               |
+| ---------- | ------------------ |
+| `feat`     | 新功能             |
+| `fix`      | Bug 修复           |
 | `refactor` | 重构（不影响功能） |
-| `style` | UI / 样式调整 |
-| `chore` | 配置、依赖、工程化 |
-| `docs` | 文档变更 |
-| `perf` | 性能优化 |
-| `test` | 测试相关 |
+| `style`    | UI / 样式调整      |
+| `chore`    | 配置、依赖、工程化 |
+| `docs`     | 文档变更           |
+| `perf`     | 性能优化           |
+| `test`     | 测试相关           |
 
 **规则：**
+
 - subject 使用中文，简洁描述做了什么
 - scope 可选，填模块名（如 `clipboard`、`settings`）
 - 不超过 72 字符
@@ -111,13 +117,13 @@ chore: 更新依赖版本
 ## Example
 
 **变更文件：**
-M  src/clipboard/listener.rs
-M  src/components/ClipboardToast.tsx
-M  src/pages/Settings.tsx
-M  src/store/settings.ts
-M  src/components/ShortcutKeyInput.tsx
-M  src/styles/settings.css
-M  README.md
+M src/clipboard/listener.rs
+M src/components/ClipboardToast.tsx
+M src/pages/Settings.tsx
+M src/store/settings.ts
+M src/components/ShortcutKeyInput.tsx
+M src/styles/settings.css
+M README.md
 
 **归组输出：**
 准备执行 3 个 commit：

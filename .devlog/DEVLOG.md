@@ -511,3 +511,101 @@ v0.1.2 版本的核心功能开发，包括传送门功能增强、性能优化�
 - 性能优化和 bug 修复提升了应用的整体质量
 
 ---
+
+## 2026-05-30 00:00
+Type: 重构 / 修复
+
+### 变更概述
+优化主题切换相关代码，引入 VueUse 替代手动实现，并新增多种 ViewTransition 过渡动画效果。同时修复主窗口位置限制问题和清理本地数据库文件。
+
+### 具体变更
+
+#### 主题切换重构
+- **useTheme.ts**：使用 VueUse 的 `usePreferredDark()` 替代手动 `window.matchMedia` 监听，自动管理事件生命周期
+- **App.vue**：移除 `onMounted`/`onUnmounted` 中的手动 mediaQuery 监听，用 `watchImmediate` 合并 font/fontSize 的初始化与响应式更新
+- **ThemeSwitch.vue**：将 `watch(themeModel)` + `onOsThemeChange` + `syncSwitchState` 三段逻辑合并为单个 `watch(isDark)`
+- **新增 CHANGE_THEME 事件**：支持跨窗口主题同步，其他窗口切换主题时自动应用 ViewTransition 动画
+- **样式迁移**：将 Setting 相关样式从 `global.css` 迁移至组件 scoped 样式，避免全局污染
+
+#### ViewTransition 过渡效果
+在 `useTheme.ts` 中预置 12 种过渡效果，均以注释形式存放，按需启用：
+- 圆形扩散（当前生效）、圆形扩散+模糊、菱形扩散
+- 左/右/上/下滑入、淡入淡出、缩放
+- 水平百叶窗、垂直分割
+- 翻页（3D perspective + rotateY + brightness 模拟折叠光影）
+
+#### 其他修复
+- **移除主窗口位置非负数限制**：允许窗口定位到负坐标（多显示器场景）
+- **删除 Date.db**：清理误提交的本地数据库文件
+
+### 技术决策
+
+**为什么用 usePreferredDark 替代手动 matchMedia**
+- VueUse 的 `usePreferredDark()` 自动管理 `MediaQueryList` 的事件监听和清理
+- 返回响应式 `Ref<boolean>`，可直接用于 `computed`
+- 避免了手动 `addEventListener`/`removeEventListener` 的生命周期管理问题
+
+**为什么 watchImmediate 放在 App.vue 而非 useTheme()**
+- `useTheme()` 可能被同一窗口的多个组件调用
+- 如果 `watchImmediate` 放在 `useTheme()` 内部，会导致 watcher 重复创建
+- 放在 `App.vue`（根组件）确保每个窗口只执行一次
+
+**翻页效果的设计思路**
+- 旧页：`perspective(1500px) rotateY` 旋转折叠 + `brightness` 渐暗模拟阴影
+- 新页：延迟 200ms 从对侧旋转展开 + `brightness` 渐亮
+- 使用 3 段关键帧（0° → 30° → 90°）模拟自然折叠节奏
+
+### 后续工作
+- [ ] 将 ViewTransition 过渡效果改为可配置（用户在设置中选择）
+- [ ] 研究 ViewTransition 的 `visibility: hidden` 方案解决切换时的颜色闪烁问题
+
+## 2026-05-30 00:30
+Type: 功能开发
+
+### 变更概述
+实现应用国际化（i18n）功能，支持简体中文、繁體中文、English、日本語四种语言，并修复了长文本语言下的布局适配问题。
+
+### 具体变更
+
+#### 国际化基础设施
+- 引入 `vue-i18n` 11.x 依赖
+- 新建 `src/i18n/lang.ts`：所有翻译数据集中在一个文件，使用数组格式 `[zh-CN, zh-HK, en, ja]`
+- 新建 `src/i18n/index.ts`：vue-i18n 实例 + 数组→对象转换函数 + 导出 `t` 函数
+- `src/main.ts`：注册 i18n 插件
+- `src/App.vue`：集成 NaiveUI locale（zhCN/zhTW/enUS/jaJP）+ 语言切换联动
+
+#### 翻译覆盖（170+ 文本）
+- 11 个设置页面组件（General、Theme、QuickSearch、WebSearch、Translation、Proxy、Data、Portal、CommandAlias、About、Setting）
+- 7 个主窗口/共享组件（Header、Footer、ListItem、4 个右键菜单）
+- 4 个操作/搜索窗口组件（OperationLaunch、OperationCategory、Search、LaunchList）
+- 辅助组件（BrowserPicker、IconPicker、OpenDemoVideo、ShortcutKeyInput）
+- 工具函数 `formatLaunchType.ts`
+
+#### 布局适配
+- `SettingItem.vue`：左侧容器添加 `min-w-0`，title 添加 `truncate`，description 改为 `line-clamp-2`，右侧控件添加 `flex-shrink-0`
+- `SettingGroup.vue`：移除 `uppercase tracking-wider`，添加 `truncate`
+- `SettingSelectItem.vue`：n-select 固定 `width: 160px`
+
+#### 文档更新
+- `CLAUDE.md`：补充 i18n 功能说明、vue-i18n 技术栈、i18n 文件引用
+
+### 技术决策
+
+**翻译数据用数组而非对象**
+- 所有语言的翻译放在同一个文件中，数组顺序固定对应 `[zh-CN, zh-HK, en, ja]`
+- 在 `i18n/index.ts` 中通过 `buildLocaleMessages` 转换为 vue-i18n 需要的嵌套对象格式
+- 优点：便于对照翻译、减少文件数量、添加新语言只需扩展数组
+
+**使用 `t` 导出而非 `useI18n()`**
+- 从 `@/i18n` 直接导出 `t = i18n.global.t`
+- 组件中直接 `import { t } from '@/i18n'`，无需每次调用 `useI18n()`
+- 简化了使用方式，减少样板代码
+
+**SettingItem 的 `min-w-0` + `flex-shrink-0` 模式**
+- flex 子元素默认 `min-width: auto` 会阻止收缩，添加 `min-w-0` 允许文本区域被压缩
+- 右侧控件添加 `flex-shrink-0` 保证不被挤压
+- 中文文本短不会触发 truncate，长文本语言下自动省略
+
+### 后续工作
+- [ ] 将 ViewTransition 过渡效果改为可配置
+- [ ] 研究 `visibility: hidden` 方案解决主题切换时的颜色闪烁
