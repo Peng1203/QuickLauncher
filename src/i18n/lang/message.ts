@@ -812,4 +812,11 @@ export const messages = {
     launchCount: ['启动次数:', '啟動次數:', 'Launches:', '起動回数:'],
     lastLaunch: ['上次启动:', '上次啟動:', 'Last:', '最終起動:'],
   },
+
+  // ========== 托盘菜单 ==========
+  tray: {
+    settings: ['设 置', '設 置', 'Settings', '設定'],
+    restart: ['重 启', '重 啟', 'Restart', '再起動'],
+    quit: ['退 出', '退 出', 'Quit', '終了'],
+  },
 };

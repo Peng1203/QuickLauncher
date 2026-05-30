@@ -52,7 +52,7 @@ use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_prevent_default::Flags;
-use tray::create_tray;
+// use tray::create_tray;
 mod clipboard;
 mod commands;
 mod common;
@@ -199,8 +199,8 @@ pub fn run() {
                 // }
             }
 
-            // 创建系统托盘
-            create_tray(app);
+            // 系统托盘已迁移到前端创建（src/composables/useTray.ts）
+            // create_tray(app);
 
             let app_handle = app.handle().clone();
 

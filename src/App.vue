@@ -26,6 +26,7 @@ import { dateEnUS, dateJaJP, dateZhCN, dateZhTW, enUS, jaJP, zhCN, zhTW } from '
 
 import { useAppConfig } from './composables';
 import { useTheme } from './composables/useTheme';
+import { useTray } from './composables/useTray';
 import { AppEvent } from './constant';
 import { i18n } from './i18n';
 import { EventBus } from './utils/eventBus';
@@ -65,10 +66,13 @@ const naiveLocale = computed(() => naiveLocaleMap[appConfigStore.language] ?? zh
 const naiveDateLocale = computed(() => naiveDateLocaleMap[appConfigStore.language] ?? dateZhCN);
 
 // 语言切换联动
+const { createTray } = useTray();
+
 watch(
   () => appConfigStore.language,
   lang => {
     i18n.global.locale.value = lang;
+    createTray();
   },
   { immediate: true },
 );
