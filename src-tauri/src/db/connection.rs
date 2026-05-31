@@ -48,6 +48,7 @@ pub async fn init_db(app: &tauri::App) -> Result<DatabaseConnection, DbErr> {
         .register(Configs)
         .register(LaunchHistory)
         .register(LaunchItems)
+        .register(Todos)
         .sync(&db)
         .await?;
 

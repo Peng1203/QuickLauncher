@@ -110,6 +110,7 @@ declare global {
     doNotDisturbMode: boolean;
     /** 跟随鼠标所在屏幕显示 */
     searchOpenOnMouseDisplay: boolean;
+    showSearchModeTabs: boolean;
 
     enableWebSearch: boolean;
     /** 网络搜索打开呼出方式 0 */
@@ -239,6 +240,21 @@ declare global {
   }
 
   type LaunchHistoryWithIcon = LaunchHistory & Pick<LaunchItem, 'icon'>;
+
+  type TodoPriority = 'high' | 'medium' | 'low';
+
+  interface TodoItem {
+    id: number;
+    title: string;
+    completed: boolean;
+    priority: TodoPriority;
+    due_date: string | null;
+    tags: string | null;
+    note: string | null;
+    reminder_at: string | null;
+    created_at: string;
+    updated_at: string;
+  }
 
   type ClipboardContentType = 'Url' | 'Directory' | 'Unknown';
 

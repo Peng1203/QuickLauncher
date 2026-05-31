@@ -91,6 +91,13 @@ export enum InvokeMethod {
 
   // 获取系统字体
   GET_LOCAL_FONTS = 'get_local_fonts',
+
+  // Todo
+  GET_TODOS = 'get_todos',
+  ADD_TODO = 'add_todo',
+  UPDATE_TODO = 'update_todo',
+  DELETE_TODO = 'delete_todo',
+  CLEAR_COMPLETED_TODOS = 'clear_completed_todos',
 }
 
 export enum AppEvent {

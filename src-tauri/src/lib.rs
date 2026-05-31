@@ -7,10 +7,13 @@ use commands::add_category::add_category;
 use commands::add_launch::add_launch;
 use commands::add_launch_history::add_launch_history;
 use commands::add_or_update_autocomplete::add_or_update_autocomplete;
+use commands::add_todo::add_todo;
 use commands::backup_database::backup_database;
+use commands::clear_completed_todos::clear_completed_todos;
 use commands::delete_category::delete_category;
 use commands::delete_launch::delete_launch;
 use commands::delete_launch_by_category::delete_launch_by_category;
+use commands::delete_todo::delete_todo;
 use commands::ensure_default_category::ensure_default_category;
 use commands::exe_command::exe_command;
 use commands::get_alias_launch::get_alias_launch;
@@ -27,6 +30,7 @@ use commands::get_local_fonts::get_local_fonts;
 use commands::get_local_icon_base64::get_local_icon_base64;
 use commands::get_online_img_base64::get_online_img_base64;
 use commands::get_recent_launch_history::get_recent_launch_history;
+use commands::get_todos::get_todos;
 use commands::get_website_info::get_website_info;
 use commands::import_database::import_database;
 use commands::open_app_data_dir::open_app_data_dir;
@@ -47,6 +51,7 @@ use commands::update_category::update_category;
 use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
 use commands::update_launch_enabled_by_category::update_launch_enabled_by_category;
+use commands::update_todo::update_todo;
 use sea_orm::DatabaseConnection;
 use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
@@ -141,7 +146,12 @@ pub fn run() {
             reset_data,
             set_default_tray_icon,
             open_dir_in_terminal,
-            get_local_fonts
+            get_local_fonts,
+            get_todos,
+            add_todo,
+            update_todo,
+            delete_todo,
+            clear_completed_todos
         ])
         .setup(|app| {
             let app_data_dir = app

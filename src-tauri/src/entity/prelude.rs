@@ -5,3 +5,4 @@ pub use super::categories::Entity as Categories;
 pub use super::configs::Entity as Configs;
 pub use super::launch_history::Entity as LaunchHistory;
 pub use super::launch_items::Entity as LaunchItems;
+pub use super::todos::Entity as Todos;
