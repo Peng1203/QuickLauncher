@@ -1,791 +1,189 @@
 <template>
-  <!-- border border-gray-100 -->
-  <Translation
-    v-if="isTranslationModel"
-    ref="translationRef"
-    :keyword="tranStr"
-    @close-window="handleClose"
-  />
-  <template v-else>
-    <label class="input-container max-h-11.25">
-      <n-input
-        ref="searchInputRef"
-        v-model:value="keyword"
-        tabindex="-1"
-        type="text"
-        size="medium"
-        class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
-        :class="hasResult ? 'border-b-0! rounded-b-none!' : ''"
-        :placeholder="activeHistory?.command || placeholder"
-      >
-        <!-- @keydown="handleKeydown" -->
-        <!-- @keydown.up -->
-        <template #prefix>
-          <!-- {{ keyword }} -->
-          <!-- {{ selectedIndex }} -->
-          <!-- {{ selectedIndex }}--- {{ resultList.length }}--{{ hasResult }} -->
-          <template v-if="isWebSearchModel">
-            <n-avatar
-              v-if="searchSourch!.icon"
-              class="!bg-transparent"
-              :size="22"
-              :src="searchSourch!.icon"
-            />
-            <n-icon
-              v-else
-              :component="GlobeOutline"
-              size="22"
-            />
-          </template>
-
-          <template v-else>
-            <template v-if="activeHistory">
-              <n-avatar
-                v-if="activeHistory?.icon"
-                class="!bg-transparent"
-                :size="22"
-                :src="activeHistory.icon"
-              />
-
-              <n-icon
-                v-else-if="activeHistory.type === 'command'"
-                size="22"
-                class="iconfont icon-minglinghang"
-              />
-            </template>
-
-            <n-icon
-              v-else
-              :component="SearchOutline"
-              size="22"
-            />
-          </template>
-        </template>
-      </n-input>
-      <!-- v-show="keyword.length" && currentAutocompleteSuggestion !== keyword -->
-      <div
-        v-if="autocompleteList.length"
-        class="suggestion-con"
-      >
-        <span class="suggestion-text">
-          {{ currentAutocompleteSuggestion }}
-        </span>
-
-        <div class="flex items-center gap-5 mr-3">
-          <span
-            v-show="!(autocompleteList.length === 1)"
-            class="flex items-center select-none"
-          >
-            <Kbd>Tab</Kbd>
-            <span class="text-xs ml-1">{{ t('search.switch') }}</span>
-          </span>
-
-          <span
-            v-show="currentAutocompleteSuggestion !== keyword"
-            class="flex items-center select-none"
-          >
-            <Kbd>→</Kbd>
-            <span class="text-xs ml-1">{{ t('search.autocomplete') }}</span>
-          </span>
-
-          <!-- 当想要执行自定义命令时 存在搜索结果时 可通过关闭 && !autocompleteList.length -->
-          <!-- class="suggestion-con" -->
-          <div
-            v-show="resultList.length"
-            class="flex"
-          >
-            <!-- 占位作用 -->
-            <!-- <span class="suggestion-text"></span> -->
-
-            <span class="flex items-center select-none mr-3">
-              <Kbd>Ctrl</Kbd>
-              <span>+</span>
-              <Kbd>W</Kbd>
-
-              <span class="text-xs ml-1">{{ t('search.closeResults') }}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 当没有输入任何内容时 -->
-      <div
-        v-if="appConfigStore.showHistory"
-        v-show="isDefaultModel && !keyword.length"
-        class="suggestion-con"
-      >
-        <!-- 占位作用 -->
-        <span class="suggestion-text"></span>
-
-        <div class="flex gap-5 mr-3">
-          <span
-            v-show="activeHistory"
-            class="flex items-center select-none"
-          >
-            <Kbd>Enter</Kbd>
-            <span class="text-xs ml-1">{{ t('search.confirm') }}</span>
-          </span>
-
-          <span class="flex gap-1">
-            <span class="flex items-center select-none">
-              <Kbd>↑</Kbd>
-            </span>
-            <span class="flex items-center select-none">
-              <Kbd>↓</Kbd>
-              <span class="text-xs ml-1">{{ t('search.history') }}</span>
-            </span>
-          </span>
-        </div>
-      </div>
-    </label>
-
-    <transition-group
-      name="list"
-      tag="ul"
-      tabindex="-1"
-      class="search-container absolute z-50 w-full overflow-y-scroll bg-card border-none rounded-b-[10px] !border-t-border max-h-[300px]"
-      :style="{
-        maxHeight: `calc(${searchWindowHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
-      }"
+  <div class="search-shell">
+    <div
+      v-if="showModeTabs"
+      class="search-mode-tabs"
     >
-      <template
-        v-for="(item, index) of resultList"
-        :key="item.id"
+      <button
+        v-for="item in visibleModeTabs"
+        :key="item.mode"
+        class="search-mode-tab"
+        :class="{ active: searchModel === item.mode }"
+        type="button"
+        @click="handleSwitchMode({ mode: item.mode })"
       >
-        <!-- <LaunchItem
-        :icon="item.icon!"
-        :name="item.name"
-      /> -->
-        <li
-          :ref="el => (itemRefs[index] = el as any)"
-          class="flex items-center justify-between h-[48px] px-4 py-2 cursor-pointer"
-          :class="[index === selectedIndex ? 'bg-muted' : 'hover:bg-muted']"
-          @click="
-            () => {
-              selectedIndex = index;
-              handleEnter();
-            }
-          "
-          @contextmenu.prevent.stop="handleShowContextMenu($event, item)"
-        >
-          <!-- @mouseenter="selectedIndex = index" -->
-          <div class="flex items-center">
-            <template v-if="!isWebSearchModel">
-              <n-icon
-                v-if="item.type === 'alias'"
-                size="32"
-                class="iconfont icon-minglinghangchaxun !m-2 text-[32px]"
-              />
+        <n-icon
+          :component="item.icon"
+          size="20"
+        />
+        <span>{{ item.label }}</span>
+      </button>
 
-              <img
-                v-else
-                :src="item.icon || ''"
-                alt="icon"
-                class="!m-2 object-contain pointer-events-none w-8 h-8"
-              />
-            </template>
+      <Kbd>Shift + Tab</Kbd>
+    </div>
 
-            <span class="!ml-0.5">{{ item.name }}</span>
-          </div>
-
-          <!-- <span v-if="item.category_name" class="!ml-3">
-            （{{ item.category_name }}）
-          </span> -->
-
-          <div
-            v-if="appConfigStore.showCategory"
-            class="flex items-end space-x-1"
-          >
-            <n-tag
-              v-if="item.type === 'alias'"
-              bordered
-              size="small"
-              type="info"
-            >
-              {{ t('search.commandAlias') }}
-            </n-tag>
-
-            <template v-else>
-              <n-tag
-                v-if="item.category_name"
-                bordered
-                size="small"
-                type="default"
-              >
-                {{ item.category_name }}
-              </n-tag>
-
-              <n-tag
-                v-if="appConfigStore.showSubCategory && item.subcategory_name"
-                bordered
-                size="tiny"
-                type="default"
-              >
-                {{ item.subcategory_name }}
-              </n-tag>
-            </template>
-          </div>
-        </li>
-      </template>
-    </transition-group>
-
-    <!-- 启动项右击菜单 -->
-    <LaunchItemContextMenu
-      v-model="menuVisible"
-      type="SearchLaunchList"
-      li-style="padding-top: 4px; padding-bottom: 4px;"
-      style="transform: scale(0.85); overflow-y: scroll"
-      :style="{ height: contextMenuHeight }"
-      :viewport-margin="0"
-      :item="itemDetail!"
-      :category-item="categoryItem"
-      :selected-ids="[]"
-      :position="menuPosition"
-      :item-path="itemDetail!.path"
-      :item-name="itemDetail!.name"
+    <component
+      :is="activeModeComponent"
+      ref="activeModeRef"
+      v-bind="activeModeProps"
+      @close-window="handleClose"
+      @switch-mode="handleSwitchMode"
     />
-  </template>
-
-  <!-- </div> -->
+  </div>
 </template>
 
 <script setup lang="ts">
-import {
-  // availableMonitors,
-  cursorPosition,
-  getCurrentWindow,
-  LogicalPosition,
-  LogicalSize,
-} from '@tauri-apps/api/window';
-import { fetch } from '@tauri-apps/plugin-http';
-import { GlobeOutline, SearchOutline } from '@vicons/ionicons5';
+import type { SearchModelType } from './searchModes';
+import { cursorPosition, getCurrentWindow, LogicalPosition, LogicalSize } from '@tauri-apps/api/window';
+import { CheckboxOutline, GlobeOutline, LanguageOutline, SearchOutline } from '@vicons/ionicons5';
 import { nextTick, ref } from 'vue';
-import {
-  addLaunchHistory,
-  addOrUpdateAutocompleteRecord,
-  exeCommand,
-  getAutocomplete,
-  getCategoryByID,
-  getLaunchByID,
-  getRecentLaunchHistory,
-  isForegroundFullscreen,
-  runLaunch,
-  searchLaunch,
-  updateLaunch,
-} from '@/api';
-import LaunchItemContextMenu from '@/components/ListItemContextMenu.vue';
-import { useAppConfig, useAppConfigActions, useNaiveUiApi } from '@/composables';
-import {
-  AppEvent,
-  SEARCH_INPUT_HEIGHT,
-  SEARCH_RESULT_ITEM_HEIGHT,
-  SEARCH_WINDOW_WIDTH,
-  TranslationOpenModel,
-  WebSearchOpenModel,
-} from '@/constant';
-import { t } from '@/i18n';
+import { isForegroundFullscreen } from '@/api';
+import { useAppConfig, useAppConfigActions } from '@/composables';
+import { AppEvent, SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH } from '@/constant';
 import { EventBus } from '@/utils/eventBus';
-import Translation from './components/Translation.vue';
+import DefaultSearchMode from './components/DefaultSearchMode.vue';
+import TodoMode from './components/TodoMode.vue';
+import TranslationMode from './components/TranslationMode.vue';
+import WebSearchMode from './components/WebSearchMode.vue';
+import { SEARCH_MODE_TABS_HEIGHT, SEARCH_MODEL } from './searchModes';
+
+interface SearchModeExpose {
+  focus?: () => void;
+  handleKeydown?: (event: KeyboardEvent) => void;
+  handleClose?: () => void;
+  getDefaultHeight?: () => number;
+}
+
+interface SwitchModePayload {
+  mode: SearchModelType;
+  keyword?: string;
+  source?: WebSearchSource;
+}
 
 const { appConfigStore } = useAppConfig();
-// prettier-ignore
-const placeTip = t('search.placeholder');
-const placeholder = ref(placeTip);
-const inputRef = useTemplateRef('searchInputRef');
-
-const keyword = ref('');
-const resultList = ref<SearchLauncItem[]>([]);
 const searchWindow = getCurrentWindow();
-
-const itemRefs = ref<HTMLElement[]>([]);
-// 选中启动光标
-const selectedIndex = ref(0);
-const searchFlag = ref(false);
-
-const SEARCH_MODEL = {
-  DEFAULT_MODEL: 0,
-  SEARCH_MODEL: 1,
-  TRANSLATION_MODEL: 2,
-} as const;
-
-type SearchModelType = (typeof SEARCH_MODEL)[keyof typeof SEARCH_MODEL];
-
-const menuVisible = ref(false);
 const searchModel = ref<SearchModelType>(SEARCH_MODEL.DEFAULT_MODEL);
-const isDefaultModel = computed(() => searchModel.value === SEARCH_MODEL.DEFAULT_MODEL);
-const isWebSearchModel = computed(() => searchModel.value === SEARCH_MODEL.SEARCH_MODEL);
-const isTranslationModel = computed(() => searchModel.value === SEARCH_MODEL.TRANSLATION_MODEL);
+const pendingKeyword = ref('');
+const activeWebSearchSource = ref<WebSearchSource>();
+const activeModeRef = useTemplateRef<SearchModeExpose>('activeModeRef');
+const visibleModeTabs = [
+  { mode: SEARCH_MODEL.DEFAULT_MODEL, label: '搜索', icon: SearchOutline },
+  { mode: SEARCH_MODEL.TODO_MODEL, label: 'Todo', icon: CheckboxOutline },
+  { mode: SEARCH_MODEL.TRANSLATION_MODEL, label: '翻译', icon: LanguageOutline },
+  { mode: SEARCH_MODEL.WEB_SEARCH_MODEL, label: 'WebSearch', icon: GlobeOutline },
+];
+const showModeTabs = computed(() => appConfigStore.showSearchModeTabs);
 
-const autocompleteList = ref<string[]>([]);
-const autocompleteIndex = ref<number>(0);
-const currentAutocompleteSuggestion = computed(() => autocompleteList.value[autocompleteIndex.value]);
-const searchWindowHeight = computed(() => {
-  if (!resultList.value.length) return SEARCH_INPUT_HEIGHT;
-
-  // 结果列表总高度 + 1像素的的顶部边框高度
-  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT;
-
-  return resultsHeight + SEARCH_INPUT_HEIGHT > appConfigStore.searchWindowMaxHeight
-    ? appConfigStore.searchWindowMaxHeight
-    : resultsHeight + SEARCH_INPUT_HEIGHT + 1;
+const activeModeComponent = computed(() => {
+  if (searchModel.value === SEARCH_MODEL.WEB_SEARCH_MODEL) return WebSearchMode;
+  if (searchModel.value === SEARCH_MODEL.TRANSLATION_MODEL) return TranslationMode;
+  if (searchModel.value === SEARCH_MODEL.TODO_MODEL) return TodoMode;
+  return DefaultSearchMode;
 });
 
-function handleChangeCurrentAutocomplete() {
-  if (autocompleteList.value.length === 1) return;
-  else if (autocompleteList.value.length - 1 === autocompleteIndex.value) return (autocompleteIndex.value = 0);
-  autocompleteIndex.value++;
-}
+const activeModeProps = computed(() => {
+  const chromeHeight = showModeTabs.value ? SEARCH_MODE_TABS_HEIGHT : 0;
 
-const spaceCounter = ref<number>(0);
-const translationRef = useTemplateRef('translationRef');
-function handleKeydown(e: KeyboardEvent) {
-  const reultCount = resultList.value.length;
-  const minIndex = 0;
-  const maxIndex = reultCount - 1;
-  const { keyCode, ctrlKey, key } = e;
-  // code
-  // Enter keyCode=13 code=Enter
-  // Esc   keyCode=27 code=Escape
-  // 上箭头 keyCode=38 code=ArrowUp
-  // 下箭头 keyCode=40 code=ArrowDown
-  console.log('keyCode ------', key, keyCode, e);
-  // 连续按下3次空格 进入翻译模式
-  if (keyCode === 32) {
-    spaceCounter.value++;
-  } else {
-    spaceCounter.value = 0;
-  }
-  // 组合按键对应的处理
-  if (ctrlKey && (key === 'p' || key === 'P')) {
-    // 切换模式 ctrl + p
-    e.preventDefault();
-  } else if (ctrlKey && (key === 'w' || key === 'W')) {
-    // 关闭搜索建议 (ctrl + w)
-    handleCloseSuggestion();
-    searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+  if (searchModel.value === SEARCH_MODEL.WEB_SEARCH_MODEL) {
+    return {
+      chromeHeight,
+      keyword: pendingKeyword.value,
+      source: activeWebSearchSource.value,
+    };
   }
 
-  // 单个按键对应的处理
-  switch (keyCode) {
-    case 8: // Backspace 键
-      // prettier-ignore
-      // isWebSearchModel.value &&
-      // !keyword.value.length &&
-      // handleToggleSearchModel(0);
-      break;
-    case 9: // Tab 按键 切换补全建议
-      if (isTranslationModel.value) {
-        translationRef.value?.handleChangeTranslationLanguage();
-      } else {
-        if (autocompleteList.value.length) handleChangeCurrentAutocomplete();
-      }
-      e.preventDefault();
-      break;
-    case 13: // Enter 键
-      if (isTranslationModel.value) {
-        translationRef.value?.handleEnter();
-      } else {
-        handleEnter();
-      }
-      break;
-    case 27: // Esc 键 关闭搜索窗口
-      // 当处于 web 搜索模式或者翻译模式时 按下esc 退出当前模式回到 快速搜索模式
-      if (isWebSearchModel.value || isTranslationModel.value) {
-        if (isTranslationModel.value && translationRef.value?.isChangeTranslationLanguage) {
-          translationRef.value?.handleCloseChangeTranslationLanguage();
-        } else {
-          handleToggleSearchModel(SEARCH_MODEL.DEFAULT_MODEL);
-          // 处于翻译模式下需要多进行一次判断 判断是否处于语言切换操作中
-          translationRef.value?.handleClose();
-          nextTick(() => {
-            inputRef.value?.focus();
-          });
-        }
-      } else {
-        handleClose(true);
-      }
-      break;
-    case 32: // 空格键盘 判断是否呼出网络搜索
-      if (
-        appConfigStore.enableTranslation &&
-        appConfigStore.translationOpenModel === TranslationOpenModel.THREE_HITS_ON_SPACES &&
-        isDefaultModel.value &&
-        spaceCounter.value === 3
-      ) {
-        handleToggleSearchModel(SEARCH_MODEL.TRANSLATION_MODEL);
-      }
-      // prettier-ignore
-      appConfigStore.enableWebSearch && !isWebSearchModel.value && handleOpenWebSearch();
-      break;
-    case 38: // 上移动按键
-      if (isTranslationModel.value) {
-        translationRef.value?.handleKeyUp();
-      } else {
-        // 历史切换模式
-        if (appConfigStore.showHistory && isDefaultModel.value && !keyword.value.length) {
-          handleChangeHistory('up');
-        } else {
-          if (selectedIndex.value === minIndex && reultCount) selectedIndex.value = reultCount - 1;
-          else selectedIndex.value > 0 && selectedIndex.value--;
-        }
-      }
-
-      e.preventDefault();
-      break;
-    case 39: // 补全提示 补全关键字
-      if (autocompleteList.value.length) keyword.value = currentAutocompleteSuggestion.value;
-      break;
-    case 40: // 下移动按键 用于切换选中项
-      if (isTranslationModel.value) {
-        translationRef.value?.handleKeyDown();
-      } else {
-        if (isDefaultModel.value && !keyword.value.length) {
-          handleChangeHistory('down');
-        } else {
-          if (selectedIndex.value === maxIndex && reultCount) selectedIndex.value = minIndex;
-          else selectedIndex.value < maxIndex && selectedIndex.value++;
-        }
-      }
-      e.preventDefault();
-      break;
-  }
-}
-
-const searchSourch = ref<WebSearchSource>();
-async function handleOpenWebSearch() {
-  setTimeout(() => {
-    if (!keyword.value.trim() || appConfigStore.webSearchOpenModel === WebSearchOpenModel.CLOSE) return;
-    let flag = false;
-    let key = '';
-    if (appConfigStore.webSearchOpenModel === WebSearchOpenModel.KEY_SPACE) {
-      flag = true;
-      key = keyword.value.trim();
-    } else if (appConfigStore.webSearchOpenModel === WebSearchOpenModel.COLON_KEY_SPACE) {
-      if (keyword.value.trim().substring(0, 1) === ':') flag = true;
-      key = keyword.value.trim().substring(1, keyword.value.trim().length);
-    }
-    if (!flag) return;
-
-    const searchSource = appConfigStore.webSearchSourceList.find(({ keywords }) => keywords === key);
-
-    if (!searchSource) return;
-    searchSourch.value = searchSource;
-    nextTick(() => {
-      handleToggleSearchModel(SEARCH_MODEL.SEARCH_MODEL);
-    });
-  }, 50);
-}
-
-const { notification } = useNaiveUiApi();
-
-async function handleEnter() {
-  try {
-    if (!keyword.value.length) {
-      if (isDefaultModel.value) await handleHistoryEnterLaunch();
-      handleClose();
-      return;
-    }
-
-    if (!searchFlag.value) return;
-    // 根据搜索模式调用不同的执行接口
-    if (isDefaultModel.value) {
-      await handleEnterLaunch();
-    } else {
-      await handleEnterWebSearch();
-    }
-
-    handleClose();
-  } catch (e) {
-    notification.error({
-      content: t('search.launchFailed'),
-      meta: e as string,
-      duration: 3000,
-      keepAliveOnHover: true,
-    });
-    console.log('e', e);
-  }
-}
-
-async function handleEnterLaunch() {
-  if (!resultList.value.length) {
-    await exeCommand(keyword.value);
-    addOrUpdateAutocompleteRecord(keyword.value);
-    // 添加自定义命令类型的历史记录
-    appConfigStore.enableHistory && addLaunchHistory(keyword.value, 'command');
-  } else {
-    const item = resultList.value[selectedIndex.value];
-    if (!item) return;
-
-    // if (item.type === 'alias') await exeCommand(item.path);
-    await runLaunch(item.id);
-    // 更新列表中的启动次数
-    EventBus.emit(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, item.id);
-    addOrUpdateAutocompleteRecord(keyword.value, item.id);
-    appConfigStore.enableHistory && addLaunchHistory(keyword.value, item.type, item.id);
-  }
-}
-
-async function handleEnterWebSearch() {
-  const item = resultList.value[selectedIndex.value];
-
-  const keywordStr = searchSourch.value?.searchApi?.replace('{w}', encodeURI(item ? item.name : keyword.value)) || '';
-
-  await exeCommand(keywordStr!);
-}
-
-const tranStr = ref<string>('');
-
-function handleToggleSearchModel(newModel: SearchModelType) {
-  // 当切换的为 翻译模式 记录当前输入框字符串
-  if (newModel === SEARCH_MODEL.TRANSLATION_MODEL) tranStr.value = keyword.value;
-  searchModel.value = newModel;
-  keyword.value = '';
-  handleCloseSuggestion();
-  placeholder.value = newModel ? searchSourch.value?.desc || '' : placeTip;
-}
-
-// 调用web搜索的搜索建议接口
-async function searchSuggestion(): Promise<SearchLauncItem[]> {
-  // 部分网络搜索没有 搜索建议接口 所以不支持 直接返回 return
-  // TODO 根据用户传入的自定义的eval函数来 获取到
-  if (!searchSourch.value?.suggestionApi) return [];
-  let result = [];
-
-  const userCode = `
-    const url = searchSourch?.suggestionApi?.replace('{w}', encodeURIComponent(keyword));
-    const data = await fetch(url).then(res => res.json());
-
-    return data[1].map((item, i) => ({
-      id: i,
-      name: item,
-      category_name: '',
-      subcategory_name: ''
-    }));
-  `;
-
-  async function runUserCode(userCode: string) {
-    // 用 async Function 创建沙箱作用域
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(
-      'fetch',
-      'searchSourch',
-      'keyword',
-      `"use strict"; return (async () => { ${userCode} })();`,
-    );
-    const result = await fn(fetch, searchSourch.value, keyword.value);
-    return result;
-  }
-  result = await runUserCode(userCode);
-
-  return result;
-}
-
-const activeHistoryIndex = ref(0);
-const historyData = ref<LaunchHistoryWithIcon[]>([]);
-const activeHistory = computed<LaunchHistoryWithIcon | null>(() => {
-  if (!activeHistoryIndex.value) return null;
-  return historyData.value[activeHistoryIndex.value - 1];
+  return {
+    chromeHeight,
+    keyword: pendingKeyword.value,
+  };
 });
-function handleChangeHistory(type: 'up' | 'down') {
-  if (!historyData.value.length) return;
-  if (activeHistoryIndex.value >= historyData.value.length && type === 'up') return;
-  if (activeHistoryIndex.value <= 0 && type === 'down') return;
-  type === 'up' ? (activeHistoryIndex.value += 1) : (activeHistoryIndex.value -= 1);
-}
-async function handleHistoryEnterLaunch() {
-  if (!activeHistory.value) return;
-  const { launch_item_id, command, type } = activeHistory.value;
 
-  if (launch_item_id) {
-    // if (item.type === 'alias') await exeCommand(item.path);
-    await runLaunch(launch_item_id);
-    // 更新列表中的启动次数
-    EventBus.emit(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, launch_item_id);
-    addOrUpdateAutocompleteRecord(command, launch_item_id);
-    appConfigStore.enableHistory && addLaunchHistory(command, type, launch_item_id);
-  } else {
-    await exeCommand(command);
-    addOrUpdateAutocompleteRecord(command);
-    // 添加自定义命令类型的历史记录
-    appConfigStore.enableHistory && addLaunchHistory(command, 'command');
-  }
+async function handleSwitchMode(payload: SwitchModePayload) {
+  if (payload.mode === searchModel.value && !payload.keyword && !payload.source) return;
+
+  activeModeRef.value?.handleClose?.();
+  pendingKeyword.value = payload.keyword || '';
+  activeWebSearchSource.value =
+    payload.mode === SEARCH_MODEL.WEB_SEARCH_MODEL
+      ? payload.source || activeWebSearchSource.value || appConfigStore.webSearchSourceList[0]
+      : undefined;
+  searchModel.value = payload.mode;
+
+  await resizeToActiveModeDefaultHeight();
+  activeModeRef.value?.focus?.();
 }
 
-function handleClose(isEscClose: boolean = false) {
+async function resizeToActiveModeDefaultHeight() {
+  await nextTick();
+  const chromeHeight = showModeTabs.value ? SEARCH_MODE_TABS_HEIGHT : 0;
+  const height = activeModeRef.value?.getDefaultHeight?.() ?? SEARCH_INPUT_HEIGHT + chromeHeight;
+  await searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, height));
+}
+
+async function handleClose(isEscClose: boolean = false) {
   searchModel.value = SEARCH_MODEL.DEFAULT_MODEL;
-  activeHistoryIndex.value = 0;
-  // 清空输入框
-  keyword.value = '';
-  placeholder.value = placeTip;
-  handleCloseSuggestion();
-  // 隐藏搜索窗口
-  // searchWindow.setSize(new LogicalSize(600, 45))
+  pendingKeyword.value = '';
+  activeWebSearchSource.value = undefined;
+  activeModeRef.value?.handleClose?.();
+  await resizeToActiveModeDefaultHeight();
+
   if (appConfigStore.searchHideAfterOpen || isEscClose) {
     searchWindow.hide();
-    menuVisible.value = false;
   }
 }
 
 async function handleShow() {
-  // 获取历史记录数据
-  getRecentLaunchHistory().then(res => (historyData.value = res));
-  // const monitors = await availableMonitors();
-  // console.log('monitors  ------', monitors);
-  // TODO 可作为个性化设置 搜索框呼出位置跟随鼠标 需要适配搜索结果显示位置 朝上或者朝下
   if (appConfigStore.searchOpenOnMouseDisplay) {
-    // 存在多个显示器时 呼出窗口跟随随便所在窗口
     const { x, y } = await cursorPosition();
     const { width } = await searchWindow.innerSize();
     await searchWindow.setPosition(new LogicalPosition(x - width / 2, y));
   } else {
-    // const { width, height } = monitors[0].size;
-    // console.log('width ------', width);
-    // console.log('height ------', height);
-
     await searchWindow.setPosition(new LogicalPosition(1, 1));
   }
 
   await searchWindow.center();
-
-  // 显示搜索窗口
   await searchWindow.show();
-  // 窗口聚焦
   await searchWindow.setFocus();
-  // 输入框聚焦
-  inputRef.value?.focus();
-}
 
-function handleCloseSuggestion() {
-  selectedIndex.value = 0;
-  resultList.value = [];
-}
-
-// const searchWindowHeight = ref<number>(300)
-// console.log('searchWindowHeight ------', searchWindowHeight.value)
-// 当使用箭头控制选项是 自动将预选项滚到可视窗口内
-watch(selectedIndex, async newIndex => {
-  await nextTick();
-  const el = itemRefs.value[newIndex];
-  el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-});
-
-let searchRequestId = 0;
-watch(() => keyword.value, handleSearch);
-
-async function handleSearch() {
-  const currentId = ++searchRequestId;
-
-  autocompleteIndex.value = 0;
-  autocompleteList.value = [];
-
-  activeHistoryIndex.value = 0;
-
-  if (!keyword.value.trim()) {
-    handleCloseSuggestion();
-    return searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
-  }
-
-  // 根据当前搜索模式 调用不同的搜索接口
-  let launchs: SearchLauncItem[] = [];
-  if (isWebSearchModel.value) {
-    launchs = await searchSuggestion();
-  } else {
-    if (appConfigStore.enableAutocomplete) {
-      getAutocomplete(keyword.value).then(res => {
-        if (currentId === searchRequestId) {
-          autocompleteList.value = res;
-        }
-      });
-    }
-    launchs = await searchLaunch(keyword.value);
-    // 当完成过一次搜索时 设置搜索标志位为 true 避免用户按的太快导致搜索结果没有出来执行后报错
-    if (!searchFlag.value) searchFlag.value = true;
-    if (!appConfigStore.enableCommandAlias) launchs = launchs.filter(item => item.type !== 'alias');
-  }
-  resultList.value = launchs;
-
-  if (currentId === searchRequestId) {
-    searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
-  }
+  nextTick(() => {
+    activeModeRef.value?.focus?.();
+  });
 }
 
 function handleBlur() {
   if (appConfigStore.searchLostFocusHide) handleClose();
 }
 
-const hasResult = computed(() => !!resultList.value.length);
-
-useAppConfigActions().registerSearchShortcutKey();
-// 监听快捷键按下
-EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
-  if (!appConfigStore.enableSearch) return;
-  // 判断前台是否处于全屏模式
-  const isFull = await isForegroundFullscreen();
-  const windowVisible = await searchWindow.isVisible();
-  // 当开启全屏勿扰 前台窗口为全屏 搜索窗口处于隐藏 则不进行展示响应
-  if (appConfigStore.doNotDisturbMode && isFull && !windowVisible) return;
-  windowVisible ? handleClose() : handleShow();
-});
-
-const menuPosition = ref({ x: 0, y: 0 });
-const categoryItem = ref<CategoryItem | null>();
-const itemDetail = ref<LaunchItem>({
-  id: 0,
-  name: '',
-  path: '',
-  type: 'file',
-  created_at: '',
-  updated_at: '',
-  launch_count: 0,
-  failure_count: 0,
-  pinyin_full: '',
-  pinyin_abbr: '',
-});
-async function handleShowContextMenu(e: MouseEvent, item: SearchLauncItem) {
-  const { id, category_id, type } = item;
-  if (type === 'alias') return;
-  const [launch, category] = await Promise.all([getLaunchByID(id), getCategoryByID(category_id!).catch(() => null)]);
-  categoryItem.value = category;
-  if (!launch) {
-    return notification.error({
-      content: t('search.queryFailed'),
-      meta: t('search.notFound'),
-      duration: 3000,
-      keepAliveOnHover: true,
-    });
+function handleKeydown(event: KeyboardEvent) {
+  // && showModeTabs.value
+  if (event.shiftKey && event.key === 'Tab') {
+    event.preventDefault();
+    const currentIndex = visibleModeTabs.findIndex(item => item.mode === searchModel.value);
+    const nextIndex = currentIndex === visibleModeTabs.length - 1 ? 0 : currentIndex + 1;
+    void handleSwitchMode({ mode: visibleModeTabs[nextIndex].mode });
+    return;
   }
-  itemDetail.value = launch;
 
-  nextTick(() => {
-    menuVisible.value = true;
-    menuPosition.value = { x: e.clientX, y: e.clientY };
-  });
+  activeModeRef.value?.handleKeydown?.(event);
 }
 
-EventBus.listen(AppEvent.INCREASE_PRIORITY, async (item: LaunchItem) => {
-  let { order_index = 0 } = item;
-  const form = {
-    ...item,
-    order_index: (order_index += 10),
-  };
-  await updateLaunch(form);
-  await handleSearch();
-  // 通知列表更新
-  EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
-});
+useAppConfigActions().registerSearchShortcutKey();
 
-const contextMenuHeight = computed(() => {
-  if (resultList.value.length === 1) return '80px';
-  return resultList.value.length <= 3 ? `${50 + (resultList.value.length - 1) * 48}px` : 'initial';
-});
-
-// 获得焦点
 let unlistenFocus: any = null;
+let unlistenShortcut: any = null;
 
 onMounted(async () => {
   unlistenFocus = await searchWindow.onFocusChanged(({ payload }) => {
-    console.log('窗口焦点状态:', payload);
     if (!payload) handleBlur();
+  });
+  unlistenShortcut = await EventBus.listen(AppEvent.SEARCH_SHORTCU_KEY, async () => {
+    if (!appConfigStore.enableSearch) return;
+
+    const isFull = await isForegroundFullscreen();
+    const windowVisible = await searchWindow.isVisible();
+    if (appConfigStore.doNotDisturbMode && isFull && !windowVisible) return;
+
+    windowVisible ? handleClose() : handleShow();
   });
   window.addEventListener('keydown', handleKeydown);
 });
@@ -793,89 +191,9 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown);
   unlistenFocus && unlistenFocus();
+  unlistenShortcut && unlistenShortcut();
 });
 </script>
-
-<style scoped lang="scss">
-/* ::v-deep(.n-input) { */
-.n-input {
-  /* 移除移入移出是边框变化 */
-  --n-border-hover: 0px !important;
-  --n-border-focus: 0px !important;
-  --n-border: 0px !important;
-  /* 输入框光标颜色 */
-  --n-caret-color: gray !important;
-  /* 输入框高度 */
-  --n-height: 100% !important;
-  /* 输入框字体大小 */
-  --n-font-size: 20px !important;
-
-  --n-border-focus: 0px !important;
-
-  border-radius: 5px;
-  border: none !important;
-  /* border-color: !important; */
-}
-
-::v-deep(.n-input__placeholder) {
-  font-size: 14px !important;
-  margin-left: 5px;
-}
-.input-container {
-  width: 100%;
-  height: 45px;
-  position: relative;
-  display: block;
-}
-
-.search-container {
-  /* max-height: calc(v-bind(searchWindowHeight + 'px') - v-bind(SEARCH_INPUT_HEIGHT + 'px')); */
-  box-sizing: border-box;
-  border-top: 0.5px solid;
-  border-radius: 0 0 5px 5px;
-}
-
-ul:focus-visible {
-  outline: none !important; /* 例如，取消焦点时的轮廓 */
-}
-
-.suggestion-con {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 45px;
-  font-size: 20px;
-  opacity: 0.3;
-  cursor: text;
-  /* z-index: -1; */
-  .suggestion-text {
-    // position: absolute;
-    // left: 38px;
-    // top: 7px;
-    margin-left: 38px;
-    width: fit-content;
-  }
-}
-
-.list-move {
-  transition: transform 0.25s ease;
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.2s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(8px);
-}
-</style>
 
 <style>
 .n-config-provider {
@@ -883,7 +201,64 @@ ul:focus-visible {
 }
 
 .n-input {
+  transition: none !important;
+  --n-caret-color: inherit !important;
+  --n-border-hover: inherit !important;
+  --n-border-focus: inherit !important;
+  --n-box-shadow-focus: none !important;
+}
+
+.n-input * {
+  transition: none !important;
+  --n-caret-color: inherit !important;
+  --n-border-hover: inherit !important;
+  --n-border-focus: inherit !important;
+  --n-box-shadow-focus: none !important;
+}
+
+.n-input {
   --n-color: var(--search-bg) !important;
   --n-color-focus: var(--search-bg) !important;
+}
+
+.search-shell {
+  width: 100%;
+  height: 100%;
+  background: var(--search-bg);
+}
+
+.search-mode-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border);
+  box-sizing: border-box;
+}
+
+.search-mode-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--foreground);
+  background: transparent;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.search-mode-tab.active {
+  color: #155dfc;
+  background: #dbeafe;
+}
+
+.mode-switch-kbd {
+  margin-left: auto;
+  color: #8a94a6;
+  background: #f5f6f8;
 }
 </style>
