@@ -728,3 +728,100 @@ Type: 功能开发
 
 - 仅在主窗口（`label === 'main'`）执行创建
 - 语言切换时先检查 `TrayIcon.getById('tray')`，存在则只更新菜单文本
+
+---
+
+## 2026-05-31 10:00
+
+Type: 重构 / 功能开发
+
+### 变更概述
+
+将搜索窗口从单体组件拆分为独立模式组件架构，并将 TodoMode 数据存储从 localStorage 迁移到 SQLite 数据库。
+
+### 具体变更
+
+#### 搜索窗口架构重构
+
+原 `Search.vue` 为 890 行的单体组件，混合了 3 种搜索模式的逻辑。重构后：
+
+- **Search.vue**（~220 行）：纯容器组件，负责窗口管理（显示/隐藏/定位/聚焦）和模式切换
+- **DefaultSearchMode.vue**：默认搜索模式，自处理键盘事件（Enter/↑↓/Tab/→/Esc/Ctrl+W/Space×3→翻译/Space→Web搜索）
+- **WebSearchMode.vue**：网络搜索模式，自处理 Enter/↑↓/Esc
+- **TranslationMode.vue**：翻译模式，自处理 Tab（语言切换）/Esc/Enter/↑↓
+- **TodoMode.vue**：待办模式，自处理 Enter/Ctrl+Enter/Esc
+- **searchModes.ts**：共享常量（模式枚举、Tab 栏高度）
+
+**架构设计**：
+
+- 每个模式组件完全自包含，自行管理键盘事件和业务逻辑
+- 通过 `defineExpose` 暴露统一接口：`focus()`、`handleKeydown()`、`handleClose()`、`getDefaultHeight()`
+- Search.vue 使用 `<component :is="activeModeComponent">` 动态渲染
+- 子组件通过 emit `closeWindow` 和 `switchMode` 事件与父组件通信
+- Shift+Tab 在 Search.vue 层面处理，用于循环切换模式
+
+**过渡效果**：
+
+- TodoMode 内部 4 个视图状态（empty/create/list/detail）使用 `<transition>` 包裹
+- 采用 `position: absolute` + `width: 100%` 解决过渡时的布局位移问题
+- `v-if` 而非 `v-else-if`，因为多个 `<transition>` 包裹时 v-else 不生效
+
+#### TodoMode 数据库迁移
+
+将 TodoMode 从 localStorage 迁移到 SQLite，新增 `todos` 表：
+
+**后端（Rust）**：
+
+- 新增 `entity/todos.rs`：SeaORM 实体定义（id, title, completed, priority, due_date, tags, note, reminder_at, created_at, updated_at）
+- 新增 5 个 Tauri 命令：`get_todos`、`add_todo`、`update_todo`、`delete_todo`、`clear_completed_todos`
+- Schema 自动同步：通过 SeaORM 的 `schema-sync` 功能，启动时自动建表
+
+**前端（TypeScript）**：
+
+- `types/index.d.ts`：新增 `TodoItem` 接口和 `TodoPriority` 类型
+- `api/index.ts`：新增 5 个 API 封装函数
+- `constant/index.ts`：新增 5 个 `InvokeMethod` 枚举
+- `TodoMode.vue`：移除 localStorage 逻辑，所有 CRUD 操作通过 API 调用数据库
+
+**数据结构变化**：
+
+| 字段 | localStorage（旧） | SQLite（新） |
+|------|-------------------|-------------|
+| id | `string` (UUID) | `number` (自增) |
+| tags | `string[]` | `string` (JSON) |
+| dueDate | `string` | `due_date: string` |
+| createdAt | `string` | `created_at: string` |
+| reminder_at | 无 | `string` (新增，预留给通知功能) |
+
+### 技术决策
+
+**为什么拆分而非条件渲染**
+
+- 原 Search.vue 中 keydown handler 通过 switch 分发到各模式方法，耦合严重
+- 拆分后每个模式独立演进，添加新模式只需新建组件 + 注册到 searchModes
+- `<component :is>` 动态组件比 v-if 链更清晰
+
+**为什么用数据库替代 localStorage**
+
+- 多窗口同步：localStorage 需手动监听 storage 事件，数据库通过 API 天然一致
+- 数据备份：localStorage 不包含在 `backup_database` 中
+- 通知功能：Rust 后端可定时扫描数据库，localStorage 无法后台访问
+- 查询能力：支持 SQL 筛选、排序、分页
+
+**tags 字段用 JSON 字符串而非独立表**
+
+- 待办标签数量少（通常 0-5 个），无需关联查询
+- 简化 schema，避免额外的关联表
+- 前端通过 `parseTags()`/`stringifyTags()` 转换
+
+**chrono_now 自实现而非引入 chrono crate**
+
+- 仅需格式化当前时间，功能简单
+- 避免增加编译时间和二进制大小
+- 使用 `SystemTime` + 手动计算年月日
+
+### 后续工作
+
+- [ ] 通知功能：添加 `tauri-plugin-notification`，Rust 后端定时扫描 `reminder_at` 到期的待办
+- [ ] TodoMode 提醒 UI：在 detail 视图增加 datetime picker 设置提醒时间
+- [ ] 旧组件清理：确认功能稳定后删除 `DefaultSearch.vue`、`WebSearch.vue`

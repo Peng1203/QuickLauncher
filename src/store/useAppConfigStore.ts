@@ -48,6 +48,7 @@ export const useAppConfigStore = defineStore(
       searchHideAfterOpen: true,
       doNotDisturbMode: true,
       searchOpenOnMouseDisplay: true,
+      showSearchModeTabs: true,
 
       enableWebSearch: true,
       webSearchOpenModel: 0,

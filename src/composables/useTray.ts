@@ -22,7 +22,7 @@ export function useTray() {
         await MenuItem.new({
           id: 'settings',
           text: t('tray.settings'),
-          action: () => toogleSettingWindowVisible(),
+          action: () => toogleSettingWindowVisible(false, true),
         }),
         await PredefinedMenuItem.new({ item: 'Separator' }),
         await MenuItem.new({ id: 'restart', text: t('tray.restart'), action: () => invoke('restart_app') }),

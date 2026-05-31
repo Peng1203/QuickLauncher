@@ -184,7 +184,7 @@ const columns = computed(() => [
 
 async function getData() {
   const data = await getAliasLaunch();
-  originData.value = structuredClone(data);
+  originData.value = JSON.parse(JSON.stringify(data));
   dataList.value = data;
 }
 getData();

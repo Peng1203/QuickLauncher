@@ -38,7 +38,7 @@ export function useToggleWindowVisible() {
     }
   }
 
-  async function toogleSettingWindowVisible(centerInMainWindow: boolean = true) {
+  async function toogleSettingWindowVisible(centerInMainWindow: boolean = true, center: boolean = false) {
     const window = await getSettingWindow();
     const visible = await window?.isVisible();
     const focus = await window?.isFocused();
@@ -58,10 +58,12 @@ export function useToggleWindowVisible() {
         const y = appConfigStore.mainWindowPositionY + 50;
         window?.setPosition(new LogicalPosition(x, y));
       }
+
       // 如果主窗口开启了置顶 则也同时开启置顶
       await window?.setAlwaysOnTop(appConfigStore.onTop);
-      window?.show();
-      window?.setFocus();
+      await window?.show();
+      await window?.setFocus();
+      center && window?.center();
     }
   }
 

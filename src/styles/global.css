@@ -197,22 +197,6 @@ textarea {
   resize: none;
 }
 
-/* .n-input {
-  transition: none !important;
-  --n-caret-color: inherit !important;
-  --n-border-hover: inherit !important;
-  --n-border-focus: inherit !important;
-  --n-box-shadow-focus: none !important;
-}
-
-.n-input * {
-  transition: none !important;
-  --n-caret-color: inherit !important;
-  --n-border-hover: inherit !important;
-  --n-border-focus: inherit !important;
-  --n-box-shadow-focus: none !important;
-} */
-
 /* Naive UI n-layout (used in main window, but also check if any in settings) */
 .n-layout {
   --n-color: var(--background);

@@ -38,6 +38,13 @@
         :description="t('quickSearch.followMouseDesc')"
       />
 
+      <SettingSwitchItem
+        v-model="appConfigStore.showSearchModeTabs"
+        icon="icon-buju"
+        title="展示模式标签"
+        description="控制搜索窗口顶部的模式切换栏是否显示"
+      />
+
       <SettingItem
         expandable
         icon="icon-kuaijiejian-"

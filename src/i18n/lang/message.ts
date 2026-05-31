@@ -5,7 +5,7 @@
  * 语言索引由 LANG_INDEX 常量定义
  */
 
-export const LANG_INDEX = { 'zh-CN': 0, 'zh-HK': 1, 'en': 2, 'ja': 3 } as const;
+export const LANG_INDEX = { 'zh-CN': 0, 'zh-HK': 1, en: 2, ja: 3 } as const;
 
 export const messages = {
   // ========== 通用文本 ==========
