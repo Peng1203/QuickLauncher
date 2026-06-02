@@ -12,10 +12,7 @@
         :title="t('main.currentCategory')"
         class="flex-s-c w-[90px] gap-1 overflow-hidden cursor-pointer"
       >
-        <n-icon
-          size="14"
-          class="iconfont icon-fenlei"
-        />
+        <n-icon size="14" class="iconfont icon-fenlei" />
         <span class="overflow-hidden whitespace-nowrap">
           {{ activeCategoryItem?.name }}
         </span>
@@ -58,12 +55,9 @@
         v-if="Object.keys(activeLaunchItem || {}).length"
         class="flex-sb-c overflow-hidden whitespace-nowrap"
       >
-        <div
-          v-if="activeLaunchItem"
-          class="flex w-full min-w-0"
-        >
+        <div v-if="activeLaunchItem" class="flex w-full min-w-0">
           <span class="flex overflow-hidden whitespace-nowrap min-w-0 flex-20">
-            <span>{{ t('footerExtra.selected') }}</span>
+            <span>{{ t("footerExtra.selected") }}</span>
             <b
               class="inline-block max-w-[115px] overflow-hidden ml-1"
               :title="activeLaunchItem.name"
@@ -73,7 +67,7 @@
           </span>
 
           <span class="overflow-hidden whitespace-nowrap min-w-0 flex-10">
-            <span>{{ t('footerExtra.typeLabel') }}</span>
+            <span>{{ t("footerExtra.typeLabel") }}</span>
             <b class="ml-1">{{ formatLaunchType(activeLaunchItem.type) }}</b>
           </span>
 
@@ -94,7 +88,9 @@
               class="iconfont icon-zuijinshiyong cursor-pointer"
             />
 
-            <b>{{ activeLaunchItem.last_used_at ? getFromNow(activeLaunchItem.last_used_at) : '--' }}</b>
+            <b>{{
+              activeLaunchItem.last_used_at ? getFromNow(activeLaunchItem.last_used_at) : "--"
+            }}</b>
           </span>
         </div>
       </div>
@@ -136,7 +132,12 @@
         size="16"
         :title="activeCategoryItem?.layout === 'grid' ? t('common.tile') : t('common.list')"
         :class="`iconfont ${activeCategoryItem?.layout === 'grid' ? 'icon-24gl-appsSmall' : 'icon-liebiao'} cursor-pointer`"
-        @click="handleLayoutOrderSortChange(activeCategoryItem?.layout === 'grid' ? 'list' : 'grid', 'layout')"
+        @click="
+          handleLayoutOrderSortChange(
+            activeCategoryItem?.layout === 'grid' ? 'list' : 'grid',
+            'layout',
+          )
+        "
       />
 
       <!-- 排序 -->
@@ -150,53 +151,42 @@
       <!-- 排序方式 -->
       <n-icon
         size="16"
-        :title="activeCategoryItem?.sort_order === 'asc' ? t('common.ascending') : t('common.descending')"
+        :title="
+          activeCategoryItem?.sort_order === 'asc' ? t('common.ascending') : t('common.descending')
+        "
         :class="`iconfont ${activeCategoryItem?.sort_order === 'asc' ? 'icon-shengxu' : 'icon-jiangxu'} cursor-pointer`"
         @click="
-          handleLayoutOrderSortChange(activeCategoryItem?.sort_order === 'asc' ? 'desc' : 'asc', 'sort_order', true)
+          handleLayoutOrderSortChange(
+            activeCategoryItem?.sort_order === 'asc' ? 'desc' : 'asc',
+            'sort_order',
+            true,
+          )
         "
       />
 
       <!-- 内置快捷键 -->
       <n-popover trigger="hover">
         <template #trigger>
-          <n-icon
-            size="16"
-            class="iconfont icon-kuaijiejian- cursor-pointer ml-2"
-          />
+          <n-icon size="16" class="iconfont icon-kuaijiejian- cursor-pointer ml-2" />
         </template>
 
         <div>
-          <h4>{{ t('main.shortcutKeys') }}</h4>
-          <template
-            v-for="item in shortcutKeys"
-            :key="item.name"
-          >
+          <h4>{{ t("main.shortcutKeys") }}</h4>
+          <template v-for="item in shortcutKeys" :key="item.name">
             <div class="flex-s-c">
               <template v-if="item.combKey">
                 <div class="!w-[150px] flex-s-c">
-                  <template
-                    v-for="(key, j) in item.keys"
-                    :key="key"
-                  >
+                  <template v-for="(key, j) in item.keys" :key="key">
                     <Kbd size="10">{{ key }}</Kbd>
 
-                    <span
-                      v-if="!(item.keys.length - 1 === j)"
-                      class="mx-1"
-                    >
-                      +
-                    </span>
+                    <span v-if="!(item.keys.length - 1 === j)" class="mx-1"> + </span>
                   </template>
                 </div>
 
                 <span>{{ item.name }}</span>
 
-                <span
-                  v-if="item?.global"
-                  class="ml-2"
-                >
-                  {{ t('common.global') }}
+                <span v-if="item?.global" class="ml-2">
+                  {{ t("common.global") }}
                 </span>
               </template>
 
@@ -207,11 +197,8 @@
 
                 <span>{{ item.name }}</span>
 
-                <span
-                  v-if="item?.global"
-                  class="ml-2"
-                >
-                  {{ t('common.global') }}
+                <span v-if="item?.global" class="ml-2">
+                  {{ t("common.global") }}
                 </span>
               </template>
             </div>
@@ -221,27 +208,22 @@
 
       <!-- 版本号 -->
       <div class="flex-s-c gap-1">
-        <span
-          class="cursor-pointer"
-          @click="handleToSettingAbout"
-        >
-          v{{ version }}
-        </span>
+        <span class="cursor-pointer" @click="handleToSettingAbout"> v{{ version }} </span>
       </div>
     </div>
   </n-layout-footer>
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { getLaunchByID } from '@/api';
-import { formatLaunchType } from '@/common/formatLaunchType';
-import { useAppConfig, useAppVersion, useCategorySort, useMainWindowShortcut } from '@/composables';
-import { AppEvent } from '@/constant';
-import { t } from '@/i18n';
-import { useStore } from '@/store/useStore';
-import { getFromNow } from '@/utils/date';
-import { EventBus } from '@/utils/eventBus';
+import { storeToRefs } from "pinia";
+import { getLaunchByID } from "@/api";
+import { formatLaunchType } from "@/common/formatLaunchType";
+import { useAppConfig, useAppVersion, useCategorySort, useMainWindowShortcut } from "@/composables";
+import { AppEvent } from "@/constant";
+import { t } from "@/i18n";
+import { useStore } from "@/store/useStore";
+import { getFromNow } from "@/utils/date";
+import { EventBus } from "@/utils/eventBus";
 
 const store = useStore();
 const { searchGlobalShortcutKey, mainWindowGlobalShortcutKey } = useAppConfig();
@@ -251,28 +233,28 @@ const { handleLayoutOrderSortChange } = useCategorySort(activeCategoryItem);
 const shortcutKeys = computed(() => {
   // main窗口内置快捷键
   const base = [
-    { combKey: false, keys: ['F2'], name: t('main.rename') },
-    { combKey: false, keys: ['F4'], name: t('main.edit') },
+    { combKey: false, keys: ["F2"], name: t("main.rename") },
+    { combKey: false, keys: ["F4"], name: t("main.edit") },
     // { combKey: false, keys: ['F5'], name: '刷 新' },
-    { combKey: false, keys: ['Esc'], name: t('main.close') },
-    { combKey: false, keys: ['Delete'], name: t('main.delete') },
+    { combKey: false, keys: ["Esc"], name: t("main.close") },
+    { combKey: false, keys: ["Delete"], name: t("main.delete") },
     // { combKey: true, keys: ['Ctrl', 'P'], name: '快速定位' },
-    { combKey: true, keys: ['Ctrl', 'Shift', 'N'], name: t('main.create') },
-    { combKey: true, keys: ['Ctrl', 'Shift', 'C'], name: t('main.createCategory') },
-    { combKey: true, keys: ['Alt', 'S'], name: t('main.openSettings') },
+    { combKey: true, keys: ["Ctrl", "Shift", "N"], name: t("main.create") },
+    { combKey: true, keys: ["Ctrl", "Shift", "C"], name: t("main.createCategory") },
+    { combKey: true, keys: ["Alt", "S"], name: t("main.openSettings") },
     // { combKey: true, keys: ['⌘', 'Alt', 'S'], name: '打开设置' },
   ];
 
   // 全局快捷键
   const globalShortcutKeys: any = [];
   if (searchGlobalShortcutKey.value) {
-    const keys = searchGlobalShortcutKey.value.split('+');
-    const item = { combKey: !!keys.length, keys, name: t('main.toggleSearch'), global: true };
+    const keys = searchGlobalShortcutKey.value.split("+");
+    const item = { combKey: !!keys.length, keys, name: t("main.toggleSearch"), global: true };
     globalShortcutKeys.push(item);
   }
   if (mainWindowGlobalShortcutKey.value) {
-    const keys = mainWindowGlobalShortcutKey.value.split('+');
-    const item = { combKey: !!keys.length, keys, name: t('main.toggleMain'), global: true };
+    const keys = mainWindowGlobalShortcutKey.value.split("+");
+    const item = { combKey: !!keys.length, keys, name: t("main.toggleMain"), global: true };
     globalShortcutKeys.push(item);
   }
 
@@ -283,48 +265,48 @@ const { version, fetchVersion } = useAppVersion();
 
 const sortInfo = computed(() => {
   switch (activeCategoryItem.value?.sort_by) {
-    case 'name':
+    case "name":
       return {
-        title: t('common.name'),
-        icon: 'icon-mingchengpaixu',
+        title: t("common.name"),
+        icon: "icon-mingchengpaixu",
       };
-    case 'type':
+    case "type":
       return {
-        title: t('common.type'),
-        icon: 'icon-anleixingpaixu',
+        title: t("common.type"),
+        icon: "icon-anleixingpaixu",
       };
-    case 'time':
+    case "time":
       return {
-        title: t('common.date'),
-        icon: 'icon-anchuangjianshijianpaixu',
+        title: t("common.date"),
+        icon: "icon-anchuangjianshijianpaixu",
       };
-    case 'order':
+    case "order":
       return {
-        title: t('common.searchPriority'),
-        icon: 'icon-youxianji',
+        title: t("common.searchPriority"),
+        icon: "icon-youxianji",
       };
 
     default:
       return {
-        title: t('common.name'),
-        icon: 'icon-mingchengpaixu',
+        title: t("common.name"),
+        icon: "icon-mingchengpaixu",
       };
   }
 });
 
 function handleToggleSortBy() {
   const { sort_by } = activeCategoryItem.value;
-  const sort_by_arr: SortByType[] = ['name', 'type', 'time', 'order'];
+  const sort_by_arr: SortByType[] = ["name", "type", "time", "order"];
 
   const currentIndex = sort_by_arr.indexOf(sort_by);
   const nextIndex = (currentIndex + 1) % sort_by_arr.length;
 
   const nextSortBy = sort_by_arr[nextIndex];
-  handleLayoutOrderSortChange(nextSortBy, 'sort_by', true);
+  handleLayoutOrderSortChange(nextSortBy, "sort_by", true);
 }
 
 EventBus.listen(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, (id: number) => {
-  const findRes = launchData.value.find(item => item.id === id);
+  const findRes = launchData.value.find((item) => item.id === id);
   if (!findRes) return;
   // findRes.launch_count += 1;
   // 当选中的启动项处于选中的分类时 更新启动项列表
@@ -338,7 +320,7 @@ EventBus.listen(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, (id: number) => {
 });
 
 function handleToSettingAbout() {
-  EventBus.emit(AppEvent.OPEN_SETTING, 'about');
+  EventBus.emit(AppEvent.OPEN_SETTING, "about");
 }
 
 useMainWindowShortcut();

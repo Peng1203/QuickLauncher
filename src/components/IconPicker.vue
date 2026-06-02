@@ -22,17 +22,9 @@
       </template>
     </n-button>
 
-    <n-tooltip
-      placement="bottom"
-      trigger="click"
-      :title="t('iconPicker.networkImage')"
-    >
+    <n-tooltip placement="bottom" trigger="click" :title="t('iconPicker.networkImage')">
       <template #trigger>
-        <n-button
-          size="tiny"
-          type="default"
-          :title="t('iconPicker.networkImage')"
-        >
+        <n-button size="tiny" type="default" :title="t('iconPicker.networkImage')">
           <template #icon>
             <n-icon>
               <LinkOutline />
@@ -43,32 +35,21 @@
       <div class="text-foreground">输入网络图片地址</div>
 
       <n-input-group>
-        <n-input
-          v-model:value="onlineImgUrl"
-          placeholder=""
-        />
+        <n-input v-model:value="onlineImgUrl" placeholder="" />
         <n-button
           type="info"
           :loading="onlineImgUrlLoading"
           :disabled="!onlineImgUrl.length"
           @click="handleGetOnlineImg"
         >
-          {{ t('iconPicker.get') }}
+          {{ t("iconPicker.get") }}
         </n-button>
       </n-input-group>
     </n-tooltip>
 
-    <n-tooltip
-      placement="bottom"
-      trigger="click"
-      :title="t('iconPicker.websiteIcon')"
-    >
+    <n-tooltip placement="bottom" trigger="click" :title="t('iconPicker.websiteIcon')">
       <template #trigger>
-        <n-button
-          size="tiny"
-          type="default"
-          :title="t('iconPicker.websiteIcon')"
-        >
+        <n-button size="tiny" type="default" :title="t('iconPicker.websiteIcon')">
           <template #icon>
             <n-icon>
               <GlobeOutline />
@@ -78,32 +59,21 @@
       </template>
       <div class="text-foreground">输入网站地址</div>
       <n-input-group>
-        <n-input
-          v-model:value="webSiteUrl"
-          placeholder=""
-        />
+        <n-input v-model:value="webSiteUrl" placeholder="" />
         <n-button
           type="info"
           :loading="webSiteUrlLoading"
           :disabled="!webSiteUrl.length"
           @click="handleGetWebSiteUrl"
         >
-          {{ t('iconPicker.get') }}
+          {{ t("iconPicker.get") }}
         </n-button>
       </n-input-group>
     </n-tooltip>
 
-    <n-tooltip
-      placement="top"
-      trigger="click"
-      :title="t('iconPicker.svgIcon')"
-    >
+    <n-tooltip placement="top" trigger="click" :title="t('iconPicker.svgIcon')">
       <template #trigger>
-        <n-button
-          size="tiny"
-          type="default"
-          :title="t('iconPicker.svgIcon')"
-        >
+        <n-button size="tiny" type="default" :title="t('iconPicker.svgIcon')">
           <template #icon>
             <n-icon>
               <CodeOutline />
@@ -120,12 +90,8 @@
           placeholder=""
           :autosize="{ minRows: 3, maxRows: 5 }"
         />
-        <n-button
-          type="info"
-          class="!mt-1"
-          @click="handleGetSvgBase64"
-        >
-          {{ t('iconPicker.get') }}
+        <n-button type="info" class="!mt-1" @click="handleGetSvgBase64">
+          {{ t("iconPicker.get") }}
         </n-button>
       </div>
     </n-tooltip>
@@ -144,12 +110,12 @@
 </template>
 
 <script setup lang="ts">
-import { open } from '@tauri-apps/plugin-dialog';
-import { CodeOutline, GlobeOutline, LinkOutline } from '@vicons/ionicons5';
-import { ref } from 'vue';
-import { getLocalIconBase64, getOnlineImgBase64, getWebsiteInfo } from '@/api';
-import { useNaiveUiApi } from '@/composables';
-import { t } from '@/i18n';
+import { open } from "@tauri-apps/plugin-dialog";
+import { CodeOutline, GlobeOutline, LinkOutline } from "@vicons/ionicons5";
+import { ref } from "vue";
+import { getLocalIconBase64, getOnlineImgBase64, getWebsiteInfo } from "@/api";
+import { useNaiveUiApi } from "@/composables";
+import { t } from "@/i18n";
 
 const { message } = useNaiveUiApi();
 
@@ -157,7 +123,7 @@ const iconValue = defineModel<string>();
 
 async function handleGetLocalFileIcon() {
   const path = await open({
-    title: t('iconPicker.selectFileIcon'),
+    title: t("iconPicker.selectFileIcon"),
     multiple: false,
     directory: false,
   });
@@ -169,7 +135,7 @@ async function handleGetLocalFileIcon() {
 
 async function handleGetLocalDirIcon() {
   const path = await open({
-    title: t('iconPicker.selectDirIcon'),
+    title: t("iconPicker.selectDirIcon"),
     multiple: false,
     directory: true,
   });
@@ -179,12 +145,12 @@ async function handleGetLocalDirIcon() {
   iconValue.value = base64;
 }
 
-const onlineImgUrl = ref<string>('');
+const onlineImgUrl = ref<string>("");
 const onlineImgUrlLoading = ref<boolean>(false);
 async function handleGetOnlineImg() {
   try {
     onlineImgUrlLoading.value = true;
-    if (!(onlineImgUrl.value.includes('http://') || onlineImgUrl.value.includes('https://'))) {
+    if (!(onlineImgUrl.value.includes("http://") || onlineImgUrl.value.includes("https://"))) {
       onlineImgUrl.value = `https://${onlineImgUrl.value}`;
     }
     const base64 = await getOnlineImgBase64(onlineImgUrl.value);
@@ -196,12 +162,12 @@ async function handleGetOnlineImg() {
   }
 }
 
-const webSiteUrl = ref<string>('');
+const webSiteUrl = ref<string>("");
 const webSiteUrlLoading = ref<boolean>(false);
 async function handleGetWebSiteUrl() {
   try {
     webSiteUrlLoading.value = true;
-    if (!(webSiteUrl.value.includes('http://') || webSiteUrl.value.includes('https://'))) {
+    if (!(webSiteUrl.value.includes("http://") || webSiteUrl.value.includes("https://"))) {
       webSiteUrl.value = `https://${webSiteUrl.value}`;
     }
     const { icon }: any = await getWebsiteInfo(webSiteUrl.value);
@@ -213,7 +179,7 @@ async function handleGetWebSiteUrl() {
   }
 }
 
-const svgStr = ref<string>('');
+const svgStr = ref<string>("");
 async function handleGetSvgBase64() {
   if (!svgStr.value.trim()) return;
   const base64 = btoa(unescape(encodeURIComponent(svgStr.value)));
@@ -221,6 +187,6 @@ async function handleGetSvgBase64() {
 }
 
 function handleResetIcon() {
-  iconValue.value = '';
+  iconValue.value = "";
 }
 </script>

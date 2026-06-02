@@ -27,11 +27,7 @@ withDefaults(defineProps<Props>(), {
     :class="link ? 'cursor-pointer' : ''"
     :style="backgroundStyle"
   >
-    <n-icon
-      :size="size"
-      :class="`iconfont ${name}`"
-      :color="iconColor"
-    />
+    <n-icon :size="size" :class="`iconfont ${name}`" :color="iconColor" />
   </div>
 
   <n-icon
@@ -43,7 +39,7 @@ withDefaults(defineProps<Props>(), {
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   name?: string;
@@ -54,9 +50,9 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  name: '',
+  name: "",
   size: 18,
-  color: '',
+  color: "",
   background: false,
   link: false,
 });
@@ -65,15 +61,15 @@ const props = withDefaults(defineProps<Props>(), {
  * 转 rgba 背景色
  */
 function hexToRgba(hex: string, alpha = 0.12) {
-  if (!hex.startsWith('#')) return hex;
+  if (!hex.startsWith("#")) return hex;
 
-  let value = hex.replace('#', '');
+  let value = hex.replace("#", "");
 
   if (value.length === 3) {
     value = value
-      .split('')
-      .map(i => i + i)
-      .join('');
+      .split("")
+      .map((i) => i + i)
+      .join("");
   }
 
   const num = Number.parseInt(value, 16);
@@ -85,7 +81,7 @@ function hexToRgba(hex: string, alpha = 0.12) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-const iconColor = computed(() => (props.link ? 'var(--primary)' : props.color));
+const iconColor = computed(() => (props.link ? "var(--primary)" : props.color));
 
 const backgroundStyle = computed(() => {
   const size = `${props.size}px`;
@@ -93,7 +89,7 @@ const backgroundStyle = computed(() => {
   return {
     width: `calc(${size} + 14px)`,
     height: `calc(${size} + 14px)`,
-    backgroundColor: props.color ? hexToRgba(props.color, 0.15) : '',
+    backgroundColor: props.color ? hexToRgba(props.color, 0.15) : "",
   };
 });
 </script>

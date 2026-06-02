@@ -1,5 +1,5 @@
-import { createI18n } from 'vue-i18n';
-import { LANG_INDEX, messages } from './lang/message';
+import { createI18n } from "vue-i18n";
+import { LANG_INDEX, messages } from "./lang/message";
 
 type LangIndex = (typeof LANG_INDEX)[keyof typeof LANG_INDEX];
 
@@ -43,8 +43,8 @@ const localeMessages = buildLocaleMessages(messages as any);
 
 export const i18n = createI18n({
   legacy: false,
-  locale: 'zh-CN',
-  fallbackLocale: 'zh-CN',
+  locale: "zh-CN",
+  fallbackLocale: "zh-CN",
   messages: localeMessages,
 });
 

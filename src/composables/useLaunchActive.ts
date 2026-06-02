@@ -1,10 +1,10 @@
-import { storeToRefs } from 'pinia';
-import { useStore } from '@/store/useStore';
+import { storeToRefs } from "pinia";
+import { useStore } from "@/store/useStore";
 
 export function useLaunchActive() {
   const store = useStore();
   const { activeCategoryItem } = storeToRefs(store);
-  const gridRowMaxItem = computed(() => (activeCategoryItem.value?.layout === 'list' ? 1 : 6));
+  const gridRowMaxItem = computed(() => (activeCategoryItem.value?.layout === "list" ? 1 : 6));
 
   // 通过列表启动项索引查询对应的坐标
   function getPositionByIndex(i: number) {

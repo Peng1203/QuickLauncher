@@ -1,17 +1,23 @@
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { isEmpty } from 'lodash-es';
-import { storeToRefs } from 'pinia';
-import { AppEvent } from '@/constant';
-import { useStore } from '@/store/useStore';
-import { EventBus } from '@/utils/eventBus';
-import { useLaunchActive } from './useLaunchActive';
-import { useToggleWindowVisible } from './useToggleWindowVisible';
+import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { isEmpty } from "lodash-es";
+import { storeToRefs } from "pinia";
+import { AppEvent } from "@/constant";
+import { useStore } from "@/store/useStore";
+import { EventBus } from "@/utils/eventBus";
+import { useLaunchActive } from "./useLaunchActive";
+import { useToggleWindowVisible } from "./useToggleWindowVisible";
 
-const EVENT = 'keydown';
+const EVENT = "keydown";
 export function useMainWindowShortcut() {
   const store = useStore();
-  const { activeCategoryItem, activeLaunchItem, activeCursorX, activeCursorY, launchData, enableWindoShortcuts } =
-    storeToRefs(store);
+  const {
+    activeCategoryItem,
+    activeLaunchItem,
+    activeCursorX,
+    activeCursorY,
+    launchData,
+    enableWindoShortcuts,
+  } = storeToRefs(store);
 
   const { gridRowMaxItem, getPositionByIndex } = useLaunchActive();
   const { toogleSettingWindowVisible } = useToggleWindowVisible();
@@ -26,34 +32,34 @@ export function useMainWindowShortcut() {
     if (!enableWindoShortcuts.value) return;
 
     switch (key) {
-      case 'Escape': // 关闭窗口
-        handleCloseWindow();
+      case "Escape": // 关闭窗口
+        void handleCloseWindow();
         break;
-      case 'F2': // 重命名
+      case "F2": // 重命名
         rename(e);
         break;
-      case 'F4': // 编辑
+      case "F4": // 编辑
         edit();
         break;
-      case 'n': // 新建启动项
-      case 'N':
-        ctrlKey && shiftKey && addLaunch();
+      case "n": // 新建启动项
+      case "N":
+        if (ctrlKey && shiftKey) addLaunch();
         break;
-      case 'c': // 新建分类
-      case 'C':
-        ctrlKey && shiftKey && addCategory();
+      case "c": // 新建分类
+      case "C":
+        if (ctrlKey && shiftKey) addCategory();
         break;
-      case 's': // 打开设置窗口
-      case 'S':
-        altKey && toogleSettingWindowVisible();
+      case "s": // 打开设置窗口
+      case "S":
+        if (altKey) void toogleSettingWindowVisible();
         break;
-      case 'Delete': // 删除
+      case "Delete": // 删除
         handleDelete();
         break;
-      case 'ArrowUp':
-      case 'ArrowRight':
-      case 'ArrowDown':
-      case 'ArrowLeft':
+      case "ArrowUp":
+      case "ArrowRight":
+      case "ArrowDown":
+      case "ArrowLeft":
         handleMoveSelection(key);
         break;
 
@@ -64,8 +70,8 @@ export function useMainWindowShortcut() {
   };
 
   async function handleCloseWindow() {
-    const mainWindow = await WebviewWindow.getByLabel('main');
-    mainWindow?.hide();
+    const mainWindow = await WebviewWindow.getByLabel("main");
+    void mainWindow?.hide();
   }
 
   const rowTotal = computed(() => Math.ceil((launchData.value.length + 1) / gridRowMaxItem.value));
@@ -83,12 +89,17 @@ export function useMainWindowShortcut() {
     // if (!launchData.value.length) return;
 
     // 初始坐标可以通过右方向键选中
-    if (key === 'ArrowRight' && launchData.value.length && !activeCursorX.value && !activeCursorY.value) {
+    if (
+      key === "ArrowRight" &&
+      launchData.value.length &&
+      !activeCursorX.value &&
+      !activeCursorY.value
+    ) {
       activeCursorX.value = 1;
       activeCursorY.value = 1;
     } else {
       switch (key) {
-        case 'ArrowUp': {
+        case "ArrowUp": {
           const nextX = activeCursorX.value - 1;
           if (nextX < 1) return;
 
@@ -106,7 +117,7 @@ export function useMainWindowShortcut() {
           break;
         }
 
-        case 'ArrowDown': {
+        case "ArrowDown": {
           const nextX = activeCursorX.value + 1;
           if (nextX > rowTotal.value) return;
 
@@ -123,13 +134,13 @@ export function useMainWindowShortcut() {
 
           break;
         }
-        case 'ArrowLeft': {
+        case "ArrowLeft": {
           // 如果处于第一个选中的启动项 再次按下时 回到初始状态 取消选中元素
           if (activeCursorX.value === 1 && activeCursorY.value === 1) {
             activeCursorX.value = 0;
             activeCursorY.value = 0;
             // document.body.focus();
-            const siderEl = document.querySelector('#layoutSider') as any;
+            const siderEl = document.querySelector("#layoutSider") as any;
             siderEl?.focus();
           } else {
             const nextY = activeCursorY.value - 1;
@@ -158,7 +169,7 @@ export function useMainWindowShortcut() {
           break;
         }
 
-        case 'ArrowRight': {
+        case "ArrowRight": {
           const nextY = activeCursorY.value + 1;
 
           // 当前行正常右移
@@ -202,15 +213,15 @@ export function useMainWindowShortcut() {
    * 分类 src\views\Main\components\Sidebar.vue
    */
   function rename(_e: KeyboardEvent) {
-    const siderEl = document.querySelector('#layoutSider');
+    const siderEl = document.querySelector("#layoutSider");
     // const el = e.target as Node;
     // console.log(`%c siderEl ----`, 'color: #fff;background-color: #000;font-size: 18px', siderEl);
     // console.log(`%c el ----`, 'color: #fff;background-color: #000;font-size: 18px', el);
     // if (siderEl?.isSameNode(el) || siderEl?.contains(el)) { }
     // 使用 Sidbar 组件内部键盘事件处理
-    if (siderEl?.contains(document.activeElement) && siderEl?.matches(':hover')) return;
+    if (siderEl?.contains(document.activeElement) && siderEl?.matches(":hover")) return;
 
-    EventBus.emit(AppEvent.LAUNCH_RENAME);
+    void EventBus.emit(AppEvent.LAUNCH_RENAME);
   }
 
   /**
@@ -218,22 +229,23 @@ export function useMainWindowShortcut() {
    */
   function edit() {
     const isEmp = isEmpty(activeLaunchItem.value);
-    isEmp
-      ? EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY, activeCategoryItem.value)
-      : EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH, activeLaunchItem.value);
+    const [event, params] = isEmp
+      ? [AppEvent.OPEN_OPERATION_CATEGORY, activeCategoryItem.value]
+      : [AppEvent.OPEN_OPERATION_LAUNCH, activeLaunchItem.value];
+
+    void EventBus.emit(event, params);
   }
 
   function addLaunch() {
-    console.log(`%c 111 ----`, 'color: #fff;background-color: #000;font-size: 18px', 111);
-    EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH);
+    void EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH);
   }
   function addCategory() {
-    EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY);
+    void EventBus.emit(AppEvent.OPEN_OPERATION_CATEGORY);
   }
 
   function handleDelete() {
     const isEmp = isEmpty(activeLaunchItem.value);
-    isEmp ? EventBus.emit(AppEvent.DELETE_CATEGORY) : EventBus.emit(AppEvent.DELETE_LAUNCH);
+    void EventBus.emit(isEmp ? AppEvent.DELETE_CATEGORY : AppEvent.DELETE_LAUNCH);
   }
 
   onMounted(() => window.addEventListener(EVENT, handler, true));

@@ -1,8 +1,8 @@
-import { invoke } from '@tauri-apps/api/core';
-import { createDiscreteApi } from 'naive-ui';
-import { InvokeMethod } from '@/constant';
+import { invoke } from "@tauri-apps/api/core";
+import { createDiscreteApi } from "naive-ui";
+import { InvokeMethod } from "@/constant";
 
-const { message } = createDiscreteApi(['message']);
+const { message } = createDiscreteApi(["message"]);
 
 /**
  * @description 打开文件所在文件
@@ -12,7 +12,7 @@ const { message } = createDiscreteApi(['message']);
  * @returns {*}
  */
 export function openRevealManager(path: string) {
-  return invoke(InvokeMethod.OPEN_REVEAL_MANAGER, { path }).catch(e => message.error(e));
+  return invoke(InvokeMethod.OPEN_REVEAL_MANAGER, { path }).catch((e) => message.error(e));
 }
 
 /**
@@ -23,7 +23,7 @@ export function openRevealManager(path: string) {
  * @returns {*}
  */
 export function openDirInTerminal(path: string) {
-  return invoke(InvokeMethod.OPEN_DIR_IN_TERMINAL, { path }).catch(e => message.error(e));
+  return invoke(InvokeMethod.OPEN_DIR_IN_TERMINAL, { path }).catch((e) => message.error(e));
 }
 
 /**
@@ -34,7 +34,7 @@ export function openDirInTerminal(path: string) {
  * @returns {*}
  */
 export function openPath(path: string) {
-  return invoke(InvokeMethod.OPEN_PATH, { path }).catch(e => message.error(e));
+  return invoke(InvokeMethod.OPEN_PATH, { path }).catch((e) => message.error(e));
 }
 
 /**
@@ -59,7 +59,7 @@ export function getAppConfig<T = AppConfigState>() {
 export function saveAppConfig<T = AppConfigState>(configData: T) {
   return invoke(InvokeMethod.SAVE_APP_CONFIG, {
     config: {
-      name: 'appConfig',
+      name: "appConfig",
       data: JSON.stringify(configData),
     },
   });
@@ -138,7 +138,13 @@ export function getLaunchs<T = LaunchItem>(
   enable?: boolean,
   defaultCategory?: boolean,
 ) {
-  return invoke<T[]>(InvokeMethod.GET_LAUNCH, { categoryId, defaultCategory, sortBy, sortOrder, enable });
+  return invoke<T[]>(InvokeMethod.GET_LAUNCH, {
+    categoryId,
+    defaultCategory,
+    sortBy,
+    sortOrder,
+    enable,
+  });
 }
 
 /**
@@ -237,7 +243,7 @@ export function updateCategory<T = CategoryItem>(item: T) {
 export function updateCategoryAssDir({
   id,
   association_directory,
-}: Pick<CategoryItem, 'id' | 'association_directory'>) {
+}: Pick<CategoryItem, "id" | "association_directory">) {
   return invoke(InvokeMethod.UPDATE_CATEGORY_ASS_DIR, { id, assDir: association_directory });
 }
 
@@ -271,7 +277,10 @@ export function getOnlineImgBase64(url: string): Promise<string> {
   return invoke<string>(InvokeMethod.GET_ONLINE_IMG_BASE64, { url });
 }
 
-export function addOrUpdateAutocompleteRecord(query: string, launchItemId?: number): Promise<string> {
+export function addOrUpdateAutocompleteRecord(
+  query: string,
+  launchItemId?: number,
+): Promise<string> {
   return invoke<string>(InvokeMethod.ADD_OR_UPDATE_AUTOCOMPLETE, {
     query,
     launchItemId,
@@ -282,7 +291,10 @@ export function getAutocomplete(keyword: string) {
   return invoke<string[]>(InvokeMethod.GET_AUTOCOMPLETE, { keyword });
 }
 
-export function getLaunchByNameAndCategory<T = LaunchItem>(name: string, categoryId: number): Promise<T | null> {
+export function getLaunchByNameAndCategory<T = LaunchItem>(
+  name: string,
+  categoryId: number,
+): Promise<T | null> {
   return invoke<T | null>(InvokeMethod.GET_LAUNCH_BY_NAME_AND_CATEGORY, { name, categoryId });
 }
 

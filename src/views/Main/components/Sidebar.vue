@@ -16,8 +16,12 @@
       <button
         v-for="item of categoryData"
         :key="item.id"
-        :ref="el => (categoryItemRefs[`${item.id}`] = el)"
-        :class="[activeCategory === item.id ? 'bg-muted active-category' : 'hover:bg-secondary text-foreground']"
+        :ref="(el) => (categoryItemRefs[`${item.id}`] = el)"
+        :class="[
+          activeCategory === item.id
+            ? 'bg-muted active-category'
+            : 'hover:bg-secondary text-foreground',
+        ]"
         tabindex="-1"
         class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden"
         @click="handleChangeCategory(item.id)"
@@ -27,7 +31,7 @@
         <!-- class="px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal" -->
         <!-- :ref="`nameRef${item.id}`" -->
         <span
-          :ref="el => (itemRefs[`${item.id}`] = el)"
+          :ref="(el) => (itemRefs[`${item.id}`] = el)"
           :contenteditable="item.id === renameItemId"
           class="block whitespace-nowrap overflow-x-auto overflow-y-hidden max-w-full outline-none"
           :class="[item.id === renameItemId && 'editable-active']"
@@ -41,10 +45,7 @@
   </n-layout-sider>
 
   <!-- 分类菜单 -->
-  <CategoryContextMenu
-    v-model="contextMenuVisible"
-    :position="contextMenuPosition"
-  />
+  <CategoryContextMenu v-model="contextMenuVisible" :position="contextMenuPosition" />
 
   <!-- 分类项自定义菜单 -->
   <CategoryItemContextMenu
@@ -57,18 +58,19 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { nextTick, ref, shallowRef } from 'vue';
-import { openPath, updateCategory } from '@/api';
-import CategoryContextMenu from '@/components/CategoryContextMenu.vue';
-import CategoryItemContextMenu from '@/components/CategoryItemContextMenu.vue';
-import { useAppConfig, useCategoryCorrelationDir } from '@/composables';
-import { AppEvent } from '@/constant';
-import { useStore } from '@/store/useStore';
-import { EventBus } from '@/utils/eventBus';
+import { storeToRefs } from "pinia";
+import { nextTick, ref, shallowRef } from "vue";
+import { openPath, updateCategory } from "@/api";
+import CategoryContextMenu from "@/components/CategoryContextMenu.vue";
+import CategoryItemContextMenu from "@/components/CategoryItemContextMenu.vue";
+import { useAppConfig, useCategoryCorrelationDir } from "@/composables";
+import { AppEvent } from "@/constant";
+import { useStore } from "@/store/useStore";
+import { EventBus } from "@/utils/eventBus";
 
 const store = useStore();
-const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem, enableWindoShortcuts } = storeToRefs(store);
+const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem, enableWindoShortcuts } =
+  storeToRefs(store);
 const { registerAllCategoryDirWatch, checkCategoryDirAndLaunchSync } = useCategoryCorrelationDir();
 const { themeColor } = useAppConfig();
 
@@ -131,7 +133,7 @@ const itemRefs = shallowRef<any>({});
 const renameItemId = ref<number>(0);
 const renameStatus = ref<boolean>(true);
 
-const oldName = ref('');
+const oldName = ref("");
 function handleRename() {
   const item = activeCategoryItem.value;
   renameStatus.value = true;
@@ -155,7 +157,7 @@ function handleRename() {
 }
 EventBus.listen(AppEvent.CATEGORY_RENAME, handleRename);
 
-const siderRef = useTemplateRef('siderRef');
+const siderRef = useTemplateRef("siderRef");
 function cancelRename(restore: boolean = true) {
   if (!renameStatus.value) return;
   renameItemId.value = 0;
@@ -179,12 +181,12 @@ function cancelRename(restore: boolean = true) {
 async function handleKeydown(e: KeyboardEvent) {
   const { key } = e;
   // console.log('keyCode ------', keyCode);
-  console.log('key ------', key);
+  console.log("key ------", key);
   switch (key) {
-    case 'F2': // 113
+    case "F2": // 113
       handleRename();
       break;
-    case 'Enter': // 13
+    case "Enter": // 13
       if (!renameStatus.value) return;
       nextTick(async () => {
         const params = {
@@ -198,14 +200,14 @@ async function handleKeydown(e: KeyboardEvent) {
       });
       e.preventDefault();
       break;
-    case 'Escape': // 27
+    case "Escape": // 27
       cancelRename();
       break;
-    case 'ArrowUp': // 38
-      handleCategorySwitchByKey('up');
+    case "ArrowUp": // 38
+      handleCategorySwitchByKey("up");
       break;
-    case 'ArrowDown': // 40
-      handleCategorySwitchByKey('down');
+    case "ArrowDown": // 40
+      handleCategorySwitchByKey("down");
       break;
     default:
       break;
@@ -213,19 +215,21 @@ async function handleKeydown(e: KeyboardEvent) {
 }
 
 const maxIndex = computed(() => categoryData.value.length - 1);
-const currentIndex = computed(() => categoryData.value.findIndex(item => item.id === activeCategory.value));
+const currentIndex = computed(() =>
+  categoryData.value.findIndex((item) => item.id === activeCategory.value),
+);
 const categoryItemRefs = shallowRef<any>({});
 async function handleCategorySwitchByKey(direction: DirectionType) {
   if (maxIndex.value <= 1) return;
   let newIndex = 0;
 
   switch (direction) {
-    case 'up':
+    case "up":
       // 边界情况处理
       if (!currentIndex.value) newIndex = maxIndex.value;
       else newIndex = currentIndex.value - 1;
       break;
-    case 'down':
+    case "down":
       if (currentIndex.value === maxIndex.value) newIndex = 0;
       else newIndex = currentIndex.value + 1;
       break;
@@ -239,8 +243,8 @@ async function handleCategorySwitchByKey(direction: DirectionType) {
     const el = categoryItemRefs.value[item.id];
     if (!el) return;
     el?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
+      behavior: "smooth",
+      block: "nearest",
     });
   });
 }
@@ -253,8 +257,8 @@ EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
 
     if (!el) return;
     el?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
+      behavior: "smooth",
+      block: "nearest",
     });
   });
 });
@@ -268,7 +272,7 @@ EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
   cursor: text;
 }
 .active-category {
-  color: v-bind('themeColor') !important;
+  color: v-bind("themeColor") !important;
 }
 // .editable-active {
 //   animation: editablePulse 0.3s ease-in-out;

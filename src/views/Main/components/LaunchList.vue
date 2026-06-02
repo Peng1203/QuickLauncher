@@ -17,12 +17,9 @@
           : 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 draggable gap-0.5'
       "
     >
-      <template
-        v-for="item in launchData"
-        :key="item.id"
-      >
+      <template v-for="item in launchData" :key="item.id">
         <ListItem
-          :ref="el => (itemRefs[`${item.id}`] = el)"
+          :ref="(el) => (itemRefs[`${item.id}`] = el)"
           :item="item"
           :icon="item.icon!"
           :name="item.name"
@@ -34,45 +31,42 @@
       v-else
       class="w-full h-full flex items-center justify-center text-muted-foreground text-lg"
     >
-      {{ isConrrelationDir ? t('main.emptyFolder') : t('main.dragHere') }}
+      {{ isConrrelationDir ? t("main.emptyFolder") : t("main.dragHere") }}
     </div>
   </n-layout-content>
 
   <!-- 启动项列表 空白处右键菜单 -->
-  <ListContextMenu
-    v-model="contextMenuVisible"
-    :position="contextMenuPosition"
-  />
+  <ListContextMenu v-model="contextMenuVisible" :position="contextMenuPosition" />
 </template>
 
 <script setup lang="ts">
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { isEmpty } from 'lodash-es';
-import { storeToRefs } from 'pinia';
-import { nextTick, ref } from 'vue';
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { isEmpty } from "lodash-es";
+import { storeToRefs } from "pinia";
+import { nextTick, ref } from "vue";
 // import { VueDraggable } from 'vue-draggable-plus';
-import { addLaunch, getFileInfo } from '@/api';
-import ListContextMenu from '@/components/ListContextMenu.vue';
-import ListItem from '@/components/ListItem.vue';
-import { useCategoryCorrelationDir } from '@/composables';
-import { AppEvent } from '@/constant';
-import { t } from '@/i18n';
-import { useStore } from '@/store/useStore';
-import { EventBus } from '@/utils/eventBus';
+import { addLaunch, getFileInfo } from "@/api";
+import ListContextMenu from "@/components/ListContextMenu.vue";
+import ListItem from "@/components/ListItem.vue";
+import { useCategoryCorrelationDir } from "@/composables";
+import { AppEvent } from "@/constant";
+import { t } from "@/i18n";
+import { useStore } from "@/store/useStore";
+import { EventBus } from "@/utils/eventBus";
 
 const store = useStore();
 const { launchData, activeCategory, activeCategoryItem, activeLaunchItem } = storeToRefs(store);
 const { isConrrelationDir } = useCategoryCorrelationDir();
 const currentWindow = getCurrentWebviewWindow();
-const isListMode = computed(() => activeCategoryItem.value.layout === 'list');
+const isListMode = computed(() => activeCategoryItem.value.layout === "list");
 
-currentWindow.onDragDropEvent(async e => {
+currentWindow.onDragDropEvent(async (e) => {
   // 防止在关联目录分类下手动拖拽添加启动项
   if (isConrrelationDir.value) return;
 
   // TODO 分类对话框打开
-  if (e.payload.type === 'drop') {
-    const addLaunchTasks = (e.payload.paths ?? []).map(async path => {
+  if (e.payload.type === "drop") {
+    const addLaunchTasks = (e.payload.paths ?? []).map(async (path) => {
       const fileInfo = await getFileInfo(path);
 
       const item: NewLaunchItem = {
@@ -82,12 +76,12 @@ currentWindow.onDragDropEvent(async e => {
         type: fileInfo.type,
         icon: fileInfo.icon,
         // category_id: null,
-        hotkey: '',
+        hotkey: "",
         hotkey_global: false,
-        keywords: '',
+        keywords: "",
         start_dir: fileInfo.start_dir,
-        remarks: fileInfo.remarks || '',
-        args: fileInfo.args || '',
+        remarks: fileInfo.remarks || "",
+        args: fileInfo.args || "",
         run_as_admin: false,
         order_index: 0,
         enabled: true,
@@ -134,8 +128,8 @@ EventBus.listen(AppEvent.DELETE_LAUNCH, () => {
 
 watch(
   () => activeLaunchItem.value,
-  val => {
-    console.log(`%c val ----`, 'color: #fff;background-color: #000;font-size: 18px', val);
+  (val) => {
+    console.log(`%c val ----`, "color: #fff;background-color: #000;font-size: 18px", val);
     if (val) {
       const itemRef = itemRefs.value[val.id];
       itemRef?.scrollItemIntoView();

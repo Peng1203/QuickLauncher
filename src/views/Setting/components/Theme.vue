@@ -1,10 +1,7 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
     <!-- 外观模式 -->
-    <SettingGroup
-      :title="t('theme.appearanceMode')"
-      :description="t('themeExtra.appearanceDesc')"
-    >
+    <SettingGroup :title="t('theme.appearanceMode')" :description="t('themeExtra.appearanceDesc')">
       <div class="flex gap-2">
         <div
           v-for="mode in appearanceModes"
@@ -24,10 +21,7 @@
     </SettingGroup>
 
     <!-- 主题色 -->
-    <SettingGroup
-      :title="t('theme.themeColor')"
-      :description="t('themeExtra.themeColorDesc')"
-    >
+    <SettingGroup :title="t('theme.themeColor')" :description="t('themeExtra.themeColorDesc')">
       <div class="flex flex-wrap gap-2">
         <button
           v-for="color in presetColors"
@@ -215,9 +209,9 @@
 </template>
 
 <script setup lang="ts">
-import { getLocalFonts } from '@/api';
-import { useAppConfig, useTheme } from '@/composables';
-import { t } from '@/i18n';
+import { getLocalFonts } from "@/api";
+import { useAppConfig, useTheme } from "@/composables";
+import { t } from "@/i18n";
 
 const { prefersDark, setHTMLThemeClass, setThemeModel } = useTheme();
 const { appConfigStore } = useAppConfig();
@@ -229,30 +223,30 @@ interface AppearanceMode {
 }
 
 const appearanceModes = computed<AppearanceMode[]>(() => [
-  { label: t('theme.light'), value: 'light', icon: 'icon-taiyang' },
-  { label: t('theme.dark'), value: 'dark', icon: 'icon-yueliang' },
-  { label: t('theme.system'), value: 'system', icon: 'icon-gensuixitong1' },
+  { label: t("theme.light"), value: "light", icon: "icon-taiyang" },
+  { label: t("theme.dark"), value: "dark", icon: "icon-yueliang" },
+  { label: t("theme.system"), value: "system", icon: "icon-gensuixitong1" },
 ]);
 
 const presetColors = [
-  '#2080f0',
-  '#18a058',
-  '#f0a020',
-  '#d03050',
-  '#7b1fa2',
-  '#00838f',
-  '#e65100',
-  '#5c6bc0',
-  '#2e7d32',
-  '#c62828',
-  '#283593',
-  '#00695c',
+  "#2080f0",
+  "#18a058",
+  "#f0a020",
+  "#d03050",
+  "#7b1fa2",
+  "#00838f",
+  "#e65100",
+  "#5c6bc0",
+  "#2e7d32",
+  "#c62828",
+  "#283593",
+  "#00695c",
 ];
 
 const pageStyleOptions = computed<OptionItem<string>[]>(() => [
-  { label: t('theme.styleDefault'), value: 'normal' },
-  { label: 'macOS', value: 'macos' },
-  { label: 'Windows 11', value: 'win11' },
+  { label: t("theme.styleDefault"), value: "normal" },
+  { label: "macOS", value: "macos" },
+  { label: "Windows 11", value: "win11" },
 ]);
 
 // const densityOptions: OptionItem<string>[] = [
@@ -268,8 +262,8 @@ async function handleSwitchTheme(e: PointerEvent, newTheme: ThemeModel) {
 
   let toTheme = newTheme;
   // if (newTheme === 'system') return (appConfigStore.themeModel = newTheme);
-  if (newTheme === 'system') {
-    toTheme = prefersDark.value ? 'dark' : 'light';
+  if (newTheme === "system") {
+    toTheme = prefersDark.value ? "dark" : "light";
   }
   await setThemeModel(newTheme);
 
@@ -283,14 +277,14 @@ async function handleSwitchTheme(e: PointerEvent, newTheme: ThemeModel) {
 
 async function getSystemFonts() {
   const fonts = await getLocalFonts();
-  const fontData = fonts.map(item => ({
+  const fontData = fonts.map((item) => ({
     label: item.family,
     value: item.family,
     style: `font-family: "${item.family}"`,
   }));
   const options: any = [
-    { label: t('theme.styleDefault'), value: '' },
-    { label: t('theme.system'), value: 'system-ui', style: 'font-family: system-ui' },
+    { label: t("theme.styleDefault"), value: "" },
+    { label: t("theme.system"), value: "system-ui", style: "font-family: system-ui" },
     ...fontData,
   ];
   fontOptions.value = options;

@@ -1,11 +1,11 @@
-import { useSessionStorage } from '@vueuse/core';
-import { defineStore } from 'pinia';
-import { getCategory, getLaunchs } from '@/api';
-import { ACTIVE_CATEGORY_LOCAL_KEY } from '@/constant';
+import { useSessionStorage } from "@vueuse/core";
+import { defineStore } from "pinia";
+import { getCategory, getLaunchs } from "@/api";
+import { ACTIVE_CATEGORY_LOCAL_KEY } from "@/constant";
 
 const activeCategoryRef = useSessionStorage(ACTIVE_CATEGORY_LOCAL_KEY, 0);
 
-export const useStore = defineStore('main', {
+export const useStore = defineStore("main", {
   state: () => ({
     launchData: <LaunchItem[]>[],
     activeLaunchItem: <LaunchItem | null>{},
@@ -44,7 +44,7 @@ export const useStore = defineStore('main', {
       this.categoryData = data;
       this.categoryOptions = data
         // .filter(item => !item.association_directory)
-        .map(item => ({
+        .map((item) => ({
           // 部分分了关联了 文件目录 在 option中 禁止这些目录作为选项
           disable: !!item.association_directory,
           value: item.id,
@@ -52,7 +52,7 @@ export const useStore = defineStore('main', {
         }));
 
       // 找出默认分类
-      this.defaultCategory = data.find(item => item.order_index === 9999)!;
+      this.defaultCategory = data.find((item) => item.order_index === 9999)!;
 
       if (init && !activeCategoryRef.value) this.activeCategory = this.defaultCategory.id;
     },
@@ -66,12 +66,13 @@ export const useStore = defineStore('main', {
     },
   },
   getters: {
-    activeCategoryItem: state => state.categoryData.find(item => item.id === state.activeCategory) as CategoryItem,
+    activeCategoryItem: (state) =>
+      state.categoryData.find((item) => item.id === state.activeCategory) as CategoryItem,
   },
   tauri: {
     autoStart: true,
     saveInterval: 1000,
-    saveStrategy: 'debounce',
+    saveStrategy: "debounce",
 
     hooks: {
       // 初始化钩子 在rust端之前调用

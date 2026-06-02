@@ -36,26 +36,15 @@
           "
         >
           <template #icon>
-            <Icon
-              name="icon-xinzeng"
-              size="16"
-            />
+            <Icon name="icon-xinzeng" size="16" />
           </template>
-          {{ t('common.add') }}
+          {{ t("common.add") }}
         </n-button>
-        <n-button
-          type="primary"
-          size="tiny"
-          :disabled="changed"
-          @click="handleSave"
-        >
+        <n-button type="primary" size="tiny" :disabled="changed" @click="handleSave">
           <template #icon>
-            <Icon
-              name="icon-baocun"
-              size="14"
-            />
+            <Icon name="icon-baocun" size="14" />
           </template>
-          {{ t('common.save') }}
+          {{ t("common.save") }}
         </n-button>
       </div>
 
@@ -72,24 +61,14 @@
 
       <div class="flex-1 flex-sb-c">
         <span class="flex-s-c gap-0.5 text-[10px] text-muted-foreground">
-          <Icon
-            name="icon-tip"
-            size="12"
-          />
-          <span>{{ t('commandAlias.aliasPinyinTip') }}</span>
+          <Icon name="icon-tip" size="12" />
+          <span>{{ t("commandAlias.aliasPinyinTip") }}</span>
         </span>
-        <n-button
-          type="tertiary"
-          size="tiny"
-          @click="setDefaultData"
-        >
+        <n-button type="tertiary" size="tiny" @click="setDefaultData">
           <template #icon>
-            <Icon
-              name="icon-shuaxin"
-              size="14"
-            />
+            <Icon name="icon-shuaxin" size="14" />
           </template>
-          {{ t('commandAlias.defaultData') }}
+          {{ t("commandAlias.defaultData") }}
         </n-button>
       </div>
     </SettingGroup>
@@ -202,7 +181,7 @@ async function handleSave() {
     if (item.id) {
       const originItem = originData.value.find(i => i.id === item.id);
       const isChanged = !isEqual(originItem, item);
-      isChanged && changedRecord.push(item);
+      if(isChanged)  changedRecord.push(item);
     } else {
       newRecord.push(item);
     }

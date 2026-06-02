@@ -1,48 +1,52 @@
-import { register as _register, isRegistered, unregister } from '@tauri-apps/plugin-global-shortcut';
-import { t } from '@/i18n';
+import {
+  register as _register,
+  isRegistered,
+  unregister,
+} from "@tauri-apps/plugin-global-shortcut";
+import { t } from "@/i18n";
 
-const CTRL = 'Ctrl';
-const ALT = 'Alt';
-const SHIFT = 'Shift';
-const WIN = '⌘';
+const CTRL = "Ctrl";
+const ALT = "Alt";
+const SHIFT = "Shift";
+const WIN = "⌘";
 
 // 系统 / 浏览器 / IDE 高频保留快捷键（可持续扩展）
 const SYSTEM_HOTKEYS = new Set([
   // 浏览器
-  'Ctrl + L',
-  'Ctrl + T',
-  'Ctrl + W',
-  'Ctrl + N',
-  'Ctrl + R',
-  'Ctrl + Shift + R',
-  'Ctrl + Tab',
+  "Ctrl + L",
+  "Ctrl + T",
+  "Ctrl + W",
+  "Ctrl + N",
+  "Ctrl + R",
+  "Ctrl + Shift + R",
+  "Ctrl + Tab",
 
   // 编辑常用
-  'Ctrl + C',
-  'Ctrl + V',
-  'Ctrl + X',
-  'Ctrl + A',
-  'Ctrl + Z',
-  'Ctrl + Y',
-  'Ctrl + S',
-  'Ctrl + F',
-  'Ctrl + P',
+  "Ctrl + C",
+  "Ctrl + V",
+  "Ctrl + X",
+  "Ctrl + A",
+  "Ctrl + Z",
+  "Ctrl + Y",
+  "Ctrl + S",
+  "Ctrl + F",
+  "Ctrl + P",
 
   // Windows 系统
-  'Alt + Tab',
-  'Alt + F4',
-  'Win + D',
-  'Win + L',
+  "Alt + Tab",
+  "Alt + F4",
+  "Win + D",
+  "Win + L",
 
   // mac（你这里 WIN 实际是 ⌘）
-  '⌘ + Space',
-  '⌘ + Q',
-  '⌘ + W',
-  '⌘ + Tab',
-  '⌘ + C',
-  '⌘ + V',
-  '⌘ + X',
-  '⌘ + Z',
+  "⌘ + Space",
+  "⌘ + Q",
+  "⌘ + W",
+  "⌘ + Tab",
+  "⌘ + C",
+  "⌘ + V",
+  "⌘ + X",
+  "⌘ + Z",
 ]);
 
 /**
@@ -54,13 +58,17 @@ const SYSTEM_HOTKEYS = new Set([
  * @param {boolean} [preventDefault]
  * @returns {*}
  */
-export function getShortcutKey(e: KeyboardEvent, originValue: string = '', preventDefault: boolean = false) {
+export function getShortcutKey(
+  e: KeyboardEvent,
+  originValue: string = "",
+  preventDefault: boolean = false,
+) {
   if (preventDefault) e.preventDefault();
 
   const { code, key, keyCode, shiftKey, ctrlKey, metaKey, altKey } = e;
 
-  if (code === 'Escape' && keyCode === 27) return originValue;
-  if (code === 'Backspace' && keyCode === 8) return '';
+  if (code === "Escape" && keyCode === 27) return originValue;
+  if (code === "Backspace" && keyCode === 8) return "";
 
   const keys = [];
 
@@ -83,7 +91,7 @@ export function getShortcutKey(e: KeyboardEvent, originValue: string = '', preve
 
   // keys.push(code)
   let flag = false;
-  let singleKey = '';
+  let singleKey = "";
 
   // 字母A-Z处理
   if (keyCode >= 65 && keyCode <= 90) {
@@ -99,14 +107,14 @@ export function getShortcutKey(e: KeyboardEvent, originValue: string = '', preve
   switch (keyCode) {
     // Space 空格
     case 32:
-      singleKey = 'Space';
+      singleKey = "Space";
       break;
     // 方向键过滤
     case 37:
     case 38:
     case 39:
     case 40:
-      singleKey = code.replace('Arrow', '');
+      singleKey = code.replace("Arrow", "");
       break;
     // 跳过组合键
     case 16:
@@ -120,7 +128,8 @@ export function getShortcutKey(e: KeyboardEvent, originValue: string = '', preve
       singleKey = code;
       break;
     default:
-      !flag && (singleKey = key);
+      if (!flag) singleKey = key;
+      // !flag && (singleKey = key);
       break;
   }
 
@@ -130,7 +139,7 @@ export function getShortcutKey(e: KeyboardEvent, originValue: string = '', preve
   // @ts-ignore
   // keys.sort((a, b) => order[a] - order[b])
 
-  return keys.join('');
+  return keys.join("");
 }
 
 /**
@@ -147,19 +156,19 @@ export async function checkShortcutKey(
   oldShortcutKey?: string,
 ): Promise<{ checked: boolean; message: string }> {
   try {
-    if (oldShortcutKey && shortcutKey === oldShortcutKey) return { checked: true, message: '' };
+    if (oldShortcutKey && shortcutKey === oldShortcutKey) return { checked: true, message: "" };
     let flag = false;
     // 系统快捷键校验
     const isSystemHotkey = checkSystemHotkey(shortcutKey);
-    if (!isSystemHotkey) return { checked: false, message: t('shortcutKeyInput.reserved') };
+    if (!isSystemHotkey) return { checked: false, message: t("shortcutKeyInput.reserved") };
 
     // 检验快捷键是否在全局注册过
     const isReg = await isRegistered(shortcutKey);
     flag = !isReg;
 
-    return { checked: flag, message: flag ? '' : t('shortcutKeyInput.occupied') };
+    return { checked: flag, message: flag ? "" : t("shortcutKeyInput.occupied") };
   } catch (e) {
-    console.log('e', e);
+    console.log("e", e);
     return { checked: false, message: e as string };
   }
 }
@@ -174,8 +183,8 @@ export function checkShortcutKeyComplete(shortcutKey: string): boolean {
   if (!shortcutKey.trim()) return false;
 
   const keys = shortcutKey
-    .split('+')
-    .map(k => k.trim())
+    .split("+")
+    .map((k) => k.trim())
     .filter(Boolean);
   if (keys.length === 0) return false;
 
@@ -194,12 +203,12 @@ export function checkShortcutKeyComplete(shortcutKey: string): boolean {
 export async function unRegisterShortcutKey(shortcutKey: string) {
   if (!shortcutKey.trim()) return;
   const isReg = await isRegistered(shortcutKey);
-  isReg && (await unregister(shortcutKey));
+  if (isReg) await unregister(shortcutKey);
 }
 
 export async function register(shortcutKey: string, cb: () => any) {
-  await _register(shortcutKey, async e => {
-    if (e.state === 'Released') {
+  await _register(shortcutKey, async (e) => {
+    if (e.state === "Released") {
       cb();
     }
   });
@@ -213,8 +222,16 @@ export function checkSystemHotkey(shortcutKey: string): boolean {
   if (!shortcutKey) return true;
 
   const normalized = shortcutKey.trim();
-  console.log(`%c shortcutKey ----`, 'color: #fff;background-color: #000;font-size: 18px', shortcutKey);
-  console.log(`%c normalized ----`, 'color: #fff;background-color: #000;font-size: 18px', normalized);
+  console.log(
+    `%c shortcutKey ----`,
+    "color: #fff;background-color: #000;font-size: 18px",
+    shortcutKey,
+  );
+  console.log(
+    `%c normalized ----`,
+    "color: #fff;background-color: #000;font-size: 18px",
+    normalized,
+  );
   if (SYSTEM_HOTKEYS.has(normalized)) return false;
 
   return true;

@@ -11,18 +11,11 @@
           v-if="icon"
           class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded bg-accent text-muted-foreground"
         >
-          <Icon
-            :name="icon"
-            :color="iconColor"
-            size="14"
-          />
+          <Icon :name="icon" :color="iconColor" size="14" />
         </div>
 
         <div class="min-w-0">
-          <slot
-            name="title"
-            :handle-toggle="handleToggle"
-          >
+          <slot name="title" :handle-toggle="handleToggle">
             <p
               class="text-xs font-medium leading-tight text-foreground truncate"
               :class="props.expandable ? 'cursor-pointer text-[var(--primary)]!' : ''"
@@ -58,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from "vue";
 
 interface Props {
   icon?: any;
@@ -67,17 +60,14 @@ interface Props {
   description?: string;
   className?: string;
   expandable?: boolean;
-  expanded?: boolean;
 }
 
 const props = defineProps<Props>();
 
-const expanded = defineModel<boolean>('expanded', {
-  default: false,
-});
+const expanded = defineModel<boolean>("expanded", { default: false });
 
 const rootClass = computed(() => {
-  return ['', '', props.className].filter(Boolean).join(' ');
+  return ["", "", props.className].filter(Boolean).join(" ");
 });
 
 function handleToggle() {

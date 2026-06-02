@@ -2,11 +2,7 @@
   <div class="flex flex-col gap-4 p-4">
     <!-- Header -->
     <div class="flex flex-col items-center gap-3 py-4">
-      <img
-        src="@/assets/icon.png"
-        alt="Quick Launcher"
-        class="w-16 h-16"
-      />
+      <img src="@/assets/icon.png" alt="Quick Launcher" class="w-16 h-16" />
       <div class="flex flex-col items-center gap-0.5">
         <h2 class="text-base font-semibold text-foreground">Quick Launcher</h2>
         <p class="text-xs text-muted-foreground">版本 v{{ version }}</p>
@@ -14,26 +10,12 @@
     </div>
 
     <!-- About -->
-    <SettingGroup
-      :title="t('about.groupAbout')"
-      :description="t('about.aboutDesc')"
-    >
-      <SettingItem
-        icon="icon-wangluo"
-        :title="t('about.officialSite')"
-        description=""
-      >
-        <Icon
-          link
-          name="icon-waibulianjie"
-          class="cursor-pointer"
-        />
+    <SettingGroup :title="t('about.groupAbout')" :description="t('about.aboutDesc')">
+      <SettingItem icon="icon-wangluo" :title="t('about.officialSite')" description="">
+        <Icon link name="icon-waibulianjie" class="cursor-pointer" />
       </SettingItem>
 
-      <SettingItem
-        icon="icon-github-fill"
-        title="GitHub"
-      >
+      <SettingItem icon="icon-github-fill" title="GitHub">
         <!-- :description="GITHUB_URL" -->
         <Icon
           link
@@ -42,10 +24,7 @@
         />
       </SettingItem>
 
-      <SettingItem
-        icon="icon-kaiyuanxieyi"
-        :title="t('about.openSourceLicense')"
-      >
+      <SettingItem icon="icon-kaiyuanxieyi" :title="t('about.openSourceLicense')">
         <!-- description="MIT license" -->
         <Icon
           link
@@ -54,10 +33,7 @@
         />
       </SettingItem>
 
-      <SettingItem
-        icon="icon-wodefankui"
-        :title="t('about.feedback')"
-      >
+      <SettingItem icon="icon-wodefankui" :title="t('about.feedback')">
         <Icon
           link
           name="icon-waibulianjie"
@@ -92,13 +68,9 @@
           @click="handleCheckUpdate"
         >
           <template #icon>
-            <Icon
-              :class="isChecking ? 'animate-spin' : ''"
-              name="icon-jianchagengxin"
-              size="16"
-            />
+            <Icon :class="isChecking ? 'animate-spin' : ''" name="icon-jianchagengxin" size="16" />
           </template>
-          {{ isChecking ? t('about.checking') : t('about.checkUpdate') }}
+          {{ isChecking ? t("about.checking") : t("about.checkUpdate") }}
         </n-button>
       </SettingItem>
     </SettingGroup>
@@ -109,22 +81,16 @@
     >
       <!-- 更新信息 -->
       <div class="flex gap-4">
-        <Icon
-          background
-          name="icon-xiazai"
-          size="22"
-          :color="UpdateSetupColorMap[updateSetup!]"
-        />
+        <Icon background name="icon-xiazai" size="22" :color="UpdateSetupColorMap[updateSetup!]" />
 
         <div class="flex flex-col flex-1">
           <div class="flex-sb-c">
-            <h3 class="text-[13px] font-semibold text-foreground tracking-tight">{{ t('about.newVersion') }}</h3>
+            <h3 class="text-[13px] font-semibold text-foreground tracking-tight">
+              {{ t("about.newVersion") }}
+            </h3>
 
             <div class="flex-sb-c gap-2 text-muted-foreground">
-              <Icon
-                name="icon-faburiqi"
-                size="12"
-              />
+              <Icon name="icon-faburiqi" size="12" />
               <div>{{ getFromNow(updateInfo?.date) }}</div>
             </div>
           </div>
@@ -153,7 +119,9 @@
             </div>
 
             <!-- 已下载百分百 -->
-            <div class="text-[11px] font-medium text-primary">{{ Math.round(downloadProgress) }}%</div>
+            <div class="text-[11px] font-medium text-primary">
+              {{ Math.round(downloadProgress) }}%
+            </div>
           </div>
 
           <n-progress
@@ -169,12 +137,8 @@
         <div class="flex gap-4">
           <div class="flex-1 rounded-2xl border border-border bg-muted px-3 py-2">
             <div class="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon
-                size="16"
-                name="icon-shandian"
-                color="oklch(62.3% 0.214 259.815)"
-              />
-              <span>{{ t('about.downloadSpeed') }}</span>
+              <Icon size="16" name="icon-shandian" color="oklch(62.3% 0.214 259.815)" />
+              <span>{{ t("about.downloadSpeed") }}</span>
             </div>
 
             <div class="font-semibold text-foreground">
@@ -185,11 +149,8 @@
 
           <div class="flex-1 rounded-2xl border border-border bg-muted px-3 py-2">
             <div class="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon
-                name="icon-panfu"
-                color="oklch(62.7% 0.265 303.9)"
-              />
-              <span>{{ t('about.remainingSize') }}</span>
+              <Icon name="icon-panfu" color="oklch(62.7% 0.265 303.9)" />
+              <span>{{ t("about.remainingSize") }}</span>
             </div>
 
             <div class="font-semibold text-foreground">
@@ -200,12 +161,8 @@
 
           <div class="flex-1 rounded-2xl border border-border bg-muted px-3 py-2">
             <div class="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
-              <Icon
-                size="16"
-                name="icon-shijian"
-                color="oklch(70.5% 0.213 47.604)"
-              />
-              <span>{{ t('about.estimatedTime') }}</span>
+              <Icon size="16" name="icon-shijian" color="oklch(70.5% 0.213 47.604)" />
+              <span>{{ t("about.estimatedTime") }}</span>
             </div>
 
             <div class="font-semibold text-foreground">
@@ -222,12 +179,9 @@
         v-if="isDownloaded"
         class="flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3 text-primary text-xs"
       >
-        <Icon
-          name="icon-xiazaiwancheng"
-          size="14"
-        />
+        <Icon name="icon-xiazaiwancheng" size="14" />
 
-        <span>{{ t('about.downloadComplete') }}</span>
+        <span>{{ t("about.downloadComplete") }}</span>
       </div>
 
       <!-- 下载取消提示 -->
@@ -235,13 +189,9 @@
         v-if="isCancelled"
         class="flex items-center gap-2 rounded-xl border border-border bg-muted px-4 py-3 text-muted-foreground text-xs"
       >
-        <Icon
-          name="icon-gantanhao-xianxingyuankuang"
-          size="15"
-          class="text-muted-foreground"
-        />
+        <Icon name="icon-gantanhao-xianxingyuankuang" size="15" class="text-muted-foreground" />
 
-        <span>{{ t('about.downloadCancelled') }}</span>
+        <span>{{ t("about.downloadCancelled") }}</span>
       </div>
 
       <!-- 更新失败提示 -->
@@ -251,22 +201,18 @@
       >
         <!-- 第一行：图标 + 标题 -->
         <div class="flex items-center gap-2 text-destructive font-medium">
-          <Icon
-            name="icon-sanjiaogantan"
-            size="14"
-            class="text-destructive"
-          />
-          <span>{{ t('about.downloadFailed') }}</span>
+          <Icon name="icon-sanjiaogantan" size="14" class="text-destructive" />
+          <span>{{ t("about.downloadFailed") }}</span>
         </div>
 
         <!-- 第二行：中性错误说明 -->
-        <div class="mt-1 text-muted-foreground leading-5">{{ t('about.networkError') }}</div>
+        <div class="mt-1 text-muted-foreground leading-5">{{ t("about.networkError") }}</div>
 
         <!-- 第三行：错误码 + 具体错误 -->
         <div class="mt-1 text-muted-foreground">
-          <span>{{ t('about.errorCode') }}：</span>
+          <span>{{ t("about.errorCode") }}：</span>
           <span class="text-destructive font-mono wrap-break-word">
-            {{ errorMessage || 'UNKNOWN_ERROR' }}
+            {{ errorMessage || "UNKNOWN_ERROR" }}
           </span>
         </div>
       </div>
@@ -292,21 +238,14 @@
           <template #icon>
             <Icon name="icon-guanbichuangkou" />
           </template>
-          {{ t('about.cancelDownload') }}
+          {{ t("about.cancelDownload") }}
         </n-button>
 
-        <n-button
-          v-show="isCancelled || isError"
-          quaternary
-          @click="() => initUpdateInfo()"
-        >
+        <n-button v-show="isCancelled || isError" quaternary @click="() => initUpdateInfo()">
           <template #icon>
-            <Icon
-              name="icon-guanbichuangkou"
-              size="14"
-            />
+            <Icon name="icon-guanbichuangkou" size="14" />
           </template>
-          {{ t('about.cancelUpdate') }}
+          {{ t("about.cancelUpdate") }}
         </n-button>
 
         <n-button
@@ -325,22 +264,17 @@
           </template>
 
           {{
-            isDownloading ? `${t('about.downloadWaiting')}...${Math.round(downloadProgress)}%` : t('about.downloadNow')
+            isDownloading
+              ? `${t("about.downloadWaiting")}...${Math.round(downloadProgress)}%`
+              : t("about.downloadNow")
           }}
         </n-button>
 
-        <n-button
-          v-show="isAvailable"
-          quaternary
-          @click="() => initUpdateInfo()"
-        >
+        <n-button v-show="isAvailable" quaternary @click="() => initUpdateInfo()">
           <template #icon>
-            <Icon
-              name="icon-lingdang"
-              size="14"
-            />
+            <Icon name="icon-lingdang" size="14" />
           </template>
-          {{ t('about.later') }}
+          {{ t("about.later") }}
         </n-button>
 
         <n-button
@@ -350,12 +284,9 @@
           @click="handleDownload"
         >
           <template #icon>
-            <Icon
-              name="icon-zhongqi1"
-              size="14"
-            />
+            <Icon name="icon-zhongqi1" size="14" />
           </template>
-          {{ t('about.reDownload') }}
+          {{ t("about.reDownload") }}
         </n-button>
 
         <n-button
@@ -365,12 +296,9 @@
           @click="handleInstall"
         >
           <template #icon>
-            <Icon
-              name="icon-xiazaiwancheng"
-              size="14"
-            />
+            <Icon name="icon-xiazaiwancheng" size="14" />
           </template>
-          {{ t('about.installNow') }}
+          {{ t("about.installNow") }}
         </n-button>
       </div>
     </div>
@@ -378,13 +306,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Update } from '@tauri-apps/plugin-updater';
-import { openUrl } from '@tauri-apps/plugin-opener';
-import { check } from '@tauri-apps/plugin-updater';
-import { useAppVersion, useNaiveUiApi } from '@/composables';
-import { t } from '@/i18n';
-import { getFromNow } from '@/utils/date';
-import { formatBytes, formatDuration } from '@/utils/format';
+import type { Update } from "@tauri-apps/plugin-updater";
+import { openUrl } from "@tauri-apps/plugin-opener";
+import { check } from "@tauri-apps/plugin-updater";
+import { useAppVersion, useNaiveUiApi } from "@/composables";
+import { t } from "@/i18n";
+import { getFromNow } from "@/utils/date";
+import { formatBytes, formatDuration } from "@/utils/format";
 
 const { version, isChecking, updateInfo, hasUpdate, fetchVersion, checkUpdate } = useAppVersion();
 const { notification } = useNaiveUiApi();
@@ -392,16 +320,15 @@ const { notification } = useNaiveUiApi();
 const updateSetup = ref<UpdateSetup | null>(null);
 
 enum UpdateSetup {
-  // eslint-disable-next-line no-unused-vars
-  AVAILABLE = 'available', // 检查到新版本 展示新版本相关页面
-  // eslint-disable-next-line no-unused-vars
-  DOWNLOADING = 'downloading', // 下载中 展示下载进度等相关页面
-  // eslint-disable-next-line no-unused-vars
-  CANCELLED = 'cancelled', // 下载过程 点击了取消下载 展示重新下载相关页面
-  // eslint-disable-next-line no-unused-vars
-  DOWNLOADED = 'downloaded', // 下载完成 展示安装相关页面
-  // eslint-disable-next-line no-unused-vars
-  ERROR = 'error', // 下载过程中发生错误 展示重新下载相关页面
+  AVAILABLE = "available", // 检查到新版本 展示新版本相关页面
+
+  DOWNLOADING = "downloading", // 下载中 展示下载进度等相关页面
+
+  CANCELLED = "cancelled", // 下载过程 点击了取消下载 展示重新下载相关页面
+
+  DOWNLOADED = "downloaded", // 下载完成 展示安装相关页面
+
+  ERROR = "error", // 下载过程中发生错误 展示重新下载相关页面
 }
 
 const UpdateSetupColorMap = {
@@ -411,11 +338,11 @@ const UpdateSetupColorMap = {
   // [UpdateSetup.DOWNLOADED]: 'var(--success)',
   // [UpdateSetup.ERROR]: 'var(--destructive)',
 
-  [UpdateSetup.AVAILABLE]: '#155dfc',
-  [UpdateSetup.DOWNLOADING]: '#155dfc',
-  [UpdateSetup.CANCELLED]: '#6b7280',
-  [UpdateSetup.DOWNLOADED]: '#009966',
-  [UpdateSetup.ERROR]: '#f14444',
+  [UpdateSetup.AVAILABLE]: "#155dfc",
+  [UpdateSetup.DOWNLOADING]: "#155dfc",
+  [UpdateSetup.CANCELLED]: "#6b7280",
+  [UpdateSetup.DOWNLOADED]: "#009966",
+  [UpdateSetup.ERROR]: "#f14444",
 };
 // const UpdateSetupIconMap = {
 //   [UpdateSetup.AVAILABLE]: 'icon-xiazai',
@@ -457,7 +384,7 @@ async function handleCheckUpdate() {
 
 const startTime = ref(0);
 
-const errorMessage = ref('');
+const errorMessage = ref("");
 
 const remainingSeconds = computed(() => {
   if (!currentSpeedBytes.value) {
@@ -467,7 +394,7 @@ const remainingSeconds = computed(() => {
   return Math.ceil((fileTotalBytes.value - downloadTotalBytes.value) / currentSpeedBytes.value);
 });
 
-const runTaskId = ref('');
+const runTaskId = ref("");
 const timeoutTimer = ref();
 async function handleDownload() {
   try {
@@ -481,17 +408,17 @@ async function handleDownload() {
 
     currentUpdate
       .download(
-        e => {
+        (e) => {
           // 当用户在下载过程中点了取消操作 修改 runTaskId 防止后续操作影响状态
           if (currentTaskId !== runTaskId.value) return;
           // 下载进度
           const { event } = e;
           switch (event) {
-            case 'Started':
+            case "Started":
               startTime.value = Date.now();
               fileTotalBytes.value = e.data.contentLength!;
               break;
-            case 'Progress':
+            case "Progress":
               {
                 downloadTotalBytes.value += e.data.chunkLength;
 
@@ -500,16 +427,17 @@ async function handleDownload() {
               }
 
               break;
-            case 'Finished':
+            case "Finished":
               // 由于下载无法中断 所以即使用户点击了取消下载 当判断到下载时用户点击了取消下载 在下载完成时不触发下载完成状态
-              if (updateSetup.value !== UpdateSetup.CANCELLED) updateSetup.value = UpdateSetup.DOWNLOADED;
+              if (updateSetup.value !== UpdateSetup.CANCELLED)
+                updateSetup.value = UpdateSetup.DOWNLOADED;
               break;
           }
         },
         // 设置下载超时时间为1分钟
         { timeout: 1000 * 60 },
       )
-      .catch(err => {
+      .catch((err) => {
         if (currentTaskId !== runTaskId.value) return;
         // 设置下载状态为错误
         updateSetup.value = UpdateSetup.ERROR;
@@ -520,11 +448,11 @@ async function handleDownload() {
     timeoutTimer.value = setTimeout(() => {
       // 设置下载状态为错误
       updateSetup.value = UpdateSetup.ERROR;
-      errorMessage.value = 'Download timeout.';
+      errorMessage.value = "Download timeout.";
     }, 1000 * 60);
   } catch (e) {
     notification.error({
-      title: t('about.downloadUpdateFailed'),
+      title: t("about.downloadUpdateFailed"),
       description: `${e}`,
       duration: 5000,
     });
@@ -540,7 +468,7 @@ function handleCancelDownload() {
   if (!currentUpdate) return;
   currentUpdate?.close();
   currentUpdate = null;
-  runTaskId.value = '';
+  runTaskId.value = "";
   updateSetup.value = UpdateSetup.CANCELLED;
 }
 
@@ -552,23 +480,23 @@ async function initUpdateInfo(downloadBeforeInit = false) {
     updateSetup.value = null;
     updateInfo.value = null;
   }
-  runTaskId.value = '';
-  timeoutTimer.value && clearTimeout(timeoutTimer.value);
+  runTaskId.value = "";
+  if (timeoutTimer.value) clearTimeout(timeoutTimer.value);
   timeoutTimer.value = null;
   fileTotalBytes.value = 0;
   downloadTotalBytes.value = 0;
   currentSpeedBytes.value = 0;
-  errorMessage.value = '';
+  errorMessage.value = "";
 }
 
 // 滚动到最底部
 function scrollToBottom() {
   requestAnimationFrame(() => {
-    const el = document.querySelector('.n-tab-pane');
+    const el = document.querySelector(".n-tab-pane");
     if (!el) return;
     el.scrollTo({
       top: 9999999,
-      behavior: 'smooth',
+      behavior: "smooth",
     });
   });
 }

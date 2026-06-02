@@ -1,5 +1,4 @@
-/* eslint-disable */
-export * from './data.ts';
+export * from "./data.ts";
 
 /* 搜索窗口最大高度 */
 export const SEARCH_WINDOW_MAX_HEIGHT = 400;
@@ -24,126 +23,126 @@ export enum SearchWindow {
 }
 
 export enum InvokeMethod {
-  OPEN_PATH = 'open_path',
-  OPEN_REVEAL_MANAGER = 'open_reveal_manager',
-  OPEN_DIR_IN_TERMINAL = 'open_dir_in_terminal',
+  OPEN_PATH = "open_path",
+  OPEN_REVEAL_MANAGER = "open_reveal_manager",
+  OPEN_DIR_IN_TERMINAL = "open_dir_in_terminal",
 
-  GET_APP_CONFIG = 'get_app_config',
-  SAVE_APP_CONFIG = 'save_app_config',
+  GET_APP_CONFIG = "get_app_config",
+  SAVE_APP_CONFIG = "save_app_config",
 
-  GET_FILE_INFO = 'get_file_info',
+  GET_FILE_INFO = "get_file_info",
 
-  ADD_LAUNCH = 'add_launch',
-  GET_LAUNCH = 'get_launch',
-  GET_LAUNCH_BY_ID = 'get_launch_by_id',
-  RUN_LAUNCH = 'run_launch',
-  RUN_LAUNCH_AS_ADMIN = 'run_launch_as_admin',
-  SEARCH_LAUNCH = 'search_launch',
-  RENAME_LAUNCH = 'rename_launch',
-  DELETE_LAUNCH = 'delete_launch',
-  UPDATE_LAUNCH = 'update_launch',
-  DELETE_LAUNCH_BY_CATEGORY = 'delete_launch_by_category',
-  UPDATE_LAUNCH_ENABLED_BY_CATEGORY = 'update_launch_enabled_by_category',
+  ADD_LAUNCH = "add_launch",
+  GET_LAUNCH = "get_launch",
+  GET_LAUNCH_BY_ID = "get_launch_by_id",
+  RUN_LAUNCH = "run_launch",
+  RUN_LAUNCH_AS_ADMIN = "run_launch_as_admin",
+  SEARCH_LAUNCH = "search_launch",
+  RENAME_LAUNCH = "rename_launch",
+  DELETE_LAUNCH = "delete_launch",
+  UPDATE_LAUNCH = "update_launch",
+  DELETE_LAUNCH_BY_CATEGORY = "delete_launch_by_category",
+  UPDATE_LAUNCH_ENABLED_BY_CATEGORY = "update_launch_enabled_by_category",
 
-  GET_CATEGORY = 'get_category',
-  GET_CATEGORY_BY_ID = 'get_category_by_id',
-  ADD_CATEGORY = 'add_category',
-  UPDATE_CATEGORY = 'update_category',
-  DELETE_CATEGORY = 'delete_category',
-  UPDATE_CATEGORY_ASS_DIR = 'update_category_ass_dir',
-  ENSURE_DEFAULT_CATEGORY = 'ensure_default_category',
+  GET_CATEGORY = "get_category",
+  GET_CATEGORY_BY_ID = "get_category_by_id",
+  ADD_CATEGORY = "add_category",
+  UPDATE_CATEGORY = "update_category",
+  DELETE_CATEGORY = "delete_category",
+  UPDATE_CATEGORY_ASS_DIR = "update_category_ass_dir",
+  ENSURE_DEFAULT_CATEGORY = "ensure_default_category",
 
-  EXE_COMMAND = 'exe_command',
+  EXE_COMMAND = "exe_command",
 
-  GET_WEBSITE_INFO = 'get_website_info',
+  GET_WEBSITE_INFO = "get_website_info",
 
   // 将app配置数据存放在后端共享线程中
-  SET_APP_CONFIG = 'set_app_config',
+  SET_APP_CONFIG = "set_app_config",
 
-  GET_LOCAL_ICON_BASE64 = 'get_local_icon_base64',
-  GET_ONLINE_IMG_BASE64 = 'get_online_img_base64',
+  GET_LOCAL_ICON_BASE64 = "get_local_icon_base64",
+  GET_ONLINE_IMG_BASE64 = "get_online_img_base64",
 
-  ADD_OR_UPDATE_AUTOCOMPLETE = 'add_or_update_autocomplete',
-  GET_AUTOCOMPLETE = 'get_autocomplete',
+  ADD_OR_UPDATE_AUTOCOMPLETE = "add_or_update_autocomplete",
+  GET_AUTOCOMPLETE = "get_autocomplete",
 
   // 根据名称和分类获取启动项
-  GET_LAUNCH_BY_NAME_AND_CATEGORY = 'get_launch_by_name_and_category',
+  GET_LAUNCH_BY_NAME_AND_CATEGORY = "get_launch_by_name_and_category",
 
   // 判断前台窗口是否处于全屏
-  IS_FOREGROUND_FULLSCREEN = 'is_foreground_fullscreen',
+  IS_FOREGROUND_FULLSCREEN = "is_foreground_fullscreen",
 
   // 获取 命令别名启动项
-  GET_ALIAS_LAUNCH = 'get_alias_launch',
+  GET_ALIAS_LAUNCH = "get_alias_launch",
   // 获取分类启动项树形数据
-  GET_CATEGORY_TREE = 'get_category_tree',
+  GET_CATEGORY_TREE = "get_category_tree",
   // 添加启动项历史
-  ADD_LAUNCH_HISTORY = 'add_launch_history',
+  ADD_LAUNCH_HISTORY = "add_launch_history",
   // 获取历史记录
-  GET_RECENT_LAUNCH_HISTORY = 'get_recent_launch_history',
+  GET_RECENT_LAUNCH_HISTORY = "get_recent_launch_history",
 
-  OPEN_APP_DATA_DIR = 'open_app_data_dir',
-  BACKUP_DATABASE = 'backup_database',
-  IMPORT_DATABASE = 'import_database',
-  RESET_DATA = 'reset_data',
+  OPEN_APP_DATA_DIR = "open_app_data_dir",
+  BACKUP_DATABASE = "backup_database",
+  IMPORT_DATABASE = "import_database",
+  RESET_DATA = "reset_data",
 
   // 设置默认托盘图标
-  SET_DEFAULT_TRAY_ICON = 'set_default_tray_icon',
+  SET_DEFAULT_TRAY_ICON = "set_default_tray_icon",
 
   // 获取系统字体
-  GET_LOCAL_FONTS = 'get_local_fonts',
+  GET_LOCAL_FONTS = "get_local_fonts",
 
   // Todo
-  GET_TODOS = 'get_todos',
-  ADD_TODO = 'add_todo',
-  UPDATE_TODO = 'update_todo',
-  DELETE_TODO = 'delete_todo',
-  CLEAR_COMPLETED_TODOS = 'clear_completed_todos',
+  GET_TODOS = "get_todos",
+  ADD_TODO = "add_todo",
+  UPDATE_TODO = "update_todo",
+  DELETE_TODO = "delete_todo",
+  CLEAR_COMPLETED_TODOS = "clear_completed_todos",
 }
 
 export enum AppEvent {
-  UPDATE_LAUNCH_LIST = 'update_launch_list',
-  OPEN_OPERATION_LAUNCH = 'open_operation_launch',
-  DELETE_LAUNCH = 'delete_launch_item',
+  UPDATE_LAUNCH_LIST = "update_launch_list",
+  OPEN_OPERATION_LAUNCH = "open_operation_launch",
+  DELETE_LAUNCH = "delete_launch_item",
 
-  DELETE_CATEGORY = 'delete_category_item',
-  OPEN_OPERATION_CATEGORY = 'open_operation_category',
+  DELETE_CATEGORY = "delete_category_item",
+  OPEN_OPERATION_CATEGORY = "open_operation_category",
 
   // 关闭右键菜单
-  CLOSE_CONTEXT_MENU = 'close_context_menu',
-  UPDATE_CATEGORY_LIST = 'update_category_list',
-  ACTIVE_CATEGORY = 'active_category',
+  CLOSE_CONTEXT_MENU = "close_context_menu",
+  UPDATE_CATEGORY_LIST = "update_category_list",
+  ACTIVE_CATEGORY = "active_category",
 
   // 通知其他窗口更新pinia中的appConfig数据
-  UPDATE_APP_CONFIG_DATA = 'update_app_config',
+  UPDATE_APP_CONFIG_DATA = "update_app_config",
 
   // 快速搜索快捷键事件
-  SEARCH_SHORTCU_KEY = 'search_shortcu_key',
+  SEARCH_SHORTCU_KEY = "search_shortcu_key",
 
   // 分类重命名
-  CATEGORY_RENAME = 'category_rename',
+  CATEGORY_RENAME = "category_rename",
 
   // 提升查询项优先级
-  INCREASE_PRIORITY = 'increase_priority',
+  INCREASE_PRIORITY = "increase_priority",
 
   // 更新启动项启动次数
-  UPDATE_LAUNCH_ITEM_COUNT = 'update_launch_item_count',
+  UPDATE_LAUNCH_ITEM_COUNT = "update_launch_item_count",
 
   // 分类重命名
-  LAUNCH_RENAME = 'launch_rename',
+  LAUNCH_RENAME = "launch_rename",
 
   // 启动项定位
-  LAUNCH_POSITION = 'launch_position',
+  LAUNCH_POSITION = "launch_position",
 
   // 剪贴板通知
-  CLIPBOARD = 'clipboard',
+  CLIPBOARD = "clipboard",
 
-  OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL = 'open_clipboard_window_by_set_location_modal',
+  OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL = "open_clipboard_window_by_set_location_modal",
 
   // 打开设置界面
-  OPEN_SETTING = 'open_setting',
+  OPEN_SETTING = "open_setting",
 
   // 主题切换事件通知
-  CHANGE_THEME = 'change_theme',
+  CHANGE_THEME = "change_theme",
 }
 
 export type AppEventName = (typeof AppEvent)[keyof typeof AppEvent];
@@ -160,14 +159,14 @@ export enum TranslationOpenModel {
 }
 
 export enum PortalNotifyMode {
-  WINDOW = 'window',
-  TRAY = 'tray',
-  SILENT = 'silent',
+  WINDOW = "window",
+  TRAY = "tray",
+  SILENT = "silent",
 }
 
 export enum AutocompleteMatchMode {
-  Prefix = 'prefix',
-  Contains = 'contains',
+  Prefix = "prefix",
+  Contains = "contains",
 }
 
-export const ACTIVE_CATEGORY_LOCAL_KEY = 'active_category';
+export const ACTIVE_CATEGORY_LOCAL_KEY = "active_category";

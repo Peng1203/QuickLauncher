@@ -52,17 +52,10 @@
         :description="t('quickSearch.shortcutKeyDesc')"
       >
         <template #expand>
-          <SettingItem
-            v-for="preItem of ['Alt + Space', 'Ctrl + Space']"
-            :key="preItem"
-          >
+          <SettingItem v-for="preItem of ['Alt + Space', 'Ctrl + Space']" :key="preItem">
             <template #title>
-              <n-button
-                type="info"
-                size="tiny"
-                @click="registerShortcutKey(preItem)"
-              >
-                {{ $t('common.usePreset') }}
+              <n-button type="info" size="tiny" @click="registerShortcutKey(preItem)">
+                {{ $t("common.usePreset") }}
               </n-button>
             </template>
             <ShortcutKbd :value="preItem" />
@@ -147,17 +140,17 @@
 </template>
 
 <script setup lang="ts">
-import { useAppConfig, useAppConfigActions } from '@/composables';
-import { t } from '@/i18n';
-import { unRegisterShortcutKey } from '@/utils/shortcutKey';
+import { useAppConfig, useAppConfigActions } from "@/composables";
+import { t } from "@/i18n";
+import { unRegisterShortcutKey } from "@/utils/shortcutKey";
 
 const { appConfigStore } = useAppConfig();
 const { registerSearchShortcutKey } = useAppConfigActions();
 
-const shortcutKey = ref('');
+const shortcutKey = ref("");
 watch(
   () => appConfigStore.searchGlobalShortcutKey,
-  val => (shortcutKey.value = val),
+  (val) => (shortcutKey.value = val),
   { immediate: true },
 );
 
@@ -175,11 +168,11 @@ async function registerShortcutKey(key: string) {
 
 function handleClear() {
   handleUnRegisterShortcutKey();
-  appConfigStore.searchGlobalShortcutKey = '';
+  appConfigStore.searchGlobalShortcutKey = "";
 }
 
 function handleShowCategory(val: boolean) {
-  console.log(`%c val ----`, 'color: #fff;background-color: #000;font-size: 18px', val);
+  console.log(`%c val ----`, "color: #fff;background-color: #000;font-size: 18px", val);
 
   if (!val) appConfigStore.showSubCategory = false;
 }

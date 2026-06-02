@@ -26,7 +26,9 @@
       ref="nameRef"
       :contenteditable="isEdit && isActive"
       class="text-foreground pointer-events-none px-1 w-fit line-clamp-2 mt-0.5 leading-normal max-2-lines item-name"
-      :class="[isGridMode ? 'text-xs text-center px-1 mt-0.5 line-clamp-2' : 'text-sm flex-1 truncate']"
+      :class="[
+        isGridMode ? 'text-xs text-center px-1 mt-0.5 line-clamp-2' : 'text-sm flex-1 truncate',
+      ]"
     >
       {{ name }}
     </span>
@@ -34,7 +36,7 @@
     <!-- 右侧扩展（list模式才有） -->
     <template v-if="isListMode">
       <span class="text-xs text-muted-foreground whitespace-nowrap w-36">
-        {{ dateFormat(item.created_at, 'YYYY/M/D H:m') || '' }}
+        {{ dateFormat(item.created_at, "YYYY/M/D H:m") || "" }}
       </span>
 
       <span class="text-xs text-muted-foreground whitespace-nowrap w-12">
@@ -55,17 +57,17 @@
 </template>
 
 <script setup lang="ts">
-import { isEmpty } from 'lodash-es';
-import { storeToRefs } from 'pinia';
-import { deleteLaunch, renameLaunch, runLaunch } from '@/api';
-import { formatLaunchType } from '@/common/formatLaunchType';
-import { useLaunchActive, useNaiveUiApi } from '@/composables';
-import { AppEvent } from '@/constant';
-import { t } from '@/i18n';
-import { useStore } from '@/store/useStore';
-import { dateFormat } from '@/utils/date';
-import { EventBus } from '@/utils/eventBus';
-import LaunchItemContextMenu from './ListItemContextMenu.vue';
+import { isEmpty } from "lodash-es";
+import { storeToRefs } from "pinia";
+import { deleteLaunch, renameLaunch, runLaunch } from "@/api";
+import { formatLaunchType } from "@/common/formatLaunchType";
+import { useLaunchActive, useNaiveUiApi } from "@/composables";
+import { AppEvent } from "@/constant";
+import { t } from "@/i18n";
+import { useStore } from "@/store/useStore";
+import { dateFormat } from "@/utils/date";
+import { EventBus } from "@/utils/eventBus";
+import LaunchItemContextMenu from "./ListItemContextMenu.vue";
 
 const props = defineProps<{
   icon: string;
@@ -74,14 +76,20 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
-const { activeCategoryItem, activeLaunchItem, launchData, activeCursorX, activeCursorY, enableWindoShortcuts } =
-  storeToRefs(store);
+const {
+  activeCategoryItem,
+  activeLaunchItem,
+  launchData,
+  activeCursorX,
+  activeCursorY,
+  enableWindoShortcuts,
+} = storeToRefs(store);
 
 // 鼠标单击选中的项
 const activeItems = defineModel<LaunchItem[]>();
 
-const isGridMode = computed(() => (activeCategoryItem.value?.layout || 'grid') === 'grid');
-const isListMode = computed(() => (activeCategoryItem.value?.layout || 'grid') === 'list');
+const isGridMode = computed(() => (activeCategoryItem.value?.layout || "grid") === "grid");
+const isListMode = computed(() => (activeCategoryItem.value?.layout || "grid") === "list");
 const isActive = computed(() => activeLaunchItem.value?.id === props.item.id);
 
 const isEdit = ref<boolean>(false);
@@ -94,20 +102,25 @@ function handleRun() {
 function handleKeydown(e: KeyboardEvent) {
   const { keyCode, key } = e;
 
-  console.log(`%c keyCode ----`, 'color: #fff;background-color: #000;font-size: 18px', keyCode, key);
+  console.log(
+    `%c keyCode ----`,
+    "color: #fff;background-color: #000;font-size: 18px",
+    keyCode,
+    key,
+  );
   switch (key) {
-    case 'F2': // 113
+    case "F2": // 113
       handleEditName();
       break;
-    case 'Enter': // 13
+    case "Enter": // 13
       if (isEdit.value) {
         handleSaveEditName();
       } else {
-        isActive.value && handleRun();
+        if (isActive.value) handleRun();
       }
       e.preventDefault();
       break;
-    case 'Escape': // 27
+    case "Escape": // 27
       handleExitEditName(true);
       break;
     default:
@@ -115,7 +128,7 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 
-const nameRef = useTemplateRef('nameRef');
+const nameRef = useTemplateRef("nameRef");
 
 function handleEditName() {
   // 判断是否有选中启动项
@@ -142,7 +155,7 @@ function handleEditName() {
 
 function handleExitEditName(restore: boolean = false) {
   if (restore) {
-    nameRef?.value && (nameRef.value.textContent = props.name);
+    if (nameRef?.value) nameRef.value.textContent = props.name;
   }
   isEdit.value = false;
   enableWindoShortcuts.value = true;
@@ -161,7 +174,7 @@ async function saveEditName(newName: string) {
   try {
     await renameLaunch(props.item.id, newName);
   } catch (e) {
-    console.log('e', e);
+    console.log("e", e);
   }
 }
 
@@ -179,7 +192,11 @@ function handleShowContextMenu(e: MouseEvent) {
       menuVisible.value = true;
       menuPosition.value = { x: e.clientX, y: e.clientY };
       if (isSelected.value) {
-        console.log(`%c isSelected ----`, 'color: #fff;background-color: #000;font-size: 18px', isSelected.value);
+        console.log(
+          `%c isSelected ----`,
+          "color: #fff;background-color: #000;font-size: 18px",
+          isSelected.value,
+        );
       } else {
         // 选中当前菜单
         activeLaunchItem.value = props.item;
@@ -194,7 +211,7 @@ const { getPositionByIndex } = useLaunchActive();
 function handleActive() {
   handleExitEditName();
   // 手动点击选择启动项时 更新选中的坐标
-  const i = launchData.value.findIndex(item => item.id === props.item.id);
+  const i = launchData.value.findIndex((item) => item.id === props.item.id);
   const { x, y } = getPositionByIndex(i);
   activeCursorX.value = x;
   activeCursorY.value = y;
@@ -214,12 +231,12 @@ async function handleDelete() {
   //   if (!answer) return;
   // }
 
-  const answer = await new Promise(resolve => {
+  const answer = await new Promise((resolve) => {
     dialog.warning({
-      title: t('common.tip'),
-      content: `${t('common.deletePlain')} ${props.item.name} ?`,
-      positiveText: t('common.confirmDelete'),
-      negativeText: t('common.cancel'),
+      title: t("common.tip"),
+      content: `${t("common.deletePlain")} ${props.item.name} ?`,
+      positiveText: t("common.confirmDelete"),
+      negativeText: t("common.cancel"),
       draggable: true,
       onPositiveClick: async () => resolve(true),
       onNegativeClick: () => resolve(false),
@@ -232,14 +249,14 @@ async function handleDelete() {
   if (props.item.id === activeLaunchItem.value?.id) activeLaunchItem.value = null;
 }
 
-const el = useTemplateRef('itemRef');
+const el = useTemplateRef("itemRef");
 function scrollItemIntoView() {
   if (!el.value) return;
 
   el.value.scrollIntoView({
-    behavior: 'smooth', // 改成 auto 可立即滚动
-    block: 'nearest', // 只在超出可视区时滚动
-    inline: 'nearest',
+    behavior: "smooth", // 改成 auto 可立即滚动
+    block: "nearest", // 只在超出可视区时滚动
+    inline: "nearest",
   });
   el.value?.focus();
 }
@@ -255,7 +272,7 @@ defineExpose({ handleEditName, handleDelete, scrollItemIntoView });
   color: inherit !important;
 }
 
-span[contenteditable='true'] {
+span[contenteditable="true"] {
   display: inline-block;
   max-width: 100%;
   width: fit-content;

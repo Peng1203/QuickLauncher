@@ -10,11 +10,7 @@
     class="h-full px-5 pt-3 pb-5"
   >
     <template #header-extra>
-      <n-icon
-        size="20"
-        class="cursor-pointer"
-        @click="handleClose"
-      >
+      <n-icon size="20" class="cursor-pointer" @click="handleClose">
         <Close />
       </n-icon>
     </template>
@@ -28,18 +24,10 @@
       label-placement="left"
       class="h-full"
     >
-      <n-row
-        class="h-full"
-        align-items="center"
-        justify-content="space-between"
-      >
+      <n-row class="h-full" align-items="center" justify-content="space-between">
         <!-- {{ form }} -->
         <n-col span="22">
-          <n-form-item
-            label=" "
-            path="name"
-            class="icon-item"
-          >
+          <n-form-item label=" " path="name" class="icon-item">
             <n-avatar
               size="large"
               :style="form.icon ? 'background-color: transparent' : ''"
@@ -51,10 +39,7 @@
         </n-col>
 
         <n-col span="22">
-          <n-form-item
-            :label="t('category.labelName')"
-            path="name"
-          >
+          <n-form-item :label="t('category.labelName')" path="name">
             <n-input
               v-model:value="form.name"
               tabindex="1"
@@ -66,10 +51,7 @@
         </n-col>
 
         <n-col span="22">
-          <n-form-item
-            :label="t('category.labelDir')"
-            path="association_directory"
-          >
+          <n-form-item :label="t('category.labelDir')" path="association_directory">
             <n-input
               v-model:value="form.association_directory"
               tabindex="1"
@@ -89,23 +71,17 @@
             :disabled="isEdit"
             @click="handleSelectDir"
           >
-            {{ t('common.select') }}
+            {{ t("common.select") }}
           </n-button>
           <span class="ml-1 text-muted-foreground text-[12px]">
-            {{ t('category.dirHint') }}
+            {{ t("category.dirHint") }}
           </span>
         </n-col>
 
         <n-col span="22">
-          <n-form-item
-            :label="t('category.labelExclude')"
-            path="exclude"
-          >
+          <n-form-item :label="t('category.labelExclude')" path="exclude">
             <div class="flex-s-c">
-              <n-switch
-                v-model:value="form.exclude"
-                size="small"
-              />
+              <n-switch v-model:value="form.exclude" size="small" />
             </div>
           </n-form-item>
         </n-col>
@@ -121,13 +97,10 @@
           :disabled="!form.name"
           @click="handleConfirm"
         >
-          {{ t('common.confirm') }}
+          {{ t("common.confirm") }}
         </n-button>
-        <n-button
-          size="small"
-          @click="handleClose"
-        >
-          {{ t('common.cancel') }}
+        <n-button size="small" @click="handleClose">
+          {{ t("common.cancel") }}
         </n-button>
       </div>
     </template>
@@ -135,11 +108,16 @@
 </template>
 
 <script setup lang="ts">
-import { open } from '@tauri-apps/plugin-dialog';
-import { Close } from '@vicons/ionicons5';
-import { ref } from 'vue';
-import { addCategory, getLocalIconBase64, updateCategory, updateLaunchEnabledByCategory } from '@/api';
-import IconPicker from '@/components/IconPicker.vue';
+import { open } from "@tauri-apps/plugin-dialog";
+import { Close } from "@vicons/ionicons5";
+import { ref } from "vue";
+import {
+  addCategory,
+  getLocalIconBase64,
+  updateCategory,
+  updateLaunchEnabledByCategory,
+} from "@/api";
+import IconPicker from "@/components/IconPicker.vue";
 import {
   useCategoryCorrelationDir,
   useEsc,
@@ -147,32 +125,33 @@ import {
   useLoading,
   useNaiveUiApi,
   useToggleWindowVisible,
-} from '@/composables';
-import { AppEvent } from '@/constant';
-import { t } from '@/i18n';
-import { EventBus } from '@/utils/eventBus';
+} from "@/composables";
+import { AppEvent } from "@/constant";
+import { t } from "@/i18n";
+import { EventBus } from "@/utils/eventBus";
 
 const { message } = useNaiveUiApi();
-const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch } = useCategoryCorrelationDir();
+const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch } =
+  useCategoryCorrelationDir();
 const { getOperCategoryWindow, toogleOperCategoryWindowVisible } = useToggleWindowVisible();
 const inputTheme = {
-  borderFocus: 'inherit',
-  boxShadowFocus: 'none',
-  caretColor: 'inherit',
-  borderHover: 'inherit',
+  borderFocus: "inherit",
+  boxShadowFocus: "none",
+  caretColor: "inherit",
+  borderHover: "inherit",
 };
 
 const modalStatus = ref(true);
 
 const { form, initForm, setForm } = useFormState<NewCategoryItem>({
-  icon: '',
-  name: '',
+  icon: "",
+  name: "",
   parent_id: null,
-  association_directory: '',
+  association_directory: "",
   exclude: false,
-  layout: 'grid',
-  sort_by: 'time',
-  sort_order: 'asc',
+  layout: "grid",
+  sort_by: "time",
+  sort_order: "asc",
   order_index: 0,
 });
 
@@ -189,8 +168,9 @@ async function handleSelectDir() {
   });
   if (!path) return;
   form.value.association_directory = path;
-  const arr = path.split('\\');
-  form.value.name || (form.value.name = arr[arr.length - 1]);
+  const arr = path.split("\\");
+  if (!form.value.name) form.value.name = arr[arr.length - 1];
+  // form.value.name || (form.value.name = arr[arr.length - 1]);
   form.value.icon = await getLocalIconBase64(path);
 }
 
@@ -229,7 +209,7 @@ async function handleConfirm() {
 }
 
 // 打开对话框
-EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, async val => {
+EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, async (val) => {
   initForm();
   isEdit.value = !!val;
   editItem.value = val;
@@ -238,7 +218,7 @@ EventBus.listen<typeof editItem.value>(AppEvent.OPEN_OPERATION_CATEGORY, async v
 
   toogleOperCategoryWindowVisible();
   const window = await getOperCategoryWindow();
-  window?.setTitle(isEdit.value ? t('category.editCategory') : t('category.newCategory'));
+  window?.setTitle(isEdit.value ? t("category.editCategory") : t("category.newCategory"));
 });
 
 useEsc(handleClose);

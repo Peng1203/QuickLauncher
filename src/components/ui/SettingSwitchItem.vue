@@ -1,25 +1,17 @@
 <!-- SettingSwitchItem.vue -->
 <template>
-  <SettingItem
-    :icon="icon"
-    :title="title"
-    :description="description"
-    :class-name="className"
-  >
+  <SettingItem :icon="icon" :title="title" :description="description" :class-name="className">
     <slot></slot>
     <template #expand>
       <slot name="expand"></slot>
     </template>
 
-    <n-switch
-      v-model:value="modelValue"
-      size="small"
-    />
+    <n-switch v-model:value="modelValue" size="small" />
   </SettingItem>
 </template>
 
 <script setup lang="ts">
-import SettingItem from './SettingItem.vue';
+import SettingItem from "./SettingItem.vue";
 
 interface Props {
   icon?: any;
@@ -30,7 +22,7 @@ interface Props {
 
 defineProps<Props>();
 
-defineEmits(['update:modelValue']);
+defineEmits(["update:modelValue"]);
 
 const modelValue = defineModel<boolean>();
 </script>

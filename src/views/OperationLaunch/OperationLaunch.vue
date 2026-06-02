@@ -9,11 +9,7 @@
     class="h-full px-5 pt-3 pb-5"
   >
     <template #header-extra>
-      <n-icon
-        size="20"
-        class="cursor-pointer"
-        @click="handleClose"
-      >
+      <n-icon size="20" class="cursor-pointer" @click="handleClose">
         <Close />
       </n-icon>
     </template>
@@ -50,10 +46,7 @@
             <!-- {{ currentFormSchemas }} -->
             <!-- {{ form }} -->
             <n-row>
-              <template
-                v-for="sItem in currentFormSchemas"
-                :key="sItem.prop"
-              >
+              <template v-for="sItem in currentFormSchemas" :key="sItem.prop">
                 <n-col
                   v-if="sItem.slot === 'iconSlot'"
                   :span="(sItem.span as any)"
@@ -73,14 +66,8 @@
                   <IconPicker v-model="form.icon!" />
                 </n-col>
 
-                <n-col
-                  v-else-if="sItem.slot === 'pathSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'pathSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <n-input
                       v-model:value="(form[sItem.prop] as any)"
                       placeholder=""
@@ -95,19 +82,13 @@
                     text-color="gary"
                     @click="handleSelectLaunch"
                   >
-                    {{ t('common.select') }}
+                    {{ t("common.select") }}
                   </n-button>
-                  {{ t('common.dragSupport') }}
+                  {{ t("common.dragSupport") }}
                 </n-col>
 
-                <n-col
-                  v-else-if="sItem.slot === 'appsSelectSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'appsSelectSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <!-- <n-input
                         v-model:value="(form[sItem.prop] as any)"
                         placeholder=""
@@ -128,14 +109,8 @@
                   </n-form-item>
                 </n-col>
 
-                <n-col
-                  v-else-if="sItem.slot === 'urlSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'urlSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <n-input
                       v-model:value="(form[sItem.prop] as any)"
                       placeholder="https://www.bilibili.com"
@@ -150,7 +125,7 @@
                     :loading="urlInfoLoading"
                     @click="getUrlInfo"
                   >
-                    {{ t('common.fetchUrlInfo') }}
+                    {{ t("common.fetchUrlInfo") }}
                   </n-button>
 
                   <n-checkbox
@@ -162,18 +137,12 @@
                     :default-checked="appConfigStore.proxy"
                     :on-update:checked="handleSwitchProxy"
                   >
-                    {{ t('common.proxy') }}
+                    {{ t("common.proxy") }}
                   </n-checkbox>
                 </n-col>
 
-                <n-col
-                  v-else-if="sItem.slot === 'hotkeySlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'hotkeySlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <n-input
                       v-model:value="(form[sItem.prop] as any)"
                       placeholder=""
@@ -190,19 +159,12 @@
                     :default-checked="false"
                     :disabled="!form.hotkey"
                   >
-                    {{ t('general.shortcutKeyTitle') }}
+                    {{ t("general.shortcutKeyTitle") }}
                   </n-checkbox>
                 </n-col>
 
-                <n-col
-                  v-else-if="sItem.slot === 'runAsAdminSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                    class="run_as_admin"
-                  >
+                <n-col v-else-if="sItem.slot === 'runAsAdminSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop" class="run_as_admin">
                     <n-checkbox
                       v-model:checked="form.run_as_admin"
                       size="small"
@@ -211,40 +173,31 @@
                       :default-checked="false"
                       :disabled="form.extension !== 'exe'"
                     >
-                      {{ t('common.adminRun') }}
+                      {{ t("common.adminRun") }}
                     </n-checkbox>
                   </n-form-item>
                 </n-col>
 
                 <!-- 网址选择指定浏览器打开 -->
-                <n-col
-                  v-else-if="sItem.slot === 'browserSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'browserSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <template #label>
                       <div class="flex">
                         <span class="mr-1">{{ sItem.label }}</span>
 
                         <n-tooltip trigger="hover">
                           <template #trigger>
-                            <n-icon
-                              size="16"
-                              class="cursor-pointer"
-                            >
+                            <n-icon size="16" class="cursor-pointer">
                               <!-- @click="handleClose" -->
                               <AlertCircleOutline />
                             </n-icon>
                           </template>
                           <span style="color: var(--muted-foreground)">
-                            {{ t('launch.browserFormat') }}
+                            {{ t("launch.browserFormat") }}
                             <br />
-                            {{ t('launch.browserExample') }}
+                            {{ t("launch.browserExample") }}
                             <br />
-                            {{ t('launch.browserExampleValue') }}
+                            {{ t("launch.browserExampleValue") }}
                           </span>
                         </n-tooltip>
                       </div>
@@ -258,31 +211,15 @@
                 </n-col>
 
                 <!-- 关键字 -->
-                <n-col
-                  v-else-if="sItem.slot === 'keywordsSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
-                    <n-dynamic-tags
-                      v-model:value="keywordsTags"
-                      type="info"
-                      size="small"
-                    />
+                <n-col v-else-if="sItem.slot === 'keywordsSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
+                    <n-dynamic-tags v-model:value="keywordsTags" type="info" size="small" />
                   </n-form-item>
                 </n-col>
 
                 <!-- 排序 -->
-                <n-col
-                  v-else-if="sItem.slot === 'orderSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'orderSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <!-- borderFocus: 'inherit', -->
                     <!-- boxShadowFocus: 'none', -->
                     <!-- caretColor: 'inherit', -->
@@ -293,19 +230,13 @@
                       class="w-25"
                       size="small"
                     />
-                    <span class="ml-2 text-muted-foreground">{{ t('launch.sortHint') }}</span>
+                    <span class="ml-2 text-muted-foreground">{{ t("launch.sortHint") }}</span>
                   </n-form-item>
                 </n-col>
 
                 <!-- 启动项分类 -->
-                <n-col
-                  v-else-if="sItem.slot === 'categorySlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'categorySlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <!-- TODO 使用级联选择器 -->
                     <n-select
                       v-model:value="form.category_id"
@@ -317,14 +248,8 @@
                   </n-form-item>
                 </n-col>
 
-                <n-col
-                  v-else-if="sItem.slot === 'enabledSlot'"
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else-if="sItem.slot === 'enabledSlot'" :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <n-switch
                       v-model:value="form.enabled"
                       :default-value="true"
@@ -334,14 +259,8 @@
                   </n-form-item>
                 </n-col>
 
-                <n-col
-                  v-else
-                  :span="(sItem.span as any)"
-                >
-                  <n-form-item
-                    :label="sItem.label"
-                    :path="sItem.prop"
-                  >
+                <n-col v-else :span="(sItem.span as any)">
+                  <n-form-item :label="sItem.label" :path="sItem.prop">
                     <n-input
                       v-model:value="(form[sItem.prop] as any)"
                       :theme-overrides="inputTheme"
@@ -367,13 +286,10 @@
           :disabled="!form.name || !form.path"
           @click="handleConfirm"
         >
-          {{ t('common.confirm') }}
+          {{ t("common.confirm") }}
         </n-button>
-        <n-button
-          size="small"
-          @click="handleClose"
-        >
-          {{ t('common.cancel') }}
+        <n-button size="small" @click="handleClose">
+          {{ t("common.cancel") }}
         </n-button>
       </div>
     </template>
@@ -878,7 +794,9 @@ useEsc(handleClose);
 //   // --n-color-focus: initial !important;
 // }
 
-::v-deep(.n-base-selection:not(.n-base-selection--disabled).n-base-selection--active .n-base-selection-tags) {
+::v-deep(
+  .n-base-selection:not(.n-base-selection--disabled).n-base-selection--active .n-base-selection-tags
+) {
   background-color: initial !important;
 }
 ::v-deep(.n-base-selection-tags) {
@@ -934,7 +852,7 @@ useEsc(handleClose);
   min-height: 80px !important;
 }
 ::v-deep(.n-base-selection) {
-  min-height: v-bind('baseSelectionHeight') !important;
+  min-height: v-bind("baseSelectionHeight") !important;
   // background-color: transparent !important;
   background-color: var(--n-color);
 }

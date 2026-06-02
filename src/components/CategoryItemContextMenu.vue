@@ -15,7 +15,7 @@
 <script setup lang="tsx">
 import { open } from '@tauri-apps/plugin-dialog';
 import { storeToRefs } from 'pinia';
-import { computed, h, ref } from 'vue';
+import { h } from 'vue';
 import {
   deleteCategory,
   deleteLaunchByCategory,
@@ -358,7 +358,8 @@ async function handleToggleAssDir() {
     draggable: true,
     onPositiveClick: async () => {
       // message.success('确定');
-      isAssociationDirectory.value ? handleCancelAssDir() : handleAssDir();
+      if (isAssociationDirectory.value) handleCancelAssDir()
+      else handleAssDir()
     },
     onNegativeClick: () => {
       // message.info('取消');

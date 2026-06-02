@@ -1,9 +1,6 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
-    <SettingGroup
-      :title="t('proxy.groupProxy')"
-      description=""
-    >
+    <SettingGroup :title="t('proxy.groupProxy')" description="">
       <SettingSwitchItem
         v-model="appConfigStore.proxy"
         icon="icon-wangluodaili"
@@ -50,19 +47,16 @@
         />
       </SettingItem>
 
-      <DescText
-        class="!leading-3.5 mt-5"
-        small
-      >
-        {{ t('proxy.proxyNote') }}
+      <DescText class="!leading-3.5 mt-5" small>
+        {{ t("proxy.proxyNote") }}
       </DescText>
     </SettingGroup>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAppConfig } from '@/composables';
-import { t } from '@/i18n';
+import { useAppConfig } from "@/composables";
+import { t } from "@/i18n";
 
 const { appConfigStore } = useAppConfig();
 </script>

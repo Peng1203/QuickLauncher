@@ -25,15 +25,8 @@
         :options="languageOptions"
       /> -->
 
-      <SettingItem
-        :title="t('general.languageTitle')"
-        :description="t('general.languageDesc')"
-      >
-        <ToggleGroup
-          v-model="appConfigStore.language"
-          size="sm"
-          :options="languageOptions"
-        />
+      <SettingItem :title="t('general.languageTitle')" :description="t('general.languageDesc')">
+        <ToggleGroup v-model="appConfigStore.language" size="sm" :options="languageOptions" />
       </SettingItem>
     </SettingGroup>
 
@@ -61,17 +54,10 @@
         :description="t('general.shortcutKeyDesc')"
       >
         <template #expand>
-          <SettingItem
-            v-for="preItem of ['Alt + P', 'Alt + M']"
-            :key="preItem"
-          >
+          <SettingItem v-for="preItem of ['Alt + P', 'Alt + M']" :key="preItem">
             <template #title>
-              <n-button
-                type="info"
-                size="tiny"
-                @click="registerShortcutKey(preItem)"
-              >
-                {{ $t('common.usePreset') }}
+              <n-button type="info" size="tiny" @click="registerShortcutKey(preItem)">
+                {{ $t("common.usePreset") }}
               </n-button>
             </template>
             <ShortcutKbd :value="preItem" />
@@ -99,9 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { useAppConfig, useAppConfigActions } from '@/composables';
-import { t } from '@/i18n';
-import { unRegisterShortcutKey } from '@/utils/shortcutKey';
+import { useAppConfig, useAppConfigActions } from "@/composables";
+import { t } from "@/i18n";
+import { unRegisterShortcutKey } from "@/utils/shortcutKey";
 
 const { appConfigStore } = useAppConfig();
 const {
@@ -112,16 +98,16 @@ const {
 } = useAppConfigActions();
 
 const languageOptions: OptionItem<LanguageType>[] = [
-  { label: '简体中文', value: 'zh-CN' },
-  { label: '繁體中文', value: 'zh-HK' },
-  { label: 'English', value: 'en' },
-  { label: '日本語', value: 'ja' },
+  { label: "简体中文", value: "zh-CN" },
+  { label: "繁體中文", value: "zh-HK" },
+  { label: "English", value: "en" },
+  { label: "日本語", value: "ja" },
 ];
 
-const shortcutKey = ref('');
+const shortcutKey = ref("");
 watch(
   () => appConfigStore.mainWindowGlobalShortcutKey,
-  val => (shortcutKey.value = val),
+  (val) => (shortcutKey.value = val),
   { immediate: true },
 );
 
@@ -140,6 +126,6 @@ async function registerShortcutKey(key: string) {
 
 function handleClear() {
   handleUnRegisterShortcutKey();
-  appConfigStore.mainWindowGlobalShortcutKey = '';
+  appConfigStore.mainWindowGlobalShortcutKey = "";
 }
 </script>

@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="components"
-    @click="handleToggleTheme"
-  >
+  <div class="components" @click="handleToggleTheme">
     <!-- 组件所有元素 -->
     <div class="main-button">
       <!-- 按钮主体(圆) -->
@@ -106,8 +103,8 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useTheme } from '@/composables';
+import { onMounted } from "vue";
+import { useTheme } from "@/composables";
 
 // const { themeModel } = useAppConfig();
 const { isDark, setThemeModel, setHTMLThemeClass } = useTheme();
@@ -118,82 +115,84 @@ function $(s: string) {
 }
 
 function handleChangeSwitchLightStyle() {
-  const mainButton = $('.main-button'); // 获取按钮主体
-  const daytimeBackgrond = $('.daytime-backgrond'); // 获取按钮背后的虚影
-  const cloud = $('.cloud'); // 获取云层
-  const cloudLight = $('.cloud-light'); // 获取云层虚影
-  const components = $('.components'); // 获取最外层元素
-  const moon = $('.moon'); // 获取陨石坑
-  const stars = $('.stars'); // 获取所有星星
+  const mainButton = $(".main-button"); // 获取按钮主体
+  const daytimeBackgrond = $(".daytime-backgrond"); // 获取按钮背后的虚影
+  const cloud = $(".cloud"); // 获取云层
+  const cloudLight = $(".cloud-light"); // 获取云层虚影
+  const components = $(".components"); // 获取最外层元素
+  const moon = $(".moon"); // 获取陨石坑
+  const stars = $(".stars"); // 获取所有星星
 
   // 白天按钮样式
-  mainButton.style.transform = 'translateX(0)'; // 水平平移距离为0px
-  mainButton.style.backgroundColor = 'rgba(255, 195, 35,1)'; // 按钮主体的背景颜色变为黄色(太阳)
+  mainButton.style.transform = "translateX(0)"; // 水平平移距离为0px
+  mainButton.style.backgroundColor = "rgba(255, 195, 35,1)"; // 按钮主体的背景颜色变为黄色(太阳)
   // 盒子阴影
   mainButton.style.boxShadow =
-    '3px 3px 5px rgba(0, 0, 0, 0.5), inset  -3px -5px 3px -3px rgba(0, 0, 0, 0.5), inset  4px 5px 2px -2px rgba(255, 230, 80,1)';
+    "3px 3px 5px rgba(0, 0, 0, 0.5), inset  -3px -5px 3px -3px rgba(0, 0, 0, 0.5), inset  4px 5px 2px -2px rgba(255, 230, 80,1)";
   // 云朵上升-云朵显示
-  daytimeBackgrond[0].style.transform = 'translateX(0)';
-  daytimeBackgrond[1].style.transform = 'translateX(0)';
-  daytimeBackgrond[2].style.transform = 'translateX(0)';
-  cloud.style.transform = 'translateY(10px)';
-  cloudLight.style.transform = 'translateY(10px)';
-  components.style.backgroundColor = 'rgba(70, 133, 192,1)';
+  daytimeBackgrond[0].style.transform = "translateX(0)";
+  daytimeBackgrond[1].style.transform = "translateX(0)";
+  daytimeBackgrond[2].style.transform = "translateX(0)";
+  cloud.style.transform = "translateY(10px)";
+  cloudLight.style.transform = "translateY(10px)";
+  components.style.backgroundColor = "rgba(70, 133, 192,1)";
   // 月亮陨石坑完全透明-隐藏
-  moon[0].style.opacity = '0';
-  moon[1].style.opacity = '0';
-  moon[2].style.opacity = '0';
+  moon[0].style.opacity = "0";
+  moon[1].style.opacity = "0";
+  moon[2].style.opacity = "0";
   // 星星上升-星星隐藏
-  stars.style.transform = 'translateY(-125px)';
-  stars.style.opacity = '0';
+  stars.style.transform = "translateY(-125px)";
+  stars.style.opacity = "0";
 }
 
 function handleChangeSwitchDarkStyle() {
-  const mainButton = $('.main-button'); // 获取按钮主体
-  const daytimeBackgrond = $('.daytime-backgrond'); // 获取按钮背后的虚影
-  const cloud = $('.cloud'); // 获取云层
-  const cloudLight = $('.cloud-light'); // 获取云层虚影
-  const components = $('.components'); // 获取最外层元素
-  const moon = $('.moon'); // 获取陨石坑
-  const stars = $('.stars'); // 获取所有星星
+  const mainButton = $(".main-button"); // 获取按钮主体
+  const daytimeBackgrond = $(".daytime-backgrond"); // 获取按钮背后的虚影
+  const cloud = $(".cloud"); // 获取云层
+  const cloudLight = $(".cloud-light"); // 获取云层虚影
+  const components = $(".components"); // 获取最外层元素
+  const moon = $(".moon"); // 获取陨石坑
+  const stars = $(".stars"); // 获取所有星星
 
   // 黑夜按钮样式
-  mainButton.style.transform = 'translateX(110px)'; // 水平平移距离为110px
-  mainButton.style.backgroundColor = 'rgba(195, 200,210,1)'; // 按钮主体的背景颜色变为黄色(月亮)
+  mainButton.style.transform = "translateX(110px)"; // 水平平移距离为110px
+  mainButton.style.backgroundColor = "rgba(195, 200,210,1)"; // 按钮主体的背景颜色变为黄色(月亮)
   // 盒子阴影
   mainButton.style.boxShadow =
-    '3px 3px 5px rgba(0, 0, 0, 0.5), inset  -3px -5px 3px -3px rgba(0, 0, 0, 0.5), inset  4px 5px 2px -2px rgba(255, 255, 210,1)';
+    "3px 3px 5px rgba(0, 0, 0, 0.5), inset  -3px -5px 3px -3px rgba(0, 0, 0, 0.5), inset  4px 5px 2px -2px rgba(255, 255, 210,1)";
   // 云朵下降-云朵隐藏
-  daytimeBackgrond[0].style.transform = 'translateX(110px)';
-  daytimeBackgrond[1].style.transform = 'translateX(80px)';
-  daytimeBackgrond[2].style.transform = 'translateX(50px)';
-  cloud.style.transform = 'translateY(80px)';
-  cloudLight.style.transform = 'translateY(80px)';
-  components.style.backgroundColor = 'rgba(25,30,50,1)';
+  daytimeBackgrond[0].style.transform = "translateX(110px)";
+  daytimeBackgrond[1].style.transform = "translateX(80px)";
+  daytimeBackgrond[2].style.transform = "translateX(50px)";
+  cloud.style.transform = "translateY(80px)";
+  cloudLight.style.transform = "translateY(80px)";
+  components.style.backgroundColor = "rgba(25,30,50,1)";
   // 月亮陨石坑完全不透明-显示
-  moon[0].style.opacity = '1';
-  moon[1].style.opacity = '1';
-  moon[2].style.opacity = '1';
+  moon[0].style.opacity = "1";
+  moon[1].style.opacity = "1";
+  moon[2].style.opacity = "1";
   // 星星下降-星星显示
-  stars.style.transform = 'translateY(-62.5px)';
-  stars.style.opacity = '1';
+  stars.style.transform = "translateY(-62.5px)";
+  stars.style.opacity = "1";
   // 网页背景颜色变为深色
 }
 
 function initSwitchBtnStyle() {
-  !isDark.value ? handleChangeSwitchLightStyle() : handleChangeSwitchDarkStyle();
+  if (!isDark.value) handleChangeSwitchLightStyle();
+  else handleChangeSwitchDarkStyle();
 }
 
 // 更新按钮样式
 async function handleToggleTheme(e: PointerEvent) {
-  isDark.value ? handleChangeSwitchLightStyle() : handleChangeSwitchDarkStyle();
-  const newTheme = isDark.value ? 'light' : 'dark';
+  if (isDark.value) handleChangeSwitchLightStyle();
+  else handleChangeSwitchDarkStyle();
+  const newTheme = isDark.value ? "light" : "dark";
   await setThemeModel(newTheme);
   setHTMLThemeClass(newTheme, e);
 }
 
 // 同步回显switch按钮的样式
-watch(isDark, val => (val ? handleChangeSwitchDarkStyle() : handleChangeSwitchLightStyle()));
+watch(isDark, (val) => (val ? handleChangeSwitchDarkStyle() : handleChangeSwitchLightStyle()));
 
 onMounted(() => {
   initSwitchBtnStyle();
@@ -245,7 +244,7 @@ onMounted(() => {
 
   // 星星闪烁js交互部分
   // 获取所有星星元素，并随机排序星星数组
-  const starArray = [...$('.star')].sort(() => 0.5 - Math.random());
+  const starArray = [...$(".star")].sort(() => 0.5 - Math.random());
 
   // 定义缩放动画时长和暂停时间
   const twinkleDuration = 0.5; // 缩放动画时长（秒）
@@ -255,9 +254,9 @@ onMounted(() => {
     starArray.forEach((star, index) => {
       setTimeout(
         () => {
-          star.classList.add('twinkle');
+          star.classList.add("twinkle");
           setTimeout(() => {
-            star.classList.remove('twinkle');
+            star.classList.remove("twinkle");
             if (index === starArray.length - 1) {
               setTimeout(twinkleStars, pauseDuration * 1000); // 在每次调用之间添加 2 秒的间隔
             }
@@ -273,7 +272,7 @@ onMounted(() => {
   // 云层浮动动画效果
   // 定义一个获取随机方向的函数，随机选择移动距离'2px'或'-2px'
   const getRandomDirection = () => {
-    const directions = ['2px', '-2px'];
+    const directions = ["2px", "-2px"];
     return directions[Math.floor(Math.random() * directions.length)];
   };
 
@@ -285,8 +284,8 @@ onMounted(() => {
   };
 
   // 在文档加载完成后执行以下代码
-  document.addEventListener('DOMContentLoaded', () => {
-    const cloudSons = document.querySelectorAll('.cloud-son'); // 选择所有的.cloud-son元素
+  document.addEventListener("DOMContentLoaded", () => {
+    const cloudSons = document.querySelectorAll(".cloud-son"); // 选择所有的.cloud-son元素
 
     // 每秒钟执行一次以下代码
     setInterval(() => {
@@ -347,7 +346,11 @@ onMounted(() => {
     opacity: 0;
   }
 
-  $moon-craters: ((7.5px, 25px, 12.5px, 12.5px), (20px, 7.5px, 20px, 20px), (32.5px, 32.5px, 12.5px, 12.5px));
+  $moon-craters: (
+    (7.5px, 25px, 12.5px, 12.5px),
+    (20px, 7.5px, 20px, 20px),
+    (32.5px, 32.5px, 12.5px, 12.5px)
+  );
 
   /* 第一个陨石坑 */
   .moon:nth-child(1) {
@@ -603,7 +606,11 @@ onMounted(() => {
   .star-son {
     width: var(--size);
     height: var(--size);
-    background-image: radial-gradient(circle var(--size) at var(--pos), transparent var(--size), #fff);
+    background-image: radial-gradient(
+      circle var(--size) at var(--pos),
+      transparent var(--size),
+      #fff
+    );
   }
 
   /* 将星星闪烁动画应用于所有的star元素 */
@@ -627,11 +634,11 @@ onMounted(() => {
 }
 
 /* 进入dark模式和退出dark模式时，两个图像的位置顺序正好相反 */
-[class='dark']::view-transition-old(root) {
+[class="dark"]::view-transition-old(root) {
   z-index: 10000;
 }
 
-[class='dark']::view-transition-new(root) {
+[class="dark"]::view-transition-new(root) {
   z-index: 99999;
 }
 

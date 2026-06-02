@@ -1,6 +1,5 @@
-/* eslint-disable */
-import type { Ref } from 'vue';
-import { ref } from 'vue';
+import type { Ref } from "vue";
+import { ref } from "vue";
 
 // prettier-ignore
 type UseLoadingReturn<T extends string = ''> =
@@ -15,7 +14,7 @@ type UseLoadingReturn<T extends string = ''> =
         { [K in `start${Capitalize<T & string>}Loading`]: () => void } &
         { [K in `stop${Capitalize<T & string>}Loading`]: () => void };
 
-export function useLoading<T extends string = ''>(key?: T): UseLoadingReturn<T> {
+export function useLoading<T extends string = "">(key?: T): UseLoadingReturn<T> {
   const loading = ref(false);
 
   const startLoading = () => {
@@ -28,11 +27,11 @@ export function useLoading<T extends string = ''>(key?: T): UseLoadingReturn<T> 
     if (key) console.log(`[${key}] loading end`);
   };
 
-  const upperKey = key ? key.charAt(0).toUpperCase() + key.slice(1) : '';
+  const upperKey = key ? key.charAt(0).toUpperCase() + key.slice(1) : "";
 
   return {
-    [`${key ? `${key}Loading` : 'loading'}`]: loading,
-    [`${key ? `start${upperKey}Loading` : 'startLoading'}`]: startLoading,
-    [`${key ? `stop${upperKey}Loading` : 'stopLoading'}`]: stopLoading,
+    [`${key ? `${key}Loading` : "loading"}`]: loading,
+    [`${key ? `start${upperKey}Loading` : "startLoading"}`]: startLoading,
+    [`${key ? `stop${upperKey}Loading` : "stopLoading"}`]: stopLoading,
   } as UseLoadingReturn<T>;
 }

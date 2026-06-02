@@ -24,12 +24,7 @@
           </div>
         </div>
 
-        <Icon
-          name="icon-guanbichuangkou"
-          size="14"
-          class="cursor-pointer"
-          @click="handleClose"
-        />
+        <Icon name="icon-guanbichuangkou" size="14" class="cursor-pointer" @click="handleClose" />
       </div>
 
       <!-- content -->
@@ -42,17 +37,9 @@
 
     <!-- actions -->
     <div class="flex items-center gap-2">
-      <n-button
-        type="success"
-        size="tiny"
-        class="h-8! flex-1! rounded-lg!"
-        @click="open"
-      >
+      <n-button type="success" size="tiny" class="h-8! flex-1! rounded-lg!" @click="open">
         <template #icon>
-          <Icon
-            :name="isDirectory ? 'icon-wj-wjj' : 'icon-waibulianjie'"
-            size="14"
-          />
+          <Icon :name="isDirectory ? 'icon-wj-wjj' : 'icon-waibulianjie'" size="14" />
         </template>
 
         {{ info.actionText }}
@@ -67,12 +54,9 @@
         @click="openDirInManager"
       >
         <template #icon>
-          <Icon
-            name="icon-dakaisuozaiwenjianjia"
-            size="12"
-          />
+          <Icon name="icon-dakaisuozaiwenjianjia" size="12" />
         </template>
-        {{ t('clipboard.openInExplorer') }}
+        {{ t("clipboard.openInExplorer") }}
         <!-- <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template> -->
       </n-button>
 
@@ -85,12 +69,9 @@
         @click="openDirTerminal"
       >
         <template #icon>
-          <Icon
-            name="icon-minglinghang"
-            size="12"
-          />
+          <Icon name="icon-minglinghang" size="12" />
         </template>
-        {{ t('clipboard.openInTerminal') }}
+        {{ t("clipboard.openInTerminal") }}
         <!-- <template v-if="appConfigStore.portalShowShortcut">(PageUp)</template> -->
       </n-button>
     </div>
@@ -115,66 +96,66 @@
 </template>
 
 <script setup lang="ts">
-import { listen } from '@tauri-apps/api/event';
-import { TrayIcon } from '@tauri-apps/api/tray';
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { useDebounceFn, useTimeoutFn } from '@vueuse/core';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { exeCommand, openDirInTerminal, openRevealManager, setDefaultTrayIcon } from '@/api';
-import { useAppConfig } from '@/composables';
-import { AppEvent, PortalNotifyMode } from '@/constant';
-import { t } from '@/i18n';
-import { sleep } from '@/utils/delay';
-import { EventBus } from '@/utils/eventBus';
-import { register, unRegisterShortcutKey } from '@/utils/shortcutKey';
+import { listen } from "@tauri-apps/api/event";
+import { TrayIcon } from "@tauri-apps/api/tray";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { useDebounceFn, useTimeoutFn } from "@vueuse/core";
+import { computed, onMounted, onUnmounted, ref } from "vue";
+import { exeCommand, openDirInTerminal, openRevealManager, setDefaultTrayIcon } from "@/api";
+import { useAppConfig } from "@/composables";
+import { AppEvent, PortalNotifyMode } from "@/constant";
+import { t } from "@/i18n";
+import { sleep } from "@/utils/delay";
+import { EventBus } from "@/utils/eventBus";
+import { register, unRegisterShortcutKey } from "@/utils/shortcutKey";
 
 interface Props {
-  model?: 'default' | 'setLocation' | 'demo';
+  model?: "default" | "setLocation" | "demo";
   visible?: boolean;
   content?: string;
   type?: ClipboardContentType;
 }
 
-const props = withDefaults(defineProps<Props>(), { model: 'default', visible: false });
+const props = withDefaults(defineProps<Props>(), { model: "default", visible: false });
 
 const { appConfigStore } = useAppConfig();
-const type = ref<ClipboardContentType>(props.type || 'Url');
-const content = ref<string>(props.content || '');
+const type = ref<ClipboardContentType>(props.type || "Url");
+const content = ref<string>(props.content || "");
 const visible = ref(props.visible);
-const isDirectory = computed(() => type.value === 'Directory');
+const isDirectory = computed(() => type.value === "Directory");
 // const model = ref<Props['model']>();
-const currentModel = ref<Props['model']>(props.model || 'default');
-const isDefaultModel = computed(() => currentModel.value === 'default');
+const currentModel = ref<Props["model"]>(props.model || "default");
+const isDefaultModel = computed(() => currentModel.value === "default");
 
 const themeColor = computed(() => {
   return isDirectory.value
     ? {
-        light: '#8b5cf6',
-        bg: 'from-violet-500/15 to-fuchsia-500/10',
-        button: '#8b5cf6',
+        light: "#8b5cf6",
+        bg: "from-violet-500/15 to-fuchsia-500/10",
+        button: "#8b5cf6",
       }
     : {
-        light: '#2563eb',
-        bg: 'from-blue-500/15 to-cyan-500/10',
-        button: '#2563eb',
+        light: "#2563eb",
+        bg: "from-blue-500/15 to-cyan-500/10",
+        button: "#2563eb",
       };
 });
 
 const info = computed(() => {
-  if (currentModel.value === 'setLocation') {
+  if (currentModel.value === "setLocation") {
     return {
-      title: t('clipboard.setWindowPosition'),
-      actionText: t('clipboard.confirm'),
+      title: t("clipboard.setWindowPosition"),
+      actionText: t("clipboard.confirm"),
     };
   }
   return isDirectory.value
     ? {
-        title: t('clipboard.dirCopied'),
-        actionText: t('common.openPlain'),
+        title: t("clipboard.dirCopied"),
+        actionText: t("common.openPlain"),
       }
     : {
-        title: t('clipboard.linkCopied'),
-        actionText: t('common.openPlain'),
+        title: t("clipboard.linkCopied"),
+        actionText: t("common.openPlain"),
       };
 });
 
@@ -184,16 +165,19 @@ const currentWindow = getCurrentWebviewWindow();
 // const appConfigStore.portalOpenDirInTerminalShortcutKey = 'Ctrl + PageUp';
 const shortcutRegistered = ref(false);
 
-const { start: startAutoClose, stop: stopAutoClose } = useTimeoutFn(handleClose, appConfigStore.portalDuration);
+const { start: startAutoClose, stop: stopAutoClose } = useTimeoutFn(
+  handleClose,
+  appConfigStore.portalDuration,
+);
 
 async function handleClose() {
-  if (currentModel.value === 'demo') return;
-  if (currentModel.value === 'setLocation') {
+  if (currentModel.value === "demo") return;
+  if (currentModel.value === "setLocation") {
     await currentWindow?.hide();
     visible.value = false;
-  } else if (appConfigStore.portalNotifyMode === 'tray') {
+  } else if (appConfigStore.portalNotifyMode === "tray") {
     handleEndFlashTray();
-  } else if (appConfigStore.portalNotifyMode === 'window') {
+  } else if (appConfigStore.portalNotifyMode === "window") {
     if (!visible.value) return;
     stopAutoClose();
     await currentWindow?.hide();
@@ -226,7 +210,7 @@ const { start: startFlashTimeout, stop: stopFlashTimeout } = useTimeoutFn(
 const flashLock = ref(false);
 // 托盘闪烁通知
 async function handleFlashTray() {
-  const tray = await TrayIcon.getById('tray');
+  const tray = await TrayIcon.getById("tray");
   flashFlag.value = true;
   stopFlashTimeout();
   startFlashTimeout();
@@ -247,7 +231,7 @@ async function handleEndFlashTray() {
   flashFlag.value = false;
   stopFlashTimeout();
   setDefaultTrayIcon();
-  const tray = await TrayIcon.getById('tray');
+  const tray = await TrayIcon.getById("tray");
   tray?.setTooltip(appConfigStore.title);
   flashLock.value = false;
 }
@@ -261,13 +245,16 @@ async function handleRegisterShortcutKey() {
   ]);
 
   register(appConfigStore.portalOpenShortcutKey, open);
-  isDirectory.value && register(appConfigStore.portalOpenDirInManagerShortcutKey, openDirInManager);
-  isDirectory.value && register(appConfigStore.portalOpenDirInTerminalShortcutKey, openDirTerminal);
+
+  if (isDirectory.value) {
+    register(appConfigStore.portalOpenDirInManagerShortcutKey, openDirInManager);
+    register(appConfigStore.portalOpenDirInTerminalShortcutKey, openDirTerminal);
+  }
   shortcutRegistered.value = true;
 }
 
 async function open() {
-  if (currentModel.value === 'setLocation') return handleClose();
+  if (currentModel.value === "setLocation") return handleClose();
   if (!content.value) return;
   if (!isDefaultModel.value) return;
   await exeCommand(content.value);
@@ -299,35 +286,38 @@ const savePortalPosition = useDebounceFn((position: { x: number; y: number }) =>
 
 currentWindow.onMoved(({ payload: position }) => savePortalPosition(position));
 EventBus.listen(AppEvent.OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL, async () => {
-  currentModel.value = 'setLocation';
-  content.value = t('clipboard.dragToSetPosition');
+  currentModel.value = "setLocation";
+  content.value = t("clipboard.dragToSetPosition");
   visible.value = true;
   await currentWindow?.show();
 });
 
 onMounted(async () => {
   if (isDefaultModel.value) {
-    unlistenClipboard = await listen(AppEvent.CLIPBOARD, async ({ payload }: { payload: ClipboardPayload }) => {
-      if (!appConfigStore.portalEnabled) return;
-      // 判断 portalNotifyMode 是什么方式
-      const { content: str, content_type } = payload;
-      if (content_type === 'Unknown') return;
-      currentModel.value = 'default';
-      content.value = str;
-      type.value = content_type;
+    unlistenClipboard = await listen(
+      AppEvent.CLIPBOARD,
+      async ({ payload }: { payload: ClipboardPayload }) => {
+        if (!appConfigStore.portalEnabled) return;
+        // 判断 portalNotifyMode 是什么方式
+        const { content: str, content_type } = payload;
+        if (content_type === "Unknown") return;
+        currentModel.value = "default";
+        content.value = str;
+        type.value = content_type;
 
-      switch (appConfigStore.portalNotifyMode) {
-        case PortalNotifyMode.WINDOW:
-          handleShowWindow();
-          break;
-        case PortalNotifyMode.TRAY:
-          handleFlashTray();
-          break;
-        case PortalNotifyMode.SILENT:
-          handleRegisterShortcutKey();
-          break;
-      }
-    });
+        switch (appConfigStore.portalNotifyMode) {
+          case PortalNotifyMode.WINDOW:
+            handleShowWindow();
+            break;
+          case PortalNotifyMode.TRAY:
+            handleFlashTray();
+            break;
+          case PortalNotifyMode.SILENT:
+            handleRegisterShortcutKey();
+            break;
+        }
+      },
+    );
   }
 });
 

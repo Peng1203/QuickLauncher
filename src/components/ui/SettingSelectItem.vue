@@ -1,11 +1,6 @@
 <!-- SettingSwitchItem.vue -->
 <template>
-  <SettingItem
-    :icon="icon"
-    :title="title"
-    :description="description"
-    :class-name="className"
-  >
+  <SettingItem :icon="icon" :title="title" :description="description" :class-name="className">
     <slot>
       <n-select
         v-model:value="modelValue"
@@ -22,7 +17,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends string | number | null">
-import SettingItem from './SettingItem.vue';
+import SettingItem from "./SettingItem.vue";
 
 interface Props {
   title: string;
@@ -35,7 +30,7 @@ interface Props {
 
 defineProps<Props>();
 
-defineEmits(['update:modelValue']);
+defineEmits(["update:modelValue"]);
 
 const modelValue = defineModel<T>();
 </script>

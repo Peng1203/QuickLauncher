@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
 
@@ -33,7 +33,8 @@ body {
 /* ── Design Tokens ── */
 :root {
   --app-font-size: 14px;
-  --app-font-family: Inter, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --app-font-family:
+    Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif;
   /* monospace */
 
   --background: oklch(1 0 0);

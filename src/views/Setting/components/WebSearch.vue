@@ -20,15 +20,19 @@
         v-show="appConfigStore.webSearchOpenModel !== WebSearchOpenModel.CLOSE"
         class="text-[12px] leading-3.5 text-muted-foreground"
       >
-        {{ t('webSearchExtra.searchModeHint') }}
+        {{ t("webSearchExtra.searchModeHint") }}
         <b class="text-foreground">
-          {{ appConfigStore.webSearchOpenModel ? t('webSearch.colonKeySpace') : t('webSearch.keySpace') }}
+          {{
+            appConfigStore.webSearchOpenModel
+              ? t("webSearch.colonKeySpace")
+              : t("webSearch.keySpace")
+          }}
         </b>
-        {{ t('webSearchExtra.searchModeHint2') }}
+        {{ t("webSearchExtra.searchModeHint2") }}
         <b class="text-foreground">
           {{ appConfigStore.webSearchOpenModel ? '":g"' : '"g"' }}
         </b>
-        {{ t('webSearchExtra.searchModeHint3') }}
+        {{ t("webSearchExtra.searchModeHint3") }}
       </p>
     </SettingGroup>
 
@@ -45,51 +49,31 @@
         :row-class-name="({ id }) => (id === activeRowId ? '!bg-muted' : '')"
       />
       <div class="flex-sb-c">
-        <n-button
-          dashed
-          size="small"
-          type="info"
-          @click="handleAdd"
-        >
+        <n-button dashed size="small" type="info" @click="handleAdd">
           <template #icon>
             <Icon name="icon-xinzeng" />
           </template>
-          {{ t('common.add') }}
+          {{ t("common.add") }}
         </n-button>
 
         <!-- v-if="activeRowId" -->
-        <n-button
-          :disabled="!activeRowId"
-          size="small"
-          type="error"
-          @click="handleDel"
-        >
+        <n-button :disabled="!activeRowId" size="small" type="error" @click="handleDel">
           <template #icon>
-            <Icon
-              name="icon-shanchufenlei"
-              size="14"
-            />
+            <Icon name="icon-shanchufenlei" size="14" />
           </template>
-          {{ t('common.delete') }}
+          {{ t("common.delete") }}
         </n-button>
 
-        <n-button
-          size="small"
-          type="default"
-          @click="handleResetWebSource"
-        >
+        <n-button size="small" type="default" @click="handleResetWebSource">
           <template #icon>
-            <Icon
-              name="icon-shuaxin"
-              size="14"
-            />
+            <Icon name="icon-shuaxin" size="14" />
           </template>
-          {{ t('common.reset') }}
+          {{ t("common.reset") }}
         </n-button>
       </div>
 
       <div v-show="operationFormVisible">
-        <h3>{{ t('webSearch.edit') }}</h3>
+        <h3>{{ t("webSearch.edit") }}</h3>
         <n-form
           ref="formRef"
           size="small"
@@ -98,10 +82,7 @@
           :label-width="60"
           :show-feedback="false"
         >
-          <n-form-item
-            :label="t('common.icon')"
-            class="mt-1"
-          >
+          <n-form-item :label="t('common.icon')" class="mt-1">
             <div class="flex items-end gap-2">
               <n-avatar
                 size="small"
@@ -114,63 +95,34 @@
               <IconPicker v-model="sourceForm.icon!" />
             </div>
           </n-form-item>
-          <n-form-item
-            :label="t('common.name')"
-            class="mt-1"
-          >
-            <n-input
-              v-model:value="sourceForm.name"
-              placeholder=""
-            />
+          <n-form-item :label="t('common.name')" class="mt-1">
+            <n-input v-model:value="sourceForm.name" placeholder="" />
           </n-form-item>
 
-          <n-form-item
-            :label="t('common.keywords')"
-            class="mt-1"
-          >
-            <n-input
-              v-model:value="sourceForm.keywords"
-              placeholder=""
-            />
+          <n-form-item :label="t('common.keywords')" class="mt-1">
+            <n-input v-model:value="sourceForm.keywords" placeholder="" />
           </n-form-item>
 
-          <n-form-item
-            :label="t('common.url')"
-            class="mt-1"
-          >
+          <n-form-item :label="t('common.url')" class="mt-1">
             <n-input
               v-model:value="sourceForm.searchApi"
               placeholder="https://www.baidu.com/s?wd={w}"
             />
           </n-form-item>
 
-          <n-form-item
-            :label="t('common.description')"
-            class="mt-1"
-          >
-            <n-input
-              v-model:value="sourceForm.desc"
-              placeholder=""
-            />
+          <n-form-item :label="t('common.description')" class="mt-1">
+            <n-input v-model:value="sourceForm.desc" placeholder="" />
           </n-form-item>
 
           <div class="mt-3 flex-sb-c">
-            <DescText>{{ t('webSearch.dynamicContent') }}</DescText>
+            <DescText>{{ t("webSearch.dynamicContent") }}</DescText>
 
             <div class="flex gap-1">
-              <n-button
-                size="small"
-                type="info"
-                @click="handleConfirm"
-              >
-                {{ t('common.confirm') }}
+              <n-button size="small" type="info" @click="handleConfirm">
+                {{ t("common.confirm") }}
               </n-button>
-              <n-button
-                size="small"
-                type="tertiary"
-                @click="handleCancel"
-              >
-                {{ t('common.cancel') }}
+              <n-button size="small" type="tertiary" @click="handleCancel">
+                {{ t("common.cancel") }}
               </n-button>
             </div>
           </div>

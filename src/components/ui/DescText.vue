@@ -1,15 +1,10 @@
 <template>
-  <div
-    :class="classes"
-    v-bind="$attrs"
-  >
+  <div :class="classes" v-bind="$attrs">
     <slot></slot>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-
 interface Props {
   /**
    * 是否使用更小字号（可选扩展）
@@ -22,6 +17,6 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const classes = computed(() => {
-  return [props.small ? 'text-[11px]' : 'text-[12px]', 'leading-6', 'text-muted-foreground'];
+  return [props.small ? "text-[11px]" : "text-[12px]", "leading-6", "text-muted-foreground"];
 });
 </script>

@@ -1,15 +1,8 @@
 <template>
-  <n-layout
-    class="w-full h-full flex flex-col"
-    position="absolute"
-    :native-scrollbar="false"
-  >
+  <n-layout class="w-full h-full flex flex-col" position="absolute" :native-scrollbar="false">
     <Header />
 
-    <n-layout
-      has-sider
-      class="container-layout flex-1 overflow-hidden"
-    >
+    <n-layout has-sider class="container-layout flex-1 overflow-hidden">
       <Sidebar />
 
       <LaunchList />
@@ -20,11 +13,11 @@
 </template>
 
 <script setup lang="ts">
-import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
-import { useDebounceFn } from '@vueuse/core';
-import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
-import { ensureDefaultCategory } from '@/api';
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { useDebounceFn } from "@vueuse/core";
+import { storeToRefs } from "pinia";
+import { ref } from "vue";
+import { ensureDefaultCategory } from "@/api";
 import {
   useAppConfig,
   useAppConfigActions,
@@ -32,13 +25,13 @@ import {
   useLaunchActive,
   useLoadConfig,
   useToggleWindowVisible,
-} from '@/composables';
-import { AppEvent } from '@/constant';
-import { useStore } from '@/store/useStore';
-import { delay } from '@/utils/delay';
-import { EventBus } from '@/utils/eventBus';
-import LaunchList from './components/LaunchList.vue';
-import Sidebar from './components/Sidebar.vue';
+} from "@/composables";
+import { AppEvent } from "@/constant";
+import { useStore } from "@/store/useStore";
+import { delay } from "@/utils/delay";
+import { EventBus } from "@/utils/eventBus";
+import LaunchList from "./components/LaunchList.vue";
+import Sidebar from "./components/Sidebar.vue";
 
 const store = useStore();
 const { launchData, activeLaunchItem, activeCursorX, activeCursorY } = storeToRefs(store);
@@ -67,7 +60,7 @@ async function initCategoryData() {
     await store.getCategoryData(true);
     registerAllCategoryDirWatch();
   } catch (e) {
-    console.log('initCategoryData', e);
+    console.log("initCategoryData", e);
   }
 }
 
@@ -75,7 +68,7 @@ async function initLaunchData() {
   try {
     await store.getLaunchData();
   } catch (e) {
-    console.log('initLaunchData', e);
+    console.log("initLaunchData", e);
   }
 }
 
@@ -86,7 +79,7 @@ async function initData() {
     await delay(50);
     await ensureDefaultCategory().then(initCategoryData).then(initLaunchData);
   } catch (e) {
-    console.log('initData', e);
+    console.log("initData", e);
     retryCounter.value++;
     await initData();
   }

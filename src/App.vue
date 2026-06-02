@@ -18,18 +18,18 @@
 </template>
 
 <script setup lang="ts">
-import type { NDateLocale, NLocale } from 'naive-ui';
+import type { NDateLocale, NLocale } from "naive-ui";
 
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { watchImmediate } from '@vueuse/core';
-import { dateEnUS, dateJaJP, dateZhCN, dateZhTW, enUS, jaJP, zhCN, zhTW } from 'naive-ui';
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { watchImmediate } from "@vueuse/core";
+import { dateEnUS, dateJaJP, dateZhCN, dateZhTW, enUS, jaJP, zhCN, zhTW } from "naive-ui";
 
-import { useAppConfig } from './composables';
-import { useTheme } from './composables/useTheme';
-import { useTray } from './composables/useTray';
-import { AppEvent } from './constant';
-import { i18n } from './i18n';
-import { EventBus } from './utils/eventBus';
+import { useAppConfig } from "./composables";
+import { useTheme } from "./composables/useTheme";
+import { useTray } from "./composables/useTray";
+import { AppEvent } from "./constant";
+import { i18n } from "./i18n";
+import { EventBus } from "./utils/eventBus";
 
 const {
   font, //
@@ -45,8 +45,8 @@ const {
 const { appConfigStore } = useAppConfig();
 
 const naiveLocaleMap: Record<string, NLocale> = {
-  'zh-CN': zhCN,
-  'zh-HK': zhTW,
+  "zh-CN": zhCN,
+  "zh-HK": zhTW,
   // prettier-ignore
   'en': enUS,
   // prettier-ignore
@@ -54,8 +54,8 @@ const naiveLocaleMap: Record<string, NLocale> = {
 };
 
 const naiveDateLocaleMap: Record<string, NDateLocale> = {
-  'zh-CN': dateZhCN,
-  'zh-HK': dateZhTW,
+  "zh-CN": dateZhCN,
+  "zh-HK": dateZhTW,
   // prettier-ignore
   'en': dateEnUS,
   // prettier-ignore
@@ -70,7 +70,7 @@ const { createTray } = useTray();
 
 watch(
   () => appConfigStore.language,
-  lang => {
+  (lang) => {
     i18n.global.locale.value = lang;
     createTray();
   },
@@ -98,11 +98,11 @@ watchImmediate(fontSize, setFontSize);
 }
 
 /* 进入dark模式和退出dark模式时，两个图像的位置顺序正好相反 */
-[class='dark']::view-transition-old(root) {
+[class="dark"]::view-transition-old(root) {
   z-index: 10000;
 }
 
-[class='dark']::view-transition-new(root) {
+[class="dark"]::view-transition-new(root) {
   z-index: 99999;
 }
 

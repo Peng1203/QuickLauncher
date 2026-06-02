@@ -9,10 +9,7 @@
       />
     </SettingGroup>
 
-    <SettingGroup
-      :title="t('portal.groupNotify')"
-      :description="t('portal.notifyDesc')"
-    >
+    <SettingGroup :title="t('portal.groupNotify')" :description="t('portal.notifyDesc')">
       <div class="grid grid-cols-3 gap-4">
         <div
           v-for="item in notifyModes"
@@ -25,10 +22,7 @@
           "
           @click="appConfigStore.portalNotifyMode = item.value"
         >
-          <Icon
-            :name="item.icon"
-            size="14"
-          />
+          <Icon :name="item.icon" size="14" />
 
           <span class="text-[12px] font-semibold">
             {{ item.label }}
@@ -37,10 +31,7 @@
       </div>
     </SettingGroup>
 
-    <SettingGroup
-      :title="t('portal.groupDuration')"
-      :description="t('portal.durationDesc')"
-    >
+    <SettingGroup :title="t('portal.groupDuration')" :description="t('portal.durationDesc')">
       <div class="flex items-center gap-8">
         <n-slider
           v-model:value="appConfigStore.portalDuration"
@@ -89,20 +80,14 @@
           <div>
             <!-- icon="icon-kuaijiejian-" -->
             <SettingItem :title="t('portal.openTitle')">
-              <ShortcutKbd
-                class="w-30"
-                :value="appConfigStore.portalOpenShortcutKey"
-              />
+              <ShortcutKbd class="w-30" :value="appConfigStore.portalOpenShortcutKey" />
               <!-- <ShortcutKeyInput
                   v-model="test"
                   @commit="handleSave"
                 /> -->
             </SettingItem>
             <SettingItem :title="t('portal.openInExplorer')">
-              <ShortcutKbd
-                class="w-30"
-                :value="appConfigStore.portalOpenDirInManagerShortcutKey"
-              />
+              <ShortcutKbd class="w-30" :value="appConfigStore.portalOpenDirInManagerShortcutKey" />
             </SettingItem>
             <SettingItem :title="t('portal.openInTerminal')">
               <ShortcutKbd
@@ -121,23 +106,13 @@
       /> -->
     </SettingGroup>
 
-    <SettingGroup
-      :title="t('portal.groupPosition')"
-      :description="t('portal.positionDesc')"
-    >
+    <SettingGroup :title="t('portal.groupPosition')" :description="t('portal.positionDesc')">
       <div class="flex gap-5">
-        <n-button
-          size="small"
-          type="success"
-          @click="handleSetLocation"
-        >
+        <n-button size="small" type="success" @click="handleSetLocation">
           <template #icon>
-            <Icon
-              name="icon-address"
-              size="14"
-            />
+            <Icon name="icon-address" size="14" />
           </template>
-          {{ t('portal.selectPosition') }}
+          {{ t("portal.selectPosition") }}
         </n-button>
 
         <div class="flex items-center gap-2">
@@ -164,17 +139,9 @@
       </div>
     </SettingGroup>
 
-    <SettingGroup
-      :title="t('portal.groupOpacity')"
-      :description="t('portal.opacityDesc')"
-    >
+    <SettingGroup :title="t('portal.groupOpacity')" :description="t('portal.opacityDesc')">
       <div class="flex items-center gap-8">
-        <NSlider
-          v-model:value="appConfigStore.portalOpacity"
-          :min="60"
-          :max="100"
-          class="flex-2"
-        />
+        <NSlider v-model:value="appConfigStore.portalOpacity" :min="60" :max="100" class="flex-2" />
 
         <div class="flex items-center gap-2 flex-1">
           <NInputNumber
@@ -193,28 +160,30 @@
 </template>
 
 <script setup lang="ts">
-import { useAppConfig } from '@/composables';
-import { AppEvent, PortalNotifyMode } from '@/constant';
-import { t } from '@/i18n';
-import { EventBus } from '@/utils/eventBus';
+import { useAppConfig } from "@/composables";
+import { AppEvent, PortalNotifyMode } from "@/constant";
+import { t } from "@/i18n";
+import { EventBus } from "@/utils/eventBus";
 
 const { appConfigStore } = useAppConfig();
 
-const notifyModes = computed<{ label: string; value: PortalNotifyMode; iconClass?: string; icon?: any }[]>(() => [
+const notifyModes = computed<
+  { label: string; value: PortalNotifyMode; iconClass?: string; icon?: any }[]
+>(() => [
   {
-    label: t('portal.notifyWindow'),
+    label: t("portal.notifyWindow"),
     value: PortalNotifyMode.WINDOW,
-    icon: 'icon-program-code',
+    icon: "icon-program-code",
   },
   {
-    label: t('portal.notifyTray'),
+    label: t("portal.notifyTray"),
     value: PortalNotifyMode.TRAY,
-    icon: 'icon-shanshuo',
+    icon: "icon-shanshuo",
   },
   {
-    label: t('portal.notifySilent'),
+    label: t("portal.notifySilent"),
     value: PortalNotifyMode.SILENT,
-    icon: 'icon-guanbitongzhi',
+    icon: "icon-guanbitongzhi",
   },
 ]);
 

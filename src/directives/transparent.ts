@@ -1,8 +1,8 @@
-import type { Directive } from 'vue';
+import type { Directive } from "vue";
 
 export type TransparentDirective = Directive<HTMLElement, boolean>;
 
-declare module 'vue' {
+declare module "vue" {
   export interface ComponentCustomProperties {
     // 使用 v 作为前缀 (v-transparent)
     vTransparent: TransparentDirective;
@@ -10,9 +10,9 @@ declare module 'vue' {
 }
 
 function update(el: HTMLElement, hidden: boolean) {
-  el.style.opacity = hidden ? '0' : '1';
-  el.style.pointerEvents = hidden ? 'none' : '';
-  el.style.transition = 'opacity 0.2s ease';
+  el.style.opacity = hidden ? "0" : "1";
+  el.style.pointerEvents = hidden ? "none" : "";
+  el.style.transition = "opacity 0.2s ease";
 }
 
 export default {

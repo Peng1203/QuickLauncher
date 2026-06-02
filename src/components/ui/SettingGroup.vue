@@ -2,15 +2,9 @@
   <div :class="$attrs.class">
     <!-- Header -->
     <div>
-      <h3
-        class="text-[14px] font-medium text-muted-foreground truncate"
-        v-html="title"
-      ></h3>
+      <h3 class="text-[14px] font-medium text-muted-foreground truncate" v-html="title"></h3>
 
-      <p
-        v-if="description"
-        class="text-[10px] text-muted-foreground/70"
-      >
+      <p v-if="description" class="text-[10px] text-muted-foreground/70">
         {{ description }}
       </p>
     </div>

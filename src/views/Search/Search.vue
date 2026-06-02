@@ -1,9 +1,6 @@
 <template>
   <div class="search-shell">
-    <div
-      v-if="showModeTabs"
-      class="search-mode-tabs"
-    >
+    <div v-if="showModeTabs" class="search-mode-tabs">
       <button
         v-for="item in visibleModeTabs"
         :key="item.mode"
@@ -12,10 +9,7 @@
         type="button"
         @click="handleSwitchMode({ mode: item.mode })"
       >
-        <n-icon
-          :component="item.icon"
-          size="20"
-        />
+        <n-icon :component="item.icon" size="20" />
         <span>{{ item.label }}</span>
       </button>
 
@@ -33,19 +27,24 @@
 </template>
 
 <script setup lang="ts">
-import type { SearchModelType } from './searchModes';
-import { cursorPosition, getCurrentWindow, LogicalPosition, LogicalSize } from '@tauri-apps/api/window';
-import { CheckboxOutline, GlobeOutline, LanguageOutline, SearchOutline } from '@vicons/ionicons5';
-import { nextTick, ref } from 'vue';
-import { isForegroundFullscreen } from '@/api';
-import { useAppConfig, useAppConfigActions } from '@/composables';
-import { AppEvent, SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH } from '@/constant';
-import { EventBus } from '@/utils/eventBus';
-import DefaultSearchMode from './components/DefaultSearchMode.vue';
-import TodoMode from './components/TodoMode.vue';
-import TranslationMode from './components/TranslationMode.vue';
-import WebSearchMode from './components/WebSearchMode.vue';
-import { SEARCH_MODE_TABS_HEIGHT, SEARCH_MODEL } from './searchModes';
+import type { SearchModelType } from "./searchModes";
+import {
+  cursorPosition,
+  getCurrentWindow,
+  LogicalPosition,
+  LogicalSize,
+} from "@tauri-apps/api/window";
+import { CheckboxOutline, GlobeOutline, LanguageOutline, SearchOutline } from "@vicons/ionicons5";
+import { nextTick, ref } from "vue";
+import { isForegroundFullscreen } from "@/api";
+import { useAppConfig, useAppConfigActions } from "@/composables";
+import { AppEvent, SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
+import { EventBus } from "@/utils/eventBus";
+import DefaultSearchMode from "./components/DefaultSearchMode.vue";
+import TodoMode from "./components/TodoMode.vue";
+import TranslationMode from "./components/TranslationMode.vue";
+import WebSearchMode from "./components/WebSearchMode.vue";
+import { SEARCH_MODE_TABS_HEIGHT, SEARCH_MODEL } from "./searchModes";
 
 interface SearchModeExpose {
   focus?: () => void;
@@ -63,14 +62,14 @@ interface SwitchModePayload {
 const { appConfigStore } = useAppConfig();
 const searchWindow = getCurrentWindow();
 const searchModel = ref<SearchModelType>(SEARCH_MODEL.DEFAULT_MODEL);
-const pendingKeyword = ref('');
+const pendingKeyword = ref("");
 const activeWebSearchSource = ref<WebSearchSource>();
-const activeModeRef = useTemplateRef<SearchModeExpose>('activeModeRef');
+const activeModeRef = useTemplateRef<SearchModeExpose>("activeModeRef");
 const visibleModeTabs = [
-  { mode: SEARCH_MODEL.DEFAULT_MODEL, label: '搜索', icon: SearchOutline },
-  { mode: SEARCH_MODEL.TODO_MODEL, label: 'Todo', icon: CheckboxOutline },
-  { mode: SEARCH_MODEL.TRANSLATION_MODEL, label: '翻译', icon: LanguageOutline },
-  { mode: SEARCH_MODEL.WEB_SEARCH_MODEL, label: 'WebSearch', icon: GlobeOutline },
+  { mode: SEARCH_MODEL.DEFAULT_MODEL, label: "搜索", icon: SearchOutline },
+  { mode: SEARCH_MODEL.TODO_MODEL, label: "Todo", icon: CheckboxOutline },
+  { mode: SEARCH_MODEL.TRANSLATION_MODEL, label: "翻译", icon: LanguageOutline },
+  { mode: SEARCH_MODEL.WEB_SEARCH_MODEL, label: "WebSearch", icon: GlobeOutline },
 ];
 const showModeTabs = computed(() => appConfigStore.showSearchModeTabs);
 
@@ -102,7 +101,7 @@ async function handleSwitchMode(payload: SwitchModePayload) {
   if (payload.mode === searchModel.value && !payload.keyword && !payload.source) return;
 
   activeModeRef.value?.handleClose?.();
-  pendingKeyword.value = payload.keyword || '';
+  pendingKeyword.value = payload.keyword || "";
   activeWebSearchSource.value =
     payload.mode === SEARCH_MODEL.WEB_SEARCH_MODEL
       ? payload.source || activeWebSearchSource.value || appConfigStore.webSearchSourceList[0]
@@ -122,7 +121,7 @@ async function resizeToActiveModeDefaultHeight() {
 
 async function handleClose(isEscClose: boolean = false) {
   searchModel.value = SEARCH_MODEL.DEFAULT_MODEL;
-  pendingKeyword.value = '';
+  pendingKeyword.value = "";
   activeWebSearchSource.value = undefined;
   activeModeRef.value?.handleClose?.();
   await resizeToActiveModeDefaultHeight();
@@ -156,9 +155,9 @@ function handleBlur() {
 
 function handleKeydown(event: KeyboardEvent) {
   // && showModeTabs.value
-  if (event.shiftKey && event.key === 'Tab') {
+  if (event.shiftKey && event.key === "Tab") {
     event.preventDefault();
-    const currentIndex = visibleModeTabs.findIndex(item => item.mode === searchModel.value);
+    const currentIndex = visibleModeTabs.findIndex((item) => item.mode === searchModel.value);
     const nextIndex = currentIndex === visibleModeTabs.length - 1 ? 0 : currentIndex + 1;
     void handleSwitchMode({ mode: visibleModeTabs[nextIndex].mode });
     return;
@@ -182,16 +181,16 @@ onMounted(async () => {
     const isFull = await isForegroundFullscreen();
     const windowVisible = await searchWindow.isVisible();
     if (appConfigStore.doNotDisturbMode && isFull && !windowVisible) return;
-
-    windowVisible ? handleClose() : handleShow();
+    if (windowVisible) handleClose();
+    else handleShow();
   });
-  window.addEventListener('keydown', handleKeydown);
+  window.addEventListener("keydown", handleKeydown);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown);
-  unlistenFocus && unlistenFocus();
-  unlistenShortcut && unlistenShortcut();
+  window.removeEventListener("keydown", handleKeydown);
+  if (unlistenFocus) unlistenFocus();
+  if (unlistenShortcut) unlistenShortcut();
 });
 </script>
 

@@ -5,10 +5,10 @@
  */
 export function formatBytes(bytes: number, decimals = 2): string {
   if (!bytes || bytes <= 0) {
-    return '0 B';
+    return "0 B";
   }
 
-  const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+  const units = ["B", "KB", "MB", "GB", "TB", "PB"];
 
   const base = 1024;
 
@@ -21,7 +21,7 @@ export function formatBytes(bytes: number, decimals = 2): string {
 
 export function formatDuration(seconds: number) {
   if (!Number.isFinite(seconds) || seconds <= 0) {
-    return '0秒';
+    return "0秒";
   }
 
   const h = Math.floor(seconds / 3600);

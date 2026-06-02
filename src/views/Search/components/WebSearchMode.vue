@@ -11,17 +11,8 @@
       :placeholder="source?.desc || source?.name || ''"
     >
       <template #prefix>
-        <n-avatar
-          v-if="source?.icon"
-          class="!bg-transparent"
-          :size="22"
-          :src="source.icon"
-        />
-        <n-icon
-          v-else
-          :component="GlobeOutline"
-          size="22"
-        />
+        <n-avatar v-if="source?.icon" class="!bg-transparent" :size="22" :src="source.icon" />
+        <n-icon v-else :component="GlobeOutline" size="22" />
       </template>
     </n-input>
   </label>
@@ -35,12 +26,9 @@
       maxHeight: `calc(${searchWindowHeight}px - ${chromeHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
     }"
   >
-    <template
-      v-for="(item, index) of resultList"
-      :key="item.id"
-    >
+    <template v-for="(item, index) of resultList" :key="item.id">
       <li
-        :ref="el => (itemRefs[index] = el as any)"
+        :ref="(el) => (itemRefs[index] = el as any)"
         class="flex items-center justify-between h-[48px] px-4 py-2 cursor-pointer"
         :class="[index === selectedIndex ? 'bg-muted' : 'hover:bg-muted']"
         @click="
@@ -59,16 +47,16 @@
 </template>
 
 <script setup lang="ts">
-import type { SearchModelType } from '../searchModes';
-import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
-import { fetch } from '@tauri-apps/plugin-http';
-import { GlobeOutline } from '@vicons/ionicons5';
-import { ref, watch } from 'vue';
-import { exeCommand } from '@/api';
-import { useAppConfig, useNaiveUiApi } from '@/composables';
-import { SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from '@/constant';
-import { t } from '@/i18n';
-import { SEARCH_MODEL } from '../searchModes';
+import type { SearchModelType } from "../searchModes";
+import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
+import { fetch } from "@tauri-apps/plugin-http";
+import { GlobeOutline } from "@vicons/ionicons5";
+import { ref, watch } from "vue";
+import { exeCommand } from "@/api";
+import { useAppConfig, useNaiveUiApi } from "@/composables";
+import { SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
+import { t } from "@/i18n";
+import { SEARCH_MODEL } from "../searchModes";
 
 const props = defineProps<{
   keyword?: string;
@@ -83,8 +71,8 @@ const emit = defineEmits<{
 const { appConfigStore } = useAppConfig();
 const { notification } = useNaiveUiApi();
 const searchWindow = getCurrentWindow();
-const inputRef = useTemplateRef('searchInputRef');
-const keyword = ref(props.keyword || '');
+const inputRef = useTemplateRef("searchInputRef");
+const keyword = ref(props.keyword || "");
 const resultList = ref<SearchLauncItem[]>([]);
 const itemRefs = ref<HTMLElement[]>([]);
 const selectedIndex = ref(0);
@@ -98,7 +86,9 @@ const searchWindowHeight = computed(() => {
   const contentHeight = resultsHeight + SEARCH_INPUT_HEIGHT;
   return (
     chromeHeight.value +
-    (contentHeight > appConfigStore.searchWindowMaxHeight ? appConfigStore.searchWindowMaxHeight : contentHeight + 1)
+    (contentHeight > appConfigStore.searchWindowMaxHeight
+      ? appConfigStore.searchWindowMaxHeight
+      : contentHeight + 1)
   );
 });
 
@@ -113,7 +103,7 @@ function resizeWindow() {
 }
 
 function handleClose() {
-  keyword.value = '';
+  keyword.value = "";
   selectedIndex.value = 0;
   resultList.value = [];
   resizeWindow();
@@ -124,7 +114,7 @@ function handleKeydown(e: KeyboardEvent) {
   const maxIndex = resultCount - 1;
   const { keyCode, ctrlKey, key } = e;
 
-  if (ctrlKey && (key === 'w' || key === 'W')) {
+  if (ctrlKey && (key === "w" || key === "W")) {
     handleClose();
     e.preventDefault();
     return;
@@ -135,7 +125,7 @@ function handleKeydown(e: KeyboardEvent) {
       handleEnter();
       break;
     case 27:
-      emit('switchMode', { mode: SEARCH_MODEL.DEFAULT_MODEL });
+      emit("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
       break;
     case 38:
       if (selectedIndex.value === 0 && resultCount) selectedIndex.value = maxIndex;
@@ -155,14 +145,15 @@ async function handleEnter() {
     if (!keyword.value.length && !resultList.value.length) return;
 
     const item = resultList.value[selectedIndex.value];
-    const keywordStr = props.source?.searchApi?.replace('{w}', encodeURI(item ? item.name : keyword.value)) || '';
+    const keywordStr =
+      props.source?.searchApi?.replace("{w}", encodeURI(item ? item.name : keyword.value)) || "";
     if (!keywordStr) return;
 
     await exeCommand(keywordStr);
-    emit('closeWindow');
+    emit("closeWindow");
   } catch (e) {
     notification.error({
-      content: t('search.launchFailed'),
+      content: t("search.launchFailed"),
       meta: e as string,
       duration: 3000,
       keepAliveOnHover: true,
@@ -173,17 +164,17 @@ async function handleEnter() {
 async function searchSuggestion(): Promise<SearchLauncItem[]> {
   if (!props.source?.suggestionApi) return [];
 
-  const url = props.source.suggestionApi.replace('{w}', encodeURIComponent(keyword.value));
-  const data = await fetch(url).then(res => res.json());
+  const url = props.source.suggestionApi.replace("{w}", encodeURIComponent(keyword.value));
+  const data = await fetch(url).then((res) => res.json());
 
   return data[1].map((item: string, i: number) => ({
     id: i,
     name: item,
-    path: '',
-    icon: '',
-    type: 'url',
-    category_name: '',
-    subcategory_name: '',
+    path: "",
+    icon: "",
+    type: "url",
+    category_name: "",
+    subcategory_name: "",
   }));
 }
 
@@ -204,9 +195,9 @@ async function handleSearch() {
 
 watch(() => keyword.value, handleSearch);
 
-watch(selectedIndex, async newIndex => {
+watch(selectedIndex, async (newIndex) => {
   await nextTick();
-  itemRefs.value[newIndex]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  itemRefs.value[newIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
 watch(chromeHeight, resizeWindow);

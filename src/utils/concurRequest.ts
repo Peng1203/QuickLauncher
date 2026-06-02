@@ -5,7 +5,7 @@
  * @returns Promise<结果数组>
  */
 export async function batchRequest(tasks: (() => Promise<any>)[], concurrency = 5) {
-  console.log(`%c batchRequest ----`, 'color: #fff;background-color: #000;font-size: 18px');
+  console.log(`%c batchRequest ----`, "color: #fff;background-color: #000;font-size: 18px");
   const results: any[] = Array.from({ length: tasks.length });
   let index = 0;
 
@@ -15,9 +15,9 @@ export async function batchRequest(tasks: (() => Promise<any>)[], concurrency = 
       const currentIndex = index++;
       try {
         const res = await tasks[currentIndex]();
-        results[currentIndex] = { status: 'fulfilled', value: res };
+        results[currentIndex] = { status: "fulfilled", value: res };
       } catch (err) {
-        results[currentIndex] = { status: 'rejected', reason: err };
+        results[currentIndex] = { status: "rejected", reason: err };
       }
     }
   }

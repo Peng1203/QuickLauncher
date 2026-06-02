@@ -1,4 +1,4 @@
-import { useCloned } from '@vueuse/core';
+import { useCloned } from "@vueuse/core";
 
 export function useFormState<T extends Record<string, any>>(origin: T) {
   const { cloned: form, sync: initForm } = useCloned(origin);

@@ -19,27 +19,14 @@
         <SettingsOutline />
       </n-icon>
 
-      <n-dropdown
-        placement="bottom-start"
-        trigger="click"
-        size="small"
-        :options="options"
-      >
+      <n-dropdown placement="bottom-start" trigger="click" size="small" :options="options">
         <!-- @select="" -->
-        <n-icon
-          size="25"
-          class="cursor-pointer"
-        >
+        <n-icon size="25" class="cursor-pointer">
           <MenuOutline />
         </n-icon>
       </n-dropdown>
 
-      <n-icon
-        :title="t('main.closeWindow')"
-        size="25"
-        class="cursor-pointer"
-        @click="handleClose"
-      >
+      <n-icon :title="t('main.closeWindow')" size="25" class="cursor-pointer" @click="handleClose">
         <CloseOutline />
       </n-icon>
     </div>

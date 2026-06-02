@@ -1,1 +1,1 @@
-export { default as transparent } from './transparent';
+export { default as transparent } from "./transparent";

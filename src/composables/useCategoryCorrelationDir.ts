@@ -1,12 +1,19 @@
-import { exists, readDir, watch as watchDir } from '@tauri-apps/plugin-fs';
-import { differenceBy } from 'lodash-es';
-import { storeToRefs } from 'pinia';
-import { computed, h, nextTick } from 'vue';
-import { addLaunch, deleteCategory, deleteLaunch, getFileInfo, getLaunchByNameAndCategory, updateLaunch } from '@/api';
-import { t } from '@/i18n';
-import { useStore } from '@/store/useStore';
-import { batchRequest } from '@/utils/concurRequest';
-import { useNaiveUiApi } from './useNaiveUiApi';
+import { exists, readDir, watch as watchDir } from "@tauri-apps/plugin-fs";
+import { differenceBy } from "lodash-es";
+import { storeToRefs } from "pinia";
+import { computed, h, nextTick } from "vue";
+import {
+  addLaunch,
+  deleteCategory,
+  deleteLaunch,
+  getFileInfo,
+  getLaunchByNameAndCategory,
+  updateLaunch,
+} from "@/api";
+import { t } from "@/i18n";
+import { useStore } from "@/store/useStore";
+import { batchRequest } from "@/utils/concurRequest";
+import { useNaiveUiApi } from "./useNaiveUiApi";
 
 const watchMap = new Map();
 // 判断到关联目录已经被删除时 归为失效分类
@@ -18,7 +25,9 @@ export function useCategoryCorrelationDir() {
 
   const store = useStore();
   const { activeCategory, categoryData } = storeToRefs(store);
-  const activeCategoryItem = computed(() => categoryData.value.find(item => item.id === activeCategory.value));
+  const activeCategoryItem = computed(() =>
+    categoryData.value.find((item) => item.id === activeCategory.value),
+  );
 
   const isConrrelationDir = computed(() => !!activeCategoryItem.value?.association_directory);
 
@@ -28,7 +37,7 @@ export function useCategoryCorrelationDir() {
   async function registerAllCategoryDirWatch() {
     if (!categoryData.value.length) return;
 
-    for await (const category of categoryData.value) {
+    for (const category of categoryData.value) {
       if (!category.association_directory) continue;
       if (watchMap.has(category.id)) continue;
       if (!(await exists(category.association_directory).catch(() => false))) {
@@ -38,16 +47,15 @@ export function useCategoryCorrelationDir() {
 
       const unWatch = await watchDir(
         category.association_directory,
-        async event => {
-          console.log(`%c event ----`, 'color: #fff;background-color: #000;font-size: 18px', event);
+        async (event) => {
           const { paths, type } = event;
-          const { create = '', remove = '', modify = '' } = type as any;
+          const { create = "", remove = "", modify = "" } = type as any;
 
           if (create) await handleWatchCreate(paths, category);
           else if (remove) await handleWatchRemove(paths, category);
-          else if (modify && modify.kind === 'rename') handleWatchRename(paths, category);
+          else if (modify && modify.kind === "rename") await handleWatchRename(paths, category);
 
-          activeCategory.value === category.id && store.getLaunchData();
+          if (activeCategory.value === category.id) await store.getLaunchData();
         },
         { delayMs: 300, recursive: false },
       );
@@ -64,7 +72,10 @@ export function useCategoryCorrelationDir() {
 
   async function handleWatchRemove(paths: string[], category: CategoryItem) {
     const removeFullPath = paths[0];
-    const launchItem = await getLaunchByNameAndCategory(removeFullPath.split('\\').pop()!, category.id);
+    const launchItem = await getLaunchByNameAndCategory(
+      removeFullPath.split("\\").pop()!,
+      category.id,
+    );
     if (!launchItem) return;
     await deleteLaunch(launchItem.id);
   }
@@ -72,8 +83,8 @@ export function useCategoryCorrelationDir() {
   async function handleWatchRename(paths: string[], category: CategoryItem) {
     // 重命名操作 先删除旧的启动项 再添加新的启动项
     const [oldFullPath, newFullPath] = paths;
-    const oldName = oldFullPath.split('\\').pop()!;
-    const newName = newFullPath.split('\\').pop()!;
+    const oldName = oldFullPath.split("\\").pop()!;
+    const newName = newFullPath.split("\\").pop()!;
 
     const launchItem = await getLaunchByNameAndCategory(oldName, category.id);
     if (!launchItem) return;
@@ -83,11 +94,10 @@ export function useCategoryCorrelationDir() {
       path: newFullPath,
     };
     await updateLaunch(form);
-    const upItem = store.launchData.find(item => item.id === launchItem.id);
+    const upItem = store.launchData.find((item) => item.id === launchItem.id);
     // 更新启动项列表
-    nextTick(() => {
+    void nextTick(() => {
       if (upItem) upItem.name = newName;
-      // else store.getLaunchData(category.id);
     });
   }
 
@@ -105,14 +115,18 @@ export function useCategoryCorrelationDir() {
     if (!association_directory) return;
     const files = await readDir(association_directory);
 
-    const tasks = files.map(file => () => getFileInfoAndCreateLaunch(file.name, category));
+    const tasks = files.map((file) => () => getFileInfoAndCreateLaunch(file.name, category));
     await batchRequest(tasks);
   }
 
   /**
    * 根据目录中文件信息 创建启动项
    */
-  async function getFileInfoAndCreateLaunch(entryName: string, category: CategoryItem, isFullPath: boolean = false) {
+  async function getFileInfoAndCreateLaunch(
+    entryName: string,
+    category: CategoryItem,
+    isFullPath: boolean = false,
+  ) {
     const fullPath = isFullPath ? entryName : `${category.association_directory}\\${entryName}`;
 
     const fileInfo = await getFileInfo(fullPath);
@@ -124,12 +138,12 @@ export function useCategoryCorrelationDir() {
       type: fileInfo.type,
       icon: fileInfo.icon,
       // category_id: null,
-      hotkey: '',
+      hotkey: "",
       hotkey_global: false,
-      keywords: '',
+      keywords: "",
       start_dir: fileInfo.start_dir,
-      remarks: fileInfo.remarks || '',
-      args: fileInfo.args || '',
+      remarks: fileInfo.remarks || "",
+      args: fileInfo.args || "",
       run_as_admin: false,
       order_index: 0,
       enabled: !category.exclude,
@@ -150,15 +164,15 @@ export function useCategoryCorrelationDir() {
     // 判断目录是否存在 不存在则返回提示
     if (!(await exists(association_directory).catch(() => false))) {
       dialog.warning({
-        title: t('common.tip'),
-        content: () => h('div', [t('categoryDir.dirDeleted'), h('br'), association_directory]),
-        positiveText: t('common.confirm'),
-        negativeText: t('common.cancel'),
+        title: t("common.tip"),
+        content: () => h("div", [t("categoryDir.dirDeleted"), h("br"), association_directory]),
+        positiveText: t("common.confirm"),
+        negativeText: t("common.cancel"),
         draggable: true,
         onPositiveClick: async () => {
           // TODO 删除分类
           await deleteCategory(category.id);
-          message.success(t('categoryDir.confirmed'));
+          message.success(t("categoryDir.confirmed"));
         },
       });
       return;
@@ -175,17 +189,17 @@ export function useCategoryCorrelationDir() {
     let tasks: (() => Promise<any>)[];
     if (files.length > store.launchData.length) {
       // 目录中新添加了文件 向启动项中添加缺失的启动项
-      const diffValue = differenceBy(files, launchData, 'name');
-      tasks = diffValue.map(file => () => getFileInfoAndCreateLaunch(file.name, category));
+      const diffValue = differenceBy(files, launchData, "name");
+      tasks = diffValue.map((file) => () => getFileInfoAndCreateLaunch(file.name, category));
     } else {
       // 目录中文件被删除了 从启动项中删除多余的启动项
-      const diffValue = differenceBy(launchData, files, 'lnk_name');
-      tasks = diffValue.map(launch => () => deleteLaunch(launch.id));
+      const diffValue = differenceBy(launchData, files, "lnk_name");
+      tasks = diffValue.map((launch) => () => deleteLaunch(launch.id));
     }
 
     await batchRequest(tasks);
     // 更新分类列表
-    store.getLaunchData(category.id);
+    void store.getLaunchData(category.id);
   };
 
   return {

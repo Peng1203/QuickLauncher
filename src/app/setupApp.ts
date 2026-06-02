@@ -1,4 +1,4 @@
-import { setupGlobalEvents } from './setupGlobalEvents';
+import { setupGlobalEvents } from "./setupGlobalEvents";
 
 export function setupApp() {
   setupGlobalEvents();

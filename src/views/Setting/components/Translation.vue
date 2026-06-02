@@ -65,17 +65,13 @@
       </SettingItem>
 
       <div class="flex-s-c gap-0.5">
-        <Icon
-          name="icon-waibulianjie"
-          size="12"
-          class="text-primary"
-        />
+        <Icon name="icon-waibulianjie" size="12" class="text-primary" />
         <a
           target="_blank"
           href="https://fanyi-api.baidu.com/product/113"
           class="inline-flex items-center gap-1 text-[10px] text-primary hover:underline"
         >
-          {{ t('translation.apiDoc') }}
+          {{ t("translation.apiDoc") }}
         </a>
       </div>
     </SettingGroup>
@@ -83,15 +79,15 @@
 </template>
 
 <script setup lang="ts">
-import OpenDemoVideo from '@/components/OpenDemoVideo.vue';
-import { useAppConfig } from '@/composables';
-import { BAIDU_TRANSLATION_TO, TranslationOpenModel } from '@/constant';
-import { t } from '@/i18n';
+import OpenDemoVideo from "@/components/OpenDemoVideo.vue";
+import { useAppConfig } from "@/composables";
+import { BAIDU_TRANSLATION_TO, TranslationOpenModel } from "@/constant";
+import { t } from "@/i18n";
 
 const { appConfigStore } = useAppConfig();
 const options = computed<any[]>(() => [
-  { label: t('translation.threeHits'), value: TranslationOpenModel.THREE_HITS_ON_SPACES },
-  { label: t('webSearch.close'), value: TranslationOpenModel.CLOSE },
+  { label: t("translation.threeHits"), value: TranslationOpenModel.THREE_HITS_ON_SPACES },
+  { label: t("webSearch.close"), value: TranslationOpenModel.CLOSE },
 ]);
 
 const targetLanguageOptions = BAIDU_TRANSLATION_TO as any;
