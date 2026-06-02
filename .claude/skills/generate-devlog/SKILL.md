@@ -25,9 +25,10 @@ description: 生成开发日志。当用户想要记录开发修改过程、总�
 
 - 使用中文 + Markdown
 - 按逻辑分类，不直接复制 commit 列表
-- 解释"为什么"，不只写"做了什么"
 - 合并重复描述，忽略无意义 commit（格式化、依赖更新等）
 - 不重复记录已有内容
+- 按照最新修改的日期方到最上面
+- 尽量精简描述 修改/添加了什么内容
 
 ---
 
@@ -38,99 +39,35 @@ description: 生成开发日志。当用户想要记录开发修改过程、总�
 ### 格式 A：日常 / 功能开发
 
 ```md
-## YYYY-MM-DD HH:MM
+## 2026-06-02（工程化 / Lint 重构）
 
-Type: 日常开发 / 功能开发 / 重构 / 修复
+### ESLint 配置迁移
 
-### 变更概述
+- 从 `@antfu/eslint-config` 迁移到原生 flat config
+- 组合使用：
+  - `@eslint/js`
+  - `typescript-eslint`
+  - `eslint-plugin-vue`
 
-（1-2 句话）
+- 手动补充 `globals`（auto-import 支持）
 
-### 具体变更
+### 规则调整
 
-- ...
+- 关闭 `stylistic`，交由 Prettier 处理
+- `.ts / .vue` 关闭 `no-undef`
+- 调整 TS/Vue 规则兼容 auto-import
 
-### 技术决策
+### Lint 修复（36 → 0）
 
-（重要决策和原因，没有则省略）
+- `no-unused-expressions` → 改 if 结构
+- `no-floating-promises` → 加 `void`
+- 模板字符串 → `String()`
+- 清理 unused disable
 
-### 后续工作
+### 发布脚本优化
 
-- [ ] ...（没有则省略）
-```
-
-### 格式 B：版本发布
-
-```md
-## vX.Y.Z
-
-Date: YYYY-MM-DD
-Commits: N
-
-### 新功能
-
-### UI / UX
-
-### 架构调整
-
-### Bug 修复
-
-### 工程化
-
-### Notes
-
-（按实际内容保留分类，无内容的分类省略）
-```
-
-### 格式 C：里程碑
-
-```md
-## 里程碑：[名称]
-
-Date: YYYY-MM-DD
-
-### 完成内容
-
-### 技术亮点
-
-### 经验总结
-
-### 后续规划
-```
-
----
-
-## 其他补充
-
-禁止自动执行 git commit 相关操作
-可参考 git-commit skill 中的规则进行git相关操作
-
-## Example Output
-
-### 日常开发记录
-
-```md
-## 2026-05-29 15:30
-
-Type: 功能开发
-
-### 变更概述
-
-实现剪贴板监控功能，支持自动检测变化并弹窗提示。
-
-### 具体变更
-
-- 新增 `clipboard/listener.rs`：轮询监控剪贴板（300ms 间隔）
-- 新增 `ClipboardToast` 组件：变化通知弹窗
-- 引入 `arboard` crate 实现跨平台剪贴板访问
-
-### 技术决策
-
-- 轮询而非系统事件：Windows 剪贴板事件 API 不稳定
-- 300ms 间隔：平衡响应速度与 CPU 占用
-
-### 后续工作
-
-- [ ] 支持配置监控间隔
-- [ ] 支持剪贴板历史记录
+- release notes 改为读取 `CHANGELOG.md`
+- 构建产物路径调整到 bundle 目录
+- 自动打开构建输出目录
+- `latest.json` 不再入 git
 ```
