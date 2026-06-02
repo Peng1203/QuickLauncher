@@ -1,19 +1,19 @@
-import { defineStore } from 'pinia';
-import { saveAppConfig } from '@/api';
+import { defineStore } from "pinia";
+import { saveAppConfig } from "@/api";
 import {
   PortalNotifyMode,
   SEARCH_INPUT_HEIGHT,
   SEARCH_RESULT_ITEM_HEIGHT,
   SEARCH_WINDOW_MAX_HEIGHT,
   SEARCH_WINDOW_WIDTH,
-} from '@/constant';
+} from "@/constant";
 
 export const useAppConfigStore = defineStore(
-  'appConfig',
+  "appConfig",
   //
   {
     state: (): AppConfigState => ({
-      title: 'Quick Launcher',
+      title: "Quick Launcher",
       saveFlag: true,
       silentStart: true,
       autoStart: false,
@@ -25,30 +25,30 @@ export const useAppConfigStore = defineStore(
       searchWindowWidth: SEARCH_WINDOW_WIDTH,
       searchWindowInput: SEARCH_INPUT_HEIGHT,
       searchResultItemHeight: SEARCH_RESULT_ITEM_HEIGHT,
-      searchGlobalShortcutKey: 'Alt+Space',
+      searchGlobalShortcutKey: "Alt+Space",
 
       proxy: false,
-      proxyHost: '',
+      proxyHost: "",
       // proxy: true,
       // proxyHost: 'http://127.0.0.1:10090',
-      proxyUsername: '',
-      proxyPassword: '',
+      proxyUsername: "",
+      proxyPassword: "",
 
       mainWindowPositionX: 0,
       mainWindowPositionY: 0,
-      mainWindowGlobalShortcutKey: '',
+      mainWindowGlobalShortcutKey: "",
 
       settingWindowPositionX: 0,
       settingWindowPositionY: 0,
 
-      language: 'zh-CN',
+      language: "zh-CN",
 
       enableSearch: true,
       searchLostFocusHide: false,
       searchHideAfterOpen: true,
       doNotDisturbMode: true,
       searchOpenOnMouseDisplay: true,
-      showSearchModeTabs: true,
+      showSearchModeTabs: false,
 
       enableWebSearch: true,
       webSearchOpenModel: 0,
@@ -57,14 +57,14 @@ export const useAppConfigStore = defineStore(
       enableHistory: true,
       showHistory: false,
       enableAutocomplete: true,
-      autocompleteMatchMode: 'prefix',
+      autocompleteMatchMode: "prefix",
       enableAutocompleteFrequencyFilter: true,
 
       enableTranslation: true,
       translationOpenModel: 1,
-      BDTranslationAppid: '',
-      BDTranslationKey: '',
-      BDTranslationTo: 'en',
+      BDTranslationAppid: "",
+      BDTranslationKey: "",
+      BDTranslationTo: "en",
 
       showCategory: true,
       showSubCategory: true,
@@ -83,43 +83,47 @@ export const useAppConfigStore = defineStore(
       portalShowShortcut: true,
       portalWindowPositionX: 0,
       portalWindowPositionY: 0,
-      portalOpenShortcutKey: 'Ctrl + Insert',
-      portalOpenDirInManagerShortcutKey: 'Ctrl + Home',
-      portalOpenDirInTerminalShortcutKey: 'Ctrl + PageUp',
+      portalOpenShortcutKey: "Ctrl + Insert",
+      portalOpenDirInManagerShortcutKey: "Ctrl + Home",
+      portalOpenDirInTerminalShortcutKey: "Ctrl + PageUp",
 
-      themeModel: 'system',
-      themeColor: '#2080f0',
-      pageStyle: 'normal',
-      layoutDensity: 'default',
-      font: '',
+      themeModel: "system",
+      themeColor: "#2080f0",
+      pageStyle: "normal",
+      layoutDensity: "default",
+      font: "",
       fontSize: 14,
       borderRadius: 10,
       backgroundBlur: 50,
       windowOpacity: 100,
       enableAnimation: true,
-      animationSpeed: 'normal',
+      animationSpeed: "normal",
     }),
     actions: {
       loadConfig(initData: AppConfigState) {
         for (const key in initData) {
           // @ts-ignore
-          initData[key] !== undefined && (this.$state[key] = initData[key]);
+          if (initData[key] !== undefined) this.$state[key] = initData[key];
         }
       },
       saveConfig() {
-        saveAppConfig(this.$state);
+        void saveAppConfig(this.$state);
       },
     },
     tauri: {
       autoStart: true,
       saveInterval: 2000,
-      saveStrategy: 'debounce',
+      saveStrategy: "debounce",
 
       hooks: {
         beforeBackendSync: (state: any) => {
           // 初始化钩子 在rust端之前调用
-          console.log(`%c beforeBackendSync ----`, 'color: #fff;background-color: #000;font-size: 18px', state);
-          saveAppConfig(state);
+          console.log(
+            `%c beforeBackendSync ----`,
+            "color: #fff;background-color: #000;font-size: 18px",
+            state,
+          );
+          void saveAppConfig(state);
 
           return state;
         },

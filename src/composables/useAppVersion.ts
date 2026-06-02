@@ -1,8 +1,8 @@
-import type { Update } from '@tauri-apps/plugin-updater';
-import { getVersion } from '@tauri-apps/api/app';
-import { check } from '@tauri-apps/plugin-updater';
-import { t } from '@/i18n';
-import { useNaiveUiApi } from './useNaiveUiApi';
+import type { Update } from "@tauri-apps/plugin-updater";
+import { getVersion } from "@tauri-apps/api/app";
+import { check } from "@tauri-apps/plugin-updater";
+import { t } from "@/i18n";
+import { useNaiveUiApi } from "./useNaiveUiApi";
 
 let cachedVersion: string | null = null;
 
@@ -36,8 +36,8 @@ export function useAppVersion() {
       const result = await check();
       if (!result) {
         notification.success({
-          title: t('update.latestVersion'),
-          description: t('update.latestVersionDesc'),
+          title: t("update.latestVersion"),
+          description: t("update.latestVersionDesc"),
           duration: 3000,
         });
         return false;
@@ -49,8 +49,8 @@ export function useAppVersion() {
       };
     } catch (e) {
       notification.error({
-        title: t('update.checkFailed'),
-        description: `${e}`,
+        title: t("update.checkFailed"),
+        description: String(e),
         duration: 5000,
       });
     } finally {
@@ -64,7 +64,7 @@ export function useAppVersion() {
       const result = await check();
       if (!result) {
         notification.info({
-          title: t('update.noUpdate'),
+          title: t("update.noUpdate"),
           duration: 3000,
         });
         return;
@@ -75,8 +75,8 @@ export function useAppVersion() {
       // isDownloading.value = false;
       downloadProgress.value = 0;
       notification.error({
-        title: t('update.downloadFailed'),
-        description: `${e}`,
+        title: t("update.downloadFailed"),
+        description: String(e),
         duration: 5000,
       });
     }

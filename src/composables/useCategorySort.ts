@@ -1,5 +1,5 @@
-import { updateCategory } from '@/api';
-import { useStore } from '@/store/useStore';
+import { updateCategory } from "@/api";
+import { useStore } from "@/store/useStore";
 
 export function useCategorySort(item: Ref<CategoryItem>) {
   const store = useStore();
@@ -16,12 +16,12 @@ export function useCategorySort(item: Ref<CategoryItem>) {
     };
     await updateCategory(params);
 
-    const upCategory = store.categoryData.find(i => i.id === item.value.id);
+    const upCategory = store.categoryData.find((i) => i.id === item.value.id);
     if (!upCategory) return;
     // @ts-ignore
     upCategory[upKey] = val;
 
-    if (updateLaunchList && isCurrentSelected.value) store.getLaunchData();
+    if (updateLaunchList && isCurrentSelected.value) void store.getLaunchData();
   }
 
   return { handleLayoutOrderSortChange };

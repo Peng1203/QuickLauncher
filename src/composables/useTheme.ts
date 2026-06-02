@@ -1,10 +1,10 @@
-import type { GlobalThemeOverrides } from 'naive-ui';
-import { getCurrentWindow } from '@tauri-apps/api/window';
-import { usePreferredDark } from '@vueuse/core';
-import { darkTheme } from 'naive-ui';
-import { AppEvent } from '@/constant';
-import { EventBus } from '@/utils/eventBus';
-import { useAppConfig } from './useAppConfig';
+import type { GlobalThemeOverrides } from "naive-ui";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { usePreferredDark } from "@vueuse/core";
+import { darkTheme } from "naive-ui";
+import { AppEvent } from "@/constant";
+import { EventBus } from "@/utils/eventBus";
+import { useAppConfig } from "./useAppConfig";
 
 export function useTheme() {
   const { themeModel, themeColor, font, fontSize } = useAppConfig();
@@ -12,8 +12,8 @@ export function useTheme() {
   const prefersDark = usePreferredDark();
 
   const isDark = computed(() => {
-    if (themeModel.value === 'dark') return true;
-    if (themeModel.value === 'light') return false;
+    if (themeModel.value === "dark") return true;
+    if (themeModel.value === "light") return false;
     return prefersDark.value;
   });
 
@@ -29,7 +29,7 @@ export function useTheme() {
   const HTML = document.documentElement;
 
   function getThemeName() {
-    return isDark.value ? 'dark' : 'light';
+    return isDark.value ? "dark" : "light";
   }
 
   function setThemeClass() {
@@ -39,13 +39,13 @@ export function useTheme() {
   async function setThemeModel(newModel: ThemeModel) {
     themeModel.value = newModel;
     let newTheme: string;
-    if (themeModel.value === 'system') {
-      newTheme = prefersDark.value ? 'dark' : 'light';
+    if (themeModel.value === "system") {
+      newTheme = prefersDark.value ? "dark" : "light";
     } else {
-      newTheme = isDark.value ? 'light' : 'dark';
+      newTheme = isDark.value ? "light" : "dark";
     }
-    const currentWindow = await getCurrentWindow();
-    EventBus.emit(AppEvent.CHANGE_THEME, currentWindow.label);
+    const currentWindow = getCurrentWindow();
+    void EventBus.emit(AppEvent.CHANGE_THEME, currentWindow.label);
     return newTheme;
   }
 
@@ -57,17 +57,20 @@ export function useTheme() {
       // @ts-ignore
       const transition = document.startViewTransition(() => (HTML.className = val));
 
-      transition.ready.then(() => {
-        const pseudo = isDark.value ? '::view-transition-new(root)' : '::view-transition-old(root)';
+      void transition.ready.then(() => {
+        const pseudo = isDark.value ? "::view-transition-new(root)" : "::view-transition-old(root)";
 
         // ===== 圆形扩散 =====
         const x = pointerEvent?.clientX ?? innerWidth / 2;
         const y = pointerEvent?.clientY ?? innerHeight / 2;
         const endRadius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-        const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`];
+        const clipPath = [
+          `circle(0px at ${x}px ${y}px)`,
+          `circle(${endRadius}px at ${x}px ${y}px)`,
+        ];
         document.documentElement.animate(
           { clipPath: isDark.value ? clipPath : [...clipPath].reverse() },
-          { duration: 400, easing: 'ease-in', fill: 'forwards', pseudoElement: pseudo },
+          { duration: 400, easing: "ease-in", fill: "forwards", pseudoElement: pseudo },
         );
 
         // ===== 圆形扩散 + 模糊 =====
@@ -178,14 +181,15 @@ export function useTheme() {
     }
   }
 
-  const DEFAULT_FONT = 'Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif';
+  const DEFAULT_FONT =
+    'Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif';
 
   function setFontFamily() {
-    HTML.style.setProperty('--app-font-family', `"${font.value || DEFAULT_FONT}", sans-serif`);
+    HTML.style.setProperty("--app-font-family", `"${font.value || DEFAULT_FONT}", sans-serif`);
   }
 
   function setFontSize() {
-    HTML.style.setProperty('--app-font-size', `${fontSize.value || 14}px`);
+    HTML.style.setProperty("--app-font-size", `${fontSize.value || 14}px`);
   }
 
   return {

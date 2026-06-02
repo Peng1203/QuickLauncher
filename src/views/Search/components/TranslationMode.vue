@@ -15,10 +15,7 @@
       <template #prefix>
         <!-- {{ hasResult }} {{ resultList.length }} -->
         <!-- color="black" -->
-        <n-icon
-          size="22"
-          class="iconfont icon-fanyi"
-        />
+        <n-icon size="22" class="iconfont icon-fanyi" />
       </template>
     </n-input>
 
@@ -44,12 +41,9 @@
       maxHeight: `calc(${searchWindowHeight}px - ${chromeHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
     }"
   >
-    <template
-      v-for="(item, index) of resultList"
-      :key="item.value"
-    >
+    <template v-for="(item, index) of resultList" :key="item.value">
       <li
-        :ref="el => (itemRefs[index] = el as any)"
+        :ref="(el) => (itemRefs[index] = el as any)"
         class="flex items-center h-[48px] px-4 py-2 cursor-pointer"
         :class="[index === selectedIndex ? 'bg-muted' : 'hover:bg-muted']"
         @click="
@@ -66,16 +60,21 @@
 </template>
 
 <script setup lang="ts">
-import type { SearchModelType } from '../searchModes';
-import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
-import { writeText } from '@tauri-apps/plugin-clipboard-manager';
-import { fetch } from '@tauri-apps/plugin-http';
-import { MD5 } from 'crypto-js';
-import { ref, watch } from 'vue';
-import { useAppConfig, useNaiveUiApi } from '@/composables';
-import { BAIDU_TRANSLATION_TO, SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from '@/constant';
-import { t } from '@/i18n';
-import { SEARCH_MODEL } from '../searchModes';
+import type { SearchModelType } from "../searchModes";
+import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
+import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+import { fetch } from "@tauri-apps/plugin-http";
+import { MD5 } from "crypto-js";
+import { ref, watch } from "vue";
+import { useAppConfig, useNaiveUiApi } from "@/composables";
+import {
+  BAIDU_TRANSLATION_TO,
+  SEARCH_INPUT_HEIGHT,
+  SEARCH_RESULT_ITEM_HEIGHT,
+  SEARCH_WINDOW_WIDTH,
+} from "@/constant";
+import { t } from "@/i18n";
+import { SEARCH_MODEL } from "../searchModes";
 
 const props = defineProps<{ keyword?: string; chromeHeight?: number }>();
 const emits = defineEmits<{
@@ -86,10 +85,10 @@ const emits = defineEmits<{
 const { appConfigStore } = useAppConfig();
 
 const current = getCurrentWindow();
-const tranStr = ref('');
-const placeholder = ref('');
+const tranStr = ref("");
+const placeholder = ref("");
 const itemRefs = ref<HTMLElement[]>([]);
-const inputRef = useTemplateRef('searchInputRef');
+const inputRef = useTemplateRef("searchInputRef");
 const selectedIndex = ref(0);
 
 const resultList = ref<OptionItem[]>([]);
@@ -98,7 +97,7 @@ const initFlag = ref<boolean>(false);
 const chromeHeight = computed(() => props.chromeHeight || 0);
 
 // 通过tab切换选中的翻译目标语言
-const selectedTranslationLanguage = ref<string>('');
+const selectedTranslationLanguage = ref<string>("");
 const isChangeTranslationLanguage = ref<boolean>(false);
 
 // 动态计算 搜索窗口的总高度
@@ -111,7 +110,9 @@ const searchWindowHeight = computed(() => {
   const contentHeight = resultsHeight + SEARCH_INPUT_HEIGHT;
   return (
     chromeHeight.value +
-    (contentHeight > appConfigStore.searchWindowMaxHeight ? appConfigStore.searchWindowMaxHeight : contentHeight + 1)
+    (contentHeight > appConfigStore.searchWindowMaxHeight
+      ? appConfigStore.searchWindowMaxHeight
+      : contentHeight + 1)
   );
 });
 
@@ -120,11 +121,11 @@ function isChinese(text: string) {
 }
 
 function toCamelCase(str: string) {
-  return str.toLowerCase().replace(/[-_\s]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ''));
+  return str.toLowerCase().replace(/[-_\s]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ""));
 }
 
 function toSnakeCase(str: string) {
-  return str.trim().toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_');
+  return str.trim().toLowerCase().replace(/\s+/g, "_").replace(/-/g, "_");
 }
 
 const { message } = useNaiveUiApi();
@@ -133,7 +134,7 @@ async function baiduTranslate() {
   try {
     const { BDTranslationAppid, BDTranslationKey } = appConfigStore;
     if (!BDTranslationAppid || !BDTranslationKey) {
-      message.warning(t('search.baiduConfigWarning'));
+      message.warning(t("search.baiduConfigWarning"));
       return [];
     }
 
@@ -154,14 +155,15 @@ async function baiduTranslate() {
     const queryString = new URLSearchParams(params).toString();
 
     const res = await fetch(`https://fanyi-api.baidu.com/api/trans/vip/translate?${queryString}`, {
-      method: 'GET',
-    }).then(res => res.json());
+      method: "GET",
+    }).then((res) => res.json());
 
-    const { dst = '' } = res.trans_result?.[0];
+    if (!res.trans_result?.length) return;
+    const { dst = "" } = res.trans_result[0];
     if (!dst) return [];
 
     // 非英文状态下只返回一个结果
-    if (to !== 'en') {
+    if (to !== "en") {
       return [{ label: dst, value: dst }];
     }
 
@@ -177,22 +179,22 @@ async function baiduTranslate() {
       { label: snake, value: snake }, // 下划线
     ];
     const map = new Map();
-    return results.filter(v => !map.has(v.value) && map.set(v.value, 1));
+    return results.filter((v) => !map.has(v.value) && map.set(v.value, 1));
     // const seen = new Set();
     // return results.filter(i => !seen.has(i.value) && seen.add(i.value));
     // return [{ label: dst, value: dst }];
   } catch (e) {
-    console.log('e', e);
+    console.log("e", e);
     return [];
   }
 }
 
 function getFromTo() {
-  const from = 'auto';
+  const from = "auto";
   let to = selectedTranslationLanguage.value || appConfigStore.BDTranslationTo;
   if (isChinese(tranStr.value)) return { from, to };
   // 当输入的文本非中文时 将其翻译至中文
-  to = selectedTranslationLanguage.value || 'zh';
+  to = selectedTranslationLanguage.value || "zh";
   return { from, to };
 }
 
@@ -218,7 +220,7 @@ function handleEnter() {
     writeText(activeRes.value as string);
     handleClose();
     // 通过配置控制 复制成功后是否关闭
-    emits('closeWindow');
+    emits("closeWindow");
   }
 }
 
@@ -226,7 +228,7 @@ let timer: any = null;
 let searchRequestId = 0;
 watch(
   () => tranStr.value,
-  tranStr => {
+  (tranStr) => {
     if (initFlag.value) return;
 
     clearTimeout(timer);
@@ -249,31 +251,32 @@ watch(
   },
 );
 
-watch(selectedIndex, async newIndex => {
+watch(selectedIndex, async (newIndex) => {
   await nextTick();
   const el = itemRefs.value[newIndex];
-  el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  el?.scrollIntoView({ behavior: "smooth", block: "nearest" });
 });
 
 watch(chromeHeight, () => {
   current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
 });
 function handleClose() {
-  tranStr.value = '';
+  tranStr.value = "";
   selectedIndex.value = 0;
   resultList.value = [];
   return current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
 }
 
 function handleKeyUp() {
-  if (selectedIndex.value === 0 && resultList.value.length) selectedIndex.value = resultList.value.length - 1;
-  else selectedIndex.value > 0 && selectedIndex.value--;
+  if (selectedIndex.value === 0 && resultList.value.length)
+    selectedIndex.value = resultList.value.length - 1;
+  else if (selectedIndex.value > 0) selectedIndex.value--;
 }
 function handleKeyDown() {
   if (selectedIndex.value === resultList.value.length - 1 && resultList.value.length) {
     selectedIndex.value = 0;
   } else {
-    selectedIndex.value < resultList.value.length - 1 && selectedIndex.value++;
+    if (selectedIndex.value < resultList.value.length - 1) selectedIndex.value++;
   }
 }
 
@@ -308,7 +311,7 @@ function handleKeydown(e: KeyboardEvent) {
       if (isChangeTranslationLanguage.value) {
         handleCloseChangeTranslationLanguage();
       } else {
-        emits('switchMode', { mode: SEARCH_MODEL.DEFAULT_MODEL });
+        emits("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
       }
       break;
     case 38:

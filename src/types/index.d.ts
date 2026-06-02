@@ -1,9 +1,10 @@
-import type { PortalNotifyMode, TranslationOpenModel, WebSearchOpenModel } from '@/constant';
+import type { CSSProperties } from "vue";
+import type { PortalNotifyMode, TranslationOpenModel, WebSearchOpenModel } from "@/constant";
 
 declare global {
-  type DirectionType = 'up' | 'right' | 'down' | 'left';
+  type DirectionType = "up" | "right" | "down" | "left";
 
-  type LaunchType = 'file' | 'directory' | 'url' | 'apps' | 'alias';
+  type LaunchType = "file" | "directory" | "url" | "apps" | "alias";
   interface LaunchItem {
     id: number;
     name: string;
@@ -35,19 +36,19 @@ declare global {
 
   type NewLaunchItem = Omit<
     LaunchItem,
-    | 'id'
-    | 'last_used_at'
-    | 'created_at'
-    | 'updated_at'
-    | 'launch_count'
-    | 'failure_count'
-    | 'pinyin_full'
-    | 'pinyin_abbr'
+    | "id"
+    | "last_used_at"
+    | "created_at"
+    | "updated_at"
+    | "launch_count"
+    | "failure_count"
+    | "pinyin_full"
+    | "pinyin_abbr"
   >;
 
   type SearchLauncItem = Pick<
     LaunchItem,
-    'id' | 'name' | 'path' | 'icon' | 'type' | 'category_id' | 'subcategory_id'
+    "id" | "name" | "path" | "icon" | "type" | "category_id" | "subcategory_id"
   > & {
     category_name: string;
     subcategory_name: string;
@@ -55,10 +56,10 @@ declare global {
 
   type FileInfo = Pick<
     LaunchItem,
-    'name' | 'lnk_name' | 'path' | 'icon' | 'type' | 'extension' | 'args' | 'remarks' | 'start_dir'
+    "name" | "lnk_name" | "path" | "icon" | "type" | "extension" | "args" | "remarks" | "start_dir"
   > & { size: number };
 
-  type ThemeModel = 'light' | 'dark' | 'system';
+  type ThemeModel = "light" | "dark" | "system";
 
   // 应用配置状态
   interface AppConfigState {
@@ -120,7 +121,7 @@ declare global {
     enableHistory: boolean;
     showHistory: boolean;
     enableAutocomplete: boolean;
-    autocompleteMatchMode: 'prefix' | 'contains';
+    autocompleteMatchMode: "prefix" | "contains";
     // 是否过滤掉使用次数过低的历史记录，仅保留高频记录用于自动补全
     enableAutocompleteFrequencyFilter: boolean;
 
@@ -158,9 +159,9 @@ declare global {
     /** 主题强调色 */
     themeColor: string;
     /** 界面风格 */
-    pageStyle: 'normal' | 'macos' | 'win11';
+    pageStyle: "normal" | "macos" | "win11";
     /** 布局紧凑度 */
-    layoutDensity: 'compact' | 'default' | 'comfortable';
+    layoutDensity: "compact" | "default" | "comfortable";
     /** 字体 */
     font: string;
     /** 字体大小 12-18 */
@@ -174,12 +175,12 @@ declare global {
     /** 启用动画 */
     enableAnimation: boolean;
     /** 动画速度 */
-    animationSpeed: 'fast' | 'normal' | 'slow';
+    animationSpeed: "fast" | "normal" | "slow";
   }
 
   // type PortalNotifyMode = 'window' | 'tray' | 'silent';
 
-  type LanguageType = 'zh-CN' | 'zh-HK' | 'en' | 'ja';
+  type LanguageType = "zh-CN" | "zh-HK" | "en" | "ja";
 
   interface OptionItem<T = string | number, K = string> {
     label: K;
@@ -189,11 +190,11 @@ declare global {
     style?: string | CSSProperties;
   }
 
-  type LayoutType = 'list' | 'grid';
+  type LayoutType = "list" | "grid";
 
-  type SortByType = 'name' | 'type' | 'time' | 'order';
+  type SortByType = "name" | "type" | "time" | "order";
 
-  type SortOrderType = 'asc' | 'desc';
+  type SortOrderType = "asc" | "desc";
   interface CategoryItem {
     id: number;
     name: string;
@@ -204,13 +205,13 @@ declare global {
     layout: LayoutType;
     sort_by: SortByType;
     sort_order: SortOrderType;
-    order_index: ?number;
+    order_index?: number;
     icon: string | null;
     created_at: string;
     updated_at: string;
   }
 
-  type NewCategoryItem = Omit<CategoryItem, 'id' | 'created_at' | 'updated_at'>;
+  type NewCategoryItem = Omit<CategoryItem, "id" | "created_at" | "updated_at">;
 
   interface WebSearchSource {
     id: number;
@@ -231,7 +232,7 @@ declare global {
     launch_item_id?: number | null;
   }
 
-  type LaunchHistoryType = LaunchType | 'command';
+  type LaunchHistoryType = LaunchType | "command";
   interface LaunchHistory {
     id: number;
     command: string;
@@ -239,9 +240,9 @@ declare global {
     launch_item_id: number | null;
   }
 
-  type LaunchHistoryWithIcon = LaunchHistory & Pick<LaunchItem, 'icon'>;
+  type LaunchHistoryWithIcon = LaunchHistory & Pick<LaunchItem, "icon">;
 
-  type TodoPriority = 'high' | 'medium' | 'low';
+  type TodoPriority = "high" | "medium" | "low";
 
   interface TodoItem {
     id: number;
@@ -256,7 +257,7 @@ declare global {
     updated_at: string;
   }
 
-  type ClipboardContentType = 'Url' | 'Directory' | 'Unknown';
+  type ClipboardContentType = "Url" | "Directory" | "Unknown";
 
   interface ClipboardPayload {
     content: string;

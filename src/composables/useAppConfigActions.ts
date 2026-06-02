@@ -1,11 +1,11 @@
-import { LogicalPosition } from '@tauri-apps/api/window';
-import { disable, enable, isEnabled } from '@tauri-apps/plugin-autostart';
-import { isRegistered, register, unregister } from '@tauri-apps/plugin-global-shortcut';
-import { AppEvent } from '@/constant';
-import { EventBus } from '@/utils/eventBus';
-import { unRegisterShortcutKey } from '@/utils/shortcutKey';
-import { useAppConfig } from './useAppConfig';
-import { useToggleWindowVisible } from './useToggleWindowVisible';
+import { LogicalPosition } from "@tauri-apps/api/window";
+import { disable, enable, isEnabled } from "@tauri-apps/plugin-autostart";
+import { isRegistered, register, unregister } from "@tauri-apps/plugin-global-shortcut";
+import { AppEvent } from "@/constant";
+import { EventBus } from "@/utils/eventBus";
+import { unRegisterShortcutKey } from "@/utils/shortcutKey";
+import { useAppConfig } from "./useAppConfig";
+import { useToggleWindowVisible } from "./useToggleWindowVisible";
 
 export function useAppConfigActions() {
   const { appConfigStore, silentStart, mainWindowPositionX, mainWindowPositionY } = useAppConfig();
@@ -18,9 +18,9 @@ export function useAppConfigActions() {
   const setAlwaysOnTop = () => {
     const { appConfigStore } = useAppConfig();
 
-    nextTick(async () => {
+    void nextTick(async () => {
       const mainWindow = await getMainWindow();
-      mainWindow?.setAlwaysOnTop(appConfigStore.onTop);
+      void mainWindow?.setAlwaysOnTop(appConfigStore.onTop);
     });
   };
 
@@ -32,18 +32,18 @@ export function useAppConfigActions() {
     // const y = mainWindowPositionY.value > 0 ? mainWindowPositionY.value : 0;
     // 设置窗口位置
     if (x || y) {
-      mainWindow?.setPosition(new LogicalPosition(x, y));
+      void mainWindow?.setPosition(new LogicalPosition(x, y));
     }
   };
 
   const setMainWindowTitle = async () => {
     const mainWindow = await getMainWindow();
-    mainWindow?.setTitle(appConfigStore.title);
+    void mainWindow?.setTitle(appConfigStore.title);
   };
 
   const setMainWindowCenter = async () => {
     const mainWindow = await getMainWindow();
-    appConfigStore.center && mainWindow?.center();
+    if (appConfigStore.center) void mainWindow?.center();
   };
 
   const setAutoStart = async () => {
@@ -54,14 +54,15 @@ export function useAppConfigActions() {
 
   const setSilentStart = async () => {
     const mainWindow = await getMainWindow();
-    silentStart.value ? mainWindow?.hide() : mainWindow?.show();
+    if (silentStart.value) void mainWindow?.hide();
+    else void mainWindow?.show();
   };
 
   const registerMainWindowShortcutKey = async (shortcutKey: string) => {
     if (!shortcutKey.trim()) return;
-    await register(shortcutKey, async e => {
-      if (e.state === 'Released') {
-        toogleMainWindowVisible();
+    await register(shortcutKey, async (e) => {
+      if (e.state === "Released") {
+        void toogleMainWindowVisible();
       }
     });
   };
@@ -78,21 +79,23 @@ export function useAppConfigActions() {
       // 注册之前先取消之前注册的快捷键
       const isReg = await isRegistered(appConfigStore.mainWindowGlobalShortcutKey);
       if (isReg) {
-        await unRegisterShortcutKey(appConfigStore.mainWindowGlobalShortcutKey).catch(() => '');
+        await unRegisterShortcutKey(appConfigStore.mainWindowGlobalShortcutKey).catch(() => "");
       }
-      registerMainWindowShortcutKey(appConfigStore.mainWindowGlobalShortcutKey);
+      void registerMainWindowShortcutKey(appConfigStore.mainWindowGlobalShortcutKey);
     }
   };
 
-  const registerSearchShortcutKey = async (key: string = appConfigStore.searchGlobalShortcutKey) => {
+  const registerSearchShortcutKey = async (
+    key: string = appConfigStore.searchGlobalShortcutKey,
+  ) => {
     // || 'Alt+Space'
     if (!key) return;
     const isReg = await isRegistered(key);
-    isReg && (await unregister(key));
+    if (isReg) await unregister(key);
 
-    register(key, async e => {
-      if (e.state === 'Released') {
-        EventBus.emit(AppEvent.SEARCH_SHORTCU_KEY);
+    void register(key, async (e) => {
+      if (e.state === "Released") {
+        void EventBus.emit(AppEvent.SEARCH_SHORTCU_KEY);
       }
     });
   };
