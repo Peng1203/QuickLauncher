@@ -345,6 +345,8 @@ export const messages = {
       "百度翻訳シークレットキー",
     ],
     apiDoc: ["API 文档", "API 文件", "API Docs", "APIドキュメント"],
+    switchLang: ["切换翻译语言", "切換翻譯語言", "Switch Language", "翻訳言語を切替"],
+    copySelected: ["复制选中", "複製選取", "Copy Selected", "選択をコピー"],
   },
 
   // ========== 代理设置 ==========

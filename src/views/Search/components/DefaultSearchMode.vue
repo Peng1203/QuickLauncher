@@ -45,15 +45,15 @@
           v-show="currentAutocompleteSuggestion !== keyword"
           class="flex items-center select-none"
         >
-          <Kbd>-></Kbd>
+          <Kbd>→</Kbd>
           <span class="text-xs ml-1">{{ t("search.autocomplete") }}</span>
         </span>
 
         <div v-show="resultList.length" class="flex">
           <span class="flex items-center select-none mr-3">
-            <Kbd>Ctrl</Kbd>
-            <span>+</span>
-            <Kbd>W</Kbd>
+            <Kbd>Ctrl + W</Kbd>
+            <!-- <span> + </span>
+            <Kbd>W</Kbd> -->
             <span class="text-xs ml-1">{{ t("search.closeResults") }}</span>
           </span>
         </div>
@@ -71,10 +71,12 @@
 
         <span class="flex gap-1">
           <span class="flex items-center select-none">
-            <Kbd>Up</Kbd>
+            <!-- <Kbd>Up</Kbd> -->
+            <Kbd>↑</Kbd>
           </span>
           <span class="flex items-center select-none">
-            <Kbd>Down</Kbd>
+            <!-- <Kbd>Down</Kbd> -->
+            <Kbd>↓</Kbd>
             <span class="text-xs ml-1">{{ t("search.history") }}</span>
           </span>
         </span>
@@ -162,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SearchModelType } from "../searchModes";
+import type { SearchModelType, SwitchModePayload } from "../searchModes";
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { SearchOutline } from "@vicons/ionicons5";
 import { nextTick, ref } from "vue";
@@ -204,7 +206,7 @@ const props = withDefaults(
 );
 const emit = defineEmits<{
   closeWindow: [isEscClose?: boolean];
-  switchMode: [payload: { mode: SearchModelType; keyword?: string; source?: WebSearchSource }];
+  switchMode: [payload: SwitchModePayload];
 }>();
 
 const { appConfigStore } = useAppConfig();
@@ -320,7 +322,7 @@ function tryOpenWebSearch() {
     const source = appConfigStore.webSearchSourceList.find(({ keywords }) => keywords === key);
     if (!source) return;
 
-    emit("switchMode", { mode: SEARCH_MODEL.WEB_SEARCH_MODEL, source });
+    emit("switchMode", { mode: SEARCH_MODEL.WEB_SEARCH_MODEL, source, from: "search" });
   }, 50);
 }
 
@@ -334,6 +336,7 @@ function handleKeydown(e: KeyboardEvent) {
   if (ctrlKey && (key === "w" || key === "W")) {
     selectedIndex.value = 0;
     resultList.value = [];
+    searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
     e.preventDefault();
     return;
   }
@@ -355,7 +358,11 @@ function handleKeydown(e: KeyboardEvent) {
         appConfigStore.translationOpenModel === TranslationOpenModel.THREE_HITS_ON_SPACES &&
         spaceCounter === 3
       ) {
-        emit("switchMode", { mode: SEARCH_MODEL.TRANSLATION_MODEL, keyword: keyword.value });
+        emit("switchMode", {
+          mode: SEARCH_MODEL.TRANSLATION_MODEL,
+          keyword: keyword.value,
+          from: "search",
+        });
         break;
       }
       if (appConfigStore.enableWebSearch) tryOpenWebSearch();
@@ -515,14 +522,20 @@ EventBus.listen(AppEvent.INCREASE_PRIORITY, async (item: LaunchItem) => {
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
 });
 
+function handleBeforeShow() {
+  if (appConfigStore.showHistory) {
+    getRecentLaunchHistory().then((res) => (historyData.value = res));
+  }
+}
+
 onMounted(() => {
-  getRecentLaunchHistory().then((res) => (historyData.value = res));
   nextTick(focus);
 });
 
 defineExpose({
   focus,
   handleClose,
+  handleBeforeShow,
   handleKeydown,
   getDefaultHeight: () => chromeHeight.value + SEARCH_INPUT_HEIGHT,
 });

@@ -7,17 +7,23 @@
       type="text"
       size="medium"
       class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
-      :class="hasResult ? 'border-b-0! rounded-b-none!' : ''"
-      :placeholder="source?.desc || source?.name || ''"
+      :class="showDropdown ? 'border-b-0! rounded-b-none!' : ''"
+      :placeholder="selectedSource?.desc || selectedSource?.name || ''"
     >
       <template #prefix>
-        <n-avatar v-if="source?.icon" class="!bg-transparent" :size="22" :src="source.icon" />
+        <n-avatar
+          v-if="selectedSource?.icon"
+          class="!bg-transparent"
+          :size="22"
+          :src="selectedSource.icon"
+        />
         <n-icon v-else :component="GlobeOutline" size="22" />
       </template>
     </n-input>
   </label>
 
   <transition-group
+    v-if="showDropdown"
     name="list"
     tag="ul"
     tabindex="-1"
@@ -26,21 +32,19 @@
       maxHeight: `calc(${searchWindowHeight}px - ${chromeHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
     }"
   >
-    <template v-for="(item, index) of resultList" :key="item.id">
+    <template v-for="(item, index) of engineList" :key="item.id">
       <li
         :ref="(el) => (itemRefs[index] = el as any)"
         class="flex items-center justify-between h-[48px] px-4 py-2 cursor-pointer"
         :class="[index === selectedIndex ? 'bg-muted' : 'hover:bg-muted']"
-        @click="
-          () => {
-            selectedIndex = index;
-            handleEnter();
-          }
-        "
+        @click="handleSelectEngine(index)"
       >
-        <div class="flex items-center">
-          <span class="!ml-0.5">{{ item.name }}</span>
+        <div class="flex items-center gap-2">
+          <n-avatar v-if="item.icon" class="!bg-transparent" :size="18" :src="item.icon" />
+          <n-icon v-else :component="GlobeOutline" size="18" />
+          <span>{{ item.name }}</span>
         </div>
+        <span v-if="item.desc" class="text-xs text-muted-foreground">{{ item.desc }}</span>
       </li>
     </template>
   </transition-group>
@@ -49,7 +53,6 @@
 <script setup lang="ts">
 import type { SearchModelType } from "../searchModes";
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
-import { fetch } from "@tauri-apps/plugin-http";
 import { GlobeOutline } from "@vicons/ionicons5";
 import { ref, watch } from "vue";
 import { exeCommand } from "@/api";
@@ -73,16 +76,23 @@ const { notification } = useNaiveUiApi();
 const searchWindow = getCurrentWindow();
 const inputRef = useTemplateRef("searchInputRef");
 const keyword = ref(props.keyword || "");
-const resultList = ref<SearchLauncItem[]>([]);
 const itemRefs = ref<HTMLElement[]>([]);
 const selectedIndex = ref(0);
-const hasResult = computed(() => !!resultList.value.length);
 const chromeHeight = computed(() => props.chromeHeight || 0);
 
-const searchWindowHeight = computed(() => {
-  if (!resultList.value.length) return chromeHeight.value + SEARCH_INPUT_HEIGHT;
+// 搜索引擎列表
+const engineList = computed(() => appConfigStore.webSearchSourceList);
 
-  const resultsHeight = resultList.value.length * SEARCH_RESULT_ITEM_HEIGHT;
+// 当前选中的搜索引擎
+const selectedSource = computed(() => engineList.value[selectedIndex.value]);
+
+// 输入框为空时展示下拉
+const showDropdown = computed(() => !keyword.value.trim() && engineList.value.length > 0);
+
+const searchWindowHeight = computed(() => {
+  if (!showDropdown.value) return chromeHeight.value + SEARCH_INPUT_HEIGHT;
+
+  const resultsHeight = engineList.value.length * SEARCH_RESULT_ITEM_HEIGHT;
   const contentHeight = resultsHeight + SEARCH_INPUT_HEIGHT;
   return (
     chromeHeight.value +
@@ -91,8 +101,6 @@ const searchWindowHeight = computed(() => {
       : contentHeight + 1)
   );
 });
-
-let searchRequestId = 0;
 
 function focus() {
   inputRef.value?.focus();
@@ -105,13 +113,17 @@ function resizeWindow() {
 function handleClose() {
   keyword.value = "";
   selectedIndex.value = 0;
-  resultList.value = [];
   resizeWindow();
 }
 
+function handleSelectEngine(index: number) {
+  selectedIndex.value = index;
+  focus();
+}
+
 function handleKeydown(e: KeyboardEvent) {
-  const resultCount = resultList.value.length;
-  const maxIndex = resultCount - 1;
+  const engineCount = engineList.value.length;
+  const maxIndex = engineCount - 1;
   const { keyCode, ctrlKey, key } = e;
 
   if (ctrlKey && (key === "w" || key === "W")) {
@@ -128,28 +140,33 @@ function handleKeydown(e: KeyboardEvent) {
       emit("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
       break;
     case 38:
-      if (selectedIndex.value === 0 && resultCount) selectedIndex.value = maxIndex;
-      else if (selectedIndex.value > 0) selectedIndex.value--;
-      e.preventDefault();
+      if (showDropdown.value) {
+        if (selectedIndex.value === 0 && engineCount) selectedIndex.value = maxIndex;
+        else if (selectedIndex.value > 0) selectedIndex.value--;
+        e.preventDefault();
+      }
       break;
     case 40:
-      if (selectedIndex.value === maxIndex && resultCount) selectedIndex.value = 0;
-      else if (selectedIndex.value < maxIndex) selectedIndex.value++;
-      e.preventDefault();
+      if (showDropdown.value) {
+        if (selectedIndex.value === maxIndex && engineCount) selectedIndex.value = 0;
+        else if (selectedIndex.value < maxIndex) selectedIndex.value++;
+        e.preventDefault();
+      }
       break;
   }
 }
 
 async function handleEnter() {
   try {
-    if (!keyword.value.length && !resultList.value.length) return;
+    if (!keyword.value.trim()) return;
 
-    const item = resultList.value[selectedIndex.value];
-    const keywordStr =
-      props.source?.searchApi?.replace("{w}", encodeURI(item ? item.name : keyword.value)) || "";
-    if (!keywordStr) return;
+    const source = selectedSource.value;
+    if (!source?.searchApi) return;
 
-    await exeCommand(keywordStr);
+    const searchUrl = source.searchApi.replace("{w}", encodeURI(keyword.value));
+    if (!searchUrl) return;
+
+    await exeCommand(searchUrl);
     emit("closeWindow");
   } catch (e) {
     notification.error({
@@ -161,39 +178,23 @@ async function handleEnter() {
   }
 }
 
-async function searchSuggestion(): Promise<SearchLauncItem[]> {
-  if (!props.source?.suggestionApi) return [];
+// 当从默认模式带 source 进入时，定位到对应搜索引擎
+watch(
+  () => props.source,
+  (newSource) => {
+    if (!newSource) return;
+    const idx = engineList.value.findIndex((s) => s.id === newSource.id);
+    if (idx !== -1) selectedIndex.value = idx;
+  },
+  { immediate: true },
+);
 
-  const url = props.source.suggestionApi.replace("{w}", encodeURIComponent(keyword.value));
-  const data = await fetch(url).then((res) => res.json());
-
-  return data[1].map((item: string, i: number) => ({
-    id: i,
-    name: item,
-    path: "",
-    icon: "",
-    type: "url",
-    category_name: "",
-    subcategory_name: "",
-  }));
-}
-
-async function handleSearch() {
-  const currentId = ++searchRequestId;
-
-  if (!keyword.value.trim()) {
-    handleClose();
-    return;
-  }
-
-  const launchs = await searchSuggestion();
-  if (currentId !== searchRequestId) return;
-
-  resultList.value = launchs;
-  resizeWindow();
-}
-
-watch(() => keyword.value, handleSearch);
+watch(
+  () => keyword.value,
+  () => {
+    resizeWindow();
+  },
+);
 
 watch(selectedIndex, async (newIndex) => {
   await nextTick();
@@ -210,7 +211,7 @@ defineExpose({
   focus,
   handleClose,
   handleKeydown,
-  getDefaultHeight: () => chromeHeight.value + SEARCH_INPUT_HEIGHT,
+  getDefaultHeight: () => searchWindowHeight.value,
 });
 </script>
 

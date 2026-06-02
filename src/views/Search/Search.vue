@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SearchModelType } from "./searchModes";
+import type { SearchModelType, SearchModeExpose, SwitchModePayload, FormType } from "./searchModes";
 import {
   cursorPosition,
   getCurrentWindow,
@@ -45,19 +45,6 @@ import TodoMode from "./components/TodoMode.vue";
 import TranslationMode from "./components/TranslationMode.vue";
 import WebSearchMode from "./components/WebSearchMode.vue";
 import { SEARCH_MODE_TABS_HEIGHT, SEARCH_MODEL } from "./searchModes";
-
-interface SearchModeExpose {
-  focus?: () => void;
-  handleKeydown?: (event: KeyboardEvent) => void;
-  handleClose?: () => void;
-  getDefaultHeight?: () => number;
-}
-
-interface SwitchModePayload {
-  mode: SearchModelType;
-  keyword?: string;
-  source?: WebSearchSource;
-}
 
 const { appConfigStore } = useAppConfig();
 const searchWindow = getCurrentWindow();
@@ -97,16 +84,25 @@ const activeModeProps = computed(() => {
   };
 });
 
+// 判断到 是来自 默认模式的特殊切换时esc的行为为 退回默认模式
+const switchModeFrom = ref<FormType>("");
+/**
+ * 切换模式方法存在3个调用入口
+ *  1.tab栏点击
+ *  2.快捷键shift + tab
+ *  3.默认模式触发的特殊切换
+ */
 async function handleSwitchMode(payload: SwitchModePayload) {
-  if (payload.mode === searchModel.value && !payload.keyword && !payload.source) return;
-
+  const { mode, keyword, source, from = "" } = payload;
+  if (mode === searchModel.value && !keyword && !source) return;
+  switchModeFrom.value = from;
   activeModeRef.value?.handleClose?.();
-  pendingKeyword.value = payload.keyword || "";
+  pendingKeyword.value = keyword || "";
   activeWebSearchSource.value =
-    payload.mode === SEARCH_MODEL.WEB_SEARCH_MODEL
-      ? payload.source || activeWebSearchSource.value || appConfigStore.webSearchSourceList[0]
+    mode === SEARCH_MODEL.WEB_SEARCH_MODEL
+      ? source || activeWebSearchSource.value || appConfigStore.webSearchSourceList[0]
       : undefined;
-  searchModel.value = payload.mode;
+  searchModel.value = mode;
 
   await resizeToActiveModeDefaultHeight();
   activeModeRef.value?.focus?.();
@@ -139,11 +135,11 @@ async function handleShow() {
   } else {
     await searchWindow.setPosition(new LogicalPosition(1, 1));
   }
+  activeModeRef.value?.handleBeforeShow?.();
 
   await searchWindow.center();
   await searchWindow.show();
   await searchWindow.setFocus();
-
   nextTick(() => {
     activeModeRef.value?.focus?.();
   });
@@ -160,6 +156,17 @@ function handleKeydown(event: KeyboardEvent) {
     const currentIndex = visibleModeTabs.findIndex((item) => item.mode === searchModel.value);
     const nextIndex = currentIndex === visibleModeTabs.length - 1 ? 0 : currentIndex + 1;
     void handleSwitchMode({ mode: visibleModeTabs[nextIndex].mode });
+    return;
+  }
+
+  // 处理 esc 特殊行为
+  if (event.keyCode === 27 && switchModeFrom.value === "search") {
+    event.preventDefault();
+    const defaultModelIndex = visibleModeTabs.findIndex(
+      (item) => item.mode === SEARCH_MODEL.DEFAULT_MODEL,
+    );
+    // 回到默认模式
+    void handleSwitchMode({ mode: visibleModeTabs[defaultModelIndex].mode });
     return;
   }
 

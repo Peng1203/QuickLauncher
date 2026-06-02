@@ -23,12 +23,12 @@
       <div class="flex items-center gap-5 mr-3">
         <span class="flex items-center select-none">
           <Kbd>Tab</Kbd>
-          <span class="text-xs ml-1">切换翻译语言</span>
+          <span class="text-xs ml-1">{{ t("translation.switchLang") }}</span>
         </span>
 
         <span class="flex items-center select-none">
           <Kbd>↵</Kbd>
-          <span class="text-xs ml-1">复制选中</span>
+          <span class="text-xs ml-1">{{ t("translation.copySelected") }}</span>
         </span>
       </div>
     </div>
