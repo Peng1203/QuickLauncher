@@ -44,7 +44,14 @@ ua_generator = "0.5.22"
 base64 = "0.22.1"
 
 url = "2"
-sea-orm = { version = "2.0.0-rc", features = ["sqlx-sqlite", "runtime-tokio", "macros", "schema-sync", "entity-registry", "debug-print" ] }
+sea-orm = { version = "2.0.0-rc", features = [
+  "sqlx-sqlite",
+  "runtime-tokio",
+  "macros",
+  "schema-sync",
+  "entity-registry",
+  "debug-print",
+] }
 tokio = "1.52.2"
 arboard = "3.6.1"
 font-kit = "0.14.3"
