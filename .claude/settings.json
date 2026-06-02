@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cd C:/workspace/Peng/QuickLauncher && pnpm fmt 2>/dev/null || true"
+            "command": "cd C:/workspace/Peng/QuickLauncher && vp fmt 2>/dev/null || true"
           }
         ]
       }

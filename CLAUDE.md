@@ -68,6 +68,7 @@ src/
 ```
 
 **核心模式：**
+
 - 所有 API 调用通过 `src/api/index.ts` → `invoke()` → Rust 命令
 - 跨窗口同步通过 `@tauri-store/pinia` 插件
 - 跨窗口事件通过 `src/utils/eventBus.ts`（Tauri 事件系统）
@@ -96,6 +97,7 @@ src-tauri/src/
 ```
 
 **核心模式：**
+
 - 状态：`AppState { db: Mutex<Option<DatabaseConnection>> }` + `Mutex<AppConfigState>`
 - 每个命令从 mutex 克隆数据库连接，执行异步操作，返回结果
 - Windows API 通过 `windows` crate (v0.58)：COM 对话框、GDI、全屏检测
@@ -103,13 +105,13 @@ src-tauri/src/
 
 ### 多窗口架构
 
-| 窗口 | 标签 | 尺寸 | 路由 | 用途 |
-|------|------|------|------|------|
-| 主窗口 | `main` | 800x600 | `/main` | 主启动器界面 |
-| 搜索窗口 | `search` | 600x45 | `/search` | 快速搜索覆盖层 |
-| 设置窗口 | `setting` | 600x500 | `/setting` | 设置面板 |
-| 启动项编辑 | `operLaunch` | 600x400 | `/operLaunch` | 启动项编辑器 |
-| 分类编辑 | `operCategory` | 600x350 | `/operCategory` | 分类编辑器 |
+| 窗口       | 标签             | 尺寸    | 路由              | 用途           |
+| ---------- | ---------------- | ------- | ----------------- | -------------- |
+| 主窗口     | `main`           | 800x600 | `/main`           | 主启动器界面   |
+| 搜索窗口   | `search`         | 600x45  | `/search`         | 快速搜索覆盖层 |
+| 设置窗口   | `setting`        | 600x500 | `/setting`        | 设置面板       |
+| 启动项编辑 | `operLaunch`     | 600x400 | `/operLaunch`     | 启动项编辑器   |
+| 分类编辑   | `operCategory`   | 600x350 | `/operCategory`   | 分类编辑器     |
 | 剪贴板通知 | `clipboardToast` | 320x130 | `/clipboardToast` | 剪贴板通知弹窗 |
 
 所有窗口初始隐藏，无装饰栏，通过代码管理显示/隐藏。
@@ -121,6 +123,7 @@ src-tauri/src/
 ### 版本文件（必须保持同步）
 
 以下 3 个文件必须始终保持相同的版本号：
+
 - `package.json` → `"version": "x.y.z"`
 - `src-tauri/Cargo.toml` → `version = "x.y.z"`
 - `src-tauri/tauri.conf.json` → `"version": "x.y.z"`
@@ -229,12 +232,14 @@ src-tauri/src/
   - 高密度但清晰的信息布局
 
 禁止：
+
 - 引入与当前项目风格明显冲突的 UI 风格
 - 使用与现有页面差异过大的颜色体系
 - 随意创建新的 design token
 - 在未参考现有页面结构前完全重新设计 UI
 
 在新增 UI 前：
+
 - 必须先参考现有 views/components 的实现风格
 - 优先参考：
   - `src/views/Setting`
@@ -322,42 +327,59 @@ git log v0.1.1..HEAD --oneline  # 查看上次发布以来的提交
 
 ## 6. 技术栈参考
 
-| 层级 | 技术 | 版本 |
-|------|------|------|
-| 桌面运行时 | Tauri | 2.x |
-| 前端框架 | Vue 3 | 3.5 |
-| 语言 | TypeScript | 5.6 |
-| 构建工具 | Vite | 8.x |
-| UI 框架 | Naive UI | 2.44 |
-| CSS | Tailwind CSS | 4.3 |
-| 状态管理 | Pinia | 3.x |
-| 多窗口同步 | @tauri-store/pinia | 4.x |
-| 路由 | Vue Router | 4.x |
-| 国际化 | vue-i18n | 11.x |
-| 后端语言 | Rust | — |
-| ORM | SeaORM | 2.0.0-rc |
-| 数据库 | SQLite | — |
-| 包管理器 | pnpm | 10.12 |
+| 层级       | 技术               | 版本     |
+| ---------- | ------------------ | -------- |
+| 桌面运行时 | Tauri              | 2.x      |
+| 前端框架   | Vue 3              | 3.5      |
+| 语言       | TypeScript         | 5.6      |
+| 构建工具   | Vite               | 8.x      |
+| UI 框架    | Naive UI           | 2.44     |
+| CSS        | Tailwind CSS       | 4.3      |
+| 状态管理   | Pinia              | 3.x      |
+| 多窗口同步 | @tauri-store/pinia | 4.x      |
+| 路由       | Vue Router         | 4.x      |
+| 国际化     | vue-i18n           | 11.x     |
+| 后端语言   | Rust               | —        |
+| ORM        | SeaORM             | 2.0.0-rc |
+| 数据库     | SQLite             | —        |
+| 包管理器   | pnpm               | 10.12    |
 
 ---
 
 ## 7. 关键文件参考
 
-| 文件 | 用途 |
-|------|------|
-| `package.json` | 前端依赖、脚本、版本号 |
-| `vite.config.ts` | Vite 配置、路径别名、插件 |
-| `tsconfig.json` | TypeScript 配置 |
-| `src-tauri/Cargo.toml` | Rust 依赖、crate 配置、版本号 |
-| `src-tauri/tauri.conf.json` | Tauri 配置：窗口、插件、打包、更新器 |
-| `src-tauri/src/lib.rs` | 应用构建器、插件注册、命令处理器 |
-| `src-tauri/src/commands/` | 45 个 Tauri 命令（每个命令一个文件） |
-| `src-tauri/src/entity/` | 5 个 SeaORM 实体（数据库 schema） |
-| `src-tauri/capabilities/` | Tauri 权限授予 |
-| `src/api/index.ts` | 前端 API 层（~50 个 invoke 封装） |
-| `src/store/` | Pinia 存储（主存储 + 应用配置） |
-| `src/constant/index.ts` | 枚举：InvokeMethod, AppEvent |
-| `src/i18n/lang.ts` | 所有翻译数据（数组格式，顺序：zh-CN, zh-HK, en, ja） |
-| `src/i18n/index.ts` | vue-i18n 实例，数组→对象转换函数 |
-| `script/updateVersion.js` | 发布自动化脚本 |
-| `latest.json` | Tauri 更新器清单 |
+| 文件                        | 用途                                                 |
+| --------------------------- | ---------------------------------------------------- |
+| `package.json`              | 前端依赖、脚本、版本号                               |
+| `vite.config.ts`            | Vite 配置、路径别名、插件                            |
+| `tsconfig.json`             | TypeScript 配置                                      |
+| `src-tauri/Cargo.toml`      | Rust 依赖、crate 配置、版本号                        |
+| `src-tauri/tauri.conf.json` | Tauri 配置：窗口、插件、打包、更新器                 |
+| `src-tauri/src/lib.rs`      | 应用构建器、插件注册、命令处理器                     |
+| `src-tauri/src/commands/`   | 45 个 Tauri 命令（每个命令一个文件）                 |
+| `src-tauri/src/entity/`     | 5 个 SeaORM 实体（数据库 schema）                    |
+| `src-tauri/capabilities/`   | Tauri 权限授予                                       |
+| `src/api/index.ts`          | 前端 API 层（~50 个 invoke 封装）                    |
+| `src/store/`                | Pinia 存储（主存储 + 应用配置）                      |
+| `src/constant/index.ts`     | 枚举：InvokeMethod, AppEvent                         |
+| `src/i18n/lang.ts`          | 所有翻译数据（数组格式，顺序：zh-CN, zh-HK, en, ja） |
+| `src/i18n/index.ts`         | vue-i18n 实例，数组→对象转换函数                     |
+| `script/updateVersion.js`   | 发布自动化脚本                                       |
+| `latest.json`               | Tauri 更新器清单                                     |
+
+<!--VITE PLUS START-->
+
+# Using Vite+, the Unified Toolchain for the Web
+
+This project is using Vite+, a unified toolchain built on top of Vite, Rolldown, Vitest, tsdown, Oxlint, Oxfmt, and Vite Task. Vite+ wraps runtime management, package management, and frontend tooling in a single global CLI called `vp`. Vite+ is distinct from Vite, and it invokes Vite through `vp dev` and `vp build`. Run `vp help` to print a list of commands and `vp <command> --help` for information about a specific command.
+
+Docs are local at `node_modules/vite-plus/docs` or online at https://viteplus.dev/guide/.
+
+## Review Checklist
+
+- [ ] Run `vp install` after pulling remote changes and before getting started.
+- [ ] Run `vp check` and `vp test` to format, lint, type check and test changes.
+- [ ] Check if there are `vite.config.ts` tasks or `package.json` scripts necessary for validation, run via `vp run <script>`.
+- [ ] If setup, runtime, or package-manager behavior looks wrong, run `vp env doctor` and include its output when asking for help.
+
+<!--VITE PLUS END-->

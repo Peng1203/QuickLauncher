@@ -785,13 +785,13 @@ Type: 重构 / 功能开发
 
 **数据结构变化**：
 
-| 字段 | localStorage（旧） | SQLite（新） |
-|------|-------------------|-------------|
-| id | `string` (UUID) | `number` (自增) |
-| tags | `string[]` | `string` (JSON) |
-| dueDate | `string` | `due_date: string` |
-| createdAt | `string` | `created_at: string` |
-| reminder_at | 无 | `string` (新增，预留给通知功能) |
+| 字段        | localStorage（旧） | SQLite（新）                    |
+| ----------- | ------------------ | ------------------------------- |
+| id          | `string` (UUID)    | `number` (自增)                 |
+| tags        | `string[]`         | `string` (JSON)                 |
+| dueDate     | `string`           | `due_date: string`              |
+| createdAt   | `string`           | `created_at: string`            |
+| reminder_at | 无                 | `string` (新增，预留给通知功能) |
 
 ### 技术决策
 
