@@ -1,34 +1,42 @@
 <template>
   <section class="todo-mode">
-    <label class="flex items-center gap-3 h-[45px] px-3.5 border-b border-border box-border">
-      <!-- :class="{ 'border-transparent!': inputValue.length && viewState === 'list' }" -->
-      <n-icon :component="CheckboxOutline" size="22" class="shrink-0 text-blue-600" />
-      <input
+    <label class="input-container max-h-11.25">
+      <n-input
         ref="todoInputRef"
-        v-model="inputValue"
-        class="flex-1 min-w-0 h-full border-0 outline-none text-[18px] bg-transparent color-[var(--foreground)] placeholder:text-[#7c8798]"
+        v-model:value="inputValue"
+        :disabled="isEditing"
+        tabindex="-1"
         type="text"
-        placeholder="输入任务内容，回车创建..."
+        size="medium"
+        class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
+        :placeholder="isEditing ? '编辑中...' : '输入任务内容，回车创建...'"
+        :class="viewState === 'create' ? 'border-b-0! rounded-b-none!' : ''"
         @input="syncCreateState"
-      />
-      <button
-        v-if="hasTodos"
-        class="h-7 px-2.5 text-sm text-blue-600 bg-blue-50 rounded cursor-pointer border-0 hover:bg-blue-100"
-        type="button"
-        @click="viewState = 'list'"
       >
-        查看全部
-      </button>
+        <template #prefix>
+          <n-icon :component="CheckboxOutline" size="22" class="shrink-0 text-blue-600" />
+        </template>
+        <template v-if="!isEditing" #suffix>
+          <div class="flex items-center gap-1 text-xs text-gray-400">
+            <Kbd>↑↓</Kbd>
+            <span>切换</span>
+            <Kbd>↵</Kbd>
+            <span>完成</span>
+          </div>
+        </template>
+      </n-input>
     </label>
 
-    <div class="relative">
+    <div class="relative border-top-color! content">
       <transition name="todo-fade" mode="out-in">
         <div
           v-if="viewState === 'empty'"
-          class="flex flex-col items-center justify-center h-[330px] text-center"
+          class="flex flex-col items-center justify-center text-center"
+          :style="{ height: `${TODO_EMPTY_HEIGHT}px` }"
         >
           <div
-            class="grid place-items-center w-[74px] h-[74px] mb-5 text-gray-400 bg-gray-100 rounded-full"
+            class="grid place-items-center mb-5 text-gray-400 bg-gray-100 rounded-full"
+            :style="{ width: `${EMPTY_ICON_SIZE}px`, height: `${EMPTY_ICON_SIZE}px` }"
           >
             <n-icon :component="CheckboxOutline" size="42" />
           </div>
@@ -44,37 +52,169 @@
       </transition>
 
       <transition name="todo-slide" mode="out-in">
-        <div v-if="viewState === 'create'" class="relative px-5 py-2.5 box-border shadow-lg">
-          <div class="text-lg font-semibold">{{ inputValue }}</div>
-          <div class="flex items-center justify-between mt-3">
-            <div class="flex items-center gap-2 text-sm text-gray-500">
-              <span>
-                按
-                <Kbd>Enter</Kbd>
-                快速创建
-              </span>
-              <span>
-                或
-                <Kbd>Ctrl + Enter</Kbd>
-                添加详情
-              </span>
+        <div
+          v-if="viewState === 'create'"
+          class="overflow-hidden"
+          :style="{ height: `${TODO_LIST_HEIGHT}px` }"
+        >
+          <div
+            class="flex items-center justify-between px-3.5 border-b border-border box-border"
+            :style="{ height: `${FILTER_HEADER_HEIGHT}px` }"
+          >
+            <div class="flex flex-nowrap gap-2.5 shrink">
+              <button
+                v-for="item in filterTabs"
+                class="inline-flex items-center gap-2 h-8 px-2.5 border-0 rounded text-sm cursor-pointer whitespace-nowrap"
+                :key="item.value"
+                :class="
+                  activeFilter === item.value
+                    ? 'text-blue-600 bg-blue-100'
+                    : 'text-gray-600 bg-transparent hover:bg-gray-100'
+                "
+                type="button"
+                @click="activeFilter = item.value"
+              >
+                {{ item.label }}
+                <span class="text-xs opacity-70">{{ item.count }}</span>
+              </button>
             </div>
 
-            <button
-              class="text-sm text-blue-600 bg-transparent border-0 cursor-pointer hover:underline"
-              type="button"
-              @click="openDetailDraft"
+            <n-select
+              v-model:value="sortType"
+              :options="sortOptions"
+              size="small"
+              :style="{ width: `calc(${sortTypeLabel.length * 2}ch + 38px ) !important` }"
+              class="shrink-0"
+              :consistent-menu-width="false"
+            />
+          </div>
+
+          <ul
+            class="m-0 p-0 overflow-y-auto list-none"
+            :style="{ height: `${TODO_LIST_UL_HEIGHT}px` }"
+          >
+            <!-- 虚拟预览项 -->
+            <li
+              class="flex items-start gap-3 px-[18px] py-3.5 box-border border-l-4 border-l-blue-400/40 bg-blue-50/20 opacity-50"
+              :style="{ minHeight: `${TODO_ITEM_MIN_HEIGHT}px` }"
             >
-              添加详情 ->
+              <n-icon :component="AddOutline" size="22" class="shrink-0 text-blue-400 mt-0.5" />
+              <div class="min-w-0 flex-1">
+                <div
+                  class="text-[15px] font-medium overflow-hidden text-ellipsis whitespace-nowrap text-blue-500/80"
+                >
+                  {{ inputValue }}
+                </div>
+                <div class="flex items-center gap-3 mt-2 text-sm text-gray-400">
+                  <span>
+                    按
+                    <Kbd>Enter</Kbd>
+                    快速创建
+                  </span>
+                  <span>
+                    或
+                    <Kbd>Ctrl + Enter</Kbd>
+                    添加详情
+                  </span>
+                </div>
+              </div>
+            </li>
+
+            <li
+              v-for="(todo, index) in filteredTodos"
+              :key="todo.id"
+              :ref="(el) => (todoItemRefs[index] = el as HTMLElement)"
+              class="group relative flex items-start gap-3 px-[18px] py-3.5 box-border cursor-pointer border-l-4 border-transparent hover:bg-[var(--muted)]"
+              :style="{ minHeight: `${TODO_ITEM_MIN_HEIGHT}px` }"
+              :class="[
+                todo.priority === 'high'
+                  ? 'border-l-[#ff2d55]'
+                  : todo.priority === 'medium'
+                    ? 'border-l-[#f5b301]'
+                    : 'border-l-[#16c784]',
+                todo.completed ? 'text-gray-400 line-through' : '',
+                selectedTodoIndex === index ? 'bg-[var(--muted)]' : '',
+              ]"
+              @click="openDetail(todo)"
+              @mouseenter="selectedTodoIndex = index"
+            >
+              <button
+                class="inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer"
+                :class="todo.completed ? 'text-green-600' : 'text-gray-400'"
+                type="button"
+                @click.stop="toggleTodo(todo.id)"
+              >
+                <n-icon
+                  :component="todo.completed ? CheckmarkCircleOutline : RadioButtonOffOutline"
+                  size="22"
+                />
+              </button>
+
+              <div class="min-w-0 flex-1">
+                <div
+                  class="text-[15px] font-medium overflow-hidden text-ellipsis whitespace-nowrap"
+                >
+                  {{ todo.title }}
+                </div>
+                <div class="flex items-center gap-2 mt-2 text-gray-500 text-[13px]">
+                  <span class="inline-flex items-center gap-1">
+                    <n-icon :component="TimeOutline" size="14" />
+                    {{ formatDueDate(todo) }}
+                  </span>
+                  <n-tag
+                    v-for="tag in parseTags(todo.tags)"
+                    :key="tag"
+                    size="small"
+                    :bordered="false"
+                    class="!text-xs"
+                  >
+                    {{ tag }}
+                  </n-tag>
+                </div>
+              </div>
+
+              <div
+                class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                :class="selectedTodoIndex === index ? 'opacity-100!' : ''"
+              >
+                <button
+                  class="inline-flex items-center justify-center p-1 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-red-500 rounded transition-colors"
+                  type="button"
+                  @click.stop="deleteTodoById(todo.id)"
+                >
+                  <n-icon :component="TrashOutline" size="16" />
+                </button>
+                <Kbd>→</Kbd>
+                <span>详情</span>
+              </div>
+            </li>
+          </ul>
+
+          <div
+            class="flex items-center justify-between px-3.5 border-t border-border box-border text-sm text-gray-500"
+            :style="{ height: `${STATUS_BAR_HEIGHT}px` }"
+          >
+            <span>{{ activeCount }} 个进行中，{{ completedCount }} 个已完成</span>
+            <button
+              class="px-2.5 py-1.5 text-sm text-blue-600 bg-transparent border-0 cursor-pointer hover:underline"
+              type="button"
+              @click="clearCompleted"
+            >
+              清除已完成
             </button>
           </div>
         </div>
       </transition>
 
       <transition name="todo-slide" mode="out-in">
-        <div v-if="viewState === 'list'" class="h-[390px] overflow-hidden">
+        <div
+          v-if="viewState === 'list'"
+          class="overflow-hidden"
+          :style="{ height: `${TODO_LIST_HEIGHT}px` }"
+        >
           <div
-            class="flex items-center justify-between h-[62px] px-3.5 border-b border-border box-border"
+            class="flex items-center justify-between px-3.5 border-b border-border box-border"
+            :style="{ height: `${FILTER_HEADER_HEIGHT}px` }"
           >
             <div class="flex flex-nowrap gap-2.5 shrink">
               <button
@@ -104,11 +244,16 @@
             />
           </div>
 
-          <ul class="h-[282px] m-0 p-0 overflow-y-auto list-none">
+          <ul
+            class="m-0 p-0 overflow-y-auto list-none"
+            :style="{ height: `${TODO_LIST_UL_HEIGHT}px` }"
+          >
             <li
-              v-for="todo in filteredTodos"
+              v-for="(todo, index) in filteredTodos"
               :key="todo.id"
-              class="flex items-start gap-3 min-h-[74px] px-[18px] py-3.5 box-border cursor-pointer border-l-4 border-transparent hover:bg-[var(--muted)]"
+              :ref="(el) => (todoItemRefs[index] = el as HTMLElement)"
+              class="group relative flex items-start gap-3 px-[18px] py-3.5 box-border cursor-pointer border-l-4 border-transparent hover:bg-[var(--muted)]"
+              :style="{ minHeight: `${TODO_ITEM_MIN_HEIGHT}px` }"
               :class="[
                 todo.priority === 'high'
                   ? 'border-l-[#ff2d55]'
@@ -116,8 +261,10 @@
                     ? 'border-l-[#f5b301]'
                     : 'border-l-[#16c784]',
                 todo.completed ? 'text-gray-400 line-through' : '',
+                selectedTodoIndex === index ? 'bg-[var(--muted)]' : '',
               ]"
               @click="openDetail(todo)"
+              @mouseenter="selectedTodoIndex = index"
             >
               <button
                 class="inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer"
@@ -131,7 +278,7 @@
                 />
               </button>
 
-              <div class="min-w-0">
+              <div class="min-w-0 flex-1">
                 <div
                   class="text-[15px] font-medium overflow-hidden text-ellipsis whitespace-nowrap"
                 >
@@ -153,11 +300,27 @@
                   </n-tag>
                 </div>
               </div>
+
+              <div
+                class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                :class="selectedTodoIndex === index ? 'opacity-100!' : ''"
+              >
+                <button
+                  class="inline-flex items-center justify-center p-1 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-red-500 rounded transition-colors"
+                  type="button"
+                  @click.stop="deleteTodoById(todo.id)"
+                >
+                  <n-icon :component="TrashOutline" size="16" />
+                </button>
+                <Kbd>→</Kbd>
+                <span>详情</span>
+              </div>
             </li>
           </ul>
 
           <div
-            class="flex items-center justify-between h-[46px] px-3.5 border-t border-border box-border text-sm text-gray-500"
+            class="flex items-center justify-between px-3.5 border-t border-border box-border text-sm text-gray-500"
+            :style="{ height: `${STATUS_BAR_HEIGHT}px` }"
           >
             <span>{{ activeCount }} 个进行中，{{ completedCount }} 个已完成</span>
             <button
@@ -172,9 +335,14 @@
       </transition>
 
       <transition name="todo-slide" mode="out-in">
-        <div v-if="viewState === 'detail'" class="h-[590px] overflow-hidden bg-[var(--search-bg)]">
+        <div
+          v-if="viewState === 'detail'"
+          class="flex flex-col overflow-hidden bg-[var(--search-bg)]"
+          :style="{ height: `${TODO_DETAIL_HEIGHT}px` }"
+        >
           <div
-            class="flex items-center gap-4 h-[52px] px-[18px] border-b border-border box-border font-medium"
+            class="flex items-center gap-4 px-[18px] border-b border-border box-border font-medium shrink-0"
+            :style="{ height: `${DETAIL_HEADER_HEIGHT}px` }"
           >
             <button
               class="inline-flex items-center justify-center p-0 border-0 text-gray-400 bg-transparent cursor-pointer hover:text-gray-600"
@@ -187,7 +355,7 @@
             <n-icon :component="EllipsisHorizontal" size="22" class="ml-auto" />
           </div>
 
-          <div class="h-[452px] px-7 py-5 overflow-y-auto box-border">
+          <div class="flex-1 min-h-0 px-7 py-5 overflow-y-auto box-border">
             <label class="flex items-center gap-3 mb-[22px]">
               <button
                 class="inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer"
@@ -241,12 +409,7 @@
                 <n-icon :component="PricetagOutline" size="18" />
                 标签
               </span>
-              <n-input
-                v-model:value="tagText"
-                size="small"
-                placeholder="用空格分隔标签"
-                class="!w-[200px]"
-              />
+              <n-dynamic-tags v-model:value="tagList" size="small" :max="5" />
 
               <span class="inline-flex items-center gap-2 text-gray-600">
                 <n-icon :component="TimeOutline" size="18" />
@@ -268,7 +431,8 @@
           </div>
 
           <div
-            class="flex items-center justify-between h-[86px] px-[18px] border-t border-border box-border"
+            class="flex items-center justify-between px-[18px] border-t border-border box-border shrink-0"
+            :style="{ height: `${STATUS_BAR_HEIGHT}px` }"
           >
             <n-button text type="error" class="!h-9 !px-3.5" @click="deleteEditingTodo">
               <template #icon>
@@ -328,8 +492,15 @@ const emit = defineEmits<{
 const TODO_INPUT_HEIGHT = SEARCH_INPUT_HEIGHT;
 const TODO_EMPTY_HEIGHT = 330;
 const TODO_LIST_HEIGHT = 390;
-const TODO_DETAIL_HEIGHT = 590;
-const TODO_CREATE_HEIGHT = computed(() => 80);
+const TODO_DETAIL_HEIGHT = 450;
+const TODO_CREATE_HEIGHT = computed(() => TODO_LIST_HEIGHT);
+
+const FILTER_HEADER_HEIGHT = 62;
+const TODO_LIST_UL_HEIGHT = 282;
+const STATUS_BAR_HEIGHT = 46;
+const DETAIL_HEADER_HEIGHT = 38;
+const EMPTY_ICON_SIZE = 74;
+const TODO_ITEM_MIN_HEIGHT = 74;
 const priorityWeight: Record<string, number> = { high: 0, medium: 1, low: 2 };
 const priorityOptions: { label: string; value: TodoPriority }[] = [
   { label: "高", value: "high" },
@@ -353,7 +524,10 @@ const sortTypeLabel = computed(
   () => sortOptions.find((item) => item.value === sortType.value)!.label,
 );
 const editingTodo = ref<TodoItem>(createEmptyTodo());
-const tagText = ref("");
+const tagList = ref<string[]>([]);
+const selectedTodoIndex = ref(-1);
+const isEditing = computed(() => viewState.value === "detail");
+const todoItemRefs = ref<HTMLElement[]>([]);
 
 const chromeHeight = computed(() => props.chromeHeight);
 const hasTodos = computed(() => todos.value.length > 0);
@@ -397,6 +571,15 @@ function focus() {
   inputRef.value?.focus();
 }
 
+function scrollToSelected() {
+  nextTick(() => {
+    todoItemRefs.value[selectedTodoIndex.value]?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  });
+}
+
 function resizeWindow() {
   searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, windowHeight.value));
 }
@@ -406,7 +589,7 @@ function createEmptyTodo(): TodoItem {
     id: 0,
     title: "",
     completed: false,
-    priority: "medium",
+    priority: "low",
     due_date: null,
     tags: null,
     note: null,
@@ -451,7 +634,7 @@ async function createTodo() {
   const title = inputValue.value.trim();
   if (!title) return;
   try {
-    const todo = await addTodo(title, "medium");
+    const todo = await addTodo(title, "low");
     todos.value.unshift(todo);
     inputValue.value = "";
     viewState.value = "list";
@@ -464,10 +647,10 @@ async function openDetailDraft() {
   const title = inputValue.value.trim();
   if (!title) return;
   try {
-    const todo = await addTodo(title, "medium");
+    const todo = await addTodo(title, "low");
     todos.value.unshift(todo);
     editingTodo.value = JSON.parse(JSON.stringify(todo));
-    tagText.value = "";
+    tagList.value = [];
     inputValue.value = "";
     viewState.value = "detail";
   } catch (e) {
@@ -477,7 +660,8 @@ async function openDetailDraft() {
 
 function openDetail(todo: TodoItem) {
   editingTodo.value = JSON.parse(JSON.stringify(todo));
-  tagText.value = parseTags(todo.tags).join(" ");
+  tagList.value = parseTags(todo.tags);
+  inputValue.value = "";
   viewState.value = "detail";
 }
 
@@ -485,7 +669,7 @@ async function saveEditingTodo() {
   const title = editingTodo.value.title.trim();
   if (!title) return;
 
-  const tagsStr = stringifyTags(tagText.value.split(/\s+/));
+  const tagsStr = stringifyTags(tagList.value);
   try {
     const updated = await updateTodo(editingTodo.value.id, {
       title,
@@ -517,8 +701,19 @@ async function deleteEditingTodo() {
   }
 }
 
+async function deleteTodoById(id: number) {
+  try {
+    await deleteTodo(id);
+    todos.value = todos.value.filter((item) => item.id !== id);
+    if (!todos.value.length) viewState.value = "empty";
+  } catch (e) {
+    console.error("删除待办事项失败:", e);
+  }
+}
+
 function backToList() {
   viewState.value = hasTodos.value ? "list" : "empty";
+  selectedTodoIndex.value = -1;
 }
 
 async function toggleTodo(id: number) {
@@ -580,14 +775,33 @@ function getPriorityClass(priority: TodoPriority) {
 
 function handleClose() {
   inputValue.value = "";
+  selectedTodoIndex.value = -1;
   viewState.value = hasTodos.value ? "list" : "empty";
   resizeWindow();
 }
 
 function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Escape") {
-    if (viewState.value === "detail") {
+  const { key } = event;
+  const todoCount = filteredTodos.value.length;
+
+  // detail 视图：Esc/右键 返回，Enter 保存
+  if (viewState.value === "detail") {
+    if (key === "Escape" || key === "ArrowLeft") {
       backToList();
+      event.preventDefault();
+    } else if (key === "Enter") {
+      saveEditingTodo();
+      event.preventDefault();
+    }
+    return;
+  }
+
+  // Esc：create 视图退回列表，其他视图关闭窗口
+  if (key === "Escape") {
+    if (viewState.value === "create") {
+      inputValue.value = "";
+      viewState.value = hasTodos.value ? "list" : "empty";
+      resizeWindow();
     } else {
       emit("closeWindow", true);
     }
@@ -595,20 +809,50 @@ function handleKeydown(event: KeyboardEvent) {
     return;
   }
 
-  if (event.key === "Enter" && event.ctrlKey && viewState.value === "create") {
+  // Enter 创建待办
+  if (key === "Enter" && event.ctrlKey && inputValue.value.trim()) {
     openDetailDraft();
     event.preventDefault();
     return;
   }
-
-  if (event.key === "Enter" && viewState.value === "create") {
+  if (key === "Enter" && inputValue.value.trim()) {
     createTodo();
     event.preventDefault();
     return;
   }
 
-  if (event.key === "Enter" && viewState.value === "detail") {
-    saveEditingTodo();
+  // 上下键导航 todo 列表
+  if (key === "ArrowDown") {
+    if (todoCount) {
+      selectedTodoIndex.value =
+        selectedTodoIndex.value < todoCount - 1 ? selectedTodoIndex.value + 1 : 0;
+      scrollToSelected();
+    }
+    event.preventDefault();
+    return;
+  }
+  if (key === "ArrowUp") {
+    if (todoCount) {
+      selectedTodoIndex.value =
+        selectedTodoIndex.value > 0 ? selectedTodoIndex.value - 1 : todoCount - 1;
+      scrollToSelected();
+    }
+    event.preventDefault();
+    return;
+  }
+
+  // 右键进入详情
+  if (key === "ArrowRight" && selectedTodoIndex.value >= 0) {
+    const todo = filteredTodos.value[selectedTodoIndex.value];
+    if (todo) openDetail(todo);
+    event.preventDefault();
+    return;
+  }
+
+  // Enter 切换完成状态
+  if (key === "Enter" && selectedTodoIndex.value >= 0 && !inputValue.value.trim()) {
+    const todo = filteredTodos.value[selectedTodoIndex.value];
+    if (todo) toggleTodo(todo.id);
     event.preventDefault();
   }
 }
@@ -634,6 +878,30 @@ defineExpose({
 </script>
 
 <style scoped>
+.n-input {
+  --n-border-hover: 0px !important;
+  --n-border-focus: 0px !important;
+  --n-border: 0px !important;
+  --n-caret-color: gray !important;
+  --n-height: 100% !important;
+  --n-font-size: 18px !important;
+
+  border-radius: 5px;
+  border: none !important;
+}
+
+::v-deep(.n-input__placeholder) {
+  font-size: 14px !important;
+  margin-left: 5px;
+}
+
+.input-container {
+  width: 100%;
+  height: 45px;
+  position: relative;
+  display: block;
+}
+
 .todo-fade-enter-active,
 .todo-fade-leave-active {
   position: absolute;
@@ -660,5 +928,10 @@ defineExpose({
 .todo-slide-leave-to {
   opacity: 0;
   transform: translateY(-6px);
+}
+
+.content {
+  box-sizing: border-box;
+  border-top: 0.5px solid;
 }
 </style>
