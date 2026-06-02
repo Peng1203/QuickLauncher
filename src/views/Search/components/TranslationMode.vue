@@ -311,7 +311,9 @@ function handleKeydown(e: KeyboardEvent) {
       if (isChangeTranslationLanguage.value) {
         handleCloseChangeTranslationLanguage();
       } else {
-        emits("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
+        // emits("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
+        // handleClose();
+        emits("closeWindow");
       }
       break;
     case 38:
