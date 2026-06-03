@@ -361,43 +361,16 @@ export function getLocalFonts(): Promise<any[]> {
   return invoke(InvokeMethod.GET_LOCAL_FONTS);
 }
 
-// ==================== Todo ====================
-
 export function getTodos(): Promise<TodoItem[]> {
   return invoke<TodoItem[]>(InvokeMethod.GET_TODOS);
 }
 
-export function addTodo(
-  title: string,
-  priority?: string,
-  dueDate?: string,
-  tags?: string,
-  note?: string,
-  reminderAt?: string,
-): Promise<TodoItem> {
-  return invoke<TodoItem>(InvokeMethod.ADD_TODO, {
-    title,
-    priority,
-    dueDate,
-    tags,
-    note,
-    reminderAt,
-  });
+export function addTodo(item: NewTodoItem): Promise<TodoItem> {
+  return invoke<TodoItem>(InvokeMethod.ADD_TODO, { item });
 }
 
-export function updateTodo(
-  id: number,
-  data: {
-    title?: string;
-    completed?: boolean;
-    priority?: string;
-    due_date?: string | null;
-    tags?: string | null;
-    note?: string | null;
-    reminder_at?: string | null;
-  },
-): Promise<TodoItem> {
-  return invoke<TodoItem>(InvokeMethod.UPDATE_TODO, { id, ...data });
+export function updateTodo(item: TodoItem): Promise<TodoItem> {
+  return invoke<TodoItem>(InvokeMethod.UPDATE_TODO, { item });
 }
 
 export function deleteTodo(id: number): Promise<void> {

@@ -249,13 +249,15 @@ declare global {
     title: string;
     completed: boolean;
     priority: TodoPriority;
-    due_date: string | null;
+    due_date: number | null;
     tags: string | null;
     note: string | null;
-    reminder_at: string | null;
-    created_at: string;
-    updated_at: string;
+    reminder_at: number | null;
+    created_at: number;
+    updated_at: number;
   }
+
+  type NewTodoItem = Omit<TodoItem, "id" | "completed" | "created_at" | "updated_at">;
 
   type ClipboardContentType = "Url" | "Directory" | "Unknown";
 

@@ -41,7 +41,7 @@ import { useAppConfig, useAppConfigActions } from "@/composables";
 import { AppEvent, SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
 import { EventBus } from "@/utils/eventBus";
 import DefaultSearchMode from "./components/DefaultSearchMode.vue";
-import TodoMode from "./components/TodoMode.vue";
+import TodoMode from "./components/TodoMode/TodoMode.vue";
 import TranslationMode from "./components/TranslationMode.vue";
 import WebSearchMode from "./components/WebSearchMode.vue";
 import { SEARCH_MODE_TABS_HEIGHT, SEARCH_MODEL } from "./searchModes";
