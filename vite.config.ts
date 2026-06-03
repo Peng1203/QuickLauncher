@@ -12,8 +12,10 @@ const host = process.env.TAURI_DEV_HOST;
 const port = parseInt(process.env.TAURI_DEV_PORT || "") || 5173;
 
 // https://vitejs.dev/config/
-export default defineConfig(async () => ({
-  fmt: {},
+export default defineConfig({
+  fmt: {
+    endOfLine: "lf",
+  },
   run: {
     tasks: {},
     cache: {
@@ -73,4 +75,4 @@ export default defineConfig(async () => ({
       "@": resolve(__dirname, ".", "src"),
     },
   },
-}));
+});
