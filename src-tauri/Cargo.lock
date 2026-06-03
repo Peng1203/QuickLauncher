@@ -4722,6 +4722,7 @@ version = "0.1.2"
 dependencies = [
  "arboard",
  "base64 0.22.1",
+ "chrono",
  "encoding_rs",
  "font-kit",
  "lnk_parser",
