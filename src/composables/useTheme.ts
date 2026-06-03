@@ -45,7 +45,7 @@ export function useTheme() {
       newTheme = isDark.value ? "light" : "dark";
     }
     const currentWindow = getCurrentWindow();
-    void EventBus.emit(AppEvent.CHANGE_THEME, currentWindow.label);
+    setTimeout(() => void EventBus.emit(AppEvent.CHANGE_THEME, currentWindow.label));
     return newTheme;
   }
 
