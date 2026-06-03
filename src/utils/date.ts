@@ -21,6 +21,18 @@ export function dateTimeFormat(date?: dateType): string {
   return dayjs(date || new Date()).format("YYYY-MM-DD HH:mm:ss");
 }
 
+/**
+ * 计算距离截止日期的天数
+ * @param dueDate 截止日期（YYYY-MM-DD 或 Date）
+ * @returns 正数=还有N天，0=今天，负数=已过期N天，null=无日期
+ */
+export function getDaysUntil(dueDate?: number | string | Date | null): number | null {
+  if (!dueDate) return null;
+  const today = dayjs().startOf("day");
+  const due = dayjs(dueDate).startOf("day");
+  return due.diff(today, "day");
+}
+
 export function getFromNow(date?: dateType, maxMonth = 6, lang = "zh-cn") {
   // return dayjs(date || new Date())
   //   .locale('zh-cn')
