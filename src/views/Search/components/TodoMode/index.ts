@@ -11,12 +11,6 @@ export function getPriorityColor(val: TodoPriority) {
   }[val];
 }
 
-export const priorityOptions: { label: string; value: TodoPriority }[] = [
-  { label: "高", value: 3 },
-  { label: "中", value: 2 },
-  { label: "低", value: 1 },
-] as const;
-
 export function formatDueDate(todo: TodoItem) {
   if (todo.completed) return t("todo.completed");
   if (!todo.due_date) return "";

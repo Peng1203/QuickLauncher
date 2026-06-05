@@ -1,6 +1,6 @@
 <template>
   <li
-    class="todo-item group relative flex items-start gap-3 px-4.5 py-3.5 box-border cursor-pointer border-l-4 transition-all duration-200 ease-out"
+    class="todo-item h-20 group relative flex items-start gap-3 px-4.5 py-3.5 box-border cursor-pointer border-l-4 transition-all duration-200 ease-out"
     :class="[completed ? 'text-gray-400' : '', isActive ? 'bg-muted' : 'bg-transparent']"
     :style="{
       minHeight: minHeight + 'px',
@@ -23,7 +23,7 @@
     <div class="min-w-0 flex-1">
       <!-- title -->
       <div
-        class="text-[15px] font-medium truncate transition-all duration-200"
+        class="text-[15px] max-w-100 font-medium truncate transition-all duration-200"
         :class="completed ? 'line-through' : ''"
       >
         {{ title }}
@@ -33,19 +33,13 @@
       <div class="flex items-center justify-between mt-2 text-[12px] text-gray-500">
         <!-- left: created + tags -->
         <div class="flex items-center gap-2 min-w-0">
-          <div class="flex items-center gap-1 text-gray-400 whitespace-nowrap">
-            <n-icon :component="TimeOutline" size="14" v-if="todo.due_date || completed" />
-            <span
-              v-if="todo.due_date !== null"
-              class="text-xs"
-              :class="
-                todo.due_date < 0
-                  ? 'text-red-500'
-                  : todo.due_date === 0
-                    ? 'text-amber-500'
-                    : 'text-gray-500'
-              "
-            >
+          <div
+            class="flex items-center gap-1 text-gray-400 whitespace-nowrap"
+            v-if="todo.due_date || completed"
+          >
+            <Icon name="icon-shijian" size="14" />
+            <!-- v-if="todo.due_date !== null" -->
+            <span class="text-xs" :class="getDueDateClass(todo?.due_date)">
               {{ formatDueDate(todo) }}
             </span>
           </div>
@@ -73,10 +67,12 @@
           class="hover:text-red-500 transition-colors cursor-pointer"
           @click.stop="$emit('delete', todo.id)"
         >
-          <n-icon :component="TrashOutline" size="16" />
+          <Icon name="icon-shanchu" />
         </button>
 
-        <span class="opacity-60"><Kbd>→</Kbd> {{ t("todo.detail") }}</span>
+        <span class="flex-s-c gap-1 opacity-60 whitespace-nowrap"
+          ><Kbd>→</Kbd> {{ t("todo.detail") }}</span
+        >
       </div>
     </div>
   </li>
@@ -86,12 +82,7 @@
 import { computed, ref } from "vue";
 import { getPriorityColor, formatDueDate } from "../index";
 import { t } from "@/i18n";
-import {
-  CheckmarkCircleOutline,
-  RadioButtonOffOutline,
-  TimeOutline,
-  TrashOutline,
-} from "@vicons/ionicons5";
+import { CheckmarkCircleOutline, RadioButtonOffOutline } from "@vicons/ionicons5";
 import { getFromNow } from "@/utils/date";
 
 const props = defineProps<{
@@ -126,6 +117,15 @@ const tagsList = computed(() =>
  * priority
  */
 const priorityColor = computed(() => getPriorityColor(props.todo.priority));
+
+function getDueDateClass(dueDate?: number | null) {
+  if (dueDate == null) return "text-gray-500";
+
+  if (dueDate < 0) return "text-red-500";
+  if (dueDate === 0) return "text-amber-500";
+
+  return "text-gray-500";
+}
 </script>
 
 <style scoped>

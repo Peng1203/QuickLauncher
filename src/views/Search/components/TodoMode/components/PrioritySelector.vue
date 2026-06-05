@@ -13,11 +13,18 @@
 </template>
 
 <script setup lang="ts">
-import { getPriorityColor, priorityOptions } from "../index";
+import { t } from "@/i18n";
+import { getPriorityColor } from "../index";
 
 const modelValue = defineModel<TodoPriority>({
   required: true,
 });
+
+const priorityOptions = computed<{ label: string; value: TodoPriority }[]>(() => [
+  { label: t("todo.high"), value: 3 },
+  { label: t("todo.medium"), value: 2 },
+  { label: t("todo.low"), value: 1 },
+]);
 
 function getPriorityStyle(priority: TodoPriority, active: boolean) {
   if (!active) return {};

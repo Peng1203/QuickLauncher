@@ -15,9 +15,9 @@
         @input="syncCreateState"
       >
         <template #prefix>
-          <n-icon :component="CheckboxOutline" size="22" class="shrink-0 text-blue-600" />
+          <Icon name="icon-TODO_INFO" size="22" color="#155dfc" />
         </template>
-        <template v-if="!isEditing" #suffix>
+        <template v-if="isListState" #suffix>
           <div class="shortcut-list">
             <span class="shortcut-item">
               <Kbd>Tab</Kbd>
@@ -50,14 +50,14 @@
             class="grid place-items-center mb-5 text-gray-400 bg-gray-100 rounded-full"
             :style="{ width: `${EMPTY_ICON_SIZE}px`, height: `${EMPTY_ICON_SIZE}px` }"
           >
-            <n-icon :component="CheckboxOutline" size="42" />
+            <Icon name="icon-fangkuangxuanzhong" size="42" />
           </div>
           <div class="text-xl font-semibold">{{ t("todo.emptyTitle") }}</div>
           <div class="mt-2.5 text-sm text-gray-500">{{ t("todo.emptyDesc") }}</div>
           <div
             class="inline-flex items-center gap-2 mt-7 px-3.5 py-2 text-gray-700 bg-gray-50 rounded-lg text-sm"
           >
-            <n-icon :component="AddOutline" size="18" />
+            <Icon name="icon-add" />
             {{ t("todo.emptyHint") }}
           </div>
         </div>
@@ -106,114 +106,47 @@
             class="m-0 p-0 overflow-y-auto list-none"
             :style="{ height: `${TODO_LIST_UL_HEIGHT}px` }"
           >
-            <!-- 虚拟预览项 -->
-            <li
-              v-if="viewState === 'create'"
-              class="flex items-start gap-3 px-4.5 py-3.5 box-border border-l-4 border-l-blue-400/40 bg-blue-50/20 opacity-50"
-              :style="{ minHeight: `${TODO_ITEM_MIN_HEIGHT}px` }"
-            >
-              <n-icon :component="AddOutline" size="22" class="shrink-0 text-blue-400 mt-0.5" />
-              <div class="min-w-0 flex-1">
-                <div
-                  class="text-[15px] font-medium overflow-hidden text-ellipsis whitespace-nowrap text-blue-500/80"
-                >
-                  {{ inputValue }}
-                </div>
-                <div class="flex items-center gap-3 mt-2 text-sm text-gray-400">
-                  <span>
-                    {{ t("todo.pressEnter") }}
-                    <Kbd>Enter</Kbd>
-                    {{ t("todo.quickCreate") }}
-                  </span>
-                  <span>
-                    {{ t("todo.or") }}
-                    <Kbd>Ctrl + Enter</Kbd>
-                    {{ t("todo.addDetail") }}
-                  </span>
-                </div>
-              </div>
-            </li>
-
-            <!-- <li
-              v-for="(todo, index) in todos"
-              :key="todo.id"
-              :ref="(el) => (todoItemRefs[index] = el as HTMLElement)"
-              class="group relative flex items-start gap-3 px-4.5 py-3.5 box-border cursor-pointer border-l-4 border-transparent hover:bg-muted"
-              :style="{
-                minHeight: `${TODO_ITEM_MIN_HEIGHT}px`,
-                borderLeftColor: getPriorityColor(todo.priority),
-              }"
-              :class="[
-                todo.completed ? 'text-gray-400 line-through' : '',
-                selectedTodoIndex === index ? 'bg-muted' : '',
-              ]"
-              @click="openDetail(todo)"
-              @mouseenter="selectedTodoIndex = index"
-            >
-              <button
-                class="inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer"
-                :class="todo.completed ? 'text-green-600' : 'text-gray-400'"
-                type="button"
-                @click.stop="toggleTodo(todo.id)"
+            <TransitionGroup name="todo" tag="ul" class="space-y-0">
+              <!-- 虚拟预览项 -->
+              <li
+                v-if="viewState === 'create'"
+                class="flex items-start gap-3 px-4.5 py-3.5 box-border border-l-4 border-l-blue-400/40 bg-blue-50/20 opacity-50"
+                :style="{ minHeight: `${TODO_ITEM_MIN_HEIGHT}px` }"
               >
-                <n-icon
-                  :component="todo.completed ? CheckmarkCircleOutline : RadioButtonOffOutline"
-                  size="22"
-                />
-              </button>
-
-              <div class="min-w-0 flex-1">
-                <div
-                  class="text-[15px] font-medium overflow-hidden text-ellipsis whitespace-nowrap"
-                >
-                  {{ todo.title }}
-                </div>
-                <div class="flex items-center gap-2 mt-2 text-gray-500 text-[13px]">
-                  <span v-if="todo.due_date" class="inline-flex items-center gap-1">
-                    <n-icon :component="TimeOutline" size="14" />
-                    {{ formatDueDate(todo) }}
-                  </span>
-
-                  <n-tag
-                    v-for="tag in renderTags(todo.tags)"
-                    size="small"
-                    type="primary"
-                    :key="tag"
-                    :bordered="false"
-                    class="text-xs!"
+                <Icon name="icon-add" size="22" color="oklch(70.7% 0.165 254.624)" />
+                <div class="min-w-0 flex-1">
+                  <div
+                    class="text-[15px] font-medium overflow-hidden text-ellipsis whitespace-nowrap text-blue-500/80"
                   >
-                    {{ tag }}
-                  </n-tag>
+                    {{ inputValue }}
+                  </div>
+                  <div class="flex items-center gap-3 mt-2 text-sm text-gray-400">
+                    <span>
+                      {{ t("todo.pressEnter") }}
+                      <Kbd>Enter</Kbd>
+                      {{ t("todo.quickCreate") }}
+                    </span>
+                    <span>
+                      {{ t("todo.or") }}
+                      <Kbd>Ctrl + Enter</Kbd>
+                      {{ t("todo.addDetail") }}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              </li>
 
-              <div
-                class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                :class="selectedTodoIndex === index ? 'opacity-100!' : ''"
-              >
-                <button
-                  class="inline-flex items-center justify-center p-1 border-0 bg-transparent cursor-pointer text-gray-400 hover:text-red-500 rounded transition-colors"
-                  type="button"
-                  @click.stop="deleteTodoById(todo.id)"
-                >
-                  <n-icon :component="TrashOutline" size="16" />
-                </button>
-                <Kbd>→</Kbd>
-                <span>详情</span>
-              </div>
-            </li> -->
-
-            <TodoItem
-              v-for="(todo, index) in todos"
-              :key="todo.id"
-              :ref="(el) => (todoItemRefs[index] = (el as any)?.$el)"
-              :todo="todo"
-              :selected="selectedTodoIndex === index"
-              :min-height="TODO_ITEM_MIN_HEIGHT"
-              @open="openDetail"
-              @toggle="toggleTodo"
-              @delete="deleteTodoById"
-            />
+              <TodoItem
+                v-for="(todo, index) in todos"
+                :key="todo.id"
+                :ref="(el) => (todoItemRefs[index] = (el as any)?.$el)"
+                :todo="todo"
+                :selected="selectedTodoIndex === index"
+                :min-height="TODO_ITEM_MIN_HEIGHT"
+                @open="openDetail"
+                @toggle="toggleTodo"
+                @delete="deleteTodoById"
+              />
+            </TransitionGroup>
           </ul>
 
           <div
@@ -241,23 +174,28 @@
           :style="{ height: `${TODO_DETAIL_HEIGHT}px` }"
         >
           <div
-            class="flex items-center gap-4 px-4.5 border-b border-border box-border font-medium shrink-0"
+            class="flex-sb-c gap-4 px-4.5 border-b border-border box-border font-medium shrink-0"
             :style="{ height: `${DETAIL_HEADER_HEIGHT}px` }"
           >
-            <button
-              class="inline-flex items-center justify-center p-0 border-0 text-gray-400 bg-transparent cursor-pointer hover:text-gray-600"
-              type="button"
-              @click="backToList"
-            >
-              <n-icon :component="ArrowBackOutline" size="22" />
-            </button>
-            <span>{{ isDetailCreate ? t("todo.newTask") : t("todo.taskDetail") }}</span>
-            <n-icon :component="EllipsisHorizontal" size="22" class="ml-auto" />
+            <div class="flex-s-c">
+              <button
+                class="p-0 border-0 text-gray-400 bg-transparent cursor-pointer hover:text-gray-600"
+                type="button"
+                @click="backToList"
+              >
+                <Icon name="icon-fanhui" size="22" />
+              </button>
+              <span class="flex ml-2 h-5.5">
+                {{ isDetailCreate ? t("todo.newTask") : t("todo.taskDetail") }}
+              </span>
+            </div>
+
+            <Icon name="icon-gengduo" size="22" />
           </div>
           <!-- {{ editingTodo }} -->
 
           <div class="flex-1 min-h-0 px-7 py-5 overflow-y-auto box-border">
-            <label class="flex items-center gap-3 mb-[22px]">
+            <label class="flex items-center gap-3 mb-5.5">
               <button
                 class="inline-flex items-center justify-center p-0 border-0 bg-transparent cursor-pointer"
                 :class="editingTodo.completed ? 'text-green-600' : 'text-gray-400'"
@@ -281,13 +219,13 @@
 
             <div class="grid grid-cols-[110px_1fr] gap-x-3 gap-y-4 pl-4 border-l-2 border-gray-200">
               <span class="inline-flex items-center gap-2 text-gray-600">
-                <n-icon :component="PricetagOutline" size="18" />
+                <Icon name="icon-shandian" size="18" />
                 {{ t("todo.priority") }}
               </span>
               <PrioritySelector v-model="editingTodo.priority" />
 
               <span class="inline-flex items-center gap-2 text-gray-600">
-                <n-icon :component="TimeOutline" size="18" />
+                <Icon name="icon-jiezhishijian1" />
                 {{ t("todo.dueDate") }}
               </span>
               <div class="flex items-center gap-2">
@@ -316,7 +254,7 @@
               </div>
 
               <span class="inline-flex items-center gap-2 text-gray-600">
-                <n-icon :component="NotificationsOutline" size="18" />
+                <Icon name="icon-tixingshijian" />
                 {{ t("todo.reminderTime") }}
               </span>
 
@@ -333,14 +271,15 @@
               />
 
               <span class="inline-flex items-center gap-2 text-gray-600">
-                <n-icon :component="PricetagOutline" size="18" />
+                <Icon name="icon-biaoqian" />
+
                 {{ t("todo.tags") }}
               </span>
               <n-dynamic-tags v-model:value="tagList" size="small" type="primary" :max="5" />
 
               <template v-if="editingTodo.created_at">
                 <span class="inline-flex items-center gap-2 text-gray-600">
-                  <n-icon :component="TimeOutline" size="18" />
+                  <Icon name="icon-chuangjianshijian1-copy" />
                   {{ t("todo.createdAt") }}
                 </span>
                 <span class="inline-flex items-center text-gray-500">
@@ -368,15 +307,9 @@
             class="flex items-center justify-between px-[18px] border-t border-border box-border shrink-0"
             :style="{ height: `${STATUS_BAR_HEIGHT}px` }"
           >
-            <n-button
-              v-if="isDetailEdit"
-              text
-              type="error"
-              class="!h-9 !px-3.5"
-              @click="deleteEditingTodo"
-            >
+            <n-button v-if="isDetailEdit" text type="error" @click="deleteEditingTodo">
               <template #icon>
-                <n-icon :component="TrashOutline" size="18" />
+                <Icon name="icon-shanchu" class="-mt-0.75" />
               </template>
               {{ t("todo.deleteTask") }}
             </n-button>
@@ -398,18 +331,7 @@
 
 <script setup lang="ts">
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
-import {
-  AddOutline,
-  ArrowBackOutline,
-  CheckboxOutline,
-  CheckmarkCircleOutline,
-  EllipsisHorizontal,
-  NotificationsOutline,
-  PricetagOutline,
-  RadioButtonOffOutline,
-  TimeOutline,
-  TrashOutline,
-} from "@vicons/ionicons5";
+import { CheckmarkCircleOutline, RadioButtonOffOutline } from "@vicons/ionicons5";
 import { computed, nextTick, ref, watch } from "vue";
 import { addTodo, deleteTodo, getTodos, updateTodo, clearCompletedTodos } from "@/api";
 import { SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
@@ -585,7 +507,7 @@ async function loadTodos() {
     totalCount.value = result.total;
     activeCount.value = result.activeCount;
     completedCount.value = result.completedCount;
-    setViewState(todos.value.length ? "list" : "empty");
+    setViewState(!totalCount.value && activeCount.value && completedCount.value ? "empty" : "list");
   } catch (e) {
     console.error("加载待办事项失败:", e);
   }
@@ -755,7 +677,7 @@ function handleKeydown(event: KeyboardEvent) {
   }
 
   // Tab 切换排序方式
-  if (key === "Tab" && !isDetailState.value) {
+  if (key === "Tab" && isListState.value) {
     const currentIndex = sortOptions.value.findIndex((item) => item.value === sortType.value);
     const nextIndex = (currentIndex + 1) % sortOptions.value.length;
     sortType.value = sortOptions.value[nextIndex].value as TodoSort;
@@ -917,6 +839,33 @@ defineExpose({
     scale: 0.9;
   }
 }
-</style>
 
-<style></style>
+.todo-move,
+.todo-enter-active,
+.todo-leave-active {
+  transition: all 0.25s ease;
+}
+
+/* 进入起点 */
+.todo-enter-from {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* 离开终点 */
+.todo-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* 离开时脱离布局流（关键） */
+.todo-leave-active {
+  position: absolute;
+  width: 100%;
+}
+
+/* 让其他元素平滑移动（核心体验） */
+.todo-move {
+  transition: transform 0.25s ease;
+}
+</style>

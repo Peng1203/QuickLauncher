@@ -30,6 +30,7 @@ import { useTray } from "./composables/useTray";
 import { AppEvent } from "./constant";
 import { i18n } from "./i18n";
 import { EventBus } from "./utils/eventBus";
+import { setDayjsLang } from "./utils/date";
 
 const {
   font, //
@@ -72,6 +73,7 @@ watch(
   () => appConfigStore.language,
   (lang) => {
     i18n.global.locale.value = lang;
+    setDayjsLang(lang);
     createTray();
   },
   { immediate: true },
