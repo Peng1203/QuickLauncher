@@ -361,8 +361,11 @@ export function getLocalFonts(): Promise<any[]> {
   return invoke(InvokeMethod.GET_LOCAL_FONTS);
 }
 
-export function getTodos(): Promise<TodoItem[]> {
-  return invoke<TodoItem[]>(InvokeMethod.GET_TODOS);
+export function getTodos(
+  sortBy?: string,
+  filter?: string,
+): Promise<{ todos: TodoItem[]; total: number; activeCount: number; completedCount: number }> {
+  return invoke(InvokeMethod.GET_TODOS, { sortBy, filter });
 }
 
 export function addTodo(item: NewTodoItem): Promise<TodoItem> {

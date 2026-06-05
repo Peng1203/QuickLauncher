@@ -14,8 +14,8 @@ pub struct Model {
 
     pub completed: bool,
 
-    #[sea_orm(column_type = "Text")]
-    pub priority: String,
+    // 1低 2中 3高
+    pub priority: i32,
 
     #[sea_orm(nullable)]
     pub due_date: Option<i64>,

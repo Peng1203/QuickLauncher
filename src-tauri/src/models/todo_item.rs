@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NewTodoItem {
     pub title: String,
-    pub priority: String,
+    pub priority: i32,
     pub due_date: Option<i64>,
     pub tags: Option<String>,
     pub note: Option<String>,
@@ -13,7 +13,7 @@ pub struct TodoItem {
     pub id: i32,
     pub title: String,
     pub completed: bool,
-    pub priority: String,
+    pub priority: i32,
     pub due_date: Option<i64>,
     pub tags: Option<String>,
     pub note: Option<String>,
