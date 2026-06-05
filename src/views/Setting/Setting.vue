@@ -128,7 +128,7 @@ const settingTabs = computed(() => [
   },
 ]);
 
-const activeTab = ref(settingTabs.value[2].value);
+const activeTab = ref(settingTabs.value[0].value);
 // const activeTab = ref(settingTabs[8].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);

@@ -35,7 +35,7 @@
     <SettingGroup :title="t('data.groupDanger')">
       <SettingItem
         icon-color="red"
-        icon="icon-shanchufenlei"
+        icon="icon-shanchu"
         :title="`<span style='color: var(--destructive);'>${t('data.resetTitle')}</span>`"
         :description="t('data.resetDesc')"
       >

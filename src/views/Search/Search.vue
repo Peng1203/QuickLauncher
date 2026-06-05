@@ -93,6 +93,20 @@ const activeModeProps = computed(() => {
 // 记录模式切换来源，用于 ESC 键特殊回退行为
 const switchModeFrom = ref<FormType>("");
 
+function setWebSearchActive(source?: WebSearchSource) {
+  // 确定网络搜索默认来源（配置 > 已选 > 列表第一个）
+  const defaultWebSearch =
+    appConfigStore.webSearchSourceList.find(
+      (item) => item.id === appConfigStore.webSearchDefaultSourceId,
+    ) ?? null;
+
+  activeWebSearchSource.value =
+    source ||
+    activeWebSearchSource.value ||
+    defaultWebSearch ||
+    appConfigStore.webSearchSourceList[0];
+}
+
 /**
  * 切换搜索模式
  * 调用入口：① tab 栏点击 ② Shift+Tab 快捷键 ③ 默认模式触发的特殊切换
@@ -102,20 +116,7 @@ async function handleSwitchMode(payload: SwitchModePayload) {
   switchModeFrom.value = from;
   activeModeRef.value?.handleClose?.();
   pendingKeyword.value = keyword || "";
-
-  // 确定网络搜索默认来源（配置 > 已选 > 列表第一个）
-  const defaultWebSearch =
-    appConfigStore.webSearchSourceList.find(
-      (item) => item.id === appConfigStore.webSearchDefaultSourceId,
-    ) ?? null;
-
-  activeWebSearchSource.value =
-    mode === SEARCH_MODEL.WEB_SEARCH_MODEL
-      ? source ||
-        activeWebSearchSource.value ||
-        defaultWebSearch ||
-        appConfigStore.webSearchSourceList[0]
-      : undefined;
+  setWebSearchActive(source);
 
   searchModel.value = mode;
   await resizeToActiveModeDefaultHeight();
@@ -154,7 +155,7 @@ async function handleShow() {
   } else {
     await searchWindow.setPosition(new LogicalPosition(1, 1));
   }
-
+  setWebSearchActive();
   // 打开窗口高度固定为 输入框高度 + tab 高度
   await searchWindow.setSize(
     new LogicalSize(SEARCH_WINDOW_WIDTH, SEARCH_INPUT_HEIGHT + chromeHeight.value),

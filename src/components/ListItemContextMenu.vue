@@ -84,7 +84,7 @@ const menuOptions = computed(() => {
     {
       label: t('common.delete'),
       key: 'delete',
-      icon: renderIcon('icon-shanchufenlei'),
+      icon: renderIcon('icon-shanchu'),
       itemVisible: isLaunchList.value,
     },
     {

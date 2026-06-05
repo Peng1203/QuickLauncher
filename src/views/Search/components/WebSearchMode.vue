@@ -121,7 +121,7 @@ function resizeWindow() {
 
 function handleClose() {
   keyword.value = "";
-  selectedIndex.value = 0;
+  // selectedIndex.value = 0;
   resizeWindow();
 }
 

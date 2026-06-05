@@ -76,7 +76,7 @@
     <SettingGroup :title="t('general.groupOperation')">
       <SettingSwitchItem
         v-model="appConfigStore.confirmBeforeDelete"
-        icon="icon-shanchufenlei"
+        icon="icon-shanchu"
         :title="t('general.confirmDeleteTitle')"
         :description="t('general.confirmDeleteDesc')"
       />

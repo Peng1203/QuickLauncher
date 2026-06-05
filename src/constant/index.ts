@@ -180,22 +180,22 @@ export const SEARCH_MODEL = {
 
 export const MODE_TABS: SearchModeItem[] = [
   {
-    label: "搜索",
+    label: "searchMode",
     value: SEARCH_MODEL.DEFAULT_MODEL,
     icon: "icon-icon-sousuofenlei",
   },
   {
-    label: "Todo",
+    label: "todoMode",
     value: SEARCH_MODEL.TODO_MODEL,
     icon: "icon-TODO_INFO",
   },
   {
-    label: "翻译",
+    label: "translateMode",
     value: SEARCH_MODEL.TRANSLATION_MODEL,
     icon: "icon-fanyi",
   },
   {
-    label: "网络搜索",
+    label: "webSearchMode",
     value: SEARCH_MODEL.WEB_SEARCH_MODEL,
     icon: "icon-wangluosousuo",
   },

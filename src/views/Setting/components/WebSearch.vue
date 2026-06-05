@@ -67,7 +67,7 @@
         <!-- v-if="activeRowId" -->
         <n-button :disabled="!activeRowId" size="small" type="error" @click="handleDel">
           <template #icon>
-            <Icon name="icon-shanchufenlei" size="14" />
+            <Icon name="icon-shanchu" size="14" />
           </template>
           {{ t("common.delete") }}
         </n-button>

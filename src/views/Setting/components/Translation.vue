@@ -12,17 +12,12 @@
     </SettingGroup>
 
     <SettingGroup :title="t('translation.groupTrigger')">
-      <SettingItem
+      <SettingSelectItem
+        v-model:value="appConfigStore.translationOpenModel"
+        :options="options"
         :title="t('translation.triggerTitle')"
         :description="t('translation.triggerDesc')"
-      >
-        <n-select
-          v-model:value="appConfigStore.translationOpenModel"
-          size="small"
-          :options="options"
-          :consistent-menu-width="false"
-        />
-      </SettingItem>
+      />
     </SettingGroup>
 
     <SettingGroup
@@ -90,5 +85,5 @@ const options = computed<any[]>(() => [
   { label: t("webSearch.close"), value: TranslationOpenModel.CLOSE },
 ]);
 
-const targetLanguageOptions = BAIDU_TRANSLATION_TO as any;
+const targetLanguageOptions = BAIDU_TRANSLATION_TO;
 </script>

@@ -180,6 +180,10 @@ export const messages = {
 
   // ========== 搜索设置 ==========
   searchSetting: {
+    searchMode: ["搜索", "搜尋", "Search", "検索"],
+    todoMode: ["Todo", "Todo", "Todo", "Todo"],
+    translateMode: ["翻译", "翻譯", "Translate", "翻訳"],
+    webSearchMode: ["网络搜索", "網絡搜索", "Web Search", "ウェブ検索"],
     groupMode: ["模式", "模式", "Mode", "モード"],
     showModeTabsTitle: ["展示模式标签", "顯示模式標籤", "Show Mode Tabs", "モードタブを表示"],
     showModeTabsDesc: [
@@ -228,6 +232,27 @@ export const messages = {
 
   // ========== 快速搜索设置 ==========
   quickSearch: {
+    shortcutTitle: ["快捷键", "快捷鍵", "Shortcut Keys", "ショートカットキー"],
+    shortcutDesc: [
+      "使用快捷键快速切换模式",
+      "使用快捷鍵快速切換模式",
+      "Use shortcut keys to quickly switch modes",
+      "ショートカットキーでモードを素早く切り替えます",
+    ],
+    defaultModeTitle: ["默认模式", "預設模式", "Default Mode", "デフォルトモード"],
+    defaultModeDesc: [
+      "呼出搜索窗口默认选中的模式",
+      "呼出搜尋視窗預設選中的模式",
+      "Default selected mode when opening the search window",
+      "検索ウィンドウを開いたときにデフォルトで選択されるモード",
+    ],
+    enableSearch: ["启用搜索", "啟用搜尋", "Enable Search", "検索を有効化"],
+    enableSearchDesc: [
+      "开启后可以使用快捷键快速唤起搜索窗口",
+      "開啟後可使用快捷鍵快速喚起搜尋視窗",
+      "After enabling, you can quickly open the search window using a shortcut key.",
+      "有効化すると、ショートカットキーで検索ウィンドウをすばやく呼び出せます。",
+    ],
     groupEnable: ["启用", "啟用", "Enable", "有効化"],
     enableTitle: ["启用快速搜索", "啟用快速搜尋", "Enable Quick Search", "クイック検索を有効化"],
     enableDesc: [
@@ -367,6 +392,17 @@ export const messages = {
 
   // ========== 翻译设置 ==========
   translation: {
+    TRANSLATION_TO: [
+      "简体中文",
+      "繁體中文",
+      "English",
+      "日本語",
+      "한국어",
+      "Français",
+      "Deutsch",
+      "Русский",
+    ],
+
     enableTitle: ["启用翻译", "啟用翻譯", "Enable Translation", "翻訳を有効化"],
     enableDesc: [
       "开启快捷翻译功能",
@@ -1096,6 +1132,9 @@ export const messages = {
 
   // ========== 待办事项 ==========
   todo: {
+    high: ["高", "高", "High", "高"],
+    medium: ["中", "中", "Medium", "中"],
+    low: ["低", "低", "Low", "低"],
     inputPlaceholder: [
       "输入任务内容，回车创建...",
       "輸入任務內容，按 Enter 建立...",

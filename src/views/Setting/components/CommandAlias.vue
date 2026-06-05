@@ -146,7 +146,7 @@ const columns = computed(() => [
             onClick={() => handleDelete(row)}
           >
             <Icon
-              name="icon-shanchufenlei"
+              name="icon-shanchu"
               size="16"
             />
           </span>
