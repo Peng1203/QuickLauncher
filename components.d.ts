@@ -61,6 +61,7 @@ declare module 'vue' {
     OpenDemoVideo: typeof import('./src/components/OpenDemoVideo.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SearchModeTabs: typeof import('./src/components/business/SearchModeTabs.vue')['default']
     SettingGroup: typeof import('./src/components/ui/SettingGroup.vue')['default']
     SettingItem: typeof import('./src/components/ui/SettingItem.vue')['default']
     SettingSelectItem: typeof import('./src/components/ui/SettingSelectItem.vue')['default']

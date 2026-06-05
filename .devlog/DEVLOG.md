@@ -154,6 +154,74 @@
 
 ---
 
+## 2026-06-03（搜索模式重构 / Todo 优化）
+
+### WebSearchMode 改造
+
+- 搜索结果列表改为搜索引擎下拉选择
+- 输入框为空时展示引擎列表，输入时隐藏
+- 支持从默认模式带 source 进入时自动定位引擎
+- 新增 `webSearchDefaultSourceId` 配置，支持设置默认搜索引擎
+- 处理搜索源为空时的禁用状态提示
+
+### TodoMode 重构
+
+- 拆分 `detail` 状态为 `detail-create` / `detail-edit`
+- 新建待办不再立即调 API，保存时才创建
+- 键盘导航：上下切换、Enter 完成、右键进入详情
+- 输入框右侧显示快捷键提示
+- 详情页新增提醒日期（`n-date-picker`）
+- 截止日期使用 `dayjs` + `getDaysUntil` 计算天数
+- 默认优先级改为 `low`
+- 标签改用 `n-dynamic-tags` 组件
+- 排序和筛选改为后端实现（`getTodos` 传入参数）
+- Tab 快捷键切换排序方式
+- TodoItem 组件抽离
+
+### 搜索设置页
+
+- 新增「搜索设置」Tab（位于快速搜索上方）
+- 包含：模式标签、快捷键、窗口行为等配置
+
+### 其他
+
+- 修复主题切换多窗口同步问题
+- 补全翻译模式遗漏的 i18n 文本
+- 新增 `getDaysUntil` 日期工具方法
+- 换行符统一为 LF
+
+---
+
+## 2026-06-02（工程化 / Lint 重构）
+
+### ESLint 配置迁移
+
+- 从 `@antfu/eslint-config` 迁移到原生 flat config
+- 组合使用 `@eslint/js` + `typescript-eslint` + `eslint-plugin-vue`
+- 手动补充 `globals`（auto-import 支持）
+
+### 规则调整
+
+- 关闭 `stylistic`，交由 Prettier 处理
+- `.ts / .vue` 关闭 `no-undef`
+- 调整 TS/Vue 规则兼容 auto-import
+
+### Lint 修复（36 → 0）
+
+- `no-unused-expressions` → 改 if 结构
+- `no-floating-promises` → 加 `void`
+- 模板字符串 → `String()`
+- 清理 unused disable
+
+### 发布脚本优化
+
+- release notes 改为读取 `CHANGELOG.md`
+- 构建产物路径调整到 bundle 目录
+- 自动打开构建输出目录
+- `latest.json` 不再入 git
+
+---
+
 ## 2026-05-20（项目初始化）
 
 ### 技术选型
