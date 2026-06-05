@@ -1,5 +1,6 @@
 import type { CSSProperties } from "vue";
 import type { PortalNotifyMode, TranslationOpenModel, WebSearchOpenModel } from "@/constant";
+import { SEARCH_MODEL } from "@/constant";
 
 declare global {
   type DirectionType = "up" | "right" | "down" | "left";
@@ -61,6 +62,13 @@ declare global {
 
   type ThemeModel = "light" | "dark" | "system";
 
+  type SearchMode = (typeof SEARCH_MODEL)[keyof typeof SEARCH_MODEL];
+
+  interface SearchModeItem {
+    label: string;
+    value: SearchMode;
+    icon: string;
+  }
   // 应用配置状态
   interface AppConfigState {
     title: string;
@@ -101,6 +109,13 @@ declare global {
 
     language: LanguageType;
 
+    /** 顶部Tab是否展示 */
+    showSearchModeTabs: boolean;
+    /** 展示的切换模式 */
+    showModes: SearchMode[];
+    /** 打开搜索框默认选中的模式 */
+    defaultMode: SearchMode;
+    switchModeShortcutKey: string;
     /** 启动快速搜索 */
     enableSearch: boolean;
     /** 搜索框失去焦点隐藏 */
@@ -111,12 +126,14 @@ declare global {
     doNotDisturbMode: boolean;
     /** 跟随鼠标所在屏幕显示 */
     searchOpenOnMouseDisplay: boolean;
-    showSearchModeTabs: boolean;
+    /** 默认搜索 */
+    enableDefaultSearch: boolean;
 
     enableWebSearch: boolean;
     /** 网络搜索打开呼出方式 0 */
     webSearchOpenModel: WebSearchOpenModel;
     webSearchSourceList: WebSearchSource[];
+    webSearchDefaultSourceId: number | null;
 
     enableHistory: boolean;
     showHistory: boolean;
@@ -242,7 +259,7 @@ declare global {
 
   type LaunchHistoryWithIcon = LaunchHistory & Pick<LaunchItem, "icon">;
 
-  type TodoPriority = "high" | "medium" | "low";
+  type TodoPriority = 3 | 2 | 1;
 
   interface TodoItem {
     id: number;

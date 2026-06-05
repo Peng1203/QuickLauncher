@@ -1,58 +1,43 @@
-import { getDaysUntil, dateTimeFormat } from "@/utils/date";
+import { getDaysUntil } from "@/utils/date";
+import { t } from "@/i18n";
 
 export const useTodoDomain = (editingTodo: Ref<TodoItem>) => {
   const HOUR_MS = 60 * 60 * 1000;
   const DAY_MS = HOUR_MS * 24;
 
-  const dueDateshortcuts = {
-    "3小时后": () => Date.now() + HOUR_MS * 3,
-    "3天后": () => Date.now() + DAY_MS * 3,
-    一周后: () => Date.now() + DAY_MS * 7,
+  const dueDateshortcuts = computed(() => ({
+    [t("todo.after3h")]: () => Date.now() + HOUR_MS * 3,
+    [t("todo.after3d")]: () => Date.now() + DAY_MS * 3,
+    [t("todo.after1w")]: () => Date.now() + DAY_MS * 7,
     "114514😋": () => Date.now() + DAY_MS * 114514,
-  };
+  }));
   const reminderAtshortcuts = computed(() => {
     let obj = {};
     if (editingTodo.value.due_date) {
       const dueDate = editingTodo.value.due_date;
       obj = {
-        截止前1小时: () => {
-          const t = dueDate - HOUR_MS * 1;
-          if (t > Date.now()) return t;
+        [t("todo.before1h")]: () => {
+          const ts = dueDate - HOUR_MS * 1;
+          if (ts > Date.now()) return ts;
           else {
             return null;
           }
         },
-        // 截止前3小时: () => {
-        //   const t = dueDate - HOUR_MS * 3;
-        //   if (t > Date.now()) return t;
-        //   else {
-        //     message.warning("提醒日期不能大于截止日期");
-        //     return null;
-        //   }
-        // },
-        截止前1天: () => {
-          const t = dueDate - DAY_MS * 1;
-          if (t > Date.now()) return t;
+        [t("todo.before1d")]: () => {
+          const ts = dueDate - DAY_MS * 1;
+          if (ts > Date.now()) return ts;
           else {
             return null;
           }
         },
-        // 截止前3天: () => {
-        //   const t = dueDate - DAY_MS * 3;
-        //   if (t > Date.now()) return t;
-        //   else {
-        //     message.warning("提醒日期不能大于截止日期");
-        //     return null;
-        //   }
-        // },
       };
       return obj;
     } else {
       obj = {
-        "1小时后": () => Date.now() + HOUR_MS,
-        "3小时后": () => Date.now() + HOUR_MS * 3,
-        "3天后": () => Date.now() + DAY_MS * 3,
-        一周后: () => Date.now() + DAY_MS * 7,
+        [t("todo.after1h")]: () => Date.now() + HOUR_MS,
+        [t("todo.after3h")]: () => Date.now() + HOUR_MS * 3,
+        [t("todo.after3d")]: () => Date.now() + DAY_MS * 3,
+        [t("todo.after1w")]: () => Date.now() + DAY_MS * 7,
       };
     }
     return obj;
@@ -156,35 +141,29 @@ export const useTodoDomain = (editingTodo: Ref<TodoItem>) => {
     };
   }
 
-  function getPriorityColor(val: TodoPriority) {
-    return {
-      high: "#ff2d55",
-      medium: "#f5b301",
-      low: "#16c784",
-    }[val];
+  function isTypingTarget(el: EventTarget | null) {
+    if (!(el instanceof HTMLElement)) return false;
+
+    const tag = el.tagName;
+    return tag === "INPUT" || tag === "TEXTAREA" || el.isContentEditable;
   }
 
-  function formatDueDate(todo: TodoItem) {
-    if (todo.completed) return "已完成";
-    if (!todo.due_date) return "";
-
-    const days = getDaysUntil(todo.due_date);
-    if (days === null) return "今天";
-    if (days === 0) return "今天";
-    if (days === 1) return "明天";
-    if (days > 1 && days < 7) return `还剩 ${days} 天`;
-    if (days >= 7) return dateTimeFormat(todo.due_date).replaceAll("-", "/");
-    return `已过期 ${Math.abs(days)} 天`;
+  function getPriorityColor(val: TodoPriority) {
+    return {
+      3: "#ff2d55",
+      2: "#f5b301",
+      1: "#16c784",
+    }[val];
   }
 
   const dueDateDays = computed(() => getDaysUntil(editingTodo.value.due_date));
   const dueDateDaysLabel = computed(() => {
     const days = dueDateDays.value;
     if (days === null) return "";
-    if (days < 0) return `已过期 ${Math.abs(days)} 天`;
-    if (days === 0) return "今天截止";
-    if (days === 1) return "明天截止";
-    return `还剩 ${days} 天`;
+    if (days < 0) return `${t("todo.overdue")} ${Math.abs(days)} ${t("todo.dayUnit")}`;
+    if (days === 0) return t("todo.dueToday");
+    if (days === 1) return t("todo.dueTomorrow");
+    return `${t("todo.remaining")} ${days} ${t("todo.dayUnit")}`;
   });
 
   const renderTags = (tagVal: string | null) => {
@@ -202,10 +181,10 @@ export const useTodoDomain = (editingTodo: Ref<TodoItem>) => {
     reminderDateDisabled,
     reminderTimeDisabled,
     getPriorityColor,
-    formatDueDate,
     dueDateDays,
     dueDateDaysLabel,
     renderTags,
     tagList,
+    isTypingTarget,
   };
 };

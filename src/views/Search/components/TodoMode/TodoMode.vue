@@ -10,7 +10,7 @@
         type="text"
         size="medium"
         class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
-        :placeholder="isEditing ? '编辑中...' : '输入任务内容，回车创建...'"
+        :placeholder="isEditing ? t('todo.editingPlaceholder') : t('todo.inputPlaceholder')"
         :class="viewState === 'create' ? 'border-b-0! rounded-b-none!' : ''"
         @input="syncCreateState"
       >
@@ -18,11 +18,21 @@
           <n-icon :component="CheckboxOutline" size="22" class="shrink-0 text-blue-600" />
         </template>
         <template v-if="!isEditing" #suffix>
-          <div class="flex items-center gap-1 text-xs text-gray-400">
-            <Kbd>↑↓</Kbd>
-            <span>切换</span>
-            <Kbd>↵</Kbd>
-            <span>完成</span>
+          <div class="shortcut-list">
+            <span class="shortcut-item">
+              <Kbd>Tab</Kbd>
+              <span>{{ t("todo.switchSort") }}</span>
+            </span>
+
+            <span class="shortcut-item">
+              <Kbd>↑↓</Kbd>
+              <span>{{ t("todo.switch") }}</span>
+            </span>
+
+            <span class="shortcut-item">
+              <Kbd>↵</Kbd>
+              <span>{{ t("todo.complete") }}</span>
+            </span>
           </div>
         </template>
       </n-input>
@@ -42,13 +52,13 @@
           >
             <n-icon :component="CheckboxOutline" size="42" />
           </div>
-          <div class="text-xl font-semibold">还没有任何待办事项</div>
-          <div class="mt-2.5 text-sm text-gray-500">在上方输入框中输入任务内容，按回车即可创建</div>
+          <div class="text-xl font-semibold">{{ t("todo.emptyTitle") }}</div>
+          <div class="mt-2.5 text-sm text-gray-500">{{ t("todo.emptyDesc") }}</div>
           <div
             class="inline-flex items-center gap-2 mt-7 px-3.5 py-2 text-gray-700 bg-gray-50 rounded-lg text-sm"
           >
             <n-icon :component="AddOutline" size="18" />
-            快捷键：Enter 创建任务
+            {{ t("todo.emptyHint") }}
           </div>
         </div>
 
@@ -80,14 +90,16 @@
               </button>
             </div>
 
-            <n-select
-              v-model:value="sortType"
-              :options="sortOptions"
-              size="small"
-              :style="{ width: `calc(${sortTypeLabel.length * 2}ch + 38px ) !important` }"
-              class="shrink-0"
-              :consistent-menu-width="false"
-            />
+            <!-- 排序 -->
+            <div class="flex items-center gap-1 shrink-0">
+              <n-select
+                v-model:value="sortType"
+                size="small"
+                :options="sortOptions"
+                :style="{ width: `calc(${sortTypeLabel.length * 2}ch + 38px ) !important` }"
+                :consistent-menu-width="false"
+              />
+            </div>
           </div>
 
           <ul
@@ -109,20 +121,20 @@
                 </div>
                 <div class="flex items-center gap-3 mt-2 text-sm text-gray-400">
                   <span>
-                    按
+                    {{ t("todo.pressEnter") }}
                     <Kbd>Enter</Kbd>
-                    快速创建
+                    {{ t("todo.quickCreate") }}
                   </span>
                   <span>
-                    或
+                    {{ t("todo.or") }}
                     <Kbd>Ctrl + Enter</Kbd>
-                    添加详情
+                    {{ t("todo.addDetail") }}
                   </span>
                 </div>
               </div>
             </li>
 
-            <li
+            <!-- <li
               v-for="(todo, index) in todos"
               :key="todo.id"
               :ref="(el) => (todoItemRefs[index] = el as HTMLElement)"
@@ -189,20 +201,35 @@
                 <Kbd>→</Kbd>
                 <span>详情</span>
               </div>
-            </li>
+            </li> -->
+
+            <TodoItem
+              v-for="(todo, index) in todos"
+              :key="todo.id"
+              :ref="(el) => (todoItemRefs[index] = (el as any)?.$el)"
+              :todo="todo"
+              :selected="selectedTodoIndex === index"
+              :min-height="TODO_ITEM_MIN_HEIGHT"
+              @open="openDetail"
+              @toggle="toggleTodo"
+              @delete="deleteTodoById"
+            />
           </ul>
 
           <div
             class="flex items-center justify-between px-3.5 border-t border-border box-border text-sm text-gray-500"
             :style="{ height: `${STATUS_BAR_HEIGHT}px` }"
           >
-            <span>{{ activeCount }} 个进行中，{{ completedCount }} 个已完成</span>
+            <span
+              >{{ activeCount }} {{ t("todo.activeCount") }}，{{ completedCount }}
+              {{ t("todo.completedCount") }}</span
+            >
             <button
               class="px-2.5 py-1.5 text-sm text-blue-600 bg-transparent border-0 cursor-pointer hover:underline"
               type="button"
               @click="clearCompleted"
             >
-              清除已完成
+              {{ t("todo.clearCompleted") }}
             </button>
           </div>
         </div>
@@ -224,7 +251,7 @@
             >
               <n-icon :component="ArrowBackOutline" size="22" />
             </button>
-            <span>{{ isDetailCreate ? "新建任务" : "任务详情" }}</span>
+            <span>{{ isDetailCreate ? t("todo.newTask") : t("todo.taskDetail") }}</span>
             <n-icon :component="EllipsisHorizontal" size="22" class="ml-auto" />
           </div>
           <!-- {{ editingTodo }} -->
@@ -255,21 +282,22 @@
             <div class="grid grid-cols-[110px_1fr] gap-x-3 gap-y-4 pl-4 border-l-2 border-gray-200">
               <span class="inline-flex items-center gap-2 text-gray-600">
                 <n-icon :component="PricetagOutline" size="18" />
-                优先级
+                {{ t("todo.priority") }}
               </span>
               <PrioritySelector v-model="editingTodo.priority" />
 
               <span class="inline-flex items-center gap-2 text-gray-600">
                 <n-icon :component="TimeOutline" size="18" />
-                截止时间
+                {{ t("todo.dueDate") }}
               </span>
               <div class="flex items-center gap-2">
                 <n-date-picker
                   v-model:value="editingTodo.due_date"
                   clearable
-                  class="w-50!"
+                  class="w-50! todo-date-picker"
                   type="datetime"
                   size="small"
+                  :to="false"
                   :shortcuts="dueDateshortcuts"
                 />
                 <span
@@ -289,15 +317,16 @@
 
               <span class="inline-flex items-center gap-2 text-gray-600">
                 <n-icon :component="NotificationsOutline" size="18" />
-                提醒时间
+                {{ t("todo.reminderTime") }}
               </span>
 
               <n-date-picker
                 v-model:value="editingTodo.reminder_at"
                 clearable
-                class="w-50!"
+                class="w-50! todo-date-picker"
                 type="datetime"
                 size="small"
+                :to="false"
                 :shortcuts="reminderAtshortcuts"
                 :is-date-disabled="reminderDateDisabled"
                 :is-time-disabled="reminderTimeDisabled"
@@ -305,27 +334,29 @@
 
               <span class="inline-flex items-center gap-2 text-gray-600">
                 <n-icon :component="PricetagOutline" size="18" />
-                标签
+                {{ t("todo.tags") }}
               </span>
               <n-dynamic-tags v-model:value="tagList" size="small" type="primary" :max="5" />
 
               <template v-if="editingTodo.created_at">
                 <span class="inline-flex items-center gap-2 text-gray-600">
                   <n-icon :component="TimeOutline" size="18" />
-                  创建时间
+                  {{ t("todo.createdAt") }}
                 </span>
                 <span class="inline-flex items-center text-gray-500">
                   {{ dateTimeFormat(editingTodo.created_at) }}
-                  <b class="ml-3"> 创建于 {{ getFromNow(editingTodo.created_at) }} </b>
+                  <b class="ml-3">
+                    {{ t("todo.createdBy") }} {{ getFromNow(editingTodo.created_at) }}
+                  </b>
                 </span>
               </template>
             </div>
 
-            <label class="block mt-5.5 mb-2 text-gray-700">备注</label>
+            <label class="block mt-5.5 mb-2 text-gray-700">{{ t("todo.note") }}</label>
             <n-input
               v-model:value="editingTodo.note"
               type="textarea"
-              placeholder="添加备注..."
+              :placeholder="t('todo.notePlaceholder')"
               :rows="5"
             />
             <!-- style="border: var(--n-border) !important" -->
@@ -347,13 +378,15 @@
               <template #icon>
                 <n-icon :component="TrashOutline" size="18" />
               </template>
-              删除任务
+              {{ t("todo.deleteTask") }}
             </n-button>
             <div v-else />
             <div class="flex gap-2.5">
-              <n-button quaternary class="!h-9 !px-3.5" @click="backToList"> 取消 </n-button>
+              <n-button quaternary class="!h-9 !px-3.5" @click="backToList">
+                {{ t("todo.cancel") }}
+              </n-button>
               <n-button type="primary" class="!h-9 !px-3.5" @click="saveEditingTodo">
-                {{ isDetailCreate ? "创建" : "保存更改" }}
+                {{ isDetailCreate ? t("todo.create") : t("todo.save") }}
               </n-button>
             </div>
           </div>
@@ -378,15 +411,15 @@ import {
   TrashOutline,
 } from "@vicons/ionicons5";
 import { computed, nextTick, ref, watch } from "vue";
-import { addTodo, clearCompletedTodos, deleteTodo, getTodos, updateTodo } from "@/api";
+import { addTodo, deleteTodo, getTodos, updateTodo, clearCompletedTodos } from "@/api";
 import { SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
-import { getDaysUntil, getFromNow } from "@/utils/date";
+import { getFromNow } from "@/utils/date";
 import { dateTimeFormat } from "@/utils/date";
 import PrioritySelector from "./components/PrioritySelector.vue";
+import TodoItem from "./components/TodoItem.vue";
 import { useTodoDomain } from "./useTodoDomain";
-import type { TodoViewState } from "./index";
 import { useTodoViewState } from "./useTodoViewState";
-
+import { t } from "@/i18n";
 type TodoFilter = "all" | "active" | "completed";
 type TodoSort = "priority" | "createdAt" | "dueDate";
 
@@ -417,13 +450,12 @@ const STATUS_BAR_HEIGHT = 46;
 const DETAIL_HEADER_HEIGHT = 38;
 const EMPTY_ICON_SIZE = 74;
 const TODO_ITEM_MIN_HEIGHT = 74;
-const priorityWeight: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
-const sortOptions = [
-  { label: "按优先级", value: "priority" },
-  { label: "按创建时间", value: "createdAt" },
-  { label: "按截止时间", value: "dueDate" },
-];
+const sortOptions = computed(() => [
+  { label: t("todo.sortPriority"), value: "priority" },
+  { label: t("todo.sortCreatedAt"), value: "createdAt" },
+  { label: t("todo.sortDueDate"), value: "dueDate" },
+]);
 
 const searchWindow = getCurrentWindow();
 const inputRef = useTemplateRef<HTMLInputElement>("todoInputRef");
@@ -431,14 +463,17 @@ const inputValue = ref(props.keyword || "");
 const todos = ref<TodoItem[]>([]);
 const activeFilter = ref<TodoFilter>("all");
 const sortType = ref<TodoSort>("priority");
+const totalCount = ref(0);
+const activeCount = ref(0);
+const completedCount = ref(0);
 const sortTypeLabel = computed(
-  () => sortOptions.find((item) => item.value === sortType.value)!.label,
+  () => sortOptions.value.find((item) => item.value === sortType.value)!.label,
 );
 const editingTodo = ref<TodoItem>({
   id: 0,
   title: "",
   completed: false,
-  priority: "low",
+  priority: 1,
   due_date: null,
   tags: null,
   note: null,
@@ -454,7 +489,8 @@ const {
   dueDateshortcuts,
   reminderAtshortcuts,
   renderTags,
-  formatDueDate,
+
+  isTypingTarget,
   getPriorityColor,
   reminderDateDisabled,
   reminderTimeDisabled,
@@ -489,13 +525,11 @@ const todoItemRefs = ref<HTMLElement[]>([]);
 // });
 
 const chromeHeight = computed(() => props.chromeHeight);
-const hasTodos = computed(() => todos.value.length > 0);
-const activeCount = computed(() => todos.value.filter((item) => !item.completed).length);
-const completedCount = computed(() => todos.value.filter((item) => item.completed).length);
+const hasTodos = computed(() => totalCount.value > 0);
 const filterTabs = computed(() => [
-  { label: "全部", value: "all" as const, count: todos.value.length },
-  { label: "进行中", value: "active" as const, count: activeCount.value },
-  { label: "已完成", value: "completed" as const, count: completedCount.value },
+  { label: t("todo.filterAll"), value: "all" as const, count: totalCount.value },
+  { label: t("todo.filterActive"), value: "active" as const, count: activeCount.value },
+  { label: t("todo.filterCompleted"), value: "completed" as const, count: completedCount.value },
 ]);
 
 const contentHeight = computed(() => {
@@ -534,7 +568,7 @@ function createEmptyTodo(): TodoItem {
     id: 0,
     title: "",
     completed: false,
-    priority: "low",
+    priority: 1,
     due_date: null,
     tags: null,
     note: null,
@@ -546,7 +580,11 @@ function createEmptyTodo(): TodoItem {
 
 async function loadTodos() {
   try {
-    todos.value = await getTodos();
+    const result = await getTodos(sortType.value, activeFilter.value);
+    todos.value = result.todos;
+    totalCount.value = result.total;
+    activeCount.value = result.activeCount;
+    completedCount.value = result.completedCount;
     setViewState(todos.value.length ? "list" : "empty");
   } catch (e) {
     console.error("加载待办事项失败:", e);
@@ -558,6 +596,7 @@ function syncCreateState() {
     setViewState("create");
     return;
   }
+
   setViewState(hasTodos.value ? "list" : "empty");
 }
 
@@ -669,7 +708,7 @@ async function addNewTodo(isFastAdd: boolean = false) {
     if (isFastAdd && !title) return;
 
     let item: NewTodoItem = {
-      priority: "high",
+      priority: 1,
       title: "",
       due_date: null,
       tags: "",
@@ -679,14 +718,13 @@ async function addNewTodo(isFastAdd: boolean = false) {
 
     if (isFastAdd) {
       item.title = title;
-      item.priority = "low";
+      item.priority = 1;
     } else {
       for (const key in editingTodo.value) {
         // @ts-ignore
         if (item[key] !== undefined) item[key] = editingTodo.value[key];
       }
     }
-    console.log("item", { ...item });
     const todo = await addTodo(item);
     todos.value.unshift(todo);
     inputValue.value = "";
@@ -695,13 +733,6 @@ async function addNewTodo(isFastAdd: boolean = false) {
   } catch (e) {
     console.log("e", e);
   }
-}
-
-function isTypingTarget(el: EventTarget | null) {
-  if (!(el instanceof HTMLElement)) return false;
-
-  const tag = el.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || el.isContentEditable;
 }
 
 function handleKeydown(event: KeyboardEvent) {
@@ -720,6 +751,15 @@ function handleKeydown(event: KeyboardEvent) {
       event.preventDefault();
     }
 
+    return;
+  }
+
+  // Tab 切换排序方式
+  if (key === "Tab" && !isDetailState.value) {
+    const currentIndex = sortOptions.value.findIndex((item) => item.value === sortType.value);
+    const nextIndex = (currentIndex + 1) % sortOptions.value.length;
+    sortType.value = sortOptions.value[nextIndex].value as TodoSort;
+    event.preventDefault();
     return;
   }
 
@@ -770,7 +810,7 @@ function handleKeydown(event: KeyboardEvent) {
   }
 
   // 右键进入详情
-  if (key === "ArrowRight" && selectedTodoIndex.value >= 0) {
+  if (isListState.value && key === "ArrowRight" && selectedTodoIndex.value >= 0) {
     const todo = todos.value[selectedTodoIndex.value];
     if (todo) openDetail(todo);
     event.preventDefault();
@@ -788,6 +828,8 @@ function handleKeydown(event: KeyboardEvent) {
 watch(viewState, resizeWindow);
 watch(contentHeight, resizeWindow);
 watch(chromeHeight, resizeWindow);
+watch(sortType, loadTodos);
+watch(activeFilter, loadTodos);
 
 loadTodos();
 onMounted(async () => {
@@ -870,10 +912,11 @@ defineExpose({
 ::v-deep(.n-input__textarea-el) {
   padding: 0 !important;
 }
-</style>
-
-<style>
-.v-binder-follower-content {
-  scale: 0.88;
+.todo-date-picker {
+  ::v-deep(.v-binder-follower-content) {
+    scale: 0.9;
+  }
 }
 </style>
+
+<style></style>
