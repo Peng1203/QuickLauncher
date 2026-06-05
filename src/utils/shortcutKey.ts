@@ -5,10 +5,10 @@ import {
 } from "@tauri-apps/plugin-global-shortcut";
 import { t } from "@/i18n";
 
-const CTRL = "Ctrl";
-const ALT = "Alt";
-const SHIFT = "Shift";
-const WIN = "⌘";
+export const CTRL = "Ctrl";
+export const ALT = "Alt";
+export const SHIFT = "Shift";
+export const WIN = "Super";
 
 // 系统 / 浏览器 / IDE 高频保留快捷键（可持续扩展）
 const SYSTEM_HOTKEYS = new Set([
@@ -32,21 +32,10 @@ const SYSTEM_HOTKEYS = new Set([
   "Ctrl + F",
   "Ctrl + P",
 
-  // Windows 系统
   "Alt + Tab",
   "Alt + F4",
   "Win + D",
   "Win + L",
-
-  // mac（你这里 WIN 实际是 ⌘）
-  "⌘ + Space",
-  "⌘ + Q",
-  "⌘ + W",
-  "⌘ + Tab",
-  "⌘ + C",
-  "⌘ + V",
-  "⌘ + X",
-  "⌘ + Z",
 ]);
 
 /**

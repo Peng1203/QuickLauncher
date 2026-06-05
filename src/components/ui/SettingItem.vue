@@ -3,39 +3,44 @@
   <div>
     <div
       :class="rootClass"
-      class="setting-item flex items-center justify-between gap-2 rounded bg-secondary/50 px-2.5 py-2 transition-colors hover:bg-secondary/80"
+      class="setting-item gap-2 rounded bg-secondary/50 px-2.5 py-2 transition-colors hover:bg-secondary/80"
     >
-      <!-- Left -->
-      <div class="flex items-center gap-2 min-w-0">
-        <div
-          v-if="icon"
-          class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded bg-accent text-muted-foreground"
-        >
-          <Icon :name="icon" :color="iconColor" size="14" />
+      <div class="flex items-center justify-between">
+        <!-- Left -->
+        <div class="flex items-center gap-2 min-w-0">
+          <div
+            v-if="icon"
+            class="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded bg-accent text-muted-foreground"
+          >
+            <Icon :name="icon" :color="iconColor" size="14" />
+          </div>
+
+          <div class="min-w-0">
+            <slot name="title" :handle-toggle="handleToggle">
+              <p
+                class="text-xs font-medium leading-tight text-foreground truncate"
+                :class="props.expandable ? 'cursor-pointer text-[var(--primary)]!' : ''"
+                @click="handleToggle"
+                v-html="title"
+              ></p>
+              <p
+                v-if="description"
+                class="text-[10px] leading-tight text-muted-foreground line-clamp-2"
+              >
+                {{ description }}
+              </p>
+            </slot>
+          </div>
         </div>
 
-        <div class="min-w-0">
-          <slot name="title" :handle-toggle="handleToggle">
-            <p
-              class="text-xs font-medium leading-tight text-foreground truncate"
-              :class="props.expandable ? 'cursor-pointer text-[var(--primary)]!' : ''"
-              @click="handleToggle"
-              v-html="title"
-            ></p>
-            <p
-              v-if="description"
-              class="text-[10px] leading-tight text-muted-foreground line-clamp-2"
-            >
-              {{ description }}
-            </p>
-          </slot>
+        <!-- Right slot -->
+        <div class="flex-shrink-0">
+          <slot></slot>
         </div>
       </div>
 
-      <!-- Right slot -->
-      <div class="flex-shrink-0">
-        <slot></slot>
-      </div>
+      <!-- body slot -->
+      <slot name="body"> </slot>
     </div>
 
     <!-- Expand content -->

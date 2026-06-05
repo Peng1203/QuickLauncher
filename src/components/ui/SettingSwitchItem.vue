@@ -5,6 +5,9 @@
     <template #expand>
       <slot name="expand"></slot>
     </template>
+    <template #body>
+      <slot name="body"></slot>
+    </template>
 
     <n-switch v-model:value="modelValue" size="small" />
   </SettingItem>

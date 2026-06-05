@@ -35,7 +35,7 @@ const props = withDefaults(
   },
 );
 
-const emits = defineEmits(["change"]);
+const emit = defineEmits(["change"]);
 
 const model = defineModel<string>();
 
@@ -65,6 +65,6 @@ const containerClass = computed(() => {
 
 function handleChange(value: string) {
   model.value = value;
-  emits("change", value);
+  emit("change", value);
 }
 </script>
