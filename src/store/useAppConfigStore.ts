@@ -6,6 +6,7 @@ import {
   SEARCH_RESULT_ITEM_HEIGHT,
   SEARCH_WINDOW_MAX_HEIGHT,
   SEARCH_WINDOW_WIDTH,
+  SEARCH_MODEL,
 } from "@/constant";
 
 export const useAppConfigStore = defineStore(
@@ -43,16 +44,27 @@ export const useAppConfigStore = defineStore(
 
       language: "zh-CN",
 
+      showSearchModeTabs: false,
+      showModes: [
+        SEARCH_MODEL.DEFAULT_MODEL,
+        SEARCH_MODEL.TODO_MODEL,
+        SEARCH_MODEL.TRANSLATION_MODEL,
+        SEARCH_MODEL.WEB_SEARCH_MODEL,
+      ],
+      defaultMode: SEARCH_MODEL.DEFAULT_MODEL,
+      switchModeShortcutKey: "Shift + Tab",
       enableSearch: true,
       searchLostFocusHide: false,
       searchHideAfterOpen: true,
       doNotDisturbMode: true,
       searchOpenOnMouseDisplay: true,
-      showSearchModeTabs: false,
+
+      enableDefaultSearch: true,
 
       enableWebSearch: true,
       webSearchOpenModel: 0,
       webSearchSourceList: [],
+      webSearchDefaultSourceId: null,
 
       enableHistory: true,
       showHistory: false,

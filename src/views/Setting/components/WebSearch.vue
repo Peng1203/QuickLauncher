@@ -37,6 +37,14 @@
     </SettingGroup>
 
     <SettingGroup :title="t('webSearch.groupSource')">
+      <SettingSelectItem
+        v-model:value="appConfigStore.webSearchDefaultSourceId"
+        :options="defaultSourceOptions"
+        :title="t('webSearch.defaultSource')"
+        :description="t('webSearch.defaultWebSourceDesc')"
+        :placeholder="t('webSearch.defaultSourcePlaceholder')"
+      />
+
       <n-data-table
         size="small"
         max-height="160"
@@ -148,6 +156,13 @@ const options = computed<OptionItem[]>(() => [
   { label: t('webSearch.close'), value: WebSearchOpenModel.CLOSE },
 ]);
 
+const defaultSourceOptions = computed(() =>
+  webSearchSourceList.value.map((item) => ({
+    label: item.name,
+    value: item.id,
+  })),
+);
+
 const columns = computed(() => [
   {
     title: t('common.icon'),
@@ -242,10 +257,17 @@ function handleSaveAdd() {
   const exists = webSearchSourceList.value.some(item => item.keywords === sourceForm.value.keywords);
 
   if (exists) return message.warning(t('webSearch.duplicateKeyword'));
+
+  const newId = Date.now();
   webSearchSourceList.value.push({
     ...sourceForm.value,
-    id: Date.now(),
+    id: newId,
   });
+
+  // 如果是第一个搜索源，设为默认
+  if (webSearchSourceList.value.length === 1) {
+    appConfigStore.webSearchDefaultSourceId = newId;
+  }
 
   handleCancel();
 }
@@ -262,12 +284,19 @@ function handleDel() {
   if (index === -1) return;
   webSearchSourceList.value.splice(index, 1);
 
+  // 如果删除的是默认搜索引擎，或列表为空，清空默认值
+  if (appConfigStore.webSearchDefaultSourceId === sourceForm.value.id || webSearchSourceList.value.length === 0) {
+    appConfigStore.webSearchDefaultSourceId = null;
+  }
+
   handleCancel();
 }
 
 function handleResetWebSource() {
   handleCancel();
   webSearchSourceList.value = JSON.parse(JSON.stringify(BASE_SOURCE));
+  // 重置后设第一个为默认
+  appConfigStore.webSearchDefaultSourceId = webSearchSourceList.value[0]?.id ?? null;
 }
 
 function formInit() {

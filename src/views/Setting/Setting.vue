@@ -56,6 +56,7 @@ import GeneralPane from "./components/General.vue";
 import PortalPane from "./components/Portal.vue";
 import ProxyPane from "./components/Proxy.vue";
 import QuickSearchPane from "./components/QuickSearch.vue";
+import SearchSettingPane from "./components/SearchSetting.vue";
 import ThemePane from "./components/Theme.vue";
 import Translation from "./components/Translation.vue";
 import WebSearchPane from "./components/WebSearch.vue";
@@ -75,6 +76,12 @@ const settingTabs = computed(() => [
     value: "theme",
     icon: "icon-zhuti_tiaosepan",
     contentComponent: ThemePane,
+  },
+  {
+    label: t("setting.tabSearchSetting"),
+    value: "search_setting",
+    icon: "icon-sousuo",
+    contentComponent: SearchSettingPane,
   },
   {
     label: t("setting.tabQuickSearch"),
@@ -121,7 +128,7 @@ const settingTabs = computed(() => [
   },
 ]);
 
-const activeTab = ref(settingTabs.value[0].value);
+const activeTab = ref(settingTabs.value[2].value);
 // const activeTab = ref(settingTabs[8].value);
 
 const handleTypeChange = (val: string) => (activeTab.value = val);
