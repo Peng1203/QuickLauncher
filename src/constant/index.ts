@@ -170,3 +170,33 @@ export enum AutocompleteMatchMode {
 }
 
 export const ACTIVE_CATEGORY_LOCAL_KEY = "active_category";
+
+export const SEARCH_MODEL = {
+  DEFAULT_MODEL: 0,
+  WEB_SEARCH_MODEL: 1,
+  TRANSLATION_MODEL: 2,
+  TODO_MODEL: 3,
+} as const;
+
+export const MODE_TABS: SearchModeItem[] = [
+  {
+    label: "搜索",
+    value: SEARCH_MODEL.DEFAULT_MODEL,
+    icon: "icon-icon-sousuofenlei",
+  },
+  {
+    label: "Todo",
+    value: SEARCH_MODEL.TODO_MODEL,
+    icon: "icon-TODO_INFO",
+  },
+  {
+    label: "翻译",
+    value: SEARCH_MODEL.TRANSLATION_MODEL,
+    icon: "icon-fanyi",
+  },
+  {
+    label: "网络搜索",
+    value: SEARCH_MODEL.WEB_SEARCH_MODEL,
+    icon: "icon-wangluosousuo",
+  },
+] as const;

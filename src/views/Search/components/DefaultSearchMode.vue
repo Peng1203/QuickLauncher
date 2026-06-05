@@ -14,74 +14,63 @@
         <template v-if="activeHistory">
           <n-avatar
             v-if="activeHistory.icon"
-            class="!bg-transparent"
+            class="bg-transparent!"
             :size="22"
             :src="activeHistory.icon"
           />
 
-          <n-icon
-            v-else-if="activeHistory.type === 'command'"
+          <Icon
+            v-else-if="activeHistory.type === 'command' || activeHistory.type === 'alias'"
             size="22"
-            class="iconfont icon-minglinghang"
+            name="icon-minglinghang"
           />
         </template>
 
-        <n-icon v-else :component="SearchOutline" size="22" />
+        <Icon v-else name="icon-sousuo" size="22" />
+        <!-- <Icon v-else name="icon-icon-sousuofenlei" size="22" /> -->
+      </template>
+
+      <template #suffix>
+        <div v-if="autocompleteList.length" class="suggestion-con">
+          <span class="suggestion-text">
+            {{ currentAutocompleteSuggestion }}
+          </span>
+
+          <div class="shortcut-list mr-3">
+            <span v-show="autocompleteList.length !== 1" class="shortcut-item">
+              <Kbd>Tab</Kbd>
+              <span class="text-xs ml-1">{{ t("search.switch") }}</span>
+            </span>
+
+            <span v-show="currentAutocompleteSuggestion !== keyword" class="shortcut-item">
+              <Kbd>→</Kbd>
+              <span class="text-xs ml-1">{{ t("search.autocomplete") }}</span>
+            </span>
+
+            <span v-show="resultList.length" class="shortcut-item">
+              <Kbd>Ctrl + W</Kbd>
+              <span class="text-xs ml-1">{{ t("search.closeResults") }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div v-if="appConfigStore.showHistory" v-show="!keyword.length" class="suggestion-con">
+          <span class="suggestion-text"></span>
+
+          <div class="shortcut-list mr-3">
+            <span v-show="activeHistory" class="shortcut-item">
+              <Kbd>↵</Kbd>
+              <span class="text-xs ml-1">{{ t("search.confirm") }}</span>
+            </span>
+
+            <span class="shortcut-item">
+              <Kbd>↑↓</Kbd>
+              <span class="text-xs ml-1">{{ t("search.history") }}</span>
+            </span>
+          </div>
+        </div>
       </template>
     </n-input>
-
-    <div v-if="autocompleteList.length" class="suggestion-con">
-      <span class="suggestion-text">
-        {{ currentAutocompleteSuggestion }}
-      </span>
-
-      <div class="flex items-center gap-5 mr-3">
-        <span v-show="autocompleteList.length !== 1" class="flex items-center select-none">
-          <Kbd>Tab</Kbd>
-          <span class="text-xs ml-1">{{ t("search.switch") }}</span>
-        </span>
-
-        <span
-          v-show="currentAutocompleteSuggestion !== keyword"
-          class="flex items-center select-none"
-        >
-          <Kbd>→</Kbd>
-          <span class="text-xs ml-1">{{ t("search.autocomplete") }}</span>
-        </span>
-
-        <div v-show="resultList.length" class="flex">
-          <span class="flex items-center select-none mr-3">
-            <Kbd>Ctrl + W</Kbd>
-            <!-- <span> + </span>
-            <Kbd>W</Kbd> -->
-            <span class="text-xs ml-1">{{ t("search.closeResults") }}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="appConfigStore.showHistory" v-show="!keyword.length" class="suggestion-con">
-      <span class="suggestion-text"></span>
-
-      <div class="flex gap-5 mr-3">
-        <span v-show="activeHistory" class="flex items-center select-none">
-          <Kbd>Enter</Kbd>
-          <span class="text-xs ml-1">{{ t("search.confirm") }}</span>
-        </span>
-
-        <span class="flex gap-1">
-          <span class="flex items-center select-none">
-            <!-- <Kbd>Up</Kbd> -->
-            <Kbd>↑</Kbd>
-          </span>
-          <span class="flex items-center select-none">
-            <!-- <Kbd>Down</Kbd> -->
-            <Kbd>↓</Kbd>
-            <span class="text-xs ml-1">{{ t("search.history") }}</span>
-          </span>
-        </span>
-      </div>
-    </div>
   </label>
 
   <transition-group
@@ -164,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SearchModelType, SwitchModePayload } from "../searchModes";
+import type { SwitchModePayload } from "../searchModes";
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { SearchOutline } from "@vicons/ionicons5";
 import { nextTick, ref } from "vue";
@@ -192,7 +181,7 @@ import {
 } from "@/constant";
 import { t } from "@/i18n";
 import { EventBus } from "@/utils/eventBus";
-import { SEARCH_MODEL } from "../searchModes";
+import { SEARCH_MODEL } from "@/constant";
 
 const props = withDefaults(
   defineProps<{
@@ -522,11 +511,14 @@ EventBus.listen(AppEvent.INCREASE_PRIORITY, async (item: LaunchItem) => {
   EventBus.emit(AppEvent.UPDATE_LAUNCH_LIST);
 });
 
-function handleBeforeShow() {
+function getHisData() {
   if (appConfigStore.showHistory) {
     getRecentLaunchHistory().then((res) => (historyData.value = res));
   }
 }
+
+getHisData();
+function handleBeforeShow() {}
 
 onMounted(() => {
   nextTick(focus);
@@ -586,10 +578,10 @@ ul:focus-visible {
   width: 100%;
   height: 45px;
   font-size: 20px;
-  opacity: 0.3;
   cursor: text;
 
   .suggestion-text {
+    opacity: 0.3;
     margin-left: 38px;
     width: fit-content;
   }

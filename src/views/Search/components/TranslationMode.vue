@@ -17,21 +17,21 @@
         <!-- color="black" -->
         <n-icon size="22" class="iconfont icon-fanyi" />
       </template>
+
+      <template #suffix>
+        <div class="shortcut-list">
+          <span class="shortcut-item">
+            <Kbd>Tab</Kbd>
+            <span class="text-xs ml-1">{{ t("translation.switchLang") }}</span>
+          </span>
+
+          <span class="shortcut-item">
+            <Kbd>↵</Kbd>
+            <span class="text-xs ml-1">{{ t("translation.copySelected") }}</span>
+          </span>
+        </div>
+      </template>
     </n-input>
-
-    <div class="suggestion-con">
-      <div class="flex items-center gap-5 mr-3">
-        <span class="flex items-center select-none">
-          <Kbd>Tab</Kbd>
-          <span class="text-xs ml-1">{{ t("translation.switchLang") }}</span>
-        </span>
-
-        <span class="flex items-center select-none">
-          <Kbd>↵</Kbd>
-          <span class="text-xs ml-1">{{ t("translation.copySelected") }}</span>
-        </span>
-      </div>
-    </div>
   </label>
   <ul
     v-if="hasResult"
@@ -74,10 +74,9 @@ import {
   SEARCH_WINDOW_WIDTH,
 } from "@/constant";
 import { t } from "@/i18n";
-import { SEARCH_MODEL } from "../searchModes";
 
 const props = defineProps<{ keyword?: string; chromeHeight?: number }>();
-const emits = defineEmits<{
+const emit = defineEmits<{
   closeWindow: [];
   switchMode: [payload: { mode: SearchModelType; keyword?: string; source?: WebSearchSource }];
 }>();
@@ -220,7 +219,7 @@ function handleEnter() {
     writeText(activeRes.value as string);
     handleClose();
     // 通过配置控制 复制成功后是否关闭
-    emits("closeWindow");
+    emit("closeWindow");
   }
 }
 
@@ -311,9 +310,9 @@ function handleKeydown(e: KeyboardEvent) {
       if (isChangeTranslationLanguage.value) {
         handleCloseChangeTranslationLanguage();
       } else {
-        // emits("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
+        // emit("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
         // handleClose();
-        emits("closeWindow");
+        emit("closeWindow");
       }
       break;
     case 38:
@@ -399,28 +398,6 @@ defineExpose({
 
 ul:focus-visible {
   outline: none !important; /* 例如，取消焦点时的轮廓 */
-}
-
-.suggestion-con {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: end;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 45px;
-  font-size: 20px;
-  opacity: 0.3;
-  cursor: text;
-  /* z-index: -1; */
-  .suggestion-text {
-    // position: absolute;
-    // left: 38px;
-    // top: 7px;
-    margin-left: 38px;
-    width: fit-content;
-  }
 }
 </style>
 

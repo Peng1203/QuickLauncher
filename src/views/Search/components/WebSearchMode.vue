@@ -3,12 +3,20 @@
     <n-input
       ref="searchInputRef"
       v-model:value="keyword"
+      :disabled="isEmpty"
       tabindex="-1"
       type="text"
       size="medium"
       class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
-      :class="showDropdown ? 'border-b-0! rounded-b-none!' : ''"
-      :placeholder="selectedSource?.desc || selectedSource?.name || ''"
+      :class="[
+        showDropdown ? 'border-b-0! rounded-b-none!' : '',
+        isEmpty ? ' border-0! rounded-b-none!' : '',
+      ]"
+      :placeholder="
+        isEmpty
+          ? '暂无网络搜索源，请在设置中添加'
+          : selectedSource?.desc || selectedSource?.name || ''
+      "
     >
       <template #prefix>
         <n-avatar
@@ -59,7 +67,6 @@ import { exeCommand } from "@/api";
 import { useAppConfig, useNaiveUiApi } from "@/composables";
 import { SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
 import { t } from "@/i18n";
-import { SEARCH_MODEL } from "../searchModes";
 
 const props = defineProps<{
   keyword?: string;
@@ -77,11 +84,13 @@ const searchWindow = getCurrentWindow();
 const inputRef = useTemplateRef("searchInputRef");
 const keyword = ref(props.keyword || "");
 const itemRefs = ref<HTMLElement[]>([]);
-const selectedIndex = ref(0);
 const chromeHeight = computed(() => props.chromeHeight || 0);
 
 // 搜索引擎列表
 const engineList = computed(() => appConfigStore.webSearchSourceList);
+const isEmpty = computed(() => engineList.value.length === 0);
+
+const selectedIndex = ref(0);
 
 // 当前选中的搜索引擎
 const selectedSource = computed(() => engineList.value[selectedIndex.value]);
@@ -137,7 +146,8 @@ function handleKeydown(e: KeyboardEvent) {
       handleEnter();
       break;
     case 27:
-      emit("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
+      // emit("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
+      emit("closeWindow");
       break;
     case 38:
       if (showDropdown.value) {
@@ -196,6 +206,13 @@ watch(
   },
 );
 
+watch(
+  () => engineList.value,
+  () => {
+    resizeWindow();
+  },
+);
+
 watch(selectedIndex, async (newIndex) => {
   await nextTick();
   itemRefs.value[newIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -223,6 +240,7 @@ defineExpose({
   --n-caret-color: gray !important;
   --n-height: 100% !important;
   --n-font-size: 20px !important;
+  --n-border-disabled: none !important;
 
   border-radius: 5px;
   border: none !important;
