@@ -4,8 +4,8 @@
       <SettingSwitchItem
         v-model="appConfigStore.enableSearch"
         icon="icon-sousuo"
-        title="启用搜索"
-        description="开启后可以使用快捷键快速唤起搜索窗口"
+        :title="t('quickSearch.enableSearch')"
+        :description="t('quickSearch.enableSearchDesc')"
       />
     </SettingGroup>
 
@@ -90,7 +90,9 @@
       >
         <template #body>
           <!-- {{ appConfigStore.showModes }} -->
+          <!-- size="small" -->
           <SearchModeTabs
+            :size="modeTabSizeMap[appConfigStore.language]"
             class="p-1 rounded-lg border mt-2"
             v-model="appConfigStore.showModes"
             type="multiple"
@@ -103,15 +105,15 @@
         v-model="appConfigStore.defaultMode"
         :options="modeOptions"
         icon="icon-buju"
-        title="默认模式"
-        description="呼出搜索窗口默认选中的模式"
+        :title="t('quickSearch.defaultModeTitle')"
+        :description="t('quickSearch.defaultModeDesc')"
       />
 
       <SettingItem
         expandable
         icon="icon-kuaijiejian-"
-        title="快捷键"
-        description="使用快捷键快速切换模式"
+        :title="t('quickSearch.shortcutTitle')"
+        :description="t('quickSearch.shortcutDesc')"
       >
         <ShortcutKeyInput
           v-model="appConfigStore.switchModeShortcutKey"
@@ -148,8 +150,18 @@ const { registerSearchShortcutKey } = useAppConfigActions();
 
 const { appConfigStore } = useAppConfig();
 
+const modeTabSizeMap: Record<LanguageType, "large" | "default" | "small" | "mini"> = {
+  "zh-CN": "default",
+  "zh-HK": "default",
+  en: "mini",
+  ja: "mini",
+};
+
 const modeOptions = computed(() =>
-  MODE_TABS.filter((item) => appConfigStore.showModes.includes(item.value)),
+  MODE_TABS.filter((item) => appConfigStore.showModes.includes(item.value)).map((item) => ({
+    ...item,
+    label: t(`searchSetting.${item.label}` as any),
+  })),
 );
 
 async function registerShortcutKey(key: string) {

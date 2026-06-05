@@ -2,14 +2,14 @@
   <div class="flex-sb-c">
     <button
       v-for="item in props.options"
+      :title="$t(`searchSetting.${item.label}`)"
       :key="item.value"
-      :class="{ active: activeModelValue?.includes(item.value) }"
-      class="search-mode-tab"
+      :class="['search-mode-tab', props.size, { active: activeModelValue?.includes(item.value) }]"
       type="button"
       @click="handleSwitchMode(item.value)"
     >
       <Icon :name="item.icon" />
-      <span>{{ item.label }}</span>
+      <span>{{ $t(`searchSetting.${item.label}`) }}</span>
     </button>
   </div>
 </template>
@@ -20,11 +20,13 @@ import { MODE_TABS } from "@/constant";
 
 interface Props {
   type?: "single" | "multiple";
+  size?: "large" | "default" | "small" | "mini";
   options?: SearchModeItem[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: "single",
+  size: "default",
   options: () => MODE_TABS,
 });
 
@@ -73,16 +75,6 @@ function emitChange() {
 </script>
 
 <style scoped lang="scss">
-.search-mode-tabs {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  height: 44px;
-  padding: 6px 14px;
-  border-bottom: 1px solid var(--border);
-  box-sizing: border-box;
-}
-
 .search-mode-tab {
   display: inline-flex;
   align-items: center;
@@ -93,6 +85,7 @@ function emitChange() {
   border-radius: 8px;
   color: var(--foreground);
   background: transparent;
+  word-wrap: normal;
   font-size: 15px;
   cursor: pointer;
 }
@@ -113,5 +106,34 @@ function emitChange() {
   background: var(--hover-color);
 
   filter: grayscale(0.3);
+}
+
+/* default */
+.search-mode-tab.default {
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 15px !important;
+}
+
+/* small */
+.search-mode-tab.small {
+  height: 28px !important;
+  padding: 0 10px !important;
+  font-size: 13px !important;
+}
+
+/* large */
+.search-mode-tab.large {
+  height: 38px !important;
+  padding: 0 14px !important;
+  font-size: 16px !important;
+}
+
+/* mini */
+.search-mode-tab.mini {
+  height: 24px;
+  padding: 0 8px;
+  font-size: 12px;
+  gap: 4px;
 }
 </style>
