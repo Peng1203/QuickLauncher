@@ -88,42 +88,13 @@
               class="iconfont icon-zuijinshiyong cursor-pointer"
             />
 
-            <b>{{
-              activeLaunchItem.last_used_at ? getFromNow(activeLaunchItem.last_used_at) : "--"
-            }}</b>
+            <b>
+              {{ activeLaunchItem.last_used_at ? getFromNow(activeLaunchItem.last_used_at) : "--" }}
+            </b>
           </span>
         </div>
       </div>
     </div>
-
-    <!-- <div class="flex-23">
-      <div
-        v-if="Object.keys(activeLaunchItem || {}).length"
-        class="flex-sb-c flex-nowrap"
-      >
-        <template v-if="activeLaunchItem">
-          <span>
-            已选中:
-            <b>{{ activeLaunchItem.name }}</b>
-          </span>
-
-          <span>
-            类型:
-            <b>{{ activeLaunchItem.type }}</b>
-          </span>
-
-          <span>
-            启动次数:
-            <b>{{ activeLaunchItem.launch_count }}</b>
-          </span>
-
-          <span>
-            上次启动:
-            <b>{{ activeLaunchItem.last_used_at ? dayjs(activeLaunchItem.last_used_at) : '--' }}</b>
-          </span>
-        </template>
-      </div>
-    </div> -->
 
     <!-- 其他 -->
     <div class="flex-sb-c flex-13">
@@ -151,17 +122,9 @@
       <!-- 排序方式 -->
       <n-icon
         size="16"
-        :title="
-          activeCategoryItem?.sort_order === 'asc' ? t('common.ascending') : t('common.descending')
-        "
-        :class="`iconfont ${activeCategoryItem?.sort_order === 'asc' ? 'icon-shengxu' : 'icon-jiangxu'} cursor-pointer`"
-        @click="
-          handleLayoutOrderSortChange(
-            activeCategoryItem?.sort_order === 'asc' ? 'desc' : 'asc',
-            'sort_order',
-            true,
-          )
-        "
+        :title="sortOrderInfo.title"
+        :class="`iconfont ${sortOrderInfo.icon} cursor-pointer`"
+        @click="handleToggleSortOrder"
       />
 
       <!-- 内置快捷键 -->
@@ -265,6 +228,11 @@ const { version, fetchVersion } = useAppVersion();
 
 const sortInfo = computed(() => {
   switch (activeCategoryItem.value?.sort_by) {
+    case "default":
+      return {
+        title: t("common.default"),
+        icon: "icon-moren1",
+      };
     case "name":
       return {
         title: t("common.name"),
@@ -285,24 +253,53 @@ const sortInfo = computed(() => {
         title: t("common.searchPriority"),
         icon: "icon-youxianji",
       };
+    case "launch_count":
+      return {
+        title: t("common.launch_count"),
+        icon: "icon-qidongcishu",
+      };
 
     default:
       return {
-        title: t("common.name"),
-        icon: "icon-mingchengpaixu",
+        title: t("common.default"),
+        icon: "icon-moren1",
       };
   }
 });
 
 function handleToggleSortBy() {
   const { sort_by } = activeCategoryItem.value;
-  const sort_by_arr: SortByType[] = ["name", "type", "time", "order"];
+  const sort_by_arr: SortByType[] = ["default", "name", "type", "time", "order", "launch_count"];
 
   const currentIndex = sort_by_arr.indexOf(sort_by);
   const nextIndex = (currentIndex + 1) % sort_by_arr.length;
 
   const nextSortBy = sort_by_arr[nextIndex];
   handleLayoutOrderSortChange(nextSortBy, "sort_by", true);
+}
+
+const sortOrderInfo = computed(() => {
+  switch (activeCategoryItem.value?.sort_order) {
+    case "default":
+      return { title: t("common.default"), icon: "icon-paixu" };
+    case "asc":
+      return { title: t("common.ascending"), icon: "icon-shengxu2" };
+    case "desc":
+      return { title: t("common.descending"), icon: "icon-jiangxu2" };
+    default:
+      return { title: t("common.default"), icon: "icon-paixu" };
+  }
+});
+
+function handleToggleSortOrder() {
+  const { sort_order } = activeCategoryItem.value;
+  const sort_order_arr: SortOrderType[] = ["default", "asc", "desc"];
+
+  const currentIndex = sort_order_arr.indexOf(sort_order);
+  const nextIndex = (currentIndex + 1) % sort_order_arr.length;
+
+  const nextSortOrder = sort_order_arr[nextIndex];
+  handleLayoutOrderSortChange(nextSortOrder, "sort_order", true);
 }
 
 EventBus.listen(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, (id: number) => {
