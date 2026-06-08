@@ -276,11 +276,21 @@ async function main() {
 
     if (shouldCommit) {
       // git commit
-      spawnSync("git", ["add", "package.json", "src-tauri/Cargo.toml", "src-tauri/Cargo.lock"], {
-        cwd: ROOT_DIR,
-        shell: true,
-        stdio: "inherit",
-      });
+      spawnSync(
+        "git",
+        [
+          "add",
+          "package.json",
+          "src-tauri/Cargo.toml",
+          "src-tauri/Cargo.lock",
+          "src-tauri/tauri.conf.json",
+        ],
+        {
+          cwd: ROOT_DIR,
+          shell: true,
+          stdio: "inherit",
+        },
+      );
       spawnSync("git", ["commit", "-m", `chore: release version ${newVersion}`], {
         cwd: ROOT_DIR,
         shell: true,
