@@ -233,6 +233,54 @@
 
 ---
 
+## 2026-06-08（菜单复用 / 浏览器配置）
+
+### 排序菜单代码复用
+
+- 提取 `useLayoutOrderMenu` composable
+- `CategoryItemContextMenu` 和 `ListContextMenu` 共享菜单数据源
+- 支持配置项：`showDefault`、`showLaunchCount`
+- `handleLayoutOrderSelect` 统一处理菜单选择事件
+
+### 底部栏排序同步
+
+- Footer 排序选项与右键菜单保持一致
+- 新增 `default` 和 `launch_count` 排序方式
+- 排序方向新增 `default` 选项
+
+### 浏览器配置
+
+- `WebSearchSource` 新增 `browser` 字段
+- `BrowserPicker` 改用 `appConfigStore.browserOptions` 全局配置
+- 网络搜索源编辑表单新增浏览器选择
+- 传送门设置新增浏览器选择配置
+
+---
+
+## 2026-06-06（i18n 补全 / 组件适配）
+
+### 国际化
+
+- TodoMode 全面 i18n（占位符、快捷键提示、筛选/排序标签、详情页字段、按钮）
+- SearchModeTabs 尺寸适配与搜索设置国际化
+- 补全多语言翻译与配置更新
+
+### 组件重构
+
+- TodoItem 组件抽离
+- TodoMode 日期工具多语言支持
+
+---
+
+## 2026-06-05（搜索模式架构）
+
+### SearchModeTabs 组件抽离
+
+- 从 Search.vue 抽离独立组件
+- 支持模式切换 Tab 栏
+
+---
+
 ## 2026-06-02（工程化 / Lint 重构）
 
 ### ESLint 配置迁移
