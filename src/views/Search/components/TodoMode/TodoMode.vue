@@ -358,7 +358,6 @@ import { useTodoDomain } from "./useTodoDomain";
 import { useTodoViewState } from "./useTodoViewState";
 import { t } from "@/i18n";
 import { useStorage } from "@vueuse/core";
-type TodoFilter = "all" | "active" | "completed";
 type TodoSort = "priority" | "createdAt" | "dueDate";
 
 const props = withDefaults(

@@ -155,7 +155,6 @@
 <script setup lang="ts">
 import type { SwitchModePayload } from "../searchModes";
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
-import { SearchOutline } from "@vicons/ionicons5";
 import { nextTick, ref } from "vue";
 import {
   addLaunchHistory,
