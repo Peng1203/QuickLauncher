@@ -13,7 +13,7 @@
 
 <script setup lang="tsx">
 import { storeToRefs } from 'pinia';
-import { useCategorySort } from '@/composables';
+import { useLayoutOrderMenu } from '@/composables';
 import { AppEvent } from '@/constant';
 import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
@@ -30,14 +30,12 @@ const visible = defineModel<boolean>();
 
 const store = useStore();
 const { activeCategoryItem } = storeToRefs(store);
-const { handleLayoutOrderSortChange } = useCategorySort(activeCategoryItem);
+const { layoutMenu, orderMenu, handleLayoutOrderSelect } = useLayoutOrderMenu(activeCategoryItem, {
+  showLaunchCount: false,
+});
 
 function handleClose() {
   visible.value = false;
-}
-
-function renderIcon(icon: string) {
-  return () => h(<i class={`iconfont ${icon}`} />);
 }
 
 // 默认菜单项
@@ -47,99 +45,8 @@ const menuOptions = computed(() => [
     key: 'add',
     icon: () => h(<i class="iconfont icon-xinjian" />),
   },
-  {
-    label: t('common.layout'),
-    key: 'layout',
-    icon: renderIcon('icon-buju'),
-    children: [
-      {
-        label: activeCategoryItem.value?.layout === 'grid' ? `${t('common.tile')} (✅)` : t('common.tile'),
-        key: 'layout-grid',
-        props: {
-          style: activeCategoryItem.value?.layout === 'grid' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-24gl-appsSmall'),
-      },
-      {
-        label: activeCategoryItem.value?.layout === 'list' ? `${t('common.list')} (✅)` : t('common.list'),
-        key: 'layout-list',
-        props: {
-          style: activeCategoryItem.value?.layout === 'list' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-liebiao'),
-      },
-    ],
-  },
-  {
-    label: t('common.sortOrder'),
-    key: 'order',
-    icon: renderIcon('icon-paixufangshi'),
-    children: [
-      {
-        label: activeCategoryItem.value?.sort_by === 'name' ? `${t('common.name')} (✅)` : t('common.name'),
-        key: 'order-name',
-        props: {
-          style: activeCategoryItem.value?.sort_by === 'name' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-mingchengpaixu'),
-      },
-      {
-        label: activeCategoryItem.value?.sort_by === 'type' ? `${t('common.type')} (✅)` : t('common.type'),
-        key: 'order-type',
-        props: {
-          style: activeCategoryItem.value?.sort_by === 'type' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-anleixingpaixu'),
-      },
-      {
-        label: activeCategoryItem.value?.sort_by === 'time' ? `${t('common.date')} (✅)` : t('common.date'),
-        key: 'order-time',
-        props: {
-          style: activeCategoryItem.value?.sort_by === 'time' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-anchuangjianshijianpaixu'),
-      },
-      {
-        label:
-          activeCategoryItem.value?.sort_by === 'order'
-            ? `${t('common.searchPriority')} (✅)`
-            : t('common.searchPriority'),
-        key: 'order-index',
-        props: {
-          style: activeCategoryItem.value?.sort_by === 'order' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-youxianji'),
-      },
-      // {
-      //   label: props.item?.layout === 'list' ? '大小 (✅)' : '大小',
-      //   key: 'layout-list',
-      //   icon: renderIcon('icon-liebiao'),
-      // },
-      {
-        type: 'divider',
-        key: 'd3',
-      },
-      {
-        label: activeCategoryItem.value?.sort_order === 'asc' ? `${t('common.ascending')} (✅)` : t('common.ascending'),
-        key: 'sort-asc',
-        props: {
-          style:
-            activeCategoryItem.value?.sort_order === 'asc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-shengxu'),
-      },
-      {
-        label:
-          activeCategoryItem.value?.sort_order === 'desc' ? `${t('common.descending')} (✅)` : t('common.descending'),
-        key: 'sort-desc',
-        props: {
-          style:
-            activeCategoryItem.value?.sort_order === 'desc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-jiangxu'),
-      },
-    ],
-  },
+  layoutMenu.value,
+  orderMenu.value,
 ]);
 
 async function handleSelect(key: string) {
@@ -147,29 +54,8 @@ async function handleSelect(key: string) {
     case 'add':
       EventBus.emit(AppEvent.OPEN_OPERATION_LAUNCH);
       break;
-    case 'layout-grid':
-      await handleLayoutOrderSortChange('grid', 'layout');
-      break;
-    case 'layout-list':
-      await handleLayoutOrderSortChange('list', 'layout');
-      break;
-    case 'order-name':
-      await handleLayoutOrderSortChange('name', 'sort_by', true);
-      break;
-    case 'order-type':
-      await handleLayoutOrderSortChange('type', 'sort_by', true);
-      break;
-    case 'order-time':
-      await handleLayoutOrderSortChange('time', 'sort_by', true);
-      break;
-    case 'order-index':
-      await handleLayoutOrderSortChange('order', 'sort_by', true);
-      break;
-    case 'sort-asc':
-      await handleLayoutOrderSortChange('asc', 'sort_order', true);
-      break;
-    case 'sort-desc':
-      await handleLayoutOrderSortChange('desc', 'sort_order', true);
+    default:
+      handleLayoutOrderSelect(key);
       break;
   }
 

@@ -4,6 +4,7 @@ export * from "./useAppVersion";
 export * from "./useCategoryCorrelationDir";
 export * from "./useCategorySort";
 export * from "./useEsc";
+export * from "./useLayoutOrderMenu";
 export * from "./useFormState";
 export * from "./useLaunchActive";
 export * from "./useLoadConfig";

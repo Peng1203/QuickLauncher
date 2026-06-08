@@ -24,7 +24,7 @@ import {
   updateCategoryAssDir,
   updateLaunchEnabledByCategory,
 } from '@/api';
-import { useCategoryCorrelationDir, useCategorySort, useNaiveUiApi } from '@/composables';
+import { useCategoryCorrelationDir, useLayoutOrderMenu, useNaiveUiApi } from '@/composables';
 import { AppEvent } from '@/constant';
 import { t } from '@/i18n';
 import { useStore } from '@/store/useStore';
@@ -42,7 +42,8 @@ const { dialog } = useNaiveUiApi();
 
 const { handleCreateLaunchFromCategoryDir, registerAllCategoryDirWatch, removeCategoryDirWatch } =
   useCategoryCorrelationDir();
-const { handleLayoutOrderSortChange } = useCategorySort(toRefs(props).item);
+const itemRef = toRefs(props).item;
+const { layoutMenu, orderMenu, handleLayoutOrderSelect } = useLayoutOrderMenu(itemRef);
 
 const { activeCategoryItem, defaultCategory } = storeToRefs(store);
 
@@ -69,25 +70,45 @@ function CancelWaring() {
   );
 }
 
+function renderLabel(prop: keyof CategoryItem, label: string, value?: string) {
+  if(value) return props.item?.[prop] === value ? `${label} (✅)` : label;
+  return props.item?.[prop] ? `${label} (✅)` : label;
+}
+
+function renderMenuProps(prop: keyof CategoryItem, value?: string) {
+  if (!value) {
+    return {
+      class: props.item?.[prop] ? 'font-bold text-[var(--n-color-danger)]' : '',
+    }
+  }
+  return {
+    class: props.item?.[prop] === value ? 'font-bold text-[var(--n-color-danger)]' : '',
+  }
+}
+
+
 // 默认菜单项
 const menuOptions = computed(() => [
   {
     // TODO
-    label: props.item?.exclude ? `${t('common.searchExclude')} (✅)` : t('common.searchExclude'),
+    // label: props.item?.exclude ? `${t('common.searchExclude')} (✅)` : t('common.searchExclude'),
+    label: renderLabel('exclude', t('common.searchExclude')),
     key: 'exclude',
     icon: renderIcon('icon-paichusousuo'),
     show: isDefaultCategory.value,
     props: {
-      style: props.item?.exclude ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+      style: renderMenuProps('exclude'),
     },
   },
   {
-    label: isAssociationDirectory.value ? `${t('common.associateDir')} (✅)` : t('common.associateDir'),
+    // label: isAssociationDirectory.value ? `${t('common.associateDir')} (✅)` : t('common.associateDir'),
+    label: renderLabel('association_directory', t('common.associateDir')),
     key: 'correlation',
     icon: renderIcon('icon-guanlian'),
     show: isDefaultCategory.value,
     props: {
-      style: isAssociationDirectory.value ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+      // style: isAssociationDirectory.value ? 'color: var(--n-color-danger);font-weight: bold;' : '',
+      style: renderMenuProps('association_directory'),
     },
   },
   {
@@ -133,93 +154,8 @@ const menuOptions = computed(() => [
     type: 'divider',
     key: 'd2',
   },
-  {
-    label: t('common.layout'),
-    key: 'layout',
-    icon: renderIcon('icon-buju'),
-    children: [
-      {
-        label: props.item?.layout === 'grid' ? `${t('common.tile')} (✅)` : t('common.tile'),
-        key: 'layout-grid',
-        props: {
-          style: props.item?.layout === 'grid' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-24gl-appsSmall'),
-      },
-      {
-        label: props.item?.layout === 'list' ? `${t('common.list')} (✅)` : t('common.list'),
-        key: 'layout-list',
-        props: {
-          style: props.item?.layout === 'list' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-liebiao'),
-      },
-    ],
-  },
-  {
-    label: t('common.sortOrder'),
-    key: 'order',
-    icon: renderIcon('icon-paixufangshi'),
-    children: [
-      {
-        label: props.item?.sort_by === 'name' ? `${t('common.name')} (✅)` : t('common.name'),
-        key: 'order-name',
-        props: {
-          style: props.item?.sort_by === 'name' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-mingchengpaixu'),
-      },
-      {
-        label: props.item?.sort_by === 'type' ? `${t('common.type')} (✅)` : t('common.type'),
-        key: 'order-type',
-        props: {
-          style: props.item?.sort_by === 'type' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-anleixingpaixu'),
-      },
-      {
-        label: props.item?.sort_by === 'time' ? `${t('common.date')} (✅)` : t('common.date'),
-        key: 'order-time',
-        props: {
-          style: props.item?.sort_by === 'time' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-anchuangjianshijianpaixu'),
-      },
-      {
-        label: props.item?.sort_by === 'order' ? `${t('common.searchPriority')} (✅)` : t('common.searchPriority'),
-        key: 'order-index',
-        props: {
-          style: props.item?.sort_by === 'order' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-youxianji'),
-      },
-      // {
-      //   label: props.item?.layout === 'list' ? '大小 (✅)' : '大小',
-      //   key: 'layout-list',
-      //   icon: renderIcon('icon-liebiao'),
-      // },
-      {
-        type: 'divider',
-        key: 'd3',
-      },
-      {
-        label: props.item?.sort_order === 'asc' ? `${t('common.ascending')} (✅)` : t('common.ascending'),
-        key: 'sort-asc',
-        props: {
-          style: props.item?.sort_order === 'asc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-shengxu'),
-      },
-      {
-        label: props.item?.sort_order === 'desc' ? `${t('common.descending')} (✅)` : t('common.descending'),
-        key: 'sort-desc',
-        props: {
-          style: props.item?.sort_order === 'desc' ? 'color: var(--n-color-danger);font-weight: bold;' : '',
-        },
-        icon: renderIcon('icon-jiangxu'),
-      },
-    ],
-  },
+  layoutMenu.value,
+  orderMenu.value,
 ]);
 
 async function handleAssDir() {
@@ -302,31 +238,8 @@ async function handleSelect(key: string) {
     case 'delete':
       await handleDelete();
       break;
-    case 'layout-grid':
-      await handleLayoutOrderSortChange('grid', 'layout');
-      break;
-    case 'layout-list':
-      await handleLayoutOrderSortChange('list', 'layout');
-      break;
-    case 'order-name':
-      await handleLayoutOrderSortChange('name', 'sort_by', true);
-      break;
-    case 'order-type':
-      await handleLayoutOrderSortChange('type', 'sort_by', true);
-      break;
-    case 'order-time':
-      await handleLayoutOrderSortChange('time', 'sort_by', true);
-      break;
-    case 'order-index':
-      await handleLayoutOrderSortChange('order', 'sort_by', true);
-      break;
-    case 'sort-asc':
-      await handleLayoutOrderSortChange('asc', 'sort_order', true);
-      break;
-    case 'sort-desc':
-      await handleLayoutOrderSortChange('desc', 'sort_order', true);
-      break;
     default:
+      if (handleLayoutOrderSelect(key)) break;
       break;
   }
   handleClose();
