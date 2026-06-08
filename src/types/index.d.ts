@@ -170,6 +170,9 @@ declare global {
     portalOpenShortcutKey: string;
     portalOpenDirInManagerShortcutKey: string;
     portalOpenDirInTerminalShortcutKey: string;
+    portalBrowser: string;
+
+    browserOptions: OptionItem[];
 
     /** 外观模式 light | dark | system */
     themeModel: ThemeModel;
@@ -209,9 +212,9 @@ declare global {
 
   type LayoutType = "list" | "grid";
 
-  type SortByType = "name" | "type" | "time" | "order";
+  type SortByType = "default" | "name" | "type" | "time" | "order" | "launch_count";
 
-  type SortOrderType = "asc" | "desc";
+  type SortOrderType = "default" | "asc" | "desc";
   interface CategoryItem {
     id: number;
     name: string;
@@ -239,6 +242,7 @@ declare global {
     suggestion?: any;
     suggestionApi?: string;
     desc?: string;
+    browser?: string;
   }
 
   interface AutocompleteItem {

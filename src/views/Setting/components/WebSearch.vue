@@ -122,6 +122,16 @@
             <n-input v-model:value="sourceForm.desc" placeholder="" />
           </n-form-item>
 
+          <n-form-item :label="t('common.browser')" class="mt-1">
+            <n-select
+              v-model:value="sourceForm.browser"
+              :options="appConfigStore.browserOptions"
+              size="small"
+              clearable
+              :placeholder="t('common.defaultBrowser')"
+            />
+          </n-form-item>
+
           <div class="mt-3 flex-sb-c">
             <DescText>{{ t("webSearch.dynamicContent") }}</DescText>
 
@@ -210,6 +220,7 @@ function getRowProps(row: WebSearchSource) {
       sourceForm.value.keywords = row.keywords;
       sourceForm.value.desc = row.desc;
       sourceForm.value.searchApi = row.searchApi;
+      sourceForm.value.browser = row.browser || '';
 
       operationFormVisible.value = true;
     },
@@ -309,6 +320,7 @@ function formInit() {
     sourceForm.value.searchApi = '';
     sourceForm.value.suggestion = '';
     sourceForm.value.suggestionApi = '';
+    sourceForm.value.browser = '';
   });
 }
 </script>

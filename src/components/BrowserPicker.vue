@@ -25,11 +25,11 @@
 <script setup lang="tsx">
 import type { DynamicTagsOption } from 'naive-ui';
 import { LogoChrome, LogoEdge, LogoFirefox, RefreshOutline } from '@vicons/ionicons5';
-import { useStorage } from '@vueuse/core';
-import { useNaiveUiApi } from '@/composables';
+import { useAppConfig, useNaiveUiApi } from '@/composables';
 import { t } from '@/i18n';
 
 const { message } = useNaiveUiApi();
+const { appConfigStore } = useAppConfig();
 
 const activeValue = defineModel<string>();
 
@@ -46,13 +46,9 @@ const browserIcons: Record<string, any> = {
   firefox: LogoFirefox,
 };
 
-const LOCAL_BROWSER_KEY = 'local_browser_key';
-
-const baseBrowserOptions = useStorage<OptionItem[]>(LOCAL_BROWSER_KEY, defaultBrowserOptions);
-
 const browserOptions = computed<OptionItem[]>({
-  get: () => baseBrowserOptions.value,
-  set: val => (baseBrowserOptions.value = val.filter(item => item.value !== undefined)),
+  get: () => appConfigStore.browserOptions,
+  set: val => (appConfigStore.browserOptions = val.filter(item => item.value !== undefined)),
 }) as unknown as DynamicTagsOption as any;
 
 function handleRenderBrowserTag(tag: OptionItem, index: number) {
@@ -95,12 +91,12 @@ function handleCreateBrowserOption(newTag: string) {
 
 function handleDeleteBrowserOption(item: OptionItem) {
   if (activeValue.value === item.value) activeValue.value = '';
-  const delIndex = baseBrowserOptions.value.findIndex(tag => tag.value === item.value);
-  baseBrowserOptions.value.splice(delIndex, 1);
+  const delIndex = appConfigStore.browserOptions.findIndex(tag => tag.value === item.value);
+  appConfigStore.browserOptions.splice(delIndex, 1);
 }
 
 function handleSetDefaultBrowserOptions() {
-  baseBrowserOptions.value = [...defaultBrowserOptions];
+  appConfigStore.browserOptions = [...defaultBrowserOptions];
 }
 </script>
 

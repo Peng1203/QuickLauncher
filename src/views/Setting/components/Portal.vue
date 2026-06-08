@@ -106,6 +106,17 @@
       /> -->
     </SettingGroup>
 
+    <SettingGroup :title="t('portal.groupBrowser')">
+      <SettingSelectItem
+        v-model:value="appConfigStore.portalBrowser"
+        icon="icon-liulanqi"
+        :title="t('portal.browserTitle')"
+        :description="t('portal.browserDesc')"
+        :options="appConfigStore.browserOptions"
+        :placeholder="t('common.defaultBrowser')"
+      />
+    </SettingGroup>
+
     <SettingGroup :title="t('portal.groupPosition')" :description="t('portal.positionDesc')">
       <div class="flex gap-5">
         <n-button size="small" type="success" @click="handleSetLocation">

@@ -98,6 +98,14 @@ export const useAppConfigStore = defineStore(
       portalOpenShortcutKey: "Ctrl + Insert",
       portalOpenDirInManagerShortcutKey: "Ctrl + Home",
       portalOpenDirInTerminalShortcutKey: "Ctrl + PageUp",
+      portalBrowser: "",
+
+      browserOptions: [
+        { label: "默认", value: "" },
+        { label: "Chrome", value: "chrome" },
+        { label: "Edge", value: "msedge" },
+        { label: "Firefox", value: "firefox" },
+      ],
 
       themeModel: "system",
       themeColor: "#2080f0",

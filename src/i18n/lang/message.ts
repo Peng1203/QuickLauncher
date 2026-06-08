@@ -10,6 +10,8 @@ export const LANG_INDEX = { "zh-CN": 0, "zh-HK": 1, en: 2, ja: 3 } as const;
 export const messages = {
   // ========== 通用文本 ==========
   common: {
+    default: ["默认", "默認", "Default", "デフォルト"],
+    launch_count: ["启动次数", "起動回数", "Launch Count", "起動回数"],
     confirm: ["确 认", "確 認", "Confirm", "確認"],
     confirmPlain: ["确认", "確認", "Confirm", "確認"],
     cancel: ["取 消", "取 消", "Cancel", "キャンセル"],
@@ -50,6 +52,8 @@ export const messages = {
     layout: ["布局展示", "佈局展示", "Layout", "レイアウト"],
     sort: ["排序", "排序", "Sort", "並べ替え"],
     sortOrder: ["排序方式", "排序方式", "Sort Order", "並べ替え順"],
+    browser: ["浏览器", "瀏覽器", "Browser", "ブラウザ"],
+    defaultBrowser: ["默认浏览器", "預設瀏覽器", "Default Browser", "デフォルトブラウザ"],
     category: ["分类", "分類", "Category", "カテゴリ"],
     subcategory: ["子分类", "子分類", "Subcategory", "サブカテゴリ"],
     searchKeyword: ["搜索关键字", "搜尋關鍵字", "Search Keyword", "検索キーワード"],
@@ -607,6 +611,14 @@ export const messages = {
       "エクスプローラーで開く",
     ],
     openInTerminal: ["终端中打开", "終端機中開啟", "Open in Terminal", "ターミナルで開く"],
+    groupBrowser: ["浏览器设置", "瀏覽器設定", "Browser Settings", "ブラウザ設定"],
+    browserTitle: ["默认浏览器", "預設瀏覽器", "Default Browser", "デフォルトブラウザ"],
+    browserDesc: [
+      "传送门打开链接时使用的浏览器",
+      "傳送門開啟連結時使用的瀏覽器",
+      "Browser used to open links in portal",
+      "ポータルでリンクを開くブラウザ",
+    ],
     groupPosition: ["通知位置", "通知位置", "Position", "表示位置"],
     positionDesc: [
       "选择提示窗口出现的位置，以通知窗口的左上角坐标位置为准",
