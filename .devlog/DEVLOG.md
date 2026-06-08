@@ -1,3 +1,44 @@
+## 2026-06-06（TodoMode 重构 / SearchModeTabs 适配 / i18n 补全）
+
+### TodoMode 组件重构
+
+- `n-icon` 统一替换为自定义 `Icon` 组件
+- 精简模板结构，移除虚拟预览项等冗余代码
+- 清理 `index.ts` 中未使用的导出
+
+### 日期工具多语言
+
+- `dayjs` 新增 zh-hk / en / ja 语言包
+- 新增 `setDayjsLang` / `getDayjsLang` 函数
+- 语言切换时自动同步 `dayjs.locale`
+
+### SearchModeTabs 尺寸适配
+
+- 新增 `size` prop，支持 `large / default / small / mini`
+- `mini` 模式隐藏标签文字，仅显示图标
+- `small` 模式缩小图标与间距
+- 搜索设置页根据语言映射不同尺寸（en/ja → mini）
+
+### 搜索设置国际化
+
+- `SearchSetting.vue` 硬编码中文改为 `t()` 调用
+- 新增 `quickSearch.*` 相关翻译 key
+
+### 全局 i18n 补全（14 个文件）
+
+- 设置页：Setting / CommandAlias / Data / General / Translation / WebSearch
+- 搜索页：Search / WebSearchMode
+- 右键菜单：CategoryItemContextMenu / ListItemContextMenu
+- 新增 39 条翻译 key（`message.ts`）
+
+### 其他
+
+- 图标字体 CSS 更新（`index.html`）
+- 禁用 `vueDevTools`（`vite.config.ts`）
+- `constant/index.ts` 新增搜索相关常量
+
+---
+
 ## 2026-06-02（工程化 / Lint 重构）
 
 ### ESLint Prettier 配置迁移至 Vite+
