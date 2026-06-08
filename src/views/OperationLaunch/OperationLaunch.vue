@@ -857,6 +857,9 @@ useEsc(handleClose);
   background-color: var(--n-color);
 }
 
+::v-deep(.n-card-content) {
+  padding: 0px !important;
+}
 ::v-deep(.n-input-wrapper) {
   resize: none !important;
 }

@@ -105,6 +105,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { useTheme } from "@/composables";
+import { useEventListener } from "@vueuse/core";
 
 // const { themeModel } = useAppConfig();
 const { isDark, setThemeModel, setHTMLThemeClass } = useTheme();
@@ -284,7 +285,7 @@ onMounted(() => {
   };
 
   // 在文档加载完成后执行以下代码
-  document.addEventListener("DOMContentLoaded", () => {
+  useEventListener(document, "DOMContentLoaded", () => {
     const cloudSons = document.querySelectorAll(".cloud-son"); // 选择所有的.cloud-son元素
 
     // 每秒钟执行一次以下代码

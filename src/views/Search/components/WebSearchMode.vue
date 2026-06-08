@@ -175,8 +175,8 @@ async function handleEnter() {
 
     const searchUrl = source.searchApi.replace("{w}", encodeURI(keyword.value));
     if (!searchUrl) return;
-
-    await exeCommand(searchUrl);
+    const openUrl = source.browser ? `${source.browser} ${searchUrl}` : searchUrl;
+    await exeCommand(openUrl);
     emit("closeWindow");
   } catch (e) {
     notification.error({

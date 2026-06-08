@@ -1,11 +1,10 @@
 // useEsc.ts
-import { onMounted, onUnmounted } from "vue";
+import { useEventListener } from "@vueuse/core";
 
 export function useEsc(callback: () => void) {
   const handler = (e: KeyboardEvent) => {
     if (e.key === "Escape") callback();
   };
 
-  onMounted(() => window.addEventListener("keydown", handler));
-  onUnmounted(() => window.removeEventListener("keydown", handler));
+  useEventListener("keydown", handler);
 }

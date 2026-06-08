@@ -48,6 +48,7 @@ export function useCategoryCorrelationDir() {
       const unWatch = await watchDir(
         category.association_directory,
         async (event) => {
+          console.log(`%c event ----`, "color: #fff;background-color: #000;font-size: 18px", event);
           const { paths, type } = event;
           const { create = "", remove = "", modify = "" } = type as any;
 
@@ -211,12 +212,3 @@ export function useCategoryCorrelationDir() {
     checkCategoryDirAndLaunchSync,
   };
 }
-
-// let flag = false;
-// function test() {
-//   flag = true;
-//   watchDir('C:\\Users\\Mayn\\Pictures\\cov\\新建文件夹 (3)', event => {
-//     console.log(`%c event ----`, 'color: #fff;background-color: #000;font-size: 18px', event);
-//   });
-// }
-// test();

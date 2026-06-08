@@ -110,7 +110,7 @@
               <!-- 虚拟预览项 -->
               <li
                 v-if="viewState === 'create'"
-                class="flex items-start gap-3 px-4.5 py-3.5 box-border border-l-4 border-l-blue-400/40 bg-blue-50/20 opacity-50"
+                class="h-20 flex items-start gap-3 px-4.5 py-3.5 box-border border-l-4 border-l-blue-400/40 bg-blue-50/20 opacity-50"
                 :style="{ minHeight: `${TODO_ITEM_MIN_HEIGHT}px` }"
               >
                 <Icon name="icon-add" size="22" color="oklch(70.7% 0.165 254.624)" />
@@ -357,6 +357,7 @@ import TodoItem from "./components/TodoItem.vue";
 import { useTodoDomain } from "./useTodoDomain";
 import { useTodoViewState } from "./useTodoViewState";
 import { t } from "@/i18n";
+import { useStorage } from "@vueuse/core";
 type TodoFilter = "all" | "active" | "completed";
 type TodoSort = "priority" | "createdAt" | "dueDate";
 
@@ -398,8 +399,10 @@ const searchWindow = getCurrentWindow();
 const inputRef = useTemplateRef<HTMLInputElement>("todoInputRef");
 const inputValue = ref(props.keyword || "");
 const todos = ref<TodoItem[]>([]);
-const activeFilter = ref<TodoFilter>("all");
-const sortType = ref<TodoSort>("priority");
+// const activeFilter = ref<TodoFilter>("all");
+const activeFilter = useStorage("todoActiveFilter", "all");
+// const sortType = ref<TodoSort>("priority");
+const sortType = useStorage("todoSortType", "priority");
 const totalCount = ref(0);
 const activeCount = ref(0);
 const completedCount = ref(0);
@@ -602,6 +605,7 @@ async function toggleTodo(id: number) {
     const index = todos.value.findIndex((t) => t.id === id);
     if (index >= 0) {
       todos.value.splice(index, 1, updated);
+      loadTodos();
     }
   } catch (e) {
     console.error("更新待办事项失败:", e);

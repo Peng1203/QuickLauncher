@@ -69,6 +69,7 @@ pub async fn get_launch(
     // }
     if let Some(sort_by) = sort_by {
         let order = match sort_order.as_deref() {
+            Some("asc") => Order::Asc,
             Some("desc") => Order::Desc,
             _ => Order::Asc,
         };
@@ -82,6 +83,7 @@ pub async fn get_launch(
             }
             "time" => query.order_by(Column::CreatedAt, order),
             "order" => query.order_by(Column::OrderIndex, order),
+            "launch_count" => query.order_by(Column::LaunchCount, order),
             _ => query.order_by(Column::Id, order),
         };
     }

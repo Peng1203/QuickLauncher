@@ -6,6 +6,7 @@ import { useStore } from "@/store/useStore";
 import { EventBus } from "@/utils/eventBus";
 import { useLaunchActive } from "./useLaunchActive";
 import { useToggleWindowVisible } from "./useToggleWindowVisible";
+import { useEventListener } from "@vueuse/core";
 
 const EVENT = "keydown";
 export function useMainWindowShortcut() {
@@ -248,6 +249,5 @@ export function useMainWindowShortcut() {
     void EventBus.emit(isEmp ? AppEvent.DELETE_CATEGORY : AppEvent.DELETE_LAUNCH);
   }
 
-  onMounted(() => window.addEventListener(EVENT, handler, true));
-  onUnmounted(() => window.removeEventListener(EVENT, handler));
+  useEventListener(EVENT, handler, true);
 }

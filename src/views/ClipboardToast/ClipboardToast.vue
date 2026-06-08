@@ -257,7 +257,10 @@ async function open() {
   if (currentModel.value === "setLocation") return handleClose();
   if (!content.value) return;
   if (!isDefaultModel.value) return;
-  await exeCommand(content.value);
+  const openUrl = appConfigStore.portalBrowser
+    ? `${appConfigStore.portalBrowser} ${content.value}`
+    : content.value;
+  await exeCommand(openUrl);
   handleClose();
 }
 async function openDirInManager() {

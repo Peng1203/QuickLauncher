@@ -150,8 +150,8 @@ const { form, initForm, setForm } = useFormState<NewCategoryItem>({
   association_directory: "",
   exclude: false,
   layout: "grid",
-  sort_by: "time",
-  sort_order: "asc",
+  sort_by: "default",
+  sort_order: "default",
   order_index: 0,
 });
 

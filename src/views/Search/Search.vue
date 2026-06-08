@@ -47,6 +47,7 @@ import TranslationMode from "./components/TranslationMode.vue";
 import WebSearchMode from "./components/WebSearchMode.vue";
 import { SEARCH_MODE_TABS_HEIGHT } from "./searchModes";
 import { ALT, CTRL, SHIFT, WIN } from "@/utils/shortcutKey";
+import { useEventListener } from "@vueuse/core";
 
 const { appConfigStore } = useAppConfig();
 const searchWindow = getCurrentWindow();
@@ -246,6 +247,8 @@ useAppConfigActions().registerSearchShortcutKey();
 let unlistenFocus: any = null;
 let unlistenShortcut: any = null;
 
+useEventListener("keydown", handleKeydown);
+
 onMounted(async () => {
   // 监听窗口焦点变化
   unlistenFocus = await searchWindow.onFocusChanged(({ payload }) => {
@@ -261,12 +264,9 @@ onMounted(async () => {
     if (windowVisible) handleClose();
     else handleShow();
   });
-
-  window.addEventListener("keydown", handleKeydown);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("keydown", handleKeydown);
   unlistenFocus?.();
   unlistenShortcut?.();
 });
