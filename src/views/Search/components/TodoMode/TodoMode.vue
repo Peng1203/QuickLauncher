@@ -170,7 +170,7 @@
         <!-- 待办项详情 -->
         <div
           v-else-if="isDetailState"
-          class="flex flex-col overflow-hidden bg-[var(--search-bg)]"
+          class="flex flex-col overflow-hidden bg-(--search-bg)"
           :style="{ height: `${TODO_DETAIL_HEIGHT}px` }"
         >
           <div
@@ -258,21 +258,36 @@
                 {{ t("todo.reminderTime") }}
               </span>
 
-              <n-date-picker
-                v-model:value="editingTodo.reminder_at"
-                clearable
-                class="w-50! todo-date-picker"
-                type="datetime"
-                size="small"
-                :to="false"
-                :shortcuts="reminderAtshortcuts"
-                :is-date-disabled="reminderDateDisabled"
-                :is-time-disabled="reminderTimeDisabled"
-              />
+              <div class="flex items-center gap-2">
+                <n-date-picker
+                  v-model:value="editingTodo.reminder_at"
+                  clearable
+                  class="w-50! todo-date-picker"
+                  type="datetime"
+                  size="small"
+                  :to="false"
+                  :shortcuts="reminderAtshortcuts"
+                  :is-date-disabled="reminderDateDisabled"
+                  :is-time-disabled="reminderTimeDisabled"
+                />
+
+                <span
+                  v-if="editingTodo.reminder_at !== null"
+                  class="text-xs"
+                  :class="
+                    editingTodo.reminder_at < 0
+                      ? 'text-red-500'
+                      : editingTodo.reminder_at === 0
+                        ? 'text-amber-500'
+                        : 'text-gray-500'
+                  "
+                >
+                  {{ getFromNow(editingTodo.reminder_at) }}
+                </span>
+              </div>
 
               <span class="inline-flex items-center gap-2 text-gray-600">
                 <Icon name="icon-biaoqian" />
-
                 {{ t("todo.tags") }}
               </span>
               <n-dynamic-tags v-model:value="tagList" size="small" type="primary" :max="5" />
@@ -315,7 +330,7 @@
             </n-button>
             <div v-else />
             <div class="flex gap-2.5">
-              <n-button quaternary class="!h-9 !px-3.5" @click="backToList">
+              <n-button quaternary class="h-9! !px-3.5" @click="backToList">
                 {{ t("todo.cancel") }}
               </n-button>
               <n-button type="primary" class="!h-9 !px-3.5" @click="saveEditingTodo">
@@ -410,10 +425,7 @@ const {
   dueDateDaysLabel,
   dueDateshortcuts,
   reminderAtshortcuts,
-  renderTags,
-
   isTypingTarget,
-  getPriorityColor,
   reminderDateDisabled,
   reminderTimeDisabled,
 } = useTodoDomain(editingTodo);
