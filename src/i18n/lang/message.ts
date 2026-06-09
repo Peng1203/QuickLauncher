@@ -166,6 +166,18 @@ export const messages = {
       "Show confirmation before deleting",
       "削除前に確認ダイアログを表示",
     ],
+    showCategoryIconTitle: [
+      "显示分类图标",
+      "顯示分類圖標",
+      "Show Category Icons",
+      "カテゴリアイコンを表示",
+    ],
+    showCategoryIconDesc: [
+      "在侧边栏分类列表中显示分类图标",
+      "在側邊欄分類列表中顯示分類圖標",
+      "Show category icons in the sidebar",
+      "サイドバーのカテゴリリストにアイコンを表示",
+    ],
   },
 
   // ========== 主题设置 ==========
@@ -1100,6 +1112,11 @@ export const messages = {
     settings: ["设 置", "設 置", "Settings", "設定"],
     restart: ["重 启", "重 啟", "Restart", "再起動"],
     quit: ["退 出", "退 出", "Quit", "終了"],
+    language: ["语 言", "語 言", "Language", "言語"],
+    theme: ["主 题", "主 題", "Theme", "テーマ"],
+    themeLight: ["浅色模式", "淺色模式", "Light Mode", "ライトモード"],
+    themeDark: ["深色模式", "深色模式", "Dark Mode", "ダークモード"],
+    themeSystem: ["跟随系统", "跟隨系統", "System", "システム"],
   },
 
   // ========== 更新相关 ==========
