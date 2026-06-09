@@ -34,7 +34,7 @@
               :src="form.icon || ''"
             />
 
-            <IconPicker v-model="form.icon!" />
+            <IconPicker v-model="form.icon!" ref="iconPickerRef" />
           </n-form-item>
         </n-col>
 
@@ -111,12 +111,7 @@
 import { open } from "@tauri-apps/plugin-dialog";
 import { Close } from "@vicons/ionicons5";
 import { ref } from "vue";
-import {
-  addCategory,
-  getLocalIconBase64,
-  updateCategory,
-  updateLaunchEnabledByCategory,
-} from "@/api";
+import { addCategory, updateCategory, updateLaunchEnabledByCategory } from "@/api";
 import IconPicker from "@/components/IconPicker.vue";
 import {
   useCategoryCorrelationDir,
@@ -161,6 +156,7 @@ async function handleClose() {
   window?.hide();
 }
 
+const iconPickerRef = useTemplateRef("iconPickerRef");
 async function handleSelectDir() {
   const path = await open({
     multiple: false,
@@ -169,9 +165,12 @@ async function handleSelectDir() {
   if (!path) return;
   form.value.association_directory = path;
   const arr = path.split("\\");
-  if (!form.value.name) form.value.name = arr[arr.length - 1];
+  // if (!form.value.name)
+  form.value.name = arr[arr.length - 1];
   // form.value.name || (form.value.name = arr[arr.length - 1]);
-  form.value.icon = await getLocalIconBase64(path);
+  // form.value.icon = await getLocalIconBase64(path);
+  // form.value.icon = await getLocalIconBase64(path);
+  iconPickerRef.value?.handleGetLocalDirIcon(path);
 }
 
 const isEdit = ref<boolean>(false);

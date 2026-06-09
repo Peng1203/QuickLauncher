@@ -4,7 +4,7 @@
       size="tiny"
       type="default"
       :title="t('iconPicker.selectDirIcon')"
-      @click="handleGetLocalDirIcon"
+      @click="() => handleGetLocalDirIcon()"
     >
       <template #icon>
         <n-icon class="iconfont icon-wj-wjj" />
@@ -15,7 +15,7 @@
       size="tiny"
       type="default"
       :title="t('iconPicker.selectFileIcon')"
-      @click="handleGetLocalFileIcon"
+      @click="() => handleGetLocalFileIcon()"
     >
       <template #icon>
         <n-icon class="iconfont icon-wenjian" />
@@ -121,24 +121,28 @@ const { message } = useNaiveUiApi();
 
 const iconValue = defineModel<string>();
 
-async function handleGetLocalFileIcon() {
-  const path = await open({
-    title: t("iconPicker.selectFileIcon"),
-    multiple: false,
-    directory: false,
-  });
+async function handleGetLocalFileIcon(path?: string | null) {
+  path =
+    path ||
+    (await open({
+      title: t("iconPicker.selectFileIcon"),
+      multiple: false,
+      directory: false,
+    }));
   if (!path) return;
   const base64 = await getLocalIconBase64(path);
 
   iconValue.value = base64;
 }
 
-async function handleGetLocalDirIcon() {
-  const path = await open({
-    title: t("iconPicker.selectDirIcon"),
-    multiple: false,
-    directory: true,
-  });
+async function handleGetLocalDirIcon(path?: string | null) {
+  path =
+    path ||
+    (await open({
+      title: t("iconPicker.selectDirIcon"),
+      multiple: false,
+      directory: true,
+    }));
   if (!path) return;
   const base64 = await getLocalIconBase64(path);
 
@@ -189,4 +193,6 @@ async function handleGetSvgBase64() {
 function handleResetIcon() {
   iconValue.value = "";
 }
+
+defineExpose({ handleGetLocalFileIcon, handleGetLocalDirIcon });
 </script>
