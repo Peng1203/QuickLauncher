@@ -75,6 +75,13 @@
 
     <SettingGroup :title="t('general.groupOperation')">
       <SettingSwitchItem
+        v-model="appConfigStore.showCategoryIcon"
+        icon="icon-fenlei"
+        :title="t('general.showCategoryIconTitle')"
+        :description="t('general.showCategoryIconDesc')"
+      />
+
+      <SettingSwitchItem
         v-model="appConfigStore.confirmBeforeDelete"
         icon="icon-shanchu"
         :title="t('general.confirmDeleteTitle')"

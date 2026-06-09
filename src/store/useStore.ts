@@ -36,7 +36,7 @@ export const useStore = defineStore("main", {
 
       // @ts-ignore
       const data = await getLaunchs(...params);
-      this.launchData = data;
+      if (this.activeCategory === id) this.launchData = data;
     },
 
     async getCategoryData(init: boolean = false) {

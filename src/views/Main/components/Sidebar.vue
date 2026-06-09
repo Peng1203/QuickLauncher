@@ -21,15 +21,20 @@
           activeCategory === item.id
             ? 'bg-muted active-category'
             : 'hover:bg-secondary text-foreground',
+          dragOverCategoryId === item.id && 'drag-over',
         ]"
         tabindex="-1"
-        class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden"
+        class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden flex items-center gap-1.5"
         @click="handleChangeCategory(item.id)"
         @contextmenu.prevent.stop="handleShowCategoryItemContextMenu($event, item)"
         @dblclick="handleOpenAssDir(item)"
+        @dragover="handleDragOver($event, item)"
+        @dragleave="handleDragLeave($event, item)"
+        @drop="handleDrop($event, item)"
       >
         <!-- class="px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal" -->
         <!-- :ref="`nameRef${item.id}`" -->
+        <img v-if="appConfigStore.showCategoryIcon && item.icon" class="w-5 h-5" :src="item.icon" />
         <span
           :ref="(el) => (itemRefs[`${item.id}`] = el)"
           :contenteditable="item.id === renameItemId"
@@ -60,10 +65,10 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { nextTick, ref, shallowRef } from "vue";
-import { openPath, updateCategory } from "@/api";
+import { openPath, updateCategory, updateLaunch } from "@/api";
 import CategoryContextMenu from "@/components/CategoryContextMenu.vue";
 import CategoryItemContextMenu from "@/components/CategoryItemContextMenu.vue";
-import { useAppConfig, useCategoryCorrelationDir } from "@/composables";
+import { useAppConfig, useCategoryCorrelationDir, useLaunchDrag } from "@/composables";
 import { AppEvent } from "@/constant";
 import { useStore } from "@/store/useStore";
 import { EventBus } from "@/utils/eventBus";
@@ -72,7 +77,9 @@ const store = useStore();
 const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem, enableWindoShortcuts } =
   storeToRefs(store);
 const { registerAllCategoryDirWatch, checkCategoryDirAndLaunchSync } = useCategoryCorrelationDir();
-const { themeColor } = useAppConfig();
+const { themeColor, appConfigStore } = useAppConfig();
+const { draggedItem } = useLaunchDrag();
+const dragOverCategoryId = ref<number | null>(null);
 
 async function getCategorys() {
   await store.getCategoryData();
@@ -116,6 +123,43 @@ async function handleChangeCategory(id: number) {
   store.launchData = [];
   await store.handleChangeCategory(id);
   checkCategoryDirAndLaunchSync();
+}
+
+// ===== 拖拽到分类 =====
+
+function handleDragOver(e: DragEvent, item: CategoryItem) {
+  // 关联目录分类禁止放置
+  if (item.association_directory) return;
+  // 禁止放置到当前分类自身
+  if (!draggedItem.value || draggedItem.value.category_id === item.id) return;
+  e.preventDefault();
+  e.dataTransfer!.dropEffect = "move";
+  dragOverCategoryId.value = item.id;
+}
+
+function handleDragLeave(e: DragEvent, item: CategoryItem) {
+  if (dragOverCategoryId.value === item.id) {
+    dragOverCategoryId.value = null;
+  }
+}
+
+async function handleDrop(e: DragEvent, item: CategoryItem) {
+  e.preventDefault();
+  dragOverCategoryId.value = null;
+
+  if (!draggedItem.value) return;
+  // 关联目录分类禁止放置
+  if (item.association_directory) return;
+  // 禁止放置到当前分类自身
+  if (draggedItem.value.category_id === item.id) return;
+
+  const targetCategoryId = item.id;
+  const movedItem = { ...draggedItem.value, category_id: targetCategoryId };
+  draggedItem.value = null;
+
+  await updateLaunch(movedItem);
+  // 刷新当前分类列表
+  void store.getLaunchData();
 }
 
 function handleOpenAssDir(item: CategoryItem) {
@@ -273,6 +317,11 @@ EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
 }
 .active-category {
   color: v-bind("themeColor") !important;
+}
+.drag-over {
+  background-color: color-mix(in srgb, v-bind("themeColor") 20%, transparent) !important;
+  outline: 2px dashed v-bind("themeColor");
+  outline-offset: -2px;
 }
 // .editable-active {
 //   animation: editablePulse 0.3s ease-in-out;

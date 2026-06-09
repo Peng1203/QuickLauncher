@@ -7,6 +7,7 @@ export * from "./useEsc";
 export * from "./useLayoutOrderMenu";
 export * from "./useFormState";
 export * from "./useLaunchActive";
+export * from "./useLaunchDrag";
 export * from "./useLoadConfig";
 export * from "./useLoading";
 export * from "./useMainWindowShortcut";

@@ -81,6 +81,7 @@ export const useAppConfigStore = defineStore(
       showCategory: true,
       showSubCategory: true,
 
+      showCategoryIcon: true,
       confirmBeforeDelete: true,
 
       enableCommandAlias: true,

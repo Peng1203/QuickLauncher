@@ -153,6 +153,8 @@ declare global {
     showCategory: boolean;
     showSubCategory: boolean;
 
+    /** 侧边栏分类图标显示 */
+    showCategoryIcon: boolean;
     confirmBeforeDelete: boolean;
     /** 启动命令别名 */
     enableCommandAlias: boolean;

@@ -6,26 +6,31 @@
     class="overflow-auto m-1"
     @contextmenu.prevent.stop="handleShowListContextMenu"
   >
-    <transition-group
+    <!-- <transition-group name="list" tag="div" class="relative"> </transition-group> -->
+    <VueDraggable
       v-if="launchData.length"
-      name="list"
-      tag="div"
-      class="relative"
+      v-model="launchData"
+      ghost-class="opacity-50"
+      :animation="200"
+      :group="{ name: 'launch', pull: 'clone', put: false }"
+      :disabled="isConrrelationDir"
       :class="
         isListMode
           ? 'flex flex-col divide-y divide-border mb-6'
           : 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 draggable gap-0.5'
       "
+      @start="handleDragStart"
+      @end="handleDragEnd"
     >
-      <template v-for="item in launchData" :key="item.id">
-        <ListItem
-          :ref="(el) => (itemRefs[`${item.id}`] = el)"
-          :item="item"
-          :icon="item.icon!"
-          :name="item.name"
-        />
-      </template>
-    </transition-group>
+      <ListItem
+        v-for="item in launchData"
+        :key="item.id"
+        :ref="(el) => (itemRefs[`${item.id}`] = el)"
+        :item="item"
+        :icon="item.icon!"
+        :name="item.name"
+      />
+    </VueDraggable>
 
     <div
       v-else
@@ -44,11 +49,11 @@ import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { isEmpty } from "lodash-es";
 import { storeToRefs } from "pinia";
 import { nextTick, ref } from "vue";
-// import { VueDraggable } from 'vue-draggable-plus';
-import { addLaunch, getFileInfo } from "@/api";
+import { VueDraggable } from "vue-draggable-plus";
+import { addLaunch, getFileInfo, updateLaunch } from "@/api";
 import ListContextMenu from "@/components/ListContextMenu.vue";
 import ListItem from "@/components/ListItem.vue";
-import { useCategoryCorrelationDir } from "@/composables";
+import { useCategoryCorrelationDir, useLaunchDrag } from "@/composables";
 import { AppEvent } from "@/constant";
 import { t } from "@/i18n";
 import { useStore } from "@/store/useStore";
@@ -57,6 +62,7 @@ import { EventBus } from "@/utils/eventBus";
 const store = useStore();
 const { launchData, activeCategory, activeCategoryItem, activeLaunchItem } = storeToRefs(store);
 const { isConrrelationDir } = useCategoryCorrelationDir();
+const { draggedItem } = useLaunchDrag();
 const currentWindow = getCurrentWebviewWindow();
 const isListMode = computed(() => activeCategoryItem.value.layout === "list");
 
@@ -98,6 +104,25 @@ currentWindow.onDragDropEvent(async (e) => {
   }
 });
 
+/** 拖拽开始：记录当前拖拽的启动项 */
+function handleDragStart(evt: any) {
+  const index = evt.oldIndex;
+  draggedItem.value = launchData.value[index] ?? null;
+}
+
+/** 同列表内拖拽排序结束 */
+async function handleDragEnd(evt: any) {
+  // 如果 draggedItem 已被 Sidebar 的 drop handler 消费，跳过排序更新
+  if (!draggedItem.value) return;
+
+  // 同一列表内排序：更新 order_index
+  const tasks = launchData.value.map((item, index) =>
+    updateLaunch({ ...item, order_index: index }),
+  );
+  await Promise.all(tasks);
+  draggedItem.value = null;
+}
+
 const contextMenuVisible = ref<boolean>(false);
 const contextMenuPosition = ref({ x: 0, y: 0 });
 
@@ -129,7 +154,6 @@ EventBus.listen(AppEvent.DELETE_LAUNCH, () => {
 watch(
   () => activeLaunchItem.value,
   (val) => {
-    console.log(`%c val ----`, "color: #fff;background-color: #000;font-size: 18px", val);
     if (val) {
       const itemRef = itemRefs.value[val.id];
       itemRef?.scrollItemIntoView();
