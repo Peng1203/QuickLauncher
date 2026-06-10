@@ -137,7 +137,7 @@ function handleDragOver(e: DragEvent, item: CategoryItem) {
   dragOverCategoryId.value = item.id;
 }
 
-function handleDragLeave(e: DragEvent, item: CategoryItem) {
+function handleDragLeave(_e: DragEvent, item: CategoryItem) {
   if (dragOverCategoryId.value === item.id) {
     dragOverCategoryId.value = null;
   }

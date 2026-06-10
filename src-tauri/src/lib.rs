@@ -65,7 +65,6 @@ mod db;
 mod entity;
 mod logging;
 mod models;
-mod tray;
 
 #[derive(Default)]
 pub struct AppState {

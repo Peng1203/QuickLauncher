@@ -111,7 +111,7 @@ function handleDragStart(evt: any) {
 }
 
 /** 同列表内拖拽排序结束 */
-async function handleDragEnd(evt: any) {
+async function handleDragEnd(_evt: any) {
   // 如果 draggedItem 已被 Sidebar 的 drop handler 消费，跳过排序更新
   if (!draggedItem.value) return;
 
