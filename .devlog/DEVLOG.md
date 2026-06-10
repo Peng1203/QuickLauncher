@@ -1,3 +1,42 @@
+## 2026-06-09（托盘增强 / 拖拽分类 / 分类图标）
+
+### 托盘菜单增强
+
+- 新增语言切换子菜单（4 语种，CheckMenuItem 标记当前选中）
+- 新增主题切换子菜单（浅色/深色/跟随系统）
+- 主题切换参照 `Theme.vue` 的 `handleSwitchTheme` 逻辑
+- 菜单结构调整：设置、语言、主题置于顶部
+- 删除 Rust 端 `tray.rs`，托盘逻辑完全由前端管理
+
+### 启动项拖拽到分类
+
+- 使用 `vue-draggable-plus` 实现启动项可拖拽
+- 新增 `useLaunchDrag` composable 管理跨组件拖拽状态
+- Sidebar 分类按钮添加 `dragover` / `dragleave` / `drop` 事件
+- 拖拽悬停高亮（主题色虚线框 + 半透明背景）
+- 关联目录分类禁止拖拽排序和作为放置目标
+- 修复 `handleDragEnd` 覆盖 `handleDrop` 的竞态问题
+- `getLaunchData` 增加分类 ID 校验防止竞态覆盖
+
+### 侧边栏分类图标
+
+- `AppConfigState` 新增 `showCategoryIcon` 配置
+- General 设置页新增「显示分类图标」开关
+- Sidebar 根据配置 + item.icon 动态显示分类图标
+- 主窗口禁用原生拖放（`dragDropEnabled: false`）
+
+### IconPicker 优化
+
+- `handleGetLocalDirIcon` 支持传入 path 参数
+- OperationCategory 关联目录选择时自动调用图标选择器
+
+### 其他
+
+- 关联目录监听函数补充调试日志
+- `components.d.ts` 自动更新
+
+---
+
 ## 2026-06-06（TodoMode 重构 / SearchModeTabs 适配 / i18n 补全）
 
 ### TodoMode 组件重构
