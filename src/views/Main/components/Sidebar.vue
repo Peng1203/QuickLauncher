@@ -12,41 +12,63 @@
     @contextmenu.prevent.stop="handleShowCategoryContextMenu"
     @keydown="handleKeydown"
   >
-    <nav class="flex-1 flex flex-col gap-1">
-      <button
-        v-for="item of categoryData"
-        :key="item.id"
-        :ref="(el) => (categoryItemRefs[`${item.id}`] = el)"
-        :class="[
-          activeCategory === item.id
-            ? 'bg-muted active-category'
-            : 'hover:bg-secondary text-foreground',
-          dragOverCategoryId === item.id && 'drag-over',
-        ]"
-        tabindex="-1"
-        class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden flex items-center gap-1.5"
-        @click="handleChangeCategory(item.id)"
-        @contextmenu.prevent.stop="handleShowCategoryItemContextMenu($event, item)"
-        @dblclick="handleOpenAssDir(item)"
-        @dragover="handleDragOver($event, item)"
-        @dragleave="handleDragLeave($event, item)"
-        @drop="handleDrop($event, item)"
+    <!-- {{ categoryData.map((item) => [item.id, item.order_index]) }} -->
+    <VueDraggable
+      v-model="categoryData"
+      ghost-class="opacity-50"
+      filter=".default-category"
+      target=".sort-target"
+      :animation="200"
+      :group="{ name: 'category', pull: 'clone', put: false }"
+      :scroll="true"
+      @start="handleDragStart"
+      @end="handleDragEnd"
+    >
+      <TransitionGroup
+        type="transition"
+        tag="nav"
+        :name="!drag ? 'fade' : undefined"
+        class="sort-target flex-1 flex flex-col gap-1"
       >
-        <!-- class="px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal" -->
-        <!-- :ref="`nameRef${item.id}`" -->
-        <img v-if="appConfigStore.showCategoryIcon && item.icon" class="w-5 h-5" :src="item.icon" />
-        <span
-          :ref="(el) => (itemRefs[`${item.id}`] = el)"
-          :contenteditable="item.id === renameItemId"
-          class="block whitespace-nowrap overflow-x-auto overflow-y-hidden max-w-full outline-none"
-          :class="[item.id === renameItemId && 'editable-active']"
+        <button
+          v-for="item of categoryData"
+          :key="item.id"
+          :ref="(el) => (categoryItemRefs[`${item.id}`] = el)"
+          :class="[
+            activeCategory === item.id
+              ? 'bg-muted active-category'
+              : 'hover:bg-secondary text-foreground',
+            dragOverCategoryId === item.id && 'drag-over',
+            defaultCategory.id === item.id && 'default-category',
+          ]"
+          tabindex="-1"
+          class="text-left px-4 py-2 rounded-lg transition font-medium cursor-pointer overflow-hidden flex items-center gap-1.5"
+          @click="handleChangeCategory(item.id)"
+          @contextmenu.prevent.stop="handleShowCategoryItemContextMenu($event, item)"
+          @dblclick="handleOpenAssDir(item)"
+          @dragover="handleDragOver($event, item)"
+          @dragleave="handleDragLeave($event, item)"
+          @drop="handleDrop($event, item)"
         >
-          <!-- class="block whitespace-nowrap overflow-x-auto overflow-y-hidden max-w-full outline-none" -->
-          {{ item.name }}
-        </span>
-      </button>
-      <!-- <button @click="unregisterAll()" >取消所有快捷键</button> -->
-    </nav>
+          <!-- class="px-1 w-fit pointer-events-none line-clamp-2 mt-0.5 leading-normal" -->
+          <!-- :ref="`nameRef${item.id}`" -->
+          <template v-if="appConfigStore.showCategoryIcon">
+            <img v-if="item.icon" class="w-5 h-5" :src="item.icon" />
+            <Icon v-else name="icon-fenlei1" size="20" />
+          </template>
+
+          <span
+            :ref="(el) => (itemRefs[`${item.id}`] = el)"
+            :contenteditable="item.id === renameItemId"
+            class="block whitespace-nowrap overflow-x-auto overflow-y-hidden max-w-full outline-none"
+            :class="[item.id === renameItemId && 'editable-active']"
+          >
+            <!-- class="block whitespace-nowrap overflow-x-auto overflow-y-hidden max-w-full outline-none" -->
+            {{ item.name }}
+          </span>
+        </button>
+      </TransitionGroup>
+    </VueDraggable>
   </n-layout-sider>
 
   <!-- 分类菜单 -->
@@ -66,6 +88,7 @@
 import { storeToRefs } from "pinia";
 import { nextTick, ref, shallowRef } from "vue";
 import { openPath, updateCategory, updateLaunch } from "@/api";
+import { VueDraggable } from "vue-draggable-plus";
 import CategoryContextMenu from "@/components/CategoryContextMenu.vue";
 import CategoryItemContextMenu from "@/components/CategoryItemContextMenu.vue";
 import { useAppConfig, useCategoryCorrelationDir, useLaunchDrag } from "@/composables";
@@ -74,8 +97,14 @@ import { useStore } from "@/store/useStore";
 import { EventBus } from "@/utils/eventBus";
 
 const store = useStore();
-const { categoryData, activeCategory, activeCategoryItem, activeLaunchItem, enableWindoShortcuts } =
-  storeToRefs(store);
+const {
+  categoryData,
+  activeCategory,
+  activeCategoryItem,
+  activeLaunchItem,
+  enableWindoShortcuts,
+  defaultCategory,
+} = storeToRefs(store);
 const { registerAllCategoryDirWatch, checkCategoryDirAndLaunchSync } = useCategoryCorrelationDir();
 const { themeColor, appConfigStore } = useAppConfig();
 const { draggedItem } = useLaunchDrag();
@@ -125,8 +154,27 @@ async function handleChangeCategory(id: number) {
   checkCategoryDirAndLaunchSync();
 }
 
-// ===== 拖拽到分类 =====
+const drag = ref(false);
 
+function handleDragStart(_evt: any) {
+  drag.value = true;
+}
+async function handleDragEnd(_evt: any) {
+  nextTick(() => {
+    drag.value = false;
+  });
+
+  const upOrderList = categoryData.value
+    .filter((item) => item.order_index !== defaultCategory.value.order_index)
+    .reverse();
+
+  const tasks = upOrderList.map((item, i) => updateCategory({ ...item, order_index: i }));
+  await Promise.all(tasks);
+
+  getCategorys();
+}
+
+// ===== 拖拽到分类 =====
 function handleDragOver(e: DragEvent, item: CategoryItem) {
   // 关联目录分类禁止放置
   if (item.association_directory) return;
@@ -136,7 +184,6 @@ function handleDragOver(e: DragEvent, item: CategoryItem) {
   e.dataTransfer!.dropEffect = "move";
   dragOverCategoryId.value = item.id;
 }
-
 function handleDragLeave(_e: DragEvent, item: CategoryItem) {
   if (dragOverCategoryId.value === item.id) {
     dragOverCategoryId.value = null;
@@ -239,7 +286,8 @@ async function handleKeydown(e: KeyboardEvent) {
           name: activeRenameItemRef.value.textContent,
         };
         await updateCategory(params);
-        activeCategoryItem.value.name = params.name;
+        // activeCategoryItem.value.name = params.name;
+        await getCategorys();
         cancelRename(false);
       });
       e.preventDefault();
@@ -338,4 +386,20 @@ EventBus.listen(AppEvent.ACTIVE_CATEGORY, async (item: CategoryItem) => {
 //     transform: scale(1);
 //   }
 // }
+
+.fade-move,
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: scaleY(0.01) translate(30px, 0);
+}
+
+.fade-leave-active {
+  position: absolute;
+}
 </style>

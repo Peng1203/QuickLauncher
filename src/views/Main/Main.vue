@@ -84,7 +84,13 @@ async function initData() {
     await initData();
   }
 }
+function initCursor() {
+  activeCursorX.value = 0;
+  activeCursorY.value = 0;
+  activeLaunchItem.value = null;
+}
 
+initCursor();
 initData();
 
 const { toogleMainWindowVisible } = useToggleWindowVisible();

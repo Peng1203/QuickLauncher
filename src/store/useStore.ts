@@ -12,7 +12,6 @@ export const useStore = defineStore("main", {
     activeCategory: activeCategoryRef.value,
     defaultCategory: <CategoryItem>{},
     categoryData: <CategoryItem[]>[],
-    categoryOptions: <OptionItem[]>[],
     // 光标选中的启动项 左边
     activeCursorX: 0,
     activeCursorY: 0,
@@ -25,7 +24,6 @@ export const useStore = defineStore("main", {
   actions: {
     async getLaunchData(id?: number) {
       const categoryId = id ?? this.activeCategory;
-
       const params = [
         categoryId,
         this.activeCategoryItem?.sort_by,
@@ -36,20 +34,12 @@ export const useStore = defineStore("main", {
 
       // @ts-ignore
       const data = await getLaunchs(...params);
-      if (this.activeCategory === id) this.launchData = data;
+      this.launchData = data;
     },
 
     async getCategoryData(init: boolean = false) {
       const data = await getCategory();
       this.categoryData = data;
-      this.categoryOptions = data
-        // .filter(item => !item.association_directory)
-        .map((item) => ({
-          // 部分分了关联了 文件目录 在 option中 禁止这些目录作为选项
-          disable: !!item.association_directory,
-          value: item.id,
-          label: item.name,
-        }));
 
       // 找出默认分类
       this.defaultCategory = data.find((item) => item.order_index === 9999)!;
@@ -65,6 +55,7 @@ export const useStore = defineStore("main", {
       await this.getLaunchData(id);
     },
   },
+
   getters: {
     activeCategoryItem: (state) =>
       state.categoryData.find((item) => item.id === state.activeCategory) as CategoryItem,
