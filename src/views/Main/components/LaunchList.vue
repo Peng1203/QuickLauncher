@@ -6,30 +6,37 @@
     class="overflow-auto m-1"
     @contextmenu.prevent.stop="handleShowListContextMenu"
   >
-    <!-- <transition-group name="list" tag="div" class="relative"> </transition-group> -->
     <VueDraggable
       v-if="launchData.length"
       v-model="launchData"
+      target=".sort-target"
       ghost-class="opacity-50"
       :animation="200"
       :group="{ name: 'launch', pull: 'clone', put: false }"
       :disabled="isConrrelationDir"
-      :class="
-        isListMode
-          ? 'flex flex-col divide-y divide-border mb-6'
-          : 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 draggable gap-0.5'
-      "
+      :scroll="true"
       @start="handleDragStart"
       @end="handleDragEnd"
     >
-      <ListItem
-        v-for="item in launchData"
-        :key="item.id"
-        :ref="(el) => (itemRefs[`${item.id}`] = el)"
-        :item="item"
-        :icon="item.icon!"
-        :name="item.name"
-      />
+      <TransitionGroup
+        name="list"
+        tag="div"
+        class="relative sort-target"
+        :class="
+          isListMode
+            ? 'flex flex-col divide-y divide-border mb-6'
+            : 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 draggable gap-0.5'
+        "
+      >
+        <ListItem
+          v-for="item in launchData"
+          :key="item.id"
+          :ref="(el) => (itemRefs[`${item.id}`] = el)"
+          :item="item"
+          :icon="item.icon!"
+          :name="item.name"
+        />
+      </TransitionGroup>
     </VueDraggable>
 
     <div
@@ -50,7 +57,7 @@ import { isEmpty } from "lodash-es";
 import { storeToRefs } from "pinia";
 import { nextTick, ref } from "vue";
 import { VueDraggable } from "vue-draggable-plus";
-import { addLaunch, getFileInfo, updateLaunch } from "@/api";
+import { addLaunch, getFileInfo } from "@/api";
 import ListContextMenu from "@/components/ListContextMenu.vue";
 import ListItem from "@/components/ListItem.vue";
 import { useCategoryCorrelationDir, useLaunchDrag } from "@/composables";
@@ -116,10 +123,10 @@ async function handleDragEnd(_evt: any) {
   if (!draggedItem.value) return;
 
   // 同一列表内排序：更新 order_index
-  const tasks = launchData.value.map((item, index) =>
-    updateLaunch({ ...item, order_index: index }),
-  );
-  await Promise.all(tasks);
+  // const tasks = launchData.value.map((item, index) =>
+  //   updateLaunch({ ...item, order_index: index }),
+  // );
+  // await Promise.all(tasks);
   draggedItem.value = null;
 }
 
