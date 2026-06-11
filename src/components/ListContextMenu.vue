@@ -39,15 +39,17 @@ function handleClose() {
 }
 
 // 默认菜单项
-const menuOptions = computed(() => [
-  {
+const menuOptions = computed(() => {
+  const menuOptions = [layoutMenu.value, orderMenu.value]
+
+  if (!activeCategoryItem.value?.association_directory) menuOptions.unshift({
     label: t('contextMenu.newLaunchItem'),
     key: 'add',
     icon: () => h(<i class="iconfont icon-xinjian" />),
-  },
-  layoutMenu.value,
-  orderMenu.value,
-]);
+  } as any)
+
+  return menuOptions
+});
 
 async function handleSelect(key: string) {
   switch (key) {
