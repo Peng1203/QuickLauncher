@@ -267,52 +267,16 @@ async function main() {
   writeFileSync(LATEST_JSON_PATH, `${JSON.stringify(latestJson, null, 2)}\n`);
   console.log("\n已生成 latest.json");
 
-  // 询问是否提交版本文件和创建 tag
-  if (choice !== "skip") {
-    const shouldCommit = await confirm({
-      message: "是否提交版本文件并创建 git tag?",
-      default: true,
-    });
-
-    if (shouldCommit) {
-      // git commit
-      spawnSync(
-        "git",
-        [
-          "add",
-          "package.json",
-          "src-tauri/Cargo.toml",
-          "src-tauri/Cargo.lock",
-          "src-tauri/tauri.conf.json",
-        ],
-        {
-          cwd: ROOT_DIR,
-          shell: true,
-          stdio: "inherit",
-        },
-      );
-      spawnSync("git", ["commit", "-m", `chore: release version ${newVersion}`], {
-        cwd: ROOT_DIR,
-        shell: true,
-        stdio: "inherit",
-      });
-      console.log("\n已提交版本文件");
-
-      // git tag
-      spawnSync(
-        "git",
-        ["tag", "-a", `v${newVersion}`, "-m", `chore: release version ${newVersion}`],
-        {
-          cwd: ROOT_DIR,
-          shell: true,
-          stdio: "inherit",
-        },
-      );
-      console.log(`\n已创建 git tag: v${newVersion}`);
-    }
-  }
-
   console.log("\n构建完成!");
+
+  if (choice !== "skip") {
+    console.log("\n请手动执行以下命令：");
+    // console.log(`\x1b[32m  git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock src-tauri/tauri.conf.json\x1b[0m`);
+    console.log(`\x1b[32m  git commit -m "chore: release version ${newVersion}"\x1b[0m`);
+    console.log(
+      `\x1b[32m  git tag -a v${newVersion} -m "chore: release version ${newVersion}"\x1b[0m`,
+    );
+  }
 
   // 打开构建产物目录
   spawnSync("explorer", [NSIS_BUNDLE_DIR], {
