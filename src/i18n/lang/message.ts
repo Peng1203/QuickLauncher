@@ -248,6 +248,20 @@ export const messages = {
 
   // ========== 快速搜索设置 ==========
   quickSearch: {
+    defaultData: ["默认数据", "預設數據", "Default Data", "デフォルトデータ"],
+    defaultDataDesc: [
+      "选中分类时自动加载分类下所有启动项",
+      "選中分類時自動加載分類下所有啟動項",
+      "When a category is selected, it will automatically load all startup items in that category",
+      "分類が選択されたときに、その分類内のすべての起動項目を自動的にロードします",
+    ],
+    categorySearch: ["按分类搜索", "按分類搜索", "Search By Category", "カテゴリ検索"],
+    categorySearchDesc: [
+      "Tab切换默认搜索/按分类搜索",
+      "Tab切換默認蒐索/按分類搜索",
+      "Tab switch default search/search by category",
+      "Tabデフォルト検索/分類検索を切り替えます",
+    ],
     shortcutTitle: ["快捷键", "快捷鍵", "Shortcut Keys", "ショートカットキー"],
     shortcutDesc: [
       "使用快捷键快速切换模式",
@@ -879,6 +893,8 @@ export const messages = {
 
   // ========== 搜索窗口 ==========
   search: {
+    switchSearchMode: ["切换搜索", "切換搜索", "Switch", "モードを切替"],
+    selectCategory: ["选择分类", "選擇分類", "Select Category", "カテゴリを選択"],
     switch: ["切换", "切換", "Switch", "切替"],
     autocomplete: ["补全", "補全", "Complete", "補完"],
     closeResults: ["关闭搜索结果", "關閉搜尋結果", "Close Results", "結果を閉じる"],
@@ -886,10 +902,10 @@ export const messages = {
     history: ["历史", "歷史", "History", "履歴"],
     commandAlias: ["命令别名", "命令別名", "Command Alias", "コマンドエイリアス"],
     placeholder: [
-      "名称 / 拼音首字母 / 关键字 / 文件或目录路径 / URL / 系统命令",
-      "名稱 / 拼音首字母 / 關鍵字 / 檔案或目錄路徑 / URL / 系統命令",
-      "Name / Pinyin / Keyword / Path / URL / System Command",
-      "名前/ピンイン/キーワード/パス/URL/システムコマンド",
+      "名称/拼音首字母/关键字/文件或目录路径/URL/系统命令/命令别名",
+      "名稱/拼音首字母/關鍵字/檔案或目錄路徑/URL/系統命令/命令別名",
+      "Name/Pinyin/Keyword/Path/URL/System Command/Command Alias",
+      "名前/ピンイン/キーワード/パス/URL/システムコマンド/コマンドエイリアス",
     ],
     launchFailed: ["启动失败", "啟動失敗", "Launch Failed", "起動失敗"],
     queryFailed: ["查询失败", "查詢失敗", "Query Failed", "検索失敗"],
