@@ -20,11 +20,6 @@
         <template v-if="isListState" #suffix>
           <div class="shortcut-list">
             <span class="shortcut-item">
-              <Kbd>Tab</Kbd>
-              <span>{{ t("todo.switchSort") }}</span>
-            </span>
-
-            <span class="shortcut-item">
               <Kbd>↑↓</Kbd>
               <span>{{ t("todo.switch") }}</span>
             </span>
@@ -32,6 +27,11 @@
             <span class="shortcut-item">
               <Kbd>↵</Kbd>
               <span>{{ t("todo.complete") }}</span>
+            </span>
+
+            <span class="shortcut-item">
+              <Kbd>Tab</Kbd>
+              <span>{{ t("todo.switchSort") }}</span>
             </span>
           </div>
         </template>

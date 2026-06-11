@@ -43,7 +43,7 @@ pub fn exec_command_internal(command: &str) -> Result<(), String> {
 
         Command::new("cmd")
             .creation_flags(0x08000000)
-            .current_dir("C:\\Windows\\System32")
+            // .current_dir("C:\\Windows\\System32")
             .args(["/C", "start", "", program])
             .args(&args)
             .spawn()

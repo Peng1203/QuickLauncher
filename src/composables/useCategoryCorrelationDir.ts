@@ -36,10 +36,6 @@ export function useCategoryCorrelationDir() {
    */
   async function registerAllCategoryDirWatch() {
     if (!categoryData.value.length) return;
-    console.log(
-      `%c registerAllCategoryDirWatch ----`,
-      "color: #fff;background-color: #000;font-size: 18px",
-    );
     for (const category of categoryData.value) {
       if (!category.association_directory) continue;
       if (watchMap.has(category.id)) continue;
@@ -70,21 +66,11 @@ export function useCategoryCorrelationDir() {
   }
 
   async function handleWatchCreate(paths: string[], category: CategoryItem) {
-    console.log(
-      `%c handleWatchCreate ----`,
-      "color: #fff;background-color: #000;font-size: 18px",
-      paths,
-    );
     const fullPath = paths[0];
     return await getFileInfoAndCreateLaunch(fullPath, category, true);
   }
 
   async function handleWatchRemove(paths: string[], category: CategoryItem) {
-    console.log(
-      `%c handleWatchRemove ----`,
-      "color: #fff;background-color: #000;font-size: 18px",
-      paths,
-    );
     const removeFullPath = paths[0];
     const launchItem = await getLaunchByNameAndCategory(
       removeFullPath.split("\\").pop()!,
@@ -95,11 +81,6 @@ export function useCategoryCorrelationDir() {
   }
 
   async function handleWatchRename(paths: string[], category: CategoryItem) {
-    console.log(
-      `%c handleWatchRename ----`,
-      "color: #fff;background-color: #000;font-size: 18px",
-      paths,
-    );
     // 重命名操作 先删除旧的启动项 再添加新的启动项
     const [oldFullPath, newFullPath] = paths;
     const oldName = oldFullPath.split("\\").pop()!;
@@ -122,11 +103,6 @@ export function useCategoryCorrelationDir() {
 
   /** 删除指定的分类目录 watch */
   function removeCategoryDirWatch(id: number) {
-    console.log(
-      `%c removeCategoryDirWatch ----`,
-      "color: #fff;background-color: #000;font-size: 18px",
-      id,
-    );
     const unWatch = watchMap.get(id);
     if (!unWatch) return;
     unWatch();
@@ -135,7 +111,6 @@ export function useCategoryCorrelationDir() {
 
   /** 分类创建成功时 创建关联目录中的所有启动项 */
   async function handleCreateLaunchFromCategoryDir(category: CategoryItem) {
-    console.log(`%c category ----`, "color: #fff;background-color: #000;font-size: 18px", category);
     const { association_directory } = category;
     if (!association_directory) return;
     const files = await readDir(association_directory);
@@ -152,11 +127,6 @@ export function useCategoryCorrelationDir() {
     category: CategoryItem,
     isFullPath: boolean = false,
   ) {
-    console.log(
-      `%c entryName ----`,
-      "color: #fff;background-color: #000;font-size: 18px",
-      entryName,
-    );
     const fullPath = isFullPath ? entryName : `${category.association_directory}\\${entryName}`;
 
     const fileInfo = await getFileInfo(fullPath);
