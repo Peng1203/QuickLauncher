@@ -1,6 +1,6 @@
 [package]
 name = "quicklauncher"
-version = "0.2.1"
+version = "0.2.2"
 description = "一款 Windows 快速启动器"
 authors = ["Peng <2567810155@qq.com>"]
 edition = "2021"
