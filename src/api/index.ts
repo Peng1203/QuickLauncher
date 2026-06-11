@@ -180,8 +180,8 @@ export function exeCommand(command: string) {
  * @param {string} keyword
  * @returns {*}
  */
-export function searchLaunch<T = SearchLauncItem>(keyword: string) {
-  return invoke<T[]>(InvokeMethod.SEARCH_LAUNCH, { keyword });
+export function searchLaunch<T = SearchLauncItem>(keyword: string, categoryId?: number) {
+  return invoke<T[]>(InvokeMethod.SEARCH_LAUNCH, { keyword, categoryId });
 }
 
 /**

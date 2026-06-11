@@ -60,6 +60,8 @@ export const useAppConfigStore = defineStore(
       searchOpenOnMouseDisplay: true,
 
       enableDefaultSearch: true,
+      enableDefaultSearchByCategory: true,
+      enableCategorySearchDefaultData: true,
 
       enableWebSearch: true,
       webSearchOpenModel: 0,

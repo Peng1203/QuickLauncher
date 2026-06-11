@@ -41,7 +41,7 @@ import {
   MODE_TABS,
 } from "@/constant";
 import { EventBus } from "@/utils/eventBus";
-import DefaultSearchMode from "./components/DefaultSearchMode.vue";
+import DefaultSearchMode from "./components/DefaultMode/DefaultSearchMode.vue";
 import TodoMode from "./components/TodoMode/TodoMode.vue";
 import TranslationMode from "./components/TranslationMode.vue";
 import WebSearchMode from "./components/WebSearchMode.vue";
@@ -165,7 +165,10 @@ async function handleShow() {
   await searchWindow.center();
   await searchWindow.show();
   await searchWindow.setFocus();
-  nextTick(() => activeModeRef.value?.focus?.());
+  nextTick(() => {
+    activeModeRef.value?.focus?.();
+    activeModeRef.value?.handleBeforeShow?.();
+  });
 
   await resizeToActiveModeDefaultHeight();
 }

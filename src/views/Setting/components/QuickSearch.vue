@@ -1,21 +1,36 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
     <SettingGroup :title="t('quickSearch.groupEnable')">
+      <!-- TODO -->
       <SettingSwitchItem
-        v-model="appConfigStore.enableSearch"
+        v-model="appConfigStore.enableDefaultSearch"
         icon="icon-icon-sousuofenlei"
         :title="t('quickSearch.enableTitle')"
+        :description="t('search.placeholder')"
       />
       <!-- :description="t('quickSearch.enableDesc')" -->
     </SettingGroup>
 
     <SettingGroup :title="t('quickSearch.groupCategory')">
       <SettingSwitchItem
+        v-model="appConfigStore.enableDefaultSearchByCategory"
+        icon="icon-fenlei"
+        :title="t('quickSearch.categorySearch')"
+        :description="t('quickSearch.categorySearchDesc')"
+      />
+
+      <SettingSwitchItem
+        v-model="appConfigStore.enableCategorySearchDefaultData"
+        icon="icon-fenlei"
+        :title="t('quickSearch.defaultData')"
+        :description="t('quickSearch.defaultDataDesc')"
+      />
+
+      <SettingSwitchItem
         v-model="appConfigStore.showCategory"
         icon="icon-fenlei"
         :title="t('quickSearch.showCategoryTitle')"
         :description="t('quickSearch.showCategoryDesc')"
-        @update:model-value="handleShowCategory"
       />
 
       <SettingSwitchItem
@@ -52,7 +67,7 @@
 
       <SettingSwitchItem
         v-model="appConfigStore.showHistory"
-        icon="icon-switch"
+        icon="icon-daohang"
         :title="t('quickSearch.historyNavTitle')"
         :description="t('quickSearch.historyNavDesc')"
       />

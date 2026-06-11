@@ -13,6 +13,7 @@ use tracing;
 #[tauri::command]
 pub async fn search_launch(
     keyword: &str,
+    category_id: Option<i32>,
     state: tauri::State<'_, AppState>,
 ) -> Result<Vec<SearchLaunchItem>, String> {
     let db = { state.db.lock().unwrap().clone() };
@@ -20,8 +21,7 @@ pub async fn search_launch(
 
     let like_pattern = format!("%{}%", keyword);
 
-    let results = LaunchItems::find()
-        // LEFT JOIN categories c1 (category)
+    let mut query = LaunchItems::find()
         .join(
             JoinType::LeftJoin,
             LaunchItems::belongs_to(Categories)
@@ -29,7 +29,6 @@ pub async fn search_launch(
                 .to(CColumn::Id)
                 .into(),
         )
-        // LEFT JOIN categories c2 (subcategory) —— 手动 alias
         .join_as(
             JoinType::LeftJoin,
             LaunchItems::belongs_to(Categories)
@@ -38,7 +37,6 @@ pub async fn search_launch(
                 .into(),
             "c2",
         )
-        // 只选择需要的字段
         .select_only()
         .column(LIColumn::Id)
         .column(LIColumn::Name)
@@ -47,26 +45,27 @@ pub async fn search_launch(
         .column(LIColumn::Type)
         .column(LIColumn::CategoryId)
         .column(LIColumn::SubcategoryId)
-        // category_name
         .column_as(CColumn::Name, "category_name")
-        // subcategory_name（来自 c2）
         .column_as(
             Expr::col((Alias::new("c2"), CColumn::Name)),
             "subcategory_name",
         )
-        // WHERE enabled = 1
         .filter(LIColumn::Enabled.eq(1))
-        // 模糊搜索（OR）
         .filter(
             Condition::any()
                 .add(LIColumn::Name.like(&like_pattern))
                 .add(LIColumn::PinyinFull.like(&like_pattern))
                 .add(LIColumn::PinyinAbbr.like(&like_pattern))
                 .add(LIColumn::Keywords.like(&like_pattern)),
-        )
-        // ORDER BY
+        );
+
+    // 分类过滤
+    if let Some(category_id) = category_id {
+        query = query.filter(LIColumn::CategoryId.eq(category_id));
+    }
+
+    let results = query
         .order_by_desc(LIColumn::OrderIndex)
-        // 映射到自定义结构体
         .into_model::<SearchLaunchItem>()
         .all(&db)
         .await
@@ -75,7 +74,7 @@ pub async fn search_launch(
             format!("查询失败: {}", e)
         })?;
 
-    tracing::info!(keyword, "搜索启动项");
+    tracing::info!(keyword, ?category_id, "搜索启动项");
 
     Ok(results)
 }

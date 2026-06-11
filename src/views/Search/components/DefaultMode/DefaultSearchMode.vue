@@ -8,7 +8,7 @@
       size="medium"
       class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
       :class="hasResult ? 'border-b-0! rounded-b-none!' : ''"
-      :placeholder="activeHistory?.command || placeholder"
+      :placeholder="getPlaceholder"
     >
       <template #prefix>
         <template v-if="activeHistory">
@@ -26,22 +26,32 @@
           />
         </template>
 
+        <template v-else-if="isCategoryMode">
+          <n-avatar
+            v-if="activeCategory?.icon"
+            class="bg-transparent!"
+            :size="22"
+            :src="activeCategory.icon"
+          />
+          <Icon v-else name="icon-fenlei1" size="22" />
+        </template>
+
         <Icon v-else name="icon-sousuo" size="22" />
+        <!-- <span style="font-size: 12px; color: #999">
+          {{ currentStep }} --- {{ activeCategory?.name || "msj" }} --- {{ resultList.length }} ---
+          {{ searchWindowHeight }}
+        </span> -->
         <!-- <Icon v-else name="icon-icon-sousuofenlei" size="22" /> -->
       </template>
 
       <template #suffix>
-        <div v-if="autocompleteList.length" class="suggestion-con">
+        <!-- 自动补全提示 -->
+        <div v-if="autocompleteEnabled" class="suggestion-con">
           <span class="suggestion-text">
             {{ currentAutocompleteSuggestion }}
           </span>
 
           <div class="shortcut-list mr-3">
-            <span v-show="autocompleteList.length !== 1" class="shortcut-item">
-              <Kbd>Tab</Kbd>
-              <span class="text-xs ml-1">{{ t("search.switch") }}</span>
-            </span>
-
             <span v-show="currentAutocompleteSuggestion !== keyword" class="shortcut-item">
               <Kbd>→</Kbd>
               <span class="text-xs ml-1">{{ t("search.autocomplete") }}</span>
@@ -51,21 +61,40 @@
               <Kbd>Ctrl + W</Kbd>
               <span class="text-xs ml-1">{{ t("search.closeResults") }}</span>
             </span>
+
+            <span v-show="autocompleteList.length !== 1" class="shortcut-item">
+              <Kbd>Tab</Kbd>
+              <span class="text-xs ml-1">{{ t("search.switch") }}</span>
+            </span>
           </div>
         </div>
 
-        <div v-if="appConfigStore.showHistory" v-show="!keyword.length" class="suggestion-con">
+        <div class="suggestion-con">
           <span class="suggestion-text"></span>
 
           <div class="shortcut-list mr-3">
-            <span v-show="activeHistory" class="shortcut-item">
-              <Kbd>↵</Kbd>
-              <span class="text-xs ml-1">{{ t("search.confirm") }}</span>
-            </span>
+            <!-- 历史记录提示 -->
+            <template v-if="appConfigStore.showHistory">
+              <div v-show="historyEnabled" class="shortcut-list">
+                <span v-show="activeHistory" class="shortcut-item">
+                  <Kbd>↵</Kbd>
+                  <span class="text-xs ml-1">{{ t("search.confirm") }}</span>
+                </span>
 
-            <span class="shortcut-item">
-              <Kbd>↑↓</Kbd>
-              <span class="text-xs ml-1">{{ t("search.history") }}</span>
+                <span class="shortcut-item">
+                  <Kbd>↑↓</Kbd>
+                  <span class="text-xs ml-1">{{ t("search.history") }}</span>
+                </span>
+              </div>
+            </template>
+
+            <!-- 分类搜索提示 -->
+            <span
+              class="shortcut-item"
+              v-if="appConfigStore.enableDefaultSearchByCategory && keyword.trim() === ''"
+            >
+              <Kbd>Tab</Kbd>
+              <span class="text-xs ml-1">{{ t("search.switchSearchMode") }}</span>
             </span>
           </div>
         </div>
@@ -77,62 +106,46 @@
     name="list"
     tag="ul"
     tabindex="-1"
-    class="search-container absolute z-50 w-full overflow-y-scroll bg-card border-none rounded-b-[10px] !border-t-border max-h-[300px]"
+    class="search-container absolute z-50 w-full overflow-y-scroll bg-card border-none rounded-b-[10px] border-t-border! max-h-75"
     :style="{
       maxHeight: `calc(${searchWindowHeight}px - ${chromeHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
     }"
   >
-    <template v-for="(item, index) of resultList" :key="item.id">
-      <li
-        :ref="(el) => (itemRefs[index] = el as any)"
-        class="flex items-center justify-between h-[48px] px-4 py-2 cursor-pointer"
-        :class="[index === selectedIndex ? 'bg-muted' : 'hover:bg-muted']"
-        @click="
-          () => {
-            selectedIndex = index;
-            handleEnter();
-          }
-        "
-        @contextmenu.prevent.stop="handleShowContextMenu($event, item)"
-      >
-        <div class="flex items-center">
-          <n-icon
-            v-if="item.type === 'alias'"
-            size="32"
-            class="iconfont icon-minglinghangchaxun !m-2 text-[32px]"
-          />
+    <template v-if="isSelectCategoryStep">
+      <!-- prettier-ignore -->
+      <template v-for="(item, index) of (resultList as WithDisabled<CategoryItem>[])" :key="item.id">
+        <CategoryResultItem
+          ref="itemRefs"
+          :disabled="item.disabled"
+          :item="item"
+          :active="index === selectedIndex"
+          @click="
+            () => {
+              selectedIndex = index;
+              handleEnter();
+            }
+          "
+        />
+        <!-- @contextmenu="(event) => handleShowContextMenu(event, item)" -->
+      </template>
+    </template>
 
-          <img
-            v-else
-            :src="item.icon || ''"
-            alt="icon"
-            class="!m-2 object-contain pointer-events-none w-8 h-8"
-          />
-
-          <span class="!ml-0.5">{{ item.name }}</span>
-        </div>
-
-        <div v-if="appConfigStore.showCategory" class="flex items-end space-x-1">
-          <n-tag v-if="item.type === 'alias'" bordered size="small" type="info">
-            {{ t("search.commandAlias") }}
-          </n-tag>
-
-          <template v-else>
-            <n-tag v-if="item.category_name" bordered size="small" type="default">
-              {{ item.category_name }}
-            </n-tag>
-
-            <n-tag
-              v-if="appConfigStore.showSubCategory && item.subcategory_name"
-              bordered
-              size="tiny"
-              type="default"
-            >
-              {{ item.subcategory_name }}
-            </n-tag>
-          </template>
-        </div>
-      </li>
+    <template v-else>
+      <!-- prettier-ignore -->
+      <template v-for="(item, index) of (resultList as SearchLauncItem[])" :key="item.id">
+        <SearchResultItem
+          ref="itemRefs"
+          :item="item"
+          :active="index === selectedIndex"
+          @click="
+            () => {
+              selectedIndex = index;
+              handleEnter();
+            }
+          "
+          @contextmenu="(event) => handleShowContextMenu(event, item)"
+        />
+      </template>
     </template>
   </transition-group>
 
@@ -153,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SwitchModePayload } from "../searchModes";
+import type { SwitchModePayload } from "../../searchModes";
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { nextTick, ref } from "vue";
 import {
@@ -181,6 +194,10 @@ import {
 import { t } from "@/i18n";
 import { EventBus } from "@/utils/eventBus";
 import { SEARCH_MODEL } from "@/constant";
+import SearchResultItem from "./components/SearchResultItem.vue";
+import CategoryResultItem from "./components/CategoryResultItem.vue";
+import { useStore } from "@/store/useStore";
+import { storeToRefs } from "pinia";
 
 const props = withDefaults(
   defineProps<{
@@ -199,12 +216,37 @@ const emit = defineEmits<{
 
 const { appConfigStore } = useAppConfig();
 const { notification } = useNaiveUiApi();
+
+const { categoryData } = storeToRefs(useStore());
+
+enum CurrentStep {
+  DEFAULT = "default",
+  SELECT_CATEGORY = "selectCategory", // Tab 切换到选择分类步骤
+  CATEGORY = "category", // 确认选择分类后进入分类模式
+}
+
+enum Mode {
+  DEFAULT = "default", // 默认模式 全量搜索
+  CATEGORY = "category", // 分类模式 按照分类搜索
+}
+
+type WithDisabled<T> = T & {
+  disabled?: boolean;
+};
+
+type ResultList = WithDisabled<SearchLauncItem>[] | WithDisabled<CategoryItem>[];
+
+const currentStep = ref<CurrentStep>(CurrentStep.DEFAULT);
+const isSelectCategoryStep = computed(() => currentStep.value === CurrentStep.SELECT_CATEGORY);
+const currentMode = ref<Mode>(Mode.DEFAULT);
+const isDefaultMode = computed(() => currentMode.value === Mode.DEFAULT);
+const isCategoryMode = computed(() => currentMode.value === Mode.CATEGORY);
+
 const searchWindow = getCurrentWindow();
-const placeholder = t("search.placeholder");
+const placeholder = computed(() => t("search.placeholder"));
 const inputRef = useTemplateRef("searchInputRef");
 const keyword = ref(props.keyword || "");
-const resultList = ref<SearchLauncItem[]>([]);
-const itemRefs = ref<HTMLElement[]>([]);
+const resultList = ref<ResultList>([]);
 const selectedIndex = ref(0);
 const searchFlag = ref(false);
 const autocompleteList = ref<string[]>([]);
@@ -214,6 +256,11 @@ const currentAutocompleteSuggestion = computed(
 );
 const hasResult = computed(() => !!resultList.value.length);
 const chromeHeight = computed(() => props.chromeHeight);
+const getPlaceholder = computed(() => {
+  if (isSelectCategoryStep.value) return t("search.selectCategory");
+  if (isCategoryMode.value) return activeCategory.value?.name;
+  return activeHistory.value?.command || placeholder.value;
+});
 
 const searchWindowHeight = computed(() => {
   if (!resultList.value.length) return chromeHeight.value + SEARCH_INPUT_HEIGHT;
@@ -262,15 +309,25 @@ function focus() {
   inputRef.value?.focus();
 }
 
-function handleClose() {
+function initParamsAndDataResult() {
   keyword.value = "";
   selectedIndex.value = 0;
   resultList.value = [];
-  autocompleteIndex.value = 0;
-  autocompleteList.value = [];
-  activeHistoryIndex.value = 0;
   menuVisible.value = false;
-  searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+  activeHistoryIndex.value = 0;
+}
+
+function handleClose() {
+  // keyword.value = "";
+  // selectedIndex.value = 0;
+  // resultList.value = [];
+  initParamsAndDataResult();
+
+  menuVisible.value = false;
+  currentStep.value = CurrentStep.DEFAULT;
+  currentMode.value = Mode.DEFAULT;
+  activeCategory.value = undefined;
+  resizeWindow();
 }
 
 function handleChangeCurrentAutocomplete() {
@@ -283,6 +340,7 @@ function handleChangeCurrentAutocomplete() {
 }
 
 function handleChangeHistory(type: "up" | "down") {
+  if (!appConfigStore.showHistory) return;
   if (!historyData.value.length) return;
   if (activeHistoryIndex.value >= historyData.value.length && type === "up") return;
   if (activeHistoryIndex.value <= 0 && type === "down") return;
@@ -313,6 +371,48 @@ function tryOpenWebSearch() {
     emit("switchMode", { mode: SEARCH_MODEL.WEB_SEARCH_MODEL, source, from: "search" });
   }, 50);
 }
+// 连续按下2次 / 键 进入指定分类查询模式
+const enterCategoryCount = ref(0);
+const enableCategorySearch = ref(false);
+function handleEnterCategoryMode(e: KeyboardEvent) {
+  if (!isDefaultMode.value) return;
+  if (e.keyCode === 191) {
+    enterCategoryCount.value++;
+    if (enterCategoryCount.value === 2) {
+      enableCategorySearch.value = true;
+      enterCategoryCount.value = 0;
+      console.log("进入指定分类查询模式");
+      currentMode.value = Mode.CATEGORY;
+    }
+    return;
+  } else {
+    enterCategoryCount.value = 0;
+    enableCategorySearch.value = false;
+  }
+}
+
+function handleSwitchMode(step?: CurrentStep) {
+  keyword.value = "";
+  selectedIndex.value = 0;
+  resultList.value = [];
+  autocompleteIndex.value = 0;
+  activeHistoryIndex.value = 0;
+  menuVisible.value = false;
+  activeCategory.value = undefined;
+
+  nextTick(() => {
+    if (isDefaultMode.value || step === CurrentStep.SELECT_CATEGORY) {
+      currentMode.value = Mode.CATEGORY;
+      currentStep.value = CurrentStep.SELECT_CATEGORY;
+      getCategoryData();
+    } else {
+      currentMode.value = Mode.DEFAULT;
+      currentStep.value = CurrentStep.DEFAULT;
+    }
+
+    resizeWindow();
+  });
+}
 
 function handleKeydown(e: KeyboardEvent) {
   const resultCount = resultList.value.length;
@@ -324,26 +424,36 @@ function handleKeydown(e: KeyboardEvent) {
   if (ctrlKey && (key === "w" || key === "W")) {
     selectedIndex.value = 0;
     resultList.value = [];
-    searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+    resizeWindow();
     e.preventDefault();
     return;
   }
 
   switch (keyCode) {
-    case 9:
-      if (autocompleteList.value.length) handleChangeCurrentAutocomplete();
+    case 9: // TAB
+      if (autocompleteList.value.length && isDefaultMode.value && keyword.value.trim().length)
+        handleChangeCurrentAutocomplete();
+      else if (!keyword.value.trim().length) handleSwitchMode();
       e.preventDefault();
       break;
-    case 13:
+    case 13: // ENTER
       handleEnter();
       break;
-    case 27:
-      emit("closeWindow", true);
+    case 27: // ESC
+      // 处于分类模式时 退到选择分类
+      if (currentStep.value === CurrentStep.CATEGORY) {
+        handleSwitchMode(CurrentStep.SELECT_CATEGORY);
+      } else if (currentStep.value === CurrentStep.SELECT_CATEGORY) {
+        handleSwitchMode();
+      } else {
+        emit("closeWindow", true);
+      }
       break;
-    case 32:
+    case 32: // 空格
       if (
         appConfigStore.enableTranslation &&
         appConfigStore.translationOpenModel === TranslationOpenModel.THREE_HITS_ON_SPACES &&
+        isDefaultMode.value &&
         spaceCounter === 3
       ) {
         emit("switchMode", {
@@ -355,35 +465,136 @@ function handleKeydown(e: KeyboardEvent) {
       }
       if (appConfigStore.enableWebSearch) tryOpenWebSearch();
       break;
-    case 38:
-      if (appConfigStore.showHistory && !keyword.value.length) {
+    case 38: // 上
+      if (historyEnabled.value) {
         handleChangeHistory("up");
-      } else if (selectedIndex.value === 0 && resultCount) {
-        selectedIndex.value = maxIndex;
-      } else if (selectedIndex.value > 0) {
-        selectedIndex.value--;
-      }
+      } else handleSelectIndexKeydownChange("up");
       e.preventDefault();
       break;
-    case 39:
-      if (autocompleteList.value.length) keyword.value = currentAutocompleteSuggestion.value;
+    case 39: // 右
+      if (autocompleteEnabled.value) keyword.value = currentAutocompleteSuggestion.value;
       break;
-    case 40:
-      if (!keyword.value.length) {
+    case 40: // 下
+      if (historyEnabled.value) {
         handleChangeHistory("down");
-      } else if (selectedIndex.value === maxIndex && resultCount) {
-        selectedIndex.value = 0;
-      } else if (selectedIndex.value < maxIndex) {
-        selectedIndex.value++;
-      }
+      } else handleSelectIndexKeydownChange("down");
       e.preventDefault();
       break;
   }
 }
 
+const autocompleteEnabled = computed(() => autocompleteList.value.length && isDefaultMode.value);
+const historyEnabled = computed(
+  () =>
+    appConfigStore.showHistory &&
+    !isSelectCategoryStep.value &&
+    !keyword.value.length &&
+    isDefaultMode.value,
+);
+/**
+ * 处理上下方向键切换选中项
+ *
+ * up:
+ *  - 当前为第一项时跳转到最后一项（循环）
+ *  - 否则向上移动一项
+ *
+ * down:
+ *  - 当前为最后一项时跳转到第一项（循环）
+ *  - 否则向下移动一项
+ */
+function handleSelectIndexKeydownChange(type: "up" | "down") {
+  if (!resultList.value.length) return;
+
+  selectedIndex.value = findNextEnabledIndex(selectedIndex.value, type);
+
+  // // 当前结果总数
+  // const resultCount = resultList.value.length;
+  // // 最后一个元素索引
+  // const maxIndex = resultCount - 1;
+  // if (type === "up") {
+  //   // 第一项继续向上 → 跳转到最后一项
+  //   if (selectedIndex.value === 0 && resultCount) {
+  //     selectedIndex.value = maxIndex;
+  //   }
+  //   // 普通向上移动
+  //   else if (selectedIndex.value > 0) {
+  //     selectedIndex.value--;
+  //   }
+  // } else if (type === "down") {
+  //   // 最后一项继续向下 → 跳转到第一项
+  //   if (selectedIndex.value === maxIndex && resultCount) {
+  //     selectedIndex.value = 0;
+  //   }
+  //   // 普通向下移动
+  //   else if (selectedIndex.value < maxIndex) {
+  //     selectedIndex.value++;
+  //   }
+  // }
+}
+
+/**
+ * 查找下一个可用索引
+ *
+ * @param current 当前索引
+ * @param direction 方向
+ * @returns 可用索引，不存在则返回原索引
+ */
+function findNextEnabledIndex(current: number, direction: "up" | "down") {
+  const list = resultList.value;
+  const count = list.length;
+
+  if (!count) return current;
+
+  let next = current;
+
+  // 最多遍历一次列表
+  for (let i = 0; i < count; i++) {
+    next = direction === "up" ? (next - 1 + count) % count : (next + 1) % count;
+
+    if (!list[next]?.disabled) {
+      return next;
+    }
+  }
+
+  // 全部禁用
+  return current;
+}
+
 async function handleEnter() {
+  if (isSelectCategoryStep.value) return handleCategoryEnter();
+  await handleLaunchEnter();
+}
+const activeCategory = ref<CategoryItem>();
+async function handleCategoryEnter() {
+  const category = resultList.value[selectedIndex.value] as CategoryItem;
+  if (!category) return;
+  activeCategory.value = category;
+
+  currentMode.value = Mode.CATEGORY;
+  currentStep.value = CurrentStep.CATEGORY;
+  // 切换到指定分类查询模式
+  if (
+    appConfigStore.enableCategorySearchDefaultData &&
+    activeCategory.value &&
+    resultList.value.length &&
+    selectedIndex.value >= 0
+  ) {
+    initParamsAndDataResult();
+    nextTick(() => {
+      handleLaunchSearch(true);
+    });
+  } else {
+    autocompleteIndex.value = 0;
+    autocompleteList.value = [];
+    activeHistoryIndex.value = 0;
+    resultList.value = [];
+    resizeWindow();
+  }
+}
+
+async function handleLaunchEnter() {
   try {
-    if (!keyword.value.length) {
+    if (!keyword.value.length && isDefaultMode.value) {
       await handleHistoryEnterLaunch();
       emit("closeWindow");
       return;
@@ -410,13 +621,15 @@ async function handleEnterLaunch() {
     return;
   }
 
-  const item = resultList.value[selectedIndex.value];
+  const item = resultList.value[selectedIndex.value] as SearchLauncItem;
   if (!item) return;
 
   await runLaunch(item.id);
   EventBus.emit(AppEvent.UPDATE_LAUNCH_ITEM_COUNT, item.id);
   addOrUpdateAutocompleteRecord(keyword.value, item.id);
-  if (appConfigStore.enableHistory) addLaunchHistory(keyword.value, item.type, item.id);
+  if (appConfigStore.enableHistory) {
+    addLaunchHistory(keyword.value || item.name, item.type, item.id);
+  }
 }
 
 async function handleHistoryEnterLaunch() {
@@ -436,30 +649,65 @@ async function handleHistoryEnterLaunch() {
 }
 
 async function handleSearch() {
-  const currentId = ++searchRequestId;
+  selectedIndex.value = 0;
   autocompleteIndex.value = 0;
   autocompleteList.value = [];
   activeHistoryIndex.value = 0;
 
-  if (!keyword.value.trim()) {
+  // 当处于 选择分类步骤时 不执行搜索
+  if (currentStep.value === CurrentStep.SELECT_CATEGORY) return handleCategorySearch();
+  await handleLaunchSearch();
+}
+
+function getCategoryData() {
+  const data = categoryData.value.map((item) => ({
+    ...item,
+    disabled: item.exclude || false,
+  }));
+  if (!keyword.value.trim()) resultList.value = data;
+  else resultList.value = data.filter((item) => item.name.includes(keyword.value));
+}
+
+async function handleCategorySearch() {
+  // 前端实现分类的过滤
+  getCategoryData();
+
+  resizeWindow();
+}
+
+async function handleLaunchSearch(init?: boolean) {
+  const currentId = ++searchRequestId;
+
+  if (!isCategoryMode.value && !keyword.value.trim() && !init) {
     handleClose();
     return;
   }
 
-  if (appConfigStore.enableAutocomplete) {
+  if (appConfigStore.enableAutocomplete && isDefaultMode.value) {
     getAutocomplete(keyword.value).then((res) => {
       if (currentId === searchRequestId) autocompleteList.value = res;
     });
   }
 
-  let launchs = await searchLaunch(keyword.value);
+  if (
+    isCategoryMode.value &&
+    !appConfigStore.enableCategorySearchDefaultData &&
+    !keyword.value.trim()
+  )
+    return;
+  let launchs = await searchLaunch(keyword.value, activeCategory.value?.id);
   if (!searchFlag.value) searchFlag.value = true;
-  if (!appConfigStore.enableCommandAlias) launchs = launchs.filter((item) => item.type !== "alias");
+  if (!appConfigStore.enableCommandAlias || !activeCategory.value?.id)
+    launchs = launchs.filter((item) => item.type !== "alias");
+
   resultList.value = launchs;
+  if (launchs.length < selectedIndex.value) selectedIndex.value = 0;
 
   if (currentId === searchRequestId) {
-    searchWindow.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+    resizeWindow();
   }
+
+  // await getLaunchData(currentId);
 }
 
 async function handleShowContextMenu(e: MouseEvent, item: SearchLauncItem) {
@@ -493,9 +741,11 @@ function resizeWindow() {
 
 watch(() => keyword.value, handleSearch);
 
+const itemRefs = useTemplateRef("itemRefs");
 watch(selectedIndex, async (newIndex) => {
   await nextTick();
-  itemRefs.value[newIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  // itemRefs.value[newIndex]?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  itemRefs.value?.[newIndex]?.scrollToIntoView();
 });
 
 watch(chromeHeight, resizeWindow);
@@ -516,11 +766,14 @@ function getHisData() {
   }
 }
 
-getHisData();
-function handleBeforeShow() {}
+function handleBeforeShow() {
+  getHisData();
+}
 
 onMounted(() => {
-  nextTick(focus);
+  nextTick(() => {
+    focus();
+  });
 });
 
 defineExpose({
@@ -546,7 +799,7 @@ defineExpose({
 }
 
 ::v-deep(.n-input__placeholder) {
-  font-size: 14px !important;
+  font-size: 12px !important;
   margin-left: 5px;
 }
 

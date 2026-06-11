@@ -128,6 +128,10 @@ declare global {
     searchOpenOnMouseDisplay: boolean;
     /** 默认搜索 */
     enableDefaultSearch: boolean;
+    /** 快速搜索按分类搜索 加载默认启动项数据 */
+    enableCategorySearchDefaultData: boolean;
+    /** 启用按分类搜索 */
+    enableDefaultSearchByCategory: boolean;
 
     enableWebSearch: boolean;
     /** 网络搜索打开呼出方式 0 */
