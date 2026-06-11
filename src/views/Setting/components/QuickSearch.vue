@@ -87,10 +87,6 @@ watch(
   (val) => (shortcutKey.value = val),
   { immediate: true },
 );
-
-function handleShowCategory(val: boolean) {
-  if (!val) appConfigStore.showSubCategory = false;
-}
 </script>
 
 <style scoped>

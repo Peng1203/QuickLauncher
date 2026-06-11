@@ -372,24 +372,24 @@ function tryOpenWebSearch() {
   }, 50);
 }
 // 连续按下2次 / 键 进入指定分类查询模式
-const enterCategoryCount = ref(0);
-const enableCategorySearch = ref(false);
-function handleEnterCategoryMode(e: KeyboardEvent) {
-  if (!isDefaultMode.value) return;
-  if (e.keyCode === 191) {
-    enterCategoryCount.value++;
-    if (enterCategoryCount.value === 2) {
-      enableCategorySearch.value = true;
-      enterCategoryCount.value = 0;
-      console.log("进入指定分类查询模式");
-      currentMode.value = Mode.CATEGORY;
-    }
-    return;
-  } else {
-    enterCategoryCount.value = 0;
-    enableCategorySearch.value = false;
-  }
-}
+// const enterCategoryCount = ref(0);
+// const enableCategorySearch = ref(false);
+// function handleEnterCategoryMode(e: KeyboardEvent) {
+//   if (!isDefaultMode.value) return;
+//   if (e.keyCode === 191) {
+//     enterCategoryCount.value++;
+//     if (enterCategoryCount.value === 2) {
+//       enableCategorySearch.value = true;
+//       enterCategoryCount.value = 0;
+//       console.log("进入指定分类查询模式");
+//       currentMode.value = Mode.CATEGORY;
+//     }
+//     return;
+//   } else {
+//     enterCategoryCount.value = 0;
+//     enableCategorySearch.value = false;
+//   }
+// }
 
 function handleSwitchMode(step?: CurrentStep) {
   keyword.value = "";
@@ -415,8 +415,6 @@ function handleSwitchMode(step?: CurrentStep) {
 }
 
 function handleKeydown(e: KeyboardEvent) {
-  const resultCount = resultList.value.length;
-  const maxIndex = resultCount - 1;
   const { keyCode, ctrlKey, key } = e;
 
   spaceCounter = keyCode === 32 ? spaceCounter + 1 : 0;
