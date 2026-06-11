@@ -1,3 +1,45 @@
+## 2026-06-11（搜索重构 / 分类排序 / UI 优化）
+
+### 快速搜索 - 按分类搜索
+
+- 后端 `search_launch` 新增 `category_id` 参数，支持按分类过滤
+- 前端 `searchLaunch` API 签名同步扩展
+- 新增配置项：`enableDefaultSearchByCategory`、`enableCategorySearchDefaultData`
+- 设置页新增「按分类搜索」和「默认数据」开关
+- 新增 4 语种国际化 key（`search.*`、`quickSearch.*`）
+
+### DefaultSearchMode 重构
+
+- 删除旧 `DefaultSearchMode.vue`（603 行），迁移至 `DefaultMode/` 目录
+- 搜索窗口显示时调用 `handleBeforeShow` 生命周期
+
+### 侧边栏分类排序
+
+- 使用 `VueDraggable` 实现分类拖拽排序
+- 拖拽结束时批量调用 `updateCategory` 更新 `order_index`
+- 默认分类（`order_index=9999`）禁止拖拽
+- 新增 `fade` 过渡动画
+- 分类图标：有 icon 显示图标，无 icon 显示默认分类图标
+
+### 主窗口优化
+
+- `Main.vue` 新增 `initCursor()` 初始化光标状态
+- `LaunchList.vue` 添加 `TransitionGroup` 支持拖拽动画
+- 暂时注释同一列表内排序的持久化逻辑
+
+### 菜单与国际化
+
+- 关联目录分类右键菜单隐藏「新建启动项」
+- 搜索占位符补充「命令别名」说明
+- TodoMode 快捷键提示顺序调整
+
+### 代码清理
+
+- 移除 `useCategoryCorrelationDir` 中所有 `console.log` 调试输出
+- `OperationLaunch` 分类选项改用 `categoryData` 计算生成
+- `exe_command` 注释掉固定 `current_dir` 设置
+- 清理 `OperationLaunch` 中未使用的 `baseSelectionHeight`
+
 ## 2026-06-09（托盘增强 / 拖拽分类 / 分类图标）
 
 ### 托盘菜单增强

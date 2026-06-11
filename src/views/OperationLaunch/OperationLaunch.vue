@@ -31,9 +31,6 @@
         :tab="item.label"
       >
         <div style="max-height: 310px; overflow-y: auto">
-          <!-- {{ { ...form, icon: '' } }} -->
-          <!-- -- {{ appConfigStore }} -->
-
           <n-form
             ref="formRef"
             size="small"
@@ -333,7 +330,14 @@ type LaunchItemType = NewLaunchItem['type'];
 const modalStatus = defineModel<boolean>({ default: true });
 
 const store = useStore(piniaStore);
-const { categoryOptions, activeCategory } = storeToRefs(store);
+const { categoryData, activeCategory } = storeToRefs(store);
+
+const categoryOptions = computed(() => categoryData.value.map((item) => ({
+  icon: item.icon,
+  label: item.name,
+  value: item.id,
+  disabled: !!item.association_directory,
+})));
 
 const { appConfigStore } = useAppConfig();
 const { message } = useNaiveUiApi();
@@ -577,9 +581,9 @@ async function handleSelectLaunch() {
   const path =
     form.value.type === 'directory'
       ? await open({
-          multiple: false,
-          directory: true,
-        })
+        multiple: false,
+        directory: true,
+      })
       : await invoke<string>('open_file_with_lnk');
 
   const fileInfo = await getFileInfo(path!);
@@ -705,10 +709,6 @@ function renderMultipleSelectTag({ option, handleClose }: any) {
   );
 }
 
-const baseSelectionHeight = computed(() => {
-  return form.value.type === 'apps' ? '80px' : 'initial';
-});
-
 // 拖拽
 getCurrentWebviewWindow().onDragDropEvent(async e => {
   if (isEdit.value) return;
@@ -750,6 +750,8 @@ EventBus.listen<LaunchItem | undefined>(AppEvent.OPEN_OPERATION_LAUNCH, async va
   window?.setTitle(isEdit.value ? t('launch.editLaunchItem') : t('launch.newLaunchItem'));
 });
 
+getAppsSelectOptions();
+
 useEsc(handleClose);
 </script>
 
@@ -757,6 +759,7 @@ useEsc(handleClose);
 .n-tabs {
   --background: initial !important;
 }
+
 .n-modal {
   padding: 10px;
   transition: none !important;
@@ -766,6 +769,7 @@ useEsc(handleClose);
   width: 600px;
   height: 400px;
 }
+
 ::v-deep(.n-card-header),
 ::v-deep(.n-card__content),
 ::v-deep(.n-card__footer) {
@@ -775,6 +779,7 @@ useEsc(handleClose);
 .n-col {
   margin-top: 10px;
 }
+
 .n-col:nth-of-type(1),
 .n-col:nth-of-type(2) {
   margin-top: 0px;
@@ -799,6 +804,7 @@ useEsc(handleClose);
 ) {
   background-color: initial !important;
 }
+
 ::v-deep(.n-base-selection-tags) {
   background-color: initial !important;
 }
@@ -820,7 +826,7 @@ useEsc(handleClose);
 }
 
 /* prettier-ignore */
-::v-deep(.n-input-number > .n-input * ) {
+::v-deep(.n-input-number > .n-input *) {
   --n-caret-color: inherit !important;
   --n-border-hover: inherit !important;
   --n-border-focus: inherit !important;
@@ -832,6 +838,7 @@ useEsc(handleClose);
 ::v-deep(.n-base-selection__state-border) {
   transition: none !important;
 }
+
 /* prettier-ignore */
 ::v-deep(.n-base-selection) {
   --n-caret-color: inherit !important;
@@ -851,8 +858,8 @@ useEsc(handleClose);
 ::v-deep(.n-input--textarea) {
   min-height: 80px !important;
 }
+
 ::v-deep(.n-base-selection) {
-  min-height: v-bind("baseSelectionHeight") !important;
   // background-color: transparent !important;
   background-color: var(--n-color);
 }
@@ -860,6 +867,7 @@ useEsc(handleClose);
 ::v-deep(.n-card-content) {
   padding: 0px !important;
 }
+
 ::v-deep(.n-input-wrapper) {
   resize: none !important;
 }
