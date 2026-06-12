@@ -1,3 +1,30 @@
+## 2026-06-13（Dto 重构 / models 清理）
+
+### Dto 模式重构
+
+- `launch_items`：新增 `CreateLaunchItemDto`、`UpdateLaunchItemDto`、`SearchLaunchItemDto`，补充 `FromQueryResult` 和 `into_active_model()` 方法
+- `todos`：新增 `CreateTodoDto`、`UpdateTodoDto`，补充 `From<Model>` 和 `From<Dto> for ActiveModel` 实现
+- `configs`：新增 `UpdateConfigDto`，适配 `save_app_config` 命令
+- `launch_history`：`started_at` 改为 `Option<i64>`，`CreateLaunchHistoryDto` 适配
+
+### 命令层适配
+
+- `add_launch` / `update_launch` / `search_launch` 参数改用 Dto 类型
+- `add_todo` / `update_todo` 参数改用 Dto 类型
+- `save_app_config` 参数改用 `UpdateConfigDto`
+- `add_or_update_autocomplete` 修复 `Expr::current_timestamp()` 为 `Expr::value(Utc::now().timestamp_millis())`
+
+### Entity schema 变更
+
+- `launch_items.last_used_at` 改为 `Option<i64>`
+- `launch_history.started_at` 改为 `Option<i64>`
+
+### models 目录清理
+
+- 删除全部 models 文件（`launch_item`、`todo_item`、`category_item`、`config_item`、`autocomplete_item`、`app_config_state`）
+- 删除 `entity/prelude.rs`
+- `lib.rs` 移除 `AppConfigState` 管理初始化
+
 ## 2026-06-11（搜索重构 / 分类排序 / UI 优化）
 
 ### 快速搜索 - 按分类搜索
