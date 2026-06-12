@@ -2,7 +2,6 @@
 
 use crate::clipboard::listener;
 use crate::common::utils::is_foreground_fullscreen;
-use crate::models::app_config_state::AppConfigState;
 use commands::add_category::add_category;
 use commands::add_launch::add_launch;
 use commands::add_launch_history::add_launch_history;
@@ -195,9 +194,6 @@ pub fn run() {
             setup_window_hide_on_close!(oper_launch_window);
             setup_window_hide_on_close!(oper_category_window);
             setup_window_hide_on_close!(clipboard_toast);
-
-            // 初始化应用配置
-            app.manage(Mutex::new(AppConfigState::default()));
 
             #[cfg(debug_assertions)]
             {
