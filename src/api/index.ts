@@ -265,10 +265,6 @@ export function deleteCategory(id: number) {
   return invoke<CategoryItem[]>(InvokeMethod.DELETE_CATEGORY, { id });
 }
 
-export function setAppConfig(config: AppConfigState) {
-  return invoke(InvokeMethod.SET_APP_CONFIG, { config });
-}
-
 export function getLocalIconBase64(path: string): Promise<string> {
   return invoke<string>(InvokeMethod.GET_LOCAL_ICON_BASE64, { path });
 }

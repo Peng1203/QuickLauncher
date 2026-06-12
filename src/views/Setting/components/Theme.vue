@@ -246,7 +246,7 @@ const presetColors = [
 const pageStyleOptions = computed<OptionItem<string>[]>(() => [
   { label: t("theme.styleDefault"), value: "normal" },
   { label: "macOS", value: "macos" },
-  { label: "Windows 11", value: "win11" },
+  // { label: "Windows 11", value: "win11" },
 ]);
 
 // const densityOptions: OptionItem<string>[] = [

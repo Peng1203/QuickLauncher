@@ -695,8 +695,11 @@ async function handleLaunchSearch(init?: boolean) {
     return;
   let launchs = await searchLaunch(keyword.value, activeCategory.value?.id);
   if (!searchFlag.value) searchFlag.value = true;
-  if (!appConfigStore.enableCommandAlias || !activeCategory.value?.id)
+  if (!appConfigStore.enableCommandAlias) {
+    // 处于分类查询模式时
+    // if (activeCategory.value?.id) return;
     launchs = launchs.filter((item) => item.type !== "alias");
+  }
 
   resultList.value = launchs;
   if (launchs.length < selectedIndex.value) selectedIndex.value = 0;
@@ -771,6 +774,7 @@ function handleBeforeShow() {
 onMounted(() => {
   nextTick(() => {
     focus();
+    getHisData();
   });
 });
 

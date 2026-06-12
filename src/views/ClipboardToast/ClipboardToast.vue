@@ -13,6 +13,7 @@
       <!-- header -->
       <div class="flex items-start justify-between">
         <div class="flex items-center gap-2">
+          <TrafficLights />
           <Icon
             background
             :name="isDirectory ? 'icon-wj-wjj' : 'icon-url'"
@@ -108,6 +109,7 @@ import { t } from "@/i18n";
 import { sleep } from "@/utils/delay";
 import { EventBus } from "@/utils/eventBus";
 import { register, unRegisterShortcutKey } from "@/utils/shortcutKey";
+import TrafficLights from "@/components/TrafficLights.vue";
 
 interface Props {
   model?: "default" | "setLocation" | "demo";
@@ -289,6 +291,7 @@ const savePortalPosition = useDebounceFn((position: { x: number; y: number }) =>
 
 currentWindow.onMoved(({ payload: position }) => savePortalPosition(position));
 EventBus.listen(AppEvent.OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL, async () => {
+  // if (visible.value && currentModel.value === "default") return;
   currentModel.value = "setLocation";
   content.value = t("clipboard.dragToSetPosition");
   visible.value = true;

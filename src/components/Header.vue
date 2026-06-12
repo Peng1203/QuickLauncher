@@ -2,10 +2,13 @@
   <!-- position="absolute" -->
   <n-layout-header
     :data-tauri-drag-region="!appConfigStore.center"
-    class="h-8 bg-card flex items-center justify-between px-2 border-b-1 border-border z-10"
+    class="h-8 bg-card flex items-center justify-between border-b-1 border-border z-10"
+    :class="appConfigStore.pageStyle === 'macos' ? 'pl-16' : 'px-2'"
   >
-    <!-- text-foreground -->
-    <span class="color-[inherit]">{{ appConfigStore.title }}</span>
+    <div class="flex items-center gap-2">
+      <TrafficLights />
+      <span class="color-[inherit]">{{ appConfigStore.title }}</span>
+    </div>
     <!-- 右侧操作 -->
     <div class="flex items-center gap-2">
       <ThemeSwitch />
@@ -41,6 +44,7 @@ import { CloseOutline, MenuOutline, SettingsOutline } from '@vicons/ionicons5';
 import { useAppConfig, useAppConfigActions, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
 import { t } from '@/i18n';
+import TrafficLights from './TrafficLights.vue';
 
 const { appConfigStore } = useAppConfig();
 const { setAlwaysOnTop, setMainWindowCenter, setAutoStart } = useAppConfigActions();

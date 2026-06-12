@@ -6,9 +6,14 @@
     aria-modal="true"
     label-placement="left"
     :bordered="false"
-    :title="isEdit ? t('category.editCategory') : t('category.newCategory')"
     class="h-full px-5 pt-3 pb-5"
   >
+    <template #header>
+      <div class="flex items-center gap-2">
+        <TrafficLights />
+        <span>{{ isEdit ? t("category.editCategory") : t("category.newCategory") }}</span>
+      </div>
+    </template>
     <template #header-extra>
       <n-icon size="20" class="cursor-pointer" @click="handleClose">
         <Close />
@@ -113,6 +118,7 @@ import { Close } from "@vicons/ionicons5";
 import { ref } from "vue";
 import { addCategory, updateCategory, updateLaunchEnabledByCategory } from "@/api";
 import IconPicker from "@/components/IconPicker.vue";
+import TrafficLights from "@/components/TrafficLights.vue";
 import {
   useCategoryCorrelationDir,
   useEsc,

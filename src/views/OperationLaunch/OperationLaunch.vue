@@ -5,9 +5,14 @@
     role="dialog"
     aria-modal="true"
     :bordered="false"
-    :title="isEdit ? t('launch.editItem') : t('launch.newItem')"
     class="h-full px-5 pt-3 pb-5"
   >
+    <template #header>
+      <div class="flex items-center gap-2">
+        <TrafficLights />
+        <span>{{ isEdit ? t("launch.editItem") : t("launch.newItem") }}</span>
+      </div>
+    </template>
     <template #header-extra>
       <n-icon size="20" class="cursor-pointer" @click="handleClose">
         <Close />
@@ -304,6 +309,7 @@ import { computed, nextTick, ref } from 'vue';
 import { addLaunch, getCategoryTree, getFileInfo, getWebsiteInfo, updateLaunch } from '@/api';
 import BrowerPicker from '@/components/BrowserPicker.vue';
 import IconPicker from '@/components/IconPicker.vue';
+import TrafficLights from '@/components/TrafficLights.vue';
 import { useAppConfig, useEsc, useFormState, useNaiveUiApi, useToggleWindowVisible } from '@/composables';
 import { AppEvent } from '@/constant';
 import { t } from '@/i18n';

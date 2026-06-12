@@ -56,9 +56,6 @@ export enum InvokeMethod {
 
   GET_WEBSITE_INFO = "get_website_info",
 
-  // 将app配置数据存放在后端共享线程中
-  SET_APP_CONFIG = "set_app_config",
-
   GET_LOCAL_ICON_BASE64 = "get_local_icon_base64",
   GET_ONLINE_IMG_BASE64 = "get_online_img_base64",
 

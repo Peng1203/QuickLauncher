@@ -2,11 +2,13 @@
   <div class="h-full">
     <header
       data-tauri-drag-region
-      class="top-0 left-0 right-0 h-8 bg-card flex items-center justify-between px-2 z-10"
+      class="top-0 left-0 right-0 h-8 bg-card flex items-center justify-between z-10"
+      :class="appConfigStore.pageStyle === 'macos' ? 'pl-16' : 'px-2'"
     >
-      <span class="text-foreground">{{ t("setting.title") }}</span>
-      <!-- {{ activeTab }} -->
-      <!-- {{ appConfigStore.center }} -->
+      <div class="flex items-center gap-2">
+        <TrafficLights />
+        <span class="text-foreground">{{ t("setting.title") }}</span>
+      </div>
 
       <n-icon size="25" class="cursor-pointer" @click="handleClose">
         <CloseOutline />
@@ -49,6 +51,7 @@ import { useAppConfig, useToggleWindowVisible } from "@/composables";
 import { AppEvent } from "@/constant";
 import { t } from "@/i18n";
 import { EventBus } from "@/utils/eventBus";
+import TrafficLights from "@/components/TrafficLights.vue";
 import AboutPane from "./components/About.vue";
 import CommandAliasPane from "./components/CommandAlias.vue";
 import DataPane from "./components/Data.vue";
@@ -62,7 +65,7 @@ import Translation from "./components/Translation.vue";
 import WebSearchPane from "./components/WebSearch.vue";
 
 const { toogleSettingWindowVisible } = useToggleWindowVisible();
-const { themeColor } = useAppConfig();
+const { themeColor, appConfigStore } = useAppConfig();
 
 const settingTabs = computed(() => [
   {
