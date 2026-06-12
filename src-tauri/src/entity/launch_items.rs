@@ -64,7 +64,7 @@ pub struct Model {
 
     pub failure_count: Option<i32>,
 
-    pub last_used_at: i64,
+    pub last_used_at: Option<i64>,
 
     pub created_at: i64,
 

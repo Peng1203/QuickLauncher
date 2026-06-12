@@ -1,4 +1,5 @@
-use crate::entity::launch_items;
+use crate::{common::utils::get_pinyin_variants, entity::launch_items};
+use sea_orm::ActiveValue::{NotSet, Set};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -25,7 +26,7 @@ pub struct LaunchItemDto {
     pub extension: Option<String>,
     pub launch_count: Option<i32>,
     pub failure_count: Option<i32>,
-    pub last_used_at: i64,
+    pub last_used_at: Option<i64>,
     pub created_at: i64,
     pub updated_at: i64,
 }
@@ -85,6 +86,88 @@ pub struct CreateLaunchItemDto {
     pub extension: Option<String>,
 }
 
+impl From<CreateLaunchItemDto> for launch_items::ActiveModel {
+    fn from(dto: CreateLaunchItemDto) -> Self {
+        Self {
+            name: Set(dto.name),
+            path: Set(dto.path),
+            lnk_name: Set(dto.lnk_name),
+            r#type: Set(dto.r#type),
+            icon: Set(dto.icon),
+            hotkey: Set(dto.hotkey),
+            hotkey_global: Set(dto.hotkey_global),
+            pinyin_full: Set(dto.pinyin_full),
+            pinyin_abbr: Set(dto.pinyin_abbr),
+            keywords: Set(dto.keywords),
+            start_dir: Set(dto.start_dir),
+            remarks: Set(dto.remarks),
+            args: Set(dto.args),
+            run_as_admin: Set(dto.run_as_admin),
+            order_index: Set(dto.order_index),
+            enabled: Set(dto.enabled),
+            category_id: Set(dto.category_id),
+            subcategory_id: Set(dto.subcategory_id),
+            extension: Set(dto.extension),
+            ..Default::default()
+        }
+    }
+}
+
+impl Default for CreateLaunchItemDto {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            path: String::new(),
+            lnk_name: None,
+            r#type: String::new(),
+            icon: None,
+            hotkey: None,
+            hotkey_global: None,
+            pinyin_full: None,
+            pinyin_abbr: None,
+            keywords: None,
+            start_dir: None,
+            remarks: None,
+            args: None,
+            run_as_admin: None,
+            order_index: None,
+            enabled: None,
+            category_id: None,
+            subcategory_id: None,
+            extension: None,
+        }
+    }
+}
+
+impl CreateLaunchItemDto {
+    pub fn into_active_model(self) -> launch_items::ActiveModel {
+        let (pinyin_full, pinyin_abbr) = get_pinyin_variants(&self.name);
+
+        launch_items::ActiveModel {
+            name: Set(self.name),
+            lnk_name: Set(self.lnk_name),
+            path: Set(self.path),
+            r#type: Set(self.r#type),
+            icon: Set(self.icon),
+            pinyin_full: Set(Some(pinyin_full)),
+            pinyin_abbr: Set(Some(pinyin_abbr)),
+            extension: Set(self.extension),
+            hotkey: Set(self.hotkey),
+            hotkey_global: Set(self.hotkey_global),
+            keywords: Set(self.keywords),
+            start_dir: Set(self.start_dir),
+            remarks: Set(self.remarks),
+            args: Set(self.args),
+            run_as_admin: Set(self.run_as_admin),
+            order_index: Set(self.order_index),
+            enabled: Set(self.enabled),
+            category_id: Set(self.category_id),
+            subcategory_id: Set(self.subcategory_id),
+            ..Default::default()
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UpdateLaunchItemDto {
     pub id: i32,
@@ -109,7 +192,64 @@ pub struct UpdateLaunchItemDto {
     pub extension: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+impl From<UpdateLaunchItemDto> for launch_items::ActiveModel {
+    fn from(dto: UpdateLaunchItemDto) -> Self {
+        Self {
+            id: Set(dto.id),
+            name: dto.name.map(Set).unwrap_or(NotSet),
+            lnk_name: Set(dto.lnk_name),
+            r#type: dto.r#type.map(Set).unwrap_or(NotSet),
+            icon: Set(dto.icon),
+            hotkey: Set(dto.hotkey),
+            hotkey_global: Set(dto.hotkey_global),
+            pinyin_full: Set(dto.pinyin_full),
+            pinyin_abbr: Set(dto.pinyin_abbr),
+            keywords: Set(dto.keywords),
+            start_dir: Set(dto.start_dir),
+            remarks: Set(dto.remarks),
+            args: Set(dto.args),
+            run_as_admin: Set(dto.run_as_admin),
+            order_index: Set(dto.order_index),
+            enabled: Set(dto.enabled),
+            category_id: Set(dto.category_id),
+            subcategory_id: Set(dto.subcategory_id),
+            extension: Set(dto.extension),
+            ..Default::default()
+        }
+    }
+}
+
+impl UpdateLaunchItemDto {
+    pub fn into_active_model(
+        self,
+        existing: launch_items::Model,
+        pinyin_full: String,
+        pinyin_abbr: String,
+    ) -> launch_items::ActiveModel {
+        let mut active: launch_items::ActiveModel = existing.into();
+        active.name = Set(self.name.unwrap_or_default());
+        active.path = Set(self.path.unwrap_or_default());
+        active.r#type = Set(self.r#type.unwrap_or_default());
+        active.icon = Set(self.icon);
+        active.pinyin_full = Set(Some(pinyin_full));
+        active.pinyin_abbr = Set(Some(pinyin_abbr));
+        active.extension = Set(self.extension);
+        active.hotkey = Set(self.hotkey);
+        active.hotkey_global = Set(self.hotkey_global);
+        active.keywords = Set(self.keywords);
+        active.start_dir = Set(self.start_dir);
+        active.remarks = Set(self.remarks);
+        active.args = Set(self.args);
+        active.run_as_admin = Set(self.run_as_admin);
+        active.order_index = Set(self.order_index);
+        active.enabled = Set(self.enabled);
+        active.category_id = Set(self.category_id);
+        active.subcategory_id = self.subcategory_id.map(Set).unwrap_or(NotSet).into();
+        active
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, sea_orm::FromQueryResult)]
 pub struct SearchLaunchItemDto {
     pub id: i32,
     pub name: String,

@@ -1,7 +1,7 @@
-use sea_orm::{ActiveModelTrait, EntityTrait, Set};
+use sea_orm::{ActiveModelTrait, EntityTrait};
 
 use crate::{
-    common::utils::get_pinyin_variants, entity::launch_items, models::launch_item::LaunchItemDto,
+    common::utils::get_pinyin_variants, dto::launch_items::UpdateLaunchItemDto, entity::launch_items,
     AppState,
 };
 use tracing;
@@ -9,13 +9,12 @@ use tracing;
 #[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_launch(
-    item: LaunchItemDto,
+    item: UpdateLaunchItemDto,
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };
     let db = db.ok_or("数据库未连接")?;
 
-    // ✅ 1. 先查是否存在
     let model = launch_items::Entity::find_by_id(item.id)
         .one(&db)
         .await
@@ -29,35 +28,13 @@ pub async fn update_launch(
         None => return Err("No launch item found with the specified ID".to_string()),
     };
 
-    // ✅ 2. 拼音生成（业务逻辑）
-    let (pinyin_full, pinyin_abbr) = get_pinyin_variants(&item.name);
+    let name = item.name.clone().unwrap_or_default();
+    let (pinyin_full, pinyin_abbr) = get_pinyin_variants(&name);
 
-    // ✅ 3. 转 ActiveModel
-    let mut active: launch_items::ActiveModel = model.into();
+    tracing::info!(name, "更新启动项");
 
-    // ✅ 4. 赋值（等价 SQL SET）
-    tracing::info!(name = &item.name, "更新启动项");
-    active.name = Set(item.name);
-    active.path = Set(item.path);
-    active.r#type = Set(item.r#type);
-    active.icon = Set(item.icon);
+    let active = item.into_active_model(model, pinyin_full, pinyin_abbr);
 
-    active.pinyin_full = Set(Some(pinyin_full));
-    active.pinyin_abbr = Set(Some(pinyin_abbr));
-
-    active.extension = Set(item.extension);
-    active.hotkey = Set(item.hotkey);
-    active.hotkey_global = Set(item.hotkey_global);
-    active.keywords = Set(item.keywords);
-    active.start_dir = Set(item.start_dir);
-    active.remarks = Set(item.remarks);
-    active.args = Set(item.args);
-    active.run_as_admin = Set(item.run_as_admin);
-    active.order_index = Set(item.order_index);
-    active.enabled = Set(item.enabled);
-    active.category_id = Set(item.category_id);
-
-    // ✅ 5. 执行更新
     active.update(&db).await.map_err(|e| {
         tracing::error!(%e, "更新启动项失败");
         format!("更新失败: {}", e)

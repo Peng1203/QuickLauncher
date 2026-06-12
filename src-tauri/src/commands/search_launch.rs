@@ -1,4 +1,4 @@
-use crate::{entity, models::launch_item::SearchLaunchItem, AppState};
+use crate::{dto::launch_items::SearchLaunchItemDto, entity, AppState};
 use entity::{
     categories::{Column as CColumn, Entity as Categories},
     launch_items::{Column as LIColumn, Entity as LaunchItems},
@@ -15,7 +15,7 @@ pub async fn search_launch(
     keyword: &str,
     category_id: Option<i32>,
     state: tauri::State<'_, AppState>,
-) -> Result<Vec<SearchLaunchItem>, String> {
+) -> Result<Vec<SearchLaunchItemDto>, String> {
     let db = { state.db.lock().unwrap().clone() };
     let db = db.ok_or("数据库未连接")?;
 
@@ -59,14 +59,13 @@ pub async fn search_launch(
                 .add(LIColumn::Keywords.like(&like_pattern)),
         );
 
-    // 分类过滤
     if let Some(category_id) = category_id {
         query = query.filter(LIColumn::CategoryId.eq(category_id));
     }
 
     let results = query
         .order_by_desc(LIColumn::OrderIndex)
-        .into_model::<SearchLaunchItem>()
+        .into_model::<SearchLaunchItemDto>()
         .all(&db)
         .await
         .map_err(|e| {
