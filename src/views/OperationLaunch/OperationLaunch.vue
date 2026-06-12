@@ -181,36 +181,51 @@
                 </n-col>
 
                 <!-- 网址选择指定浏览器打开 -->
-                <n-col v-else-if="sItem.slot === 'browserSlot'" :span="(sItem.span as any)">
-                  <n-form-item :label="sItem.label" :path="sItem.prop">
-                    <template #label>
-                      <div class="flex">
-                        <span class="mr-1">{{ sItem.label }}</span>
+                <template v-else-if="sItem.slot === 'browserSlot'">
+                  <!-- 浏览器选择器 -->
+                  <n-col :span="(sItem.span as any)">
+                    <n-form-item :label="sItem.label" :path="sItem.prop">
+                      <template #label>
+                        <div class="flex">
+                          <span class="mr-1">{{ sItem.label }}</span>
 
-                        <n-tooltip trigger="hover">
-                          <template #trigger>
-                            <n-icon size="16" class="cursor-pointer">
-                              <!-- @click="handleClose" -->
-                              <AlertCircleOutline />
-                            </n-icon>
-                          </template>
-                          <span style="color: var(--muted-foreground)">
-                            {{ t("launch.browserFormat") }}
-                            <br />
-                            {{ t("launch.browserExample") }}
-                            <br />
-                            {{ t("launch.browserExampleValue") }}
-                          </span>
-                        </n-tooltip>
-                      </div>
-                    </template>
+                          <n-tooltip trigger="hover">
+                            <template #trigger>
+                              <n-icon size="16" class="cursor-pointer">
+                                <!-- @click="handleClose" -->
+                                <AlertCircleOutline />
+                              </n-icon>
+                            </template>
+                            <span style="color: var(--muted-foreground)">
+                              {{ t("launch.browserFormat") }}
+                              <br />
+                              {{ t("launch.browserExample") }}
+                              <br />
+                              {{ t("launch.browserExampleValue") }}
+                            </span>
+                          </n-tooltip>
+                        </div>
+                      </template>
 
-                    <!--  -->
-                    <template v-if="form.type === 'url'">
-                      <BrowerPicker v-model="(form.args as string)" />
-                    </template>
-                  </n-form-item>
-                </n-col>
+                      <!--  -->
+                      <template v-if="form.type === 'url'">
+                        <BrowerPicker v-model="(websiteStartArgs as string)" />
+                      </template>
+                    </n-form-item>
+                  </n-col>
+
+                  <!-- 浏览器参数 -->
+                  <n-col :span="(sItem.span as any)">
+                    <n-form-item :label="t('launch.labelArgs')">
+                      <n-input
+                        v-model:value="websiteBrowerArgs"
+                        :theme-overrides="inputTheme"
+                        :type="sItem.type || 'text'"
+                        placeholder="--incognito --inprivate --guest --new-window --new-tab"
+                      />
+                    </n-form-item>
+                  </n-col>
+                </template>
 
                 <!-- 关键字 -->
                 <n-col v-else-if="sItem.slot === 'keywordsSlot'" :span="(sItem.span as any)">
@@ -522,6 +537,32 @@ const currentFormSchemas = computed(() => getFormSchemas()[form.value.type]);
 const keywordsTags = computed({
   get: () => (form.value?.keywords || '').split(',').filter(item => item),
   set: val => (form.value.keywords = val.join()),
+});
+
+
+const parseArgs = (args = '') => {
+  const [start = '', browser = ''] = args.split('+');
+  return { start, browser };
+};
+
+const buildArgs = (start: string, browser: string) => {
+  return `${start}+${browser}`;
+};
+// 浏览器参数 由2部分组成 1.启动浏览器 2.浏览器参数
+const websiteStartArgs = computed({
+  get: () => parseArgs(form.value.args || '').start,
+  set: (val) => {
+    const { browser } = parseArgs(form.value.args || '');
+    form.value.args = buildArgs(val, browser);
+  },
+});
+
+const websiteBrowerArgs = computed({
+  get: () => parseArgs(form.value.args || '').browser,
+  set: (val) => {
+    const { start } = parseArgs(form.value.args || '');
+    form.value.args = buildArgs(start, val);
+  },
 });
 
 const formRules = ref({});

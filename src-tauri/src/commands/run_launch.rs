@@ -1,10 +1,10 @@
 use crate::{
     commands::exe_command::exec_command_internal, common::utils::run_as_admin, entity, AppState,
 };
+use chrono::Utc;
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
 use sea_orm::{
-    prelude::Expr, sea_query::prelude::Local, ColumnTrait, DatabaseConnection, DbErr, EntityTrait,
-    ExprTrait, QueryFilter,
+    prelude::Expr, ColumnTrait, DatabaseConnection, DbErr, EntityTrait, ExprTrait, QueryFilter,
 };
 use std::{os::windows::process::CommandExt, process::Command};
 use tracing;
@@ -112,10 +112,27 @@ async fn run_directory(launch_item: &Model) -> Result<(), String> {
 }
 
 async fn run_url(launch_item: &Model) -> Result<(), String> {
+    dbg!(launch_item);
+
     let mut args = vec!["/C".to_string(), "start".to_string(), "".to_string()];
 
+    // 解析 msedge+--new-window
+    let mut launch_parts: Vec<String> = Vec::new();
+
     if let Some(arg) = launch_item.args.as_ref().filter(|s| !s.trim().is_empty()) {
-        args.push(arg.clone());
+        launch_parts = arg
+            .split('+')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+    }
+
+    if let Some(exe) = launch_parts.get(0) {
+        args.push(exe.clone());
+
+        for flag in launch_parts.iter().skip(1) {
+            args.push(flag.clone());
+        }
     }
 
     args.push(launch_item.path.clone());
@@ -128,6 +145,23 @@ async fn run_url(launch_item: &Model) -> Result<(), String> {
 
     Ok(())
 }
+// async fn run_url(launch_item: &Model) -> Result<(), String> {
+//     let mut args = vec!["/C".to_string(), "start".to_string(), "".to_string()];
+
+//     if let Some(arg) = launch_item.args.as_ref().filter(|s| !s.trim().is_empty()) {
+//         args.push(arg.clone());
+//     }
+
+//     args.push(launch_item.path.clone());
+
+//     Command::new("cmd")
+//         .creation_flags(0x08000000)
+//         .args(args)
+//         .spawn()
+//         .map_err(|e| format!("无法打开URL: {}", e))?;
+
+//     Ok(())
+// }
 
 async fn run_alias(launch_item: &Model) -> Result<(), String> {
     exec_command_internal(&launch_item.path).map_err(|e| format!("执行命令失败: {}", e))?;
@@ -179,7 +213,10 @@ async fn run_apps(launch_item: &Model, db: &DatabaseConnection) -> Result<(), St
 async fn incr_launch_count(db: &DatabaseConnection, id: i32) -> Result<(), DbErr> {
     LaunchItems::update_many()
         .col_expr(Column::LaunchCount, Expr::col(Column::LaunchCount).add(1))
-        .col_expr(Column::LastUsedAt, Expr::value(Local::now().naive_local()))
+        .col_expr(
+            Column::LastUsedAt,
+            Expr::value(Utc::now().timestamp_millis()),
+        )
         .filter(Column::Id.eq(id))
         .exec(db)
         .await?;
@@ -187,7 +224,7 @@ async fn incr_launch_count(db: &DatabaseConnection, id: i32) -> Result<(), DbErr
     Ok(())
 }
 
-async fn incr_failure_count(db: &DatabaseConnection, id: i32) -> Result<(), DbErr> {
+async fn _incr_failure_count(db: &DatabaseConnection, id: i32) -> Result<(), DbErr> {
     LaunchItems::update_many()
         .col_expr(Column::FailureCount, Expr::col(Column::FailureCount).add(1))
         .filter(Column::Id.eq(id))
