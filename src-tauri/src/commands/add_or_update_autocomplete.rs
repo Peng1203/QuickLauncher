@@ -1,9 +1,10 @@
+use crate::entity::autocomplete_history::Entity as AutocompleteHistory;
 use crate::{
     entity::{self, autocomplete_history::Column},
     AppState,
 };
+use chrono::Utc;
 use entity::autocomplete_history::ActiveModel;
-use entity::prelude::AutocompleteHistory;
 use sea_orm::{sea_query::Expr, sea_query::OnConflict, ActiveValue::Set, EntityTrait, ExprTrait};
 use tracing;
 
@@ -29,7 +30,10 @@ pub async fn add_or_update_autocomplete(
             OnConflict::column(Column::Query)
                 .update_columns([Column::LaunchItemId]) // 可选更新字段
                 .value(Column::UsageCount, Expr::col(Column::UsageCount).add(1))
-                .value(Column::LastUsedAt, Expr::current_timestamp())
+                .value(
+                    Column::LastUsedAt,
+                    Expr::value(Utc::now().timestamp_millis()),
+                )
                 .to_owned(),
         )
         .exec(&db)

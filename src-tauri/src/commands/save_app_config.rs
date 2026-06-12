@@ -1,13 +1,13 @@
 use entity::configs::{ActiveModel, Column, Entity as Configs};
 use sea_orm::{sea_query::OnConflict, EntityTrait, Set};
 
-use crate::{entity, AppState};
+use crate::{dto::configs::UpdateConfigDto, entity, AppState};
 use tracing;
 
 #[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn save_app_config(
-    config: crate::models::config_item::OperConfigItem,
+    config: UpdateConfigDto,
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };

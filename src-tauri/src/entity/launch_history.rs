@@ -18,7 +18,7 @@ pub struct Model {
     // type 分为2类 1属于启动项中的 file directory url apps alias 2执行为命令行的command
     pub r#type: String,
 
-    pub started_at: i64,
+    pub started_at: Option<i64>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -2,7 +2,7 @@ use entity::launch_history;
 use entity::launch_history::Entity as LaunchHistory;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
-    QuerySelect, Set,
+    QuerySelect,
 };
 use tracing;
 
@@ -43,7 +43,7 @@ pub async fn add_launch_history(
         launch_item_id,
         command: command.to_string(),
         r#type,
-        started_at: chrono::Utc::now().timestamp_millis(),
+        started_at: Some(chrono::Utc::now().timestamp_millis()),
     };
 
     let history: launch_history::ActiveModel = dto.into();

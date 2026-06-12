@@ -1,5 +1,5 @@
 use crate::entity::launch_history;
-use sea_orm::ActiveValue::Set;
+use sea_orm::ActiveValue::{NotSet, Set};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -8,7 +8,7 @@ pub struct LaunchHistoryDto {
     pub launch_item_id: Option<i32>,
     pub command: String,
     pub r#type: String,
-    pub started_at: i64,
+    pub started_at: Option<i64>,
 }
 
 impl From<launch_history::Model> for LaunchHistoryDto {
@@ -28,7 +28,7 @@ pub struct CreateLaunchHistoryDto {
     pub launch_item_id: Option<i32>,
     pub command: String,
     pub r#type: String,
-    pub started_at: i64,
+    pub started_at: Option<i64>,
 }
 
 impl From<CreateLaunchHistoryDto> for launch_history::ActiveModel {
@@ -37,7 +37,7 @@ impl From<CreateLaunchHistoryDto> for launch_history::ActiveModel {
             launch_item_id: Set(dto.launch_item_id),
             command: Set(dto.command),
             r#type: Set(dto.r#type),
-            started_at: Set(dto.started_at),
+            started_at: dto.started_at.map(Set).unwrap_or(NotSet).into(),
             ..Default::default()
         }
     }
