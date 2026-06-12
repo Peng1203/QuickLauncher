@@ -68,5 +68,6 @@ declare module 'vue' {
     ShortcutKeyInput: typeof import('./src/components/ui/ShortcutKeyInput.vue')['default']
     ThemeSwitch: typeof import('./src/components/ThemeSwitch.vue')['default']
     ToggleGroup: typeof import('./src/components/ui/ToggleGroup.vue')['default']
+    TrafficLights: typeof import('./src/components/TrafficLights.vue')['default']
   }
 }

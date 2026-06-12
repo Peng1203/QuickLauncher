@@ -45,7 +45,6 @@ use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
 use commands::search_launch::search_launch;
-use commands::set_app_config::set_app_config;
 use commands::set_default_tray_icon::set_default_tray_icon;
 use commands::update_category::update_category;
 use commands::update_category::update_category_ass_dir;
@@ -54,14 +53,15 @@ use commands::update_launch_enabled_by_category::update_launch_enabled_by_catego
 use commands::update_todo::update_todo;
 use sea_orm::DatabaseConnection;
 use std::sync::Mutex;
-use tauri::{Manager, WindowEvent};
+use tauri::Manager;
 use tauri_plugin_autostart::MacosLauncher;
 use tauri_plugin_prevent_default::Flags;
 // use tray::create_tray;
 mod clipboard;
 mod commands;
 mod common;
-mod db;
+pub mod db;
+mod dto;
 mod entity;
 mod logging;
 mod models;
@@ -118,7 +118,6 @@ pub fn run() {
             get_website_info,
             add_category,
             get_category,
-            set_app_config,
             update_category,
             update_category_ass_dir,
             get_local_icon_base64,

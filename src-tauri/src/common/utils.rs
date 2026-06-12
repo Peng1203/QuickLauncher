@@ -1,9 +1,7 @@
 use crate::entity::launch_items::Model;
-use crate::models::launch_item::LaunchItemDto;
 
 use pinyin::ToPinyin;
 use std::{os::windows::process::CommandExt, process::Command};
-use url::Url;
 use windows::Win32::Foundation::{POINT, RECT};
 use windows::Win32::Graphics::Gdi::{
     GetMonitorInfoW, MonitorFromPoint, MonitorFromWindow, MONITORINFO, MONITOR_DEFAULTTONEAREST,
@@ -295,7 +293,7 @@ pub fn is_foreground_fullscreen() -> bool {
 
         // 获取鼠标当前位置
         let mut cursor_pos = POINT::default();
-        GetCursorPos(&mut cursor_pos);
+        let _ = GetCursorPos(&mut cursor_pos);
 
         // 通过鼠标位置找到对应的显示器
         let cursor_monitor = MonitorFromPoint(cursor_pos, MONITOR_DEFAULTTONEAREST);
@@ -315,7 +313,7 @@ pub fn is_foreground_fullscreen() -> bool {
             cbSize: std::mem::size_of::<MONITORINFO>() as u32,
             ..Default::default()
         };
-        GetMonitorInfoW(cursor_monitor, &mut monitor_info);
+        let _ = GetMonitorInfoW(cursor_monitor, &mut monitor_info);
 
         let screen = monitor_info.rcMonitor;
 
