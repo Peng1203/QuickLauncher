@@ -1,5 +1,5 @@
+use crate::entity;
 use crate::AppState;
-use crate::{entity, models::app_config_state::AppConfigState};
 use entity::configs::ActiveModel;
 use entity::configs::{Column, Entity as Configs};
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};
@@ -9,7 +9,7 @@ use tracing;
 #[tauri::command]
 pub async fn get_app_config(
     state: tauri::State<'_, AppState>,
-) -> Result<Option<AppConfigState>, String> {
+) -> Result<Option<serde_json::Value>, String> {
     let db = { state.db.lock().unwrap().clone() };
     let db = db.ok_or("数据库未连接")?;
 
@@ -42,7 +42,7 @@ pub async fn get_app_config(
     }
 
     // 3. 解析 JSON
-    let parsed_data: AppConfigState =
+    let parsed_data: serde_json::Value =
         serde_json::from_str(&config.data).map_err(|e| format!("解析 JSON 失败：{}", e))?;
 
     Ok(Some(parsed_data))

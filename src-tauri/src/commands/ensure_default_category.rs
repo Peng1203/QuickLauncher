@@ -1,6 +1,7 @@
-use crate::{entity, AppState};
+use crate::common::utils::get_pinyin_variants;
+use crate::{dto::categories::CreateCategoryDto, entity, AppState};
 use entity::categories::{ActiveModel, Entity};
-use sea_orm::{ActiveValue::Set, DatabaseConnection, EntityTrait, PaginatorTrait};
+use sea_orm::{ActiveModelTrait, EntityTrait, PaginatorTrait};
 use tracing;
 
 #[tracing::instrument(skip(state))]
@@ -20,21 +21,24 @@ pub async fn ensure_default_category(state: tauri::State<'_, AppState>) -> Resul
         return Ok(());
     }
 
-    // 创建默认分类
-    let model = ActiveModel {
-        name: Set("默认".to_string()),
-        parent_id: Set(None),
-        association_directory: Set(None),
-        icon: Set(None),
-        exclude: Set(false),
-        layout: Set("grid".to_string()),
-        order_index: Set(Some(9999)), // 将默认分类order_index设置为9999
-        sort_by: Set("time".to_string()),
-        ..Default::default()
-    };
+    const DEFAULT_CATEGORY_NAME: &str = "默认";
 
-    Entity::insert(model)
-        .exec(&db)
+    let pinyin_value = get_pinyin_variants(DEFAULT_CATEGORY_NAME);
+    let pinyin_full = pinyin_value.0;
+    let pinyin_abbr = pinyin_value.1;
+
+    // 创建默认分类
+    let model: ActiveModel = CreateCategoryDto {
+        name: DEFAULT_CATEGORY_NAME.to_string(),
+        order_index: Some(9999),
+        pinyin_full: Some(pinyin_full),
+        pinyin_abbr: Some(pinyin_abbr),
+        ..Default::default()
+    }
+    .into();
+
+    model
+        .insert(&db)
         .await
         .map_err(|e| format!("创建默认分类失败: {}", e))?;
 

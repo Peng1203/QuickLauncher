@@ -6,7 +6,7 @@ use sea_orm::{
 };
 use tracing;
 
-use crate::{entity, AppState};
+use crate::{dto::launch_history::CreateLaunchHistoryDto, entity, AppState};
 
 const MAX_HISTORY_COUNT: u64 = 300;
 
@@ -18,43 +18,39 @@ pub async fn add_launch_history(
     launch_item_id: Option<i32>,
     state: tauri::State<'_, AppState>,
 ) -> Result<(), String> {
-    let db = { state.db.lock().unwrap().clone() };
-    let db = db.ok_or("数据库未连接")?;
+    let db = state.db.lock().unwrap().clone().ok_or("数据库未连接")?;
+
     let command = command.trim();
-    // 空命令不记录
     if command.is_empty() {
         return Ok(());
     }
 
     // 查询最后一条历史
-    let last_history = LaunchHistory::find()
+    let last = LaunchHistory::find()
         .order_by_desc(launch_history::Column::Id)
         .one(&db)
         .await
         .map_err(|e| e.to_string())?;
 
-    // 连续相同命令不重复插入
-    if let Some(last) = last_history {
-        let is_same_command = last.command == command;
-        let is_same_type = last.r#type == r#type;
-        let is_same_launch_item_id = last.launch_item_id == launch_item_id;
-
-        if is_same_command && is_same_type && is_same_launch_item_id {
+    if let Some(last) = last {
+        if last.command == command && last.r#type == r#type && last.launch_item_id == launch_item_id
+        {
             return Ok(());
         }
     }
 
-    // 插入历史
-    let history = launch_history::ActiveModel {
-        command: Set(command.to_string()),
-        r#type: Set(r#type),
-        launch_item_id: Set(launch_item_id),
-        ..Default::default()
+    let dto = CreateLaunchHistoryDto {
+        launch_item_id,
+        command: command.to_string(),
+        r#type,
+        started_at: chrono::Utc::now().timestamp_millis(),
     };
+
+    let history: launch_history::ActiveModel = dto.into();
 
     history.insert(&db).await.map_err(|e| e.to_string())?;
 
-    // 限制历史数量
+    // 控制数量
     let total = LaunchHistory::find()
         .count(&db)
         .await

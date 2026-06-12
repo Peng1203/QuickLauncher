@@ -5,7 +5,7 @@ use tracing;
 
 #[tracing::instrument(skip(state))]
 #[tauri::command]
-pub async fn delete_category(id: i64, state: tauri::State<'_, AppState>) -> Result<(), String> {
+pub async fn delete_category(id: i32, state: tauri::State<'_, AppState>) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };
     let db = db.ok_or("数据库未连接")?;
 
