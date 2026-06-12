@@ -25,8 +25,8 @@ pub struct CategoryItem {
     pub sort_order: String,
     pub order_index: Option<i32>,
     pub icon: Option<String>,
-    pub created_at: Option<String>,
-    pub updated_at: Option<String>,
+    pub created_at: i64,
+    pub updated_at: i64,
 }
 
 impl From<entity::categories::Model> for CategoryItem {

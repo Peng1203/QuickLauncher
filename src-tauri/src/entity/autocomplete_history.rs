@@ -9,9 +9,9 @@ pub struct Model {
     #[sea_orm(column_type = "Text", unique)]
     pub query: String,
     pub usage_count: Option<i32>,
-    #[sea_orm(column_type = "custom(\"DATETIME\")", nullable)]
-    pub last_used_at: Option<String>,
+    #[sea_orm(nullable)]
     pub launch_item_id: Option<i32>,
+    pub last_used_at: i64,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

@@ -1,32 +1,9 @@
-// use crate::entity;
-// use entity::prelude::*;
-// use sea_orm::{Database, DatabaseConnection, DbErr};
-// use tauri::Manager;
-
-// pub async fn init_db(app: &tauri::App) -> Result<DatabaseConnection, DbErr> {
-//     let app_data_dir = app.path().app_data_dir().unwrap();
-
-//     let db_path = app_data_dir.join("Date.db");
-//     let db_url = format!("sqlite://{}?mode=rwc", db_path.to_str().unwrap());
-//     let db = &Database::connect(db_url).await?;
-//     // 同步数据库结构
-//     db.get_schema_builder()
-//         .register(Categories)
-//         .register(AutocompleteHistory)
-//         .register(Configs)
-//         .register(LaunchHistory)
-//         .register(LaunchItems)
-//         .sync(db)
-//         .await?;
-
-//     Ok(db.clone())
-// }
-
-use crate::entity;
-use entity::prelude::*;
 use sea_orm::{Database, DatabaseConnection, DbErr};
+use sea_orm_migration::MigratorTrait;
 use std::fs;
 use tauri::Manager;
+
+use crate::db::migration::Migrator;
 
 pub async fn init_db(app: &tauri::App) -> Result<DatabaseConnection, DbErr> {
     let app_data_dir = app
@@ -42,15 +19,8 @@ pub async fn init_db(app: &tauri::App) -> Result<DatabaseConnection, DbErr> {
 
     let db = Database::connect(db_url).await?;
 
-    db.get_schema_builder()
-        .register(Categories)
-        .register(AutocompleteHistory)
-        .register(Configs)
-        .register(LaunchHistory)
-        .register(LaunchItems)
-        .register(Todos)
-        .sync(&db)
-        .await?;
+    // 执行数据库迁移
+    Migrator::up(&db, None).await?;
 
     Ok(db)
 }
