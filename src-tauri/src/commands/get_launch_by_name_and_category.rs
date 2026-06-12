@@ -1,5 +1,5 @@
 use entity::launch_items::{Column, Entity as LaunchItems, Model};
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use tracing;
 
 use crate::{entity, AppState};
