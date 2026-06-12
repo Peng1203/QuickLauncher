@@ -1,6 +1,6 @@
 use chrono::Utc;
 use sea_orm::prelude::*;
-use sea_orm::{entity::prelude::*, ActiveValue::Set};
+use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
