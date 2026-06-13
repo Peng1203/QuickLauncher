@@ -24,15 +24,14 @@ declare global {
     enabled?: boolean;
     category_id?: number | null;
     subcategory_id?: number | null;
-    last_used_at?: string | null;
-    created_at: string;
-    updated_at: string;
     pinyin_full: string;
     pinyin_abbr: string;
-
     extension?: string | null;
     launch_count: number;
     failure_count: number;
+    last_used_at?: number | null;
+    created_at: number;
+    updated_at: number;
   }
 
   type NewLaunchItem = Omit<
@@ -68,6 +67,7 @@ declare global {
     label: string;
     value: SearchMode;
     icon: string;
+    disabled?: boolean;
   }
   // 应用配置状态
   interface AppConfigState {
@@ -111,6 +111,7 @@ declare global {
 
     /** 顶部Tab是否展示 */
     showSearchModeTabs: boolean;
+    modeOptions: SearchModeItem[];
     /** 展示的切换模式 */
     showModes: SearchMode[];
     /** 打开搜索框默认选中的模式 */
@@ -233,8 +234,10 @@ declare global {
     sort_order: SortOrderType;
     order_index?: number;
     icon: string | null;
-    created_at: string;
-    updated_at: string;
+    pinyin_full: string;
+    pinyin_abbr: string;
+    created_at: number;
+    updated_at: number;
   }
 
   type NewCategoryItem = Omit<CategoryItem, "id" | "created_at" | "updated_at">;
@@ -255,7 +258,7 @@ declare global {
     id: number;
     query: string;
     usage_count: number;
-    last_used_at: string;
+    last_used_at: number;
     launch_item_id?: number | null;
   }
 
@@ -279,6 +282,7 @@ declare global {
     due_date: number | null;
     tags: string | null;
     note: string | null;
+    order_index: number;
     reminder_at: number | null;
     created_at: number;
     updated_at: number;

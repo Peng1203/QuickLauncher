@@ -33,13 +33,7 @@ import {
 import { nextTick, ref } from "vue";
 import { isForegroundFullscreen } from "@/api";
 import { useAppConfig, useAppConfigActions } from "@/composables";
-import {
-  AppEvent,
-  SEARCH_INPUT_HEIGHT,
-  SEARCH_WINDOW_WIDTH,
-  SEARCH_MODEL,
-  MODE_TABS,
-} from "@/constant";
+import { AppEvent, SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH, SEARCH_MODEL } from "@/constant";
 import { EventBus } from "@/utils/eventBus";
 import DefaultSearchMode from "./components/DefaultMode/DefaultSearchMode.vue";
 import TodoMode from "./components/TodoMode/TodoMode.vue";
@@ -63,8 +57,25 @@ const activeModeRef = useTemplateRef<SearchModeExpose>("activeModeRef");
 
 // 根据配置过滤可见的模式 tab 列表
 const visibleModeTabs = computed(() =>
-  MODE_TABS.filter((item) => appConfigStore.showModes.includes(item.value)),
+  appConfigStore.modeOptions
+    .filter((item) => appConfigStore.showModes.includes(item.value))
+    .map((item) => ({ ...item, disabled: getModelDisabled(item.value) })),
 );
+
+const getModelDisabled = (val: (typeof SEARCH_MODEL)[keyof typeof SEARCH_MODEL]) => {
+  switch (val) {
+    case SEARCH_MODEL.DEFAULT_MODEL:
+      return !appConfigStore.enableDefaultSearch;
+    case SEARCH_MODEL.WEB_SEARCH_MODEL:
+      return !appConfigStore.enableWebSearch;
+    case SEARCH_MODEL.TRANSLATION_MODEL:
+      return !appConfigStore.enableTranslation;
+    // case SEARCH_MODEL.TODO_MODEL:
+    //   return appConfigStore.enableTodoMode;
+    default:
+      return false;
+  }
+};
 
 // 是否显示模式切换 tab 栏
 const showModeTabs = computed(() => appConfigStore.showSearchModeTabs);
@@ -215,11 +226,20 @@ function handleChangeSwitchModeByShortkey(event: KeyboardEvent): boolean {
 
   if (flag) {
     event.preventDefault();
-    const currentIndex = visibleModeTabs.value.findIndex(
-      (item) => item.value === searchModel.value,
-    );
-    const nextIndex = (currentIndex + 1) % visibleModeTabs.value.length;
-    void handleSwitchMode({ mode: visibleModeTabs.value[nextIndex].value });
+    const tabs = visibleModeTabs.value;
+    const len = tabs.length;
+    const currentIndex = tabs.findIndex((item) => item.value === searchModel.value);
+
+    let nextIndex = (currentIndex + 1) % len;
+    let count = 0;
+    while (tabs[nextIndex].disabled && count < len) {
+      nextIndex = (nextIndex + 1) % len;
+      count++;
+    }
+
+    if (count < len && tabs[nextIndex].value !== searchModel.value) {
+      void handleSwitchMode({ mode: tabs[nextIndex].value });
+    }
     return true;
   }
   return false;
