@@ -16,6 +16,7 @@
       >
         <template #prefix>
           <Icon name="icon-TODO_INFO" size="22" color="#155dfc" />
+          <!-- {{ viewState }} -->
         </template>
         <template v-if="isListState" #suffix>
           <div class="shortcut-list">
@@ -40,32 +41,10 @@
 
     <div class="relative border-top-color! content">
       <transition :name="`todo-slide-${direction}`" mode="out-in">
-        <!-- 没有任何待办项时 -->
-        <div
-          v-if="isEmptyState"
-          class="flex flex-col items-center justify-center text-center"
-          :style="{ height: `${TODO_EMPTY_HEIGHT}px` }"
-        >
-          <div
-            class="grid place-items-center mb-5 text-gray-400 bg-gray-100 rounded-full"
-            :style="{ width: `${EMPTY_ICON_SIZE}px`, height: `${EMPTY_ICON_SIZE}px` }"
-          >
-            <Icon name="icon-fangkuangxuanzhong" size="42" />
-          </div>
-          <div class="text-xl font-semibold">{{ t("todo.emptyTitle") }}</div>
-          <div class="mt-2.5 text-sm text-gray-500">{{ t("todo.emptyDesc") }}</div>
-          <div
-            class="inline-flex items-center gap-2 mt-7 px-3.5 py-2 text-gray-700 bg-gray-50 rounded-lg text-sm"
-          >
-            <Icon name="icon-add" />
-            {{ t("todo.emptyHint") }}
-          </div>
-        </div>
-
         <!-- 添加预览/列表 -->
         <div
-          v-else-if="isCreateState || isListState"
-          class="overflow-hidden"
+          v-if="isCreateState || isListState || isEmptyState"
+          class="overflow-hidden flex flex-col"
           :style="{ height: `${TODO_LIST_HEIGHT}px` }"
         >
           <div
@@ -102,11 +81,25 @@
             </div>
           </div>
 
-          <ul
-            class="m-0 p-0 overflow-y-auto list-none"
-            :style="{ height: `${TODO_LIST_UL_HEIGHT}px` }"
+          <VueDraggable
+            v-if="todos.length || isCreateState"
+            v-model="todos"
+            ghost-class="opacity-50"
+            target=".sort-target"
+            :disabled="!isListState || sortType !== 'orderIndex'"
+            :animation="200"
+            :group="{ name: 'todo', pull: 'clone', put: false }"
+            :scroll="true"
+            @start="handleDragStart"
+            @end="handleDragEnd"
           >
-            <TransitionGroup name="todo" tag="ul" class="space-y-0">
+            <!-- type="transition" -->
+            <TransitionGroup
+              :name="!drag ? 'todo' : undefined"
+              tag="ul"
+              class="sort-target space-y-0 m-0 p-0 overflow-y-auto list-none"
+              :style="{ height: `${TODO_LIST_UL_HEIGHT}px` }"
+            >
               <!-- 虚拟预览项 -->
               <li
                 v-if="viewState === 'create'"
@@ -147,14 +140,33 @@
                 @delete="deleteTodoById"
               />
             </TransitionGroup>
-          </ul>
+          </VueDraggable>
+
+          <!-- 没有任何待办项时 -->
+          <div v-else class="flex-1 flex flex-col items-center justify-center text-center">
+            <!-- :style="{ height: `${TODO_EMPTY_HEIGHT}px` }" -->
+            <div
+              class="grid place-items-center mb-5 text-gray-400 bg-gray-100 rounded-full"
+              :style="{ width: `${EMPTY_ICON_SIZE}px`, height: `${EMPTY_ICON_SIZE}px` }"
+            >
+              <Icon name="icon-fangkuangxuanzhong" size="42" />
+            </div>
+            <div class="text-xl font-semibold">{{ t("todo.emptyTitle") }}</div>
+            <div class="mt-2.5 text-sm text-gray-500">{{ t("todo.emptyDesc") }}</div>
+            <div
+              class="inline-flex items-center gap-2 mt-7 px-3.5 py-2 text-gray-700 bg-gray-50 rounded-lg text-sm"
+            >
+              <Icon name="icon-add" />
+              {{ t("todo.emptyHint") }}
+            </div>
+          </div>
 
           <div
             class="flex items-center justify-between px-3.5 border-t border-border box-border text-sm text-gray-500"
             :style="{ height: `${STATUS_BAR_HEIGHT}px` }"
           >
-            <span
-              >{{ activeCount }} {{ t("todo.activeCount") }}，{{ completedCount }}
+            <span>
+              {{ activeCount }} {{ t("todo.activeCount") }}，{{ completedCount }}
               {{ t("todo.completedCount") }}</span
             >
             <button
@@ -346,10 +358,18 @@
 
 <script setup lang="ts">
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
+import { listen } from "@tauri-apps/api/event";
 import { CheckmarkCircleOutline, RadioButtonOffOutline } from "@vicons/ionicons5";
-import { computed, nextTick, ref, watch } from "vue";
-import { addTodo, deleteTodo, getTodos, updateTodo, clearCompletedTodos } from "@/api";
-import { SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
+import { computed, nextTick, onUnmounted, ref, watch } from "vue";
+import {
+  addTodo,
+  deleteTodo,
+  getTodos,
+  updateTodo,
+  clearCompletedTodos,
+  batchUpdateTodoOrder,
+} from "@/api";
+import { SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH, AppEvent } from "@/constant";
 import { getFromNow } from "@/utils/date";
 import { dateTimeFormat } from "@/utils/date";
 import PrioritySelector from "./components/PrioritySelector.vue";
@@ -358,7 +378,9 @@ import { useTodoDomain } from "./useTodoDomain";
 import { useTodoViewState } from "./useTodoViewState";
 import { t } from "@/i18n";
 import { useStorage } from "@vueuse/core";
-type TodoSort = "priority" | "createdAt" | "dueDate";
+import { VueDraggable } from "vue-draggable-plus";
+
+type TodoSort = "orderIndex" | "priority" | "createdAt" | "dueDate";
 
 const props = withDefaults(
   defineProps<{
@@ -376,7 +398,7 @@ const emit = defineEmits<{
 }>();
 
 const TODO_INPUT_HEIGHT = SEARCH_INPUT_HEIGHT;
-const TODO_EMPTY_HEIGHT = 330;
+const TODO_EMPTY_HEIGHT = 390;
 const TODO_LIST_HEIGHT = 390;
 const TODO_DETAIL_HEIGHT = 490;
 const TODO_CREATE_HEIGHT = computed(() => TODO_LIST_HEIGHT);
@@ -388,10 +410,11 @@ const DETAIL_HEADER_HEIGHT = 38;
 const EMPTY_ICON_SIZE = 74;
 const TODO_ITEM_MIN_HEIGHT = 74;
 
-const sortOptions = computed(() => [
+const sortOptions = computed<{ label: string; value: TodoSort }[]>(() => [
   { label: t("todo.sortPriority"), value: "priority" },
   { label: t("todo.sortCreatedAt"), value: "createdAt" },
   { label: t("todo.sortDueDate"), value: "dueDate" },
+  { label: t("todo.dragSort"), value: "orderIndex" },
 ]);
 
 const searchWindow = getCurrentWindow();
@@ -401,7 +424,7 @@ const todos = ref<TodoItem[]>([]);
 // const activeFilter = ref<TodoFilter>("all");
 const activeFilter = useStorage("todoActiveFilter", "all");
 // const sortType = ref<TodoSort>("priority");
-const sortType = useStorage("todoSortType", "priority");
+const sortType = useStorage<TodoSort>("todoSortType", "orderIndex");
 const totalCount = ref(0);
 const activeCount = ref(0);
 const completedCount = ref(0);
@@ -419,6 +442,7 @@ const editingTodo = ref<TodoItem>({
   reminder_at: null,
   created_at: 0,
   updated_at: 0,
+  order_index: 0,
 });
 
 const {
@@ -511,6 +535,7 @@ function createEmptyTodo(): TodoItem {
     reminder_at: null,
     created_at: 0,
     updated_at: 0,
+    order_index: 0,
   };
 }
 
@@ -582,6 +607,7 @@ async function deleteTodoById(id: number) {
     await deleteTodo(id);
     todos.value = todos.value.filter((item) => item.id !== id);
     if (!todos.value.length) setViewState("empty");
+    loadTodos();
   } catch (e) {
     console.error("删除待办事项失败:", e);
   }
@@ -600,10 +626,11 @@ async function toggleTodo(id: number) {
   const item = todos.value.find((todo) => todo.id === id);
   if (!item) return;
   try {
-    const updated = await updateTodo({ ...item, completed: !item.completed });
+    const updatedItem = { ...item, completed: !item.completed };
+    await updateTodo(updatedItem);
     const index = todos.value.findIndex((t) => t.id === id);
     if (index >= 0) {
-      todos.value.splice(index, 1, updated);
+      todos.value.splice(index, 1, updatedItem);
       loadTodos();
     }
   } catch (e) {
@@ -616,6 +643,7 @@ async function clearCompleted() {
     await clearCompletedTodos();
     todos.value = todos.value.filter((item) => !item.completed);
     if (!todos.value.length) setViewState("empty");
+    loadTodos();
   } catch (e) {
     console.error("清除已完成待办事项失败:", e);
   }
@@ -651,6 +679,7 @@ async function addNewTodo(isFastAdd: boolean = false) {
       tags: "",
       note: "",
       reminder_at: null,
+      order_index: 0,
     };
 
     if (isFastAdd) {
@@ -762,6 +791,26 @@ function handleKeydown(event: KeyboardEvent) {
   }
 }
 
+const drag = ref(false);
+
+function handleDragStart(evt: any) {
+  drag.value = true;
+}
+
+/** 同列表内拖拽排序结束 */
+async function handleDragEnd(_evt: any) {
+  nextTick(() => {
+    drag.value = false;
+  });
+
+  // 如果 draggedItem 已被 Sidebar 的 drop handler 消费，跳过排序更新
+
+  // 更新 order_index
+  const newOrders = todos.value.map((item, i) => ({ id: item.id, order_index: i }));
+  await batchUpdateTodoOrder(newOrders);
+}
+
+watch(viewState, resizeWindow);
 watch(viewState, resizeWindow);
 watch(contentHeight, resizeWindow);
 watch(chromeHeight, resizeWindow);
@@ -769,11 +818,23 @@ watch(sortType, loadTodos);
 watch(activeFilter, loadTodos);
 
 loadTodos();
+
+let unlistenReminder: (() => void) | null = null;
+
 onMounted(async () => {
   nextTick(() => {
     focus();
     resizeWindow();
   });
+
+  // 监听提醒通知，刷新 todo 列表
+  unlistenReminder = await listen<number>(AppEvent.TODO_REMINDER, () => {
+    loadTodos();
+  });
+});
+
+onUnmounted(() => {
+  unlistenReminder?.();
 });
 
 defineExpose({

@@ -1,7 +1,11 @@
 <template>
   <li
     class="todo-item h-20 group relative flex items-start gap-3 px-4.5 py-3.5 box-border cursor-pointer border-l-4 transition-all duration-200 ease-out"
-    :class="[completed ? 'text-gray-400' : '', isActive ? 'bg-muted' : 'bg-transparent']"
+    :class="[
+      completed ? 'text-gray-400' : '',
+      isActive ? 'bg-muted' : 'bg-transparent',
+      isOverdue && !completed ? 'overdue-item' : '',
+    ]"
     :style="{
       minHeight: minHeight + 'px',
       borderLeftColor: priorityColor,
@@ -24,24 +28,38 @@
       <!-- title -->
       <div
         class="text-[15px] max-w-100 font-medium truncate transition-all duration-200"
-        :class="completed ? 'line-through' : ''"
+        :class="[completed ? 'line-through' : '', isOverdue && !completed ? 'text-red-600' : '']"
       >
         {{ title }}
       </div>
 
-      <!-- metextow -->
+      <!-- metadata -->
       <div class="flex items-center justify-between mt-2 text-[12px] text-gray-500">
-        <!-- left: created + tags -->
         <div class="flex items-center gap-2 min-w-0">
+          <!-- due_date -->
           <div
-            class="flex items-center gap-1 text-gray-400 whitespace-nowrap"
-            v-if="todo.due_date || completed"
+            v-if="todo.due_date"
+            class="flex items-center gap-1 whitespace-nowrap"
+            :class="isOverdue && !completed ? 'text-red-500' : 'text-gray-400'"
           >
             <Icon name="icon-shijian" size="14" />
-            <!-- v-if="todo.due_date !== null" -->
-            <span class="text-xs" :class="getDueDateClass(todo?.due_date)">
-              {{ formatDueDate(todo) }}
-            </span>
+            <span class="text-xs">{{ formatDueDate(todo) }}</span>
+          </div>
+
+          <!-- reminder_at -->
+          <div
+            v-if="todo.reminder_at && !completed"
+            class="flex items-center gap-1 whitespace-nowrap"
+            :class="isReminded ? 'text-gray-400' : 'text-blue-500'"
+          >
+            <Icon name="icon-tixingshijian" size="14" />
+            <span class="text-xs">{{ formatRelativeReminder(todo.reminder_at, t) }}</span>
+          </div>
+
+          <!-- completed badge -->
+          <div v-if="completed" class="flex items-center gap-1 text-green-500 whitespace-nowrap">
+            <Icon name="icon-fangkuangxuanzhong" size="14" />
+            <span class="text-xs">{{ t("todo.completed") }}</span>
           </div>
 
           <n-tag v-for="tag in tagsList" :key="tag" size="small" type="primary" :bordered="false">
@@ -83,7 +101,7 @@ import { computed, ref } from "vue";
 import { getPriorityColor, formatDueDate } from "../index";
 import { t } from "@/i18n";
 import { CheckmarkCircleOutline, RadioButtonOffOutline } from "@vicons/ionicons5";
-import { getFromNow } from "@/utils/date";
+import { getFromNow, getDaysUntil, formatRelativeReminder } from "@/utils/date";
 
 const props = defineProps<{
   todo: TodoItem;
@@ -118,28 +136,21 @@ const tagsList = computed(() =>
  */
 const priorityColor = computed(() => getPriorityColor(props.todo.priority));
 
-function getDueDateClass(dueDate?: number | null) {
-  if (dueDate == null) return "text-gray-500";
+/**
+ * overdue
+ */
+const isOverdue = computed(() => {
+  if (!props.todo.due_date) return false;
+  return getDaysUntil(props.todo.due_date)! < 0;
+});
 
-  if (dueDate < 0) return "text-red-500";
-  if (dueDate === 0) return "text-amber-500";
-
-  return "text-gray-500";
-}
+const isReminded = computed(() => {
+  if (!props.todo.reminder_at) return false;
+  return Date.now() >= props.todo.reminder_at;
+});
 </script>
 
 <style scoped>
-/* .todo-item {
-  transition:
-    background-color 0.2s ease,
-    transform 0.15s ease;
-} */
-
-/* 可选：更高级一点的 hover 感 */
-/* .todo-item:hover {
-  transform: translateY(-1px);
-} */
-
 .todo-item {
   position: relative;
   isolation: isolate;
@@ -156,5 +167,18 @@ function getDueDateClass(dueDate?: number | null) {
 
 .todo-item:hover::before {
   background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* 过期样式 */
+.overdue-item {
+  background-color: rgba(239, 68, 68, 0.04) !important;
+}
+
+.overdue-item::before {
+  background-color: rgba(239, 68, 68, 0.04) !important;
+}
+
+.overdue-item:hover::before {
+  background-color: rgba(239, 68, 68, 0.08) !important;
 }
 </style>

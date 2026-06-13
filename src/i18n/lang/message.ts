@@ -1177,6 +1177,7 @@ export const messages = {
 
   // ========== 待办事项 ==========
   todo: {
+    dragSort: ["拖拽排序", "拖拽排序", "Drag Sort", "Custom Drag"],
     high: ["高", "高", "High", "高"],
     medium: ["中", "中", "Medium", "中"],
     low: ["低", "低", "Low", "低"],
@@ -1252,8 +1253,11 @@ export const messages = {
     dueToday: ["今天截止", "今天截止", "Due today", "今日期限"],
     dueTomorrow: ["明天截止", "明天截止", "Due tomorrow", "明日期限"],
     remaining: ["还剩", "剩餘", "", "残り"],
+    minutesLater: ["分钟后", "分鐘後", " min later", "分後"],
+    hoursLater: ["小时后", "小時後", "h later", "時間後"],
     today: ["今天", "今天", "Today", "今日"],
     tomorrow: ["明天", "明天", "Tomorrow", "明日"],
     completed: ["已完成", "已完成", "Completed", "完了"],
+    reminded: ["已提醒", "已提醒", "Reminded", "リマインド済み"],
   },
 };
