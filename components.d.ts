@@ -12,6 +12,7 @@ declare module 'vue' {
     CategoryContextMenu: typeof import('./src/components/CategoryContextMenu.vue')['default']
     CategoryItemContextMenu: typeof import('./src/components/CategoryItemContextMenu.vue')['default']
     DescText: typeof import('./src/components/ui/DescText.vue')['default']
+    DictionaryCard: typeof import('./src/components/DictionaryCard.vue')['default']
     Footer: typeof import('./src/components/Footer.vue')['default']
     Header: typeof import('./src/components/Header.vue')['default']
     Icon: typeof import('./src/components/ui/Icon.vue')['default']

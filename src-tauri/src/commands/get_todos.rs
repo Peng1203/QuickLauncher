@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum TodoSortBy {
+    OrderIndex,
     Priority,
     CreatedAt,
     DueDate,
@@ -38,6 +39,9 @@ impl TodoSortBy {
         use entity::todos::Column;
 
         match self {
+            Self::OrderIndex => query
+                .order_by_asc(Column::OrderIndex)
+                .order_by_desc(Column::CreatedAt), // 次排序 确保最新创建的排在前面
             Self::Priority => query.order_by_desc(Column::Priority),
             Self::CreatedAt => query.order_by_desc(Column::CreatedAt),
             Self::DueDate => query

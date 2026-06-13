@@ -29,6 +29,7 @@
         "label": "search",
         "width": 600,
         "height": 45,
+        "dragDropEnabled": false,
         "center": true,
         "visible": false,
         "alwaysOnTop": true,
@@ -48,6 +49,7 @@
         "label": "setting",
         "width": 600,
         "height": 500,
+        "dragDropEnabled": false,
         "url": "/#/setting",
         "visible": false,
         "center": true,
@@ -110,13 +112,7 @@
   "bundle": {
     "active": true,
     "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "resources": ["tray"],
     "windows": {
       "allowDowngrades": true,
@@ -140,9 +136,7 @@
       "windows": {
         "installMode": "passive"
       },
-      "endpoints": [
-        "https://github.com/Peng1203/QuickLauncher/releases/latest/download/latest.json"
-      ]
+      "endpoints": ["https://github.com/Peng1203/QuickLauncher/releases/latest/download/latest.json"]
     }
   }
 }
