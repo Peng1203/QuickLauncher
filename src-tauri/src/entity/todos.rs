@@ -29,6 +29,9 @@ pub struct Model {
     #[sea_orm(nullable)]
     pub reminder_at: Option<i64>,
 
+    #[sea_orm(default_value = 0, nullable)]
+    pub order_index: Option<i32>,
+
     pub created_at: i64,
     pub updated_at: i64,
 }

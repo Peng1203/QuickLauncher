@@ -368,8 +368,8 @@ export function addTodo(item: NewTodoItem): Promise<TodoItem> {
   return invoke<TodoItem>(InvokeMethod.ADD_TODO, { item });
 }
 
-export function updateTodo(item: TodoItem): Promise<TodoItem> {
-  return invoke<TodoItem>(InvokeMethod.UPDATE_TODO, { item });
+export function updateTodo(item: TodoItem): Promise<void> {
+  return invoke(InvokeMethod.UPDATE_TODO, { item });
 }
 
 export function deleteTodo(id: number): Promise<void> {
@@ -378,4 +378,8 @@ export function deleteTodo(id: number): Promise<void> {
 
 export function clearCompletedTodos(): Promise<number> {
   return invoke<number>(InvokeMethod.CLEAR_COMPLETED_TODOS);
+}
+
+export function batchUpdateTodoOrder(items: { id: number; order_index: number }[]): Promise<void> {
+  return invoke(InvokeMethod.BATCH_UPDATE_TODO_ORDER, { items });
 }

@@ -1,5 +1,5 @@
 use crate::entity::todos;
-use sea_orm::ActiveValue::{NotSet, Set};
+use sea_orm::ActiveValue::Set;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -12,6 +12,7 @@ pub struct TodoDto {
     pub tags: Option<String>,
     pub note: Option<String>,
     pub reminder_at: Option<i64>,
+    pub order_index: Option<i32>,
     pub created_at: i64,
     pub updated_at: i64,
 }
@@ -26,6 +27,7 @@ impl From<todos::Model> for TodoDto {
             due_date: model.due_date,
             tags: model.tags,
             note: model.note,
+            order_index: model.order_index,
             reminder_at: model.reminder_at,
             created_at: model.created_at,
             updated_at: model.updated_at,
@@ -40,6 +42,7 @@ pub struct CreateTodoDto {
     pub due_date: Option<i64>,
     pub tags: Option<String>,
     pub note: Option<String>,
+    pub order_index: Option<i32>,
     pub reminder_at: Option<i64>,
 }
 
@@ -52,6 +55,7 @@ impl From<CreateTodoDto> for todos::ActiveModel {
             due_date: Set(dto.due_date),
             tags: Set(dto.tags),
             note: Set(dto.note),
+            order_index: Set(dto.order_index),
             reminder_at: Set(dto.reminder_at),
             ..Default::default()
         }
@@ -67,21 +71,37 @@ pub struct UpdateTodoDto {
     pub due_date: Option<i64>,
     pub tags: Option<String>,
     pub note: Option<String>,
+    pub order_index: Option<i32>,
     pub reminder_at: Option<i64>,
 }
 
-impl From<UpdateTodoDto> for todos::ActiveModel {
-    fn from(dto: UpdateTodoDto) -> Self {
-        Self {
-            id: Set(dto.id),
-            title: dto.title.map(Set).unwrap_or(NotSet),
-            completed: dto.completed.map(Set).unwrap_or(NotSet),
-            priority: dto.priority.map(Set).unwrap_or(NotSet),
-            due_date: dto.due_date.map(Set).unwrap_or(NotSet).into(),
-            tags: dto.tags.map(Set).unwrap_or(NotSet).into(),
-            note: dto.note.map(Set).unwrap_or(NotSet).into(),
-            reminder_at: dto.reminder_at.map(Set).unwrap_or(NotSet).into(),
-            ..Default::default()
+impl UpdateTodoDto {
+    pub fn into_active_model(self, existing: todos::Model) -> todos::ActiveModel {
+        let mut active: todos::ActiveModel = existing.into();
+        if let Some(v) = self.title {
+            active.title = Set(v);
         }
+        if let Some(v) = self.completed {
+            active.completed = Set(v);
+        }
+        if let Some(v) = self.priority {
+            active.priority = Set(v);
+        }
+        if let Some(v) = self.due_date {
+            active.due_date = Set(Some(v));
+        }
+        if let Some(v) = self.tags {
+            active.tags = Set(Some(v));
+        }
+        if let Some(v) = self.note {
+            active.note = Set(Some(v));
+        }
+        if let Some(v) = self.reminder_at {
+            active.reminder_at = Set(Some(v));
+        }
+        if let Some(v) = self.order_index {
+            active.order_index = Set(Some(v));
+        }
+        active
     }
 }

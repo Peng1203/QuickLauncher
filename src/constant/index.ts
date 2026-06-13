@@ -94,6 +94,7 @@ export enum InvokeMethod {
   UPDATE_TODO = "update_todo",
   DELETE_TODO = "delete_todo",
   CLEAR_COMPLETED_TODOS = "clear_completed_todos",
+  BATCH_UPDATE_TODO_ORDER = "batch_update_todo_order",
 }
 
 export enum AppEvent {
@@ -132,6 +133,9 @@ export enum AppEvent {
 
   // 剪贴板通知
   CLIPBOARD = "clipboard",
+
+  // Todo 提醒通知
+  TODO_REMINDER = "todo-reminder",
 
   OPEN_CLIPBOARD_WINDOW_BY_SET_LOCATION_MODAL = "open_clipboard_window_by_set_location_modal",
 
@@ -173,6 +177,7 @@ export const SEARCH_MODEL = {
   WEB_SEARCH_MODEL: 1,
   TRANSLATION_MODEL: 2,
   TODO_MODEL: 3,
+  FILE_MODEL: 4,
 } as const;
 
 export const MODE_TABS: SearchModeItem[] = [
@@ -180,20 +185,30 @@ export const MODE_TABS: SearchModeItem[] = [
     label: "searchMode",
     value: SEARCH_MODEL.DEFAULT_MODEL,
     icon: "icon-icon-sousuofenlei",
+    disabled: false,
   },
   {
     label: "todoMode",
     value: SEARCH_MODEL.TODO_MODEL,
     icon: "icon-TODO_INFO",
+    disabled: false,
   },
   {
     label: "translateMode",
     value: SEARCH_MODEL.TRANSLATION_MODEL,
     icon: "icon-fanyi",
+    disabled: false,
   },
   {
     label: "webSearchMode",
     value: SEARCH_MODEL.WEB_SEARCH_MODEL,
     icon: "icon-wangluosousuo",
+    disabled: false,
   },
+  // {
+  //   label: "fileMode",
+  //   value: SEARCH_MODEL.FILE_MODEL,
+  //   icon: "icon-file",
+  //   disabled: false,
+  // },
 ] as const;

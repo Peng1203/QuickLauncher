@@ -4,6 +4,7 @@ pub mod add_launch_history;
 pub mod add_or_update_autocomplete;
 pub mod add_todo;
 pub mod backup_database;
+pub mod batch_update_todo_order;
 pub mod clear_completed_todos;
 pub mod delete_category;
 pub mod delete_launch;
