@@ -13,7 +13,7 @@ description: 智能 Git 提交。当用户想要提交代码、记录变更时�
 
 ## Workflow
 
-### Step 0 - 询问生成开发日志
+### Step 0 - 询问生成开发日志 (!!!重要!!!)
 
 可以先询问用户是否需要先执行 生成开发日志的skill `generate-devlog` 当用户选择了 是则先执行 `generate-devlog` 再进行后续的操作
 
