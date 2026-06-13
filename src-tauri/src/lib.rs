@@ -8,6 +8,7 @@ use commands::add_launch_history::add_launch_history;
 use commands::add_or_update_autocomplete::add_or_update_autocomplete;
 use commands::add_todo::add_todo;
 use commands::backup_database::backup_database;
+use commands::batch_update_todo_order::batch_update_todo_order;
 use commands::clear_completed_todos::clear_completed_todos;
 use commands::delete_category::delete_category;
 use commands::delete_launch::delete_launch;
@@ -64,6 +65,7 @@ mod dto;
 mod entity;
 mod logging;
 mod models;
+mod reminder;
 
 #[derive(Default)]
 pub struct AppState {
@@ -84,6 +86,7 @@ pub fn run() {
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_autostart::init(
             MacosLauncher::LaunchAgent,
@@ -148,7 +151,8 @@ pub fn run() {
             add_todo,
             update_todo,
             delete_todo,
-            clear_completed_todos
+            clear_completed_todos,
+            batch_update_todo_order
         ])
         .setup(|app| {
             let app_data_dir = app
@@ -161,6 +165,10 @@ pub fn run() {
             let db = tauri::async_runtime::block_on(async {
                 db::connection::init_db(app).await.unwrap()
             });
+
+            // 克隆数据库连接用于提醒调度器
+            let db_for_reminder = db.clone();
+
             // app.manage(db);
             app.manage(AppState {
                 db: Mutex::new(Some(db)),
@@ -208,7 +216,12 @@ pub fn run() {
 
             let app_handle = app.handle().clone();
 
-            listener::start_clipboard_listener(app_handle);
+            listener::start_clipboard_listener(app_handle.clone());
+
+            // 初始化提醒调度器
+            tauri::async_runtime::spawn(async move {
+                reminder::init_reminder_scheduler(app_handle, db_for_reminder).await;
+            });
 
             Ok(())
         })

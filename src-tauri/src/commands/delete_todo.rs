@@ -1,4 +1,4 @@
-use crate::{entity, AppState};
+use crate::{entity, reminder, AppState};
 use entity::todos::Entity as Todos;
 use sea_orm::EntityTrait;
 use tracing;
@@ -8,6 +8,9 @@ use tracing;
 pub async fn delete_todo(id: i32, state: tauri::State<'_, AppState>) -> Result<(), String> {
     let db = { state.db.lock().unwrap().clone() };
     let db = db.ok_or("数据库未连接")?;
+
+    // 先取消提醒
+    reminder::get_scheduler().cancel(id).await;
 
     Todos::delete_by_id(id).exec(&db).await.map_err(|e| {
         tracing::error!(%e, "删除待办事项失败");

@@ -1,3 +1,40 @@
+## 2026-06-14（Todo 提醒通知 / UI 优化）
+
+### Todo 提醒通知功能
+
+- 新增 `tauri-plugin-notification` 依赖，支持系统原生通知
+- 新增 `src-tauri/src/reminder/mod.rs` 提醒调度器（全局单例，tokio 异步任务）
+- 应用启动时自动加载数据库中未过期的提醒并调度
+- 创建/更新 todo 时自动调度或取消提醒
+- 删除/完成/清除 todo 时取消对应提醒
+- 前端监听 `todo-reminder` 事件刷新列表
+
+### Todo order_index 支持
+
+- 新增 `order_index` 字段迁移（`m20260613_151526`）
+- 新增 `batch_update_todo_order` 批量更新排序命令
+- `UpdateTodoDto` 新增 `into_active_model()` 方法，简化更新逻辑
+
+### Todo 列表 UI 优化
+
+- TodoItem 新增过期样式（淡红背景 + 红色标题）
+- 提醒时间展示：精确到分钟（如"15分钟后"、"2小时后"、"今天 14:30"）
+- 已过提醒时间显示"已提醒"（灰色）
+- 新增 `formatRelativeReminder` 公共方法到 `src/utils/date.ts`
+
+### SearchModeTabs 拖拽与 disabled
+
+- 新增 `drag` 属性控制是否启用 VueDraggable 拖拽
+- 新增 `disabled` 字段：禁用项半透明 + not-allowed 光标 + hover 效果
+- 拖拽重排时触发 `drag` 事件，附带排序后数据
+- 添加 `TransitionGroup` 横向移动过渡效果
+- 快捷键切换模式时自动跳过 disabled 项
+
+### update_todo Dto 重构
+
+- `update_todo` 命令改用 `UpdateTodoDto.into_active_model()` 模式
+- 返回类型从 `TodoModel` 改为 `()`，前端适配
+
 ## 2026-06-13（Dto 重构 / models 清理）
 
 ### Dto 模式重构
