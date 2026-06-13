@@ -27,7 +27,7 @@ import { dateEnUS, dateJaJP, dateZhCN, dateZhTW, enUS, jaJP, zhCN, zhTW } from "
 import { useAppConfig } from "./composables";
 import { useTheme } from "./composables/useTheme";
 import { useTray } from "./composables/useTray";
-import { AppEvent } from "./constant";
+import { AppEvent, MODE_TABS } from "./constant";
 import { i18n } from "./i18n";
 import { EventBus } from "./utils/eventBus";
 import { setDayjsLang } from "./utils/date";
@@ -69,6 +69,21 @@ const naiveDateLocale = computed(() => naiveDateLocaleMap[appConfigStore.languag
 // 语言切换联动
 const { createTray } = useTray();
 
+function setModes() {
+  const opLen = appConfigStore.modeOptions.length;
+  const mtLen = MODE_TABS.length;
+  if (opLen === mtLen) return;
+  if (opLen < mtLen) {
+    // 当 MODE_TABS 新增了数据时 过滤出新增的数据 并push到 modeOptions
+    const newModes = MODE_TABS.filter(
+      (item) => !appConfigStore.modeOptions.some((mode) => mode.value === item.value),
+    );
+    appConfigStore.modeOptions.push(...newModes);
+  } else {
+    appConfigStore.modeOptions = MODE_TABS;
+  }
+}
+
 watch(
   () => appConfigStore.language,
   (lang) => {
@@ -87,6 +102,7 @@ EventBus.listen(AppEvent.CHANGE_THEME, async (windowLabel: string) => {
   setHTMLThemeClass();
 });
 
+setModes();
 setThemeClass();
 watchImmediate(font, setFontFamily);
 watchImmediate(fontSize, setFontSize);

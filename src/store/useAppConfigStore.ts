@@ -7,6 +7,7 @@ import {
   SEARCH_WINDOW_MAX_HEIGHT,
   SEARCH_WINDOW_WIDTH,
   SEARCH_MODEL,
+  MODE_TABS,
 } from "@/constant";
 
 export const useAppConfigStore = defineStore(
@@ -45,6 +46,7 @@ export const useAppConfigStore = defineStore(
       language: "zh-CN",
 
       showSearchModeTabs: false,
+      modeOptions: MODE_TABS,
       showModes: [
         SEARCH_MODEL.DEFAULT_MODEL,
         SEARCH_MODEL.TODO_MODEL,

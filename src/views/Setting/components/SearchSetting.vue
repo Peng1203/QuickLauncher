@@ -89,22 +89,25 @@
         :description="t('searchSetting.showModeTabsDesc')"
       >
         <template #body>
-          <!-- {{ appConfigStore.showModes }} -->
-          <!-- size="small" -->
+          <Icon name="icon-shuaxin" class="cursor-pointer" title="重置" @click="handleReset" />
+
           <SearchModeTabs
+            drag
             :size="modeTabSizeMap[appConfigStore.language]"
+            :options="appConfigStore.modeOptions"
             class="p-1 rounded-lg border mt-2"
             v-model="appConfigStore.showModes"
             type="multiple"
             @change="handleToggleModl"
+            @drag="handleDrag"
           />
         </template>
       </SettingSwitchItem>
 
       <SettingSelectItem
         v-model="appConfigStore.defaultMode"
-        :options="modeOptions"
         icon="icon-buju"
+        :options="modeOptions"
         :title="t('quickSearch.defaultModeTitle')"
         :description="t('quickSearch.defaultModeDesc')"
       />
@@ -182,9 +185,22 @@ async function handleUnRegisterShortcutKey() {
 }
 
 function handleToggleModl(val: SearchMode[]) {
+  const newVal = appConfigStore.modeOptions
+    .map((item) => (val.includes(item.value) ? item.value : null))
+    .filter((i) => i !== null);
+  appConfigStore.showModes = newVal;
   if (val.includes(appConfigStore.defaultMode)) return;
   appConfigStore.defaultMode = modeOptions.value[0].value;
 }
-</script>
 
-<style scoped></style>
+function handleDrag(val: any[]) {
+  appConfigStore.modeOptions = val;
+  const newVal = val.map((item) => item.value).filter((i) => appConfigStore.showModes.includes(i));
+  appConfigStore.showModes = newVal;
+}
+
+function handleReset() {
+  appConfigStore.modeOptions = MODE_TABS;
+  appConfigStore.showModes = MODE_TABS.map((item) => item.value);
+}
+</script>
