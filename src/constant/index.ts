@@ -95,6 +95,9 @@ export enum InvokeMethod {
   DELETE_TODO = "delete_todo",
   CLEAR_COMPLETED_TODOS = "clear_completed_todos",
   BATCH_UPDATE_TODO_ORDER = "batch_update_todo_order",
+
+  // 文件搜索
+  SEARCH_FILES = "search_files",
 }
 
 export enum AppEvent {
@@ -186,29 +189,35 @@ export const MODE_TABS: SearchModeItem[] = [
     value: SEARCH_MODEL.DEFAULT_MODEL,
     icon: "icon-icon-sousuofenlei",
     disabled: false,
+    color: "#007AFF",
   },
   {
     label: "todoMode",
     value: SEARCH_MODEL.TODO_MODEL,
     icon: "icon-TODO_INFO",
     disabled: false,
+    // color: "#34C759",
+    color: "#155dfc",
   },
   {
     label: "translateMode",
     value: SEARCH_MODEL.TRANSLATION_MODEL,
     icon: "icon-fanyi",
     disabled: false,
+    color: "#8B5CF6",
   },
   {
     label: "webSearchMode",
     value: SEARCH_MODEL.WEB_SEARCH_MODEL,
     icon: "icon-wangluosousuo",
     disabled: false,
+    color: "#06B6D4",
   },
-  // {
-  //   label: "fileMode",
-  //   value: SEARCH_MODEL.FILE_MODEL,
-  //   icon: "icon-file",
-  //   disabled: false,
-  // },
+  {
+    label: "fileSearchMode",
+    value: SEARCH_MODEL.FILE_MODEL,
+    icon: "icon-wenjian",
+    disabled: false,
+    color: "#F59E0B",
+  },
 ] as const;

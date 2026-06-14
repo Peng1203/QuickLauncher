@@ -383,3 +383,7 @@ export function clearCompletedTodos(): Promise<number> {
 export function batchUpdateTodoOrder(items: { id: number; order_index: number }[]): Promise<void> {
   return invoke(InvokeMethod.BATCH_UPDATE_TODO_ORDER, { items });
 }
+
+export function searchFiles(keyword: string): Promise<FileSearchResult[]> {
+  return invoke<FileSearchResult[]>(InvokeMethod.SEARCH_FILES, { keyword });
+}

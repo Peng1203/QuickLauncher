@@ -68,6 +68,7 @@ declare global {
     value: SearchMode;
     icon: string;
     disabled?: boolean;
+    color?: string;
   }
   // 应用配置状态
   interface AppConfigState {
@@ -154,6 +155,20 @@ declare global {
     /** 百度翻译api 密钥 */
     BDTranslationKey: string;
     BDTranslationTo: string;
+
+    /** 文件搜索相关 */
+    enableFileSearch: boolean;
+    fileSearchMode: "es" | "http";
+    fileSearchAutoStart: boolean;
+    esFilePath: string;
+    everythingExePath: string;
+    everythingHttpHost: string;
+    everythingHttpPort: number;
+    fileSearchMaxResults: number;
+    fileSearchPath: string;
+    fileSearchFilter: string;
+    fileSearchSort: string;
+    fileSearchRegex: boolean;
 
     showCategory: boolean;
     showSubCategory: boolean;
@@ -289,6 +304,15 @@ declare global {
   }
 
   type NewTodoItem = Omit<TodoItem, "id" | "completed" | "created_at" | "updated_at">;
+
+  interface FileSearchResult {
+    name: string;
+    path: string;
+    size: number;
+    icon: string;
+    type: "file" | "directory";
+    extension: string | null;
+  }
 
   type ClipboardContentType = "Url" | "Directory" | "Unknown";
 

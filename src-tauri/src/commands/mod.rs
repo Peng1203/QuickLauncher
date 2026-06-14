@@ -40,6 +40,7 @@ pub mod restart_app;
 pub mod run_launch;
 pub mod run_launch_as_admin;
 pub mod save_app_config;
+pub mod search_files;
 pub mod search_launch;
 pub mod set_default_tray_icon;
 pub mod update_category;

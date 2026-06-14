@@ -44,6 +44,7 @@ use commands::restart_app::restart_app;
 use commands::run_launch::run_launch;
 use commands::run_launch_as_admin::run_launch_as_admin;
 use commands::save_app_config::save_app_config;
+use commands::search_files::search_files;
 use commands::search_launch::search_launch;
 use commands::set_default_tray_icon::set_default_tray_icon;
 use commands::update_category::update_category;
@@ -152,7 +153,8 @@ pub fn run() {
             update_todo,
             delete_todo,
             clear_completed_todos,
-            batch_update_todo_order
+            batch_update_todo_order,
+            search_files
         ])
         .setup(|app| {
             let app_data_dir = app

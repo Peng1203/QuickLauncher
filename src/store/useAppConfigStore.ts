@@ -82,6 +82,19 @@ export const useAppConfigStore = defineStore(
       BDTranslationKey: "",
       BDTranslationTo: "en",
 
+      enableFileSearch: false,
+      fileSearchMode: "es",
+      fileSearchAutoStart: false,
+      esFilePath: "",
+      everythingExePath: "",
+      everythingHttpHost: "127.0.0.1",
+      everythingHttpPort: 80,
+      fileSearchMaxResults: 20,
+      fileSearchPath: "",
+      fileSearchFilter: "",
+      fileSearchSort: "default",
+      fileSearchRegex: false,
+
       showCategory: true,
       showSubCategory: true,
 

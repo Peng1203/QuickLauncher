@@ -10,6 +10,7 @@ export const LANG_INDEX = { "zh-CN": 0, "zh-HK": 1, en: 2, ja: 3 } as const;
 export const messages = {
   // ========== 通用文本 ==========
   common: {
+    browse: ["浏览", "瀏覽", "Browse", "参照"],
     default: ["默认", "默認", "Default", "デフォルト"],
     launch_count: ["启动次数", "起動回数", "Launch Count", "起動回数"],
     confirm: ["确 认", "確 認", "Confirm", "確認"],
@@ -97,6 +98,7 @@ export const messages = {
 
   // ========== 设置页面 ==========
   setting: {
+    tabFileSearch: ["文件搜索", "檔案搜尋", "File Search", "ファイル検索"],
     title: ["设 置", "設 置", "Settings", "設定"],
     tabGeneral: ["常 规", "常 規", "General", "一般"],
     tabTheme: ["主 题", "主 題", "Theme", "テーマ"],
@@ -196,6 +198,7 @@ export const messages = {
 
   // ========== 搜索设置 ==========
   searchSetting: {
+    fileSearchMode: ["文件搜索", "檔案搜尋", "File Search", "ファイル検索"],
     searchMode: ["搜索", "搜尋", "Search", "検索"],
     todoMode: ["Todo", "Todo", "Todo", "Todo"],
     translateMode: ["翻译", "翻譯", "Translate", "翻訳"],
@@ -1259,5 +1262,179 @@ export const messages = {
     tomorrow: ["明天", "明天", "Tomorrow", "明日"],
     completed: ["已完成", "已完成", "Completed", "完了"],
     reminded: ["已提醒", "已提醒", "Reminded", "リマインド済み"],
+  },
+  // 文件搜索
+  fileSearch: {
+    enable: ["启用文件搜索", "啟用檔案搜尋", "Enable File Search", "ファイル検索を有効にする"],
+    enableDesc: [
+      "启用基于 Everything 的文件搜索功能",
+      "啟用基於 Everything 的檔案搜尋功能",
+      "Enable file search powered by Everything",
+      "Everything ベースのファイル検索を有効にする",
+    ],
+    groupMode: ["连接方式", "連線方式", "Connection Mode", "接続モード"],
+    groupModeDesc: [
+      "选择调用 Everything 的方式",
+      "選擇呼叫 Everything 的方式",
+      "Choose how to communicate with Everything",
+      "Everything との通信方法を選択",
+    ],
+    searchMode: ["搜索模式", "搜尋模式", "Search Mode", "検索モード"],
+    searchModeDesc: [
+      "选择使用命令行工具或 HTTP 服务器",
+      "選擇使用命令列工具或 HTTP 伺服器",
+      "Choose between command line tool or HTTP server",
+      "コマンドラインツールまたは HTTP サーバーを選択",
+    ],
+    modeEs: [
+      "命令行工具 (es.exe)",
+      "命令列工具 (es.exe)",
+      "Command Line (es.exe)",
+      "コマンドライン (es.exe)",
+    ],
+    modeHttp: ["HTTP 服务器", "HTTP 伺服器", "HTTP Server", "HTTP サーバー"],
+    groupAutoStart: ["自动启动", "自動啟動", "Auto-start", "自動起動"],
+    groupAutoStartDesc: [
+      "搜索时自动启动 Everything",
+      "搜尋時自動啟動 Everything",
+      "Auto-start Everything when searching",
+      "検索時に Everything を自動起動",
+    ],
+    autoStart: [
+      "自动启动 Everything",
+      "自動啟動 Everything",
+      "Auto-start Everything",
+      "Everything を自動起動",
+    ],
+    autoStartDesc: [
+      "搜索时如果 Everything 未运行则自动启动",
+      "搜尋時如果 Everything 未運行則自動啟動",
+      "Auto-start Everything if not running when searching",
+      "検索時に Everything が起動していなければ自動起動",
+    ],
+    everythingExePath: ["Everything 路径", "Everything 路徑", "Everything Path", "Everything パス"],
+    everythingExePathDesc: [
+      "Everything.exe 可执行文件的路径",
+      "Everything.exe 可執行檔案的路徑",
+      "Path to the Everything.exe executable",
+      "Everything.exe 実行ファイルのパス",
+    ],
+    groupHttp: [
+      "HTTP 服务器配置",
+      "HTTP 伺服器設定",
+      "HTTP Server Configuration",
+      "HTTP サーバー設定",
+    ],
+    groupHttpDesc: [
+      "配置 Everything HTTP 服务器的连接信息",
+      "設定 Everything HTTP 伺服器的連線資訊",
+      "Configure the Everything HTTP server connection",
+      "Everything HTTP サーバーの接続を設定",
+    ],
+    httpHost: ["服务器地址", "伺服器地址", "Server Host", "サーバーホスト"],
+    httpHostDesc: [
+      "Everything HTTP 服务器的地址",
+      "Everything HTTP 伺服器的地址",
+      "Address of the Everything HTTP server",
+      "Everything HTTP サーバーのアドレス",
+    ],
+    httpPort: ["端口号", "連接埠號", "Port", "ポート"],
+    httpPortDesc: [
+      "Everything HTTP 服务器的端口号",
+      "Everything HTTP 伺服器的連接埠號",
+      "Port of the Everything HTTP server",
+      "Everything HTTP サーバーのポート番号",
+    ],
+    groupPath: [
+      "Everything 配置",
+      "Everything 設定",
+      "Everything Configuration",
+      "Everything 設定",
+    ],
+    groupPathDesc: [
+      "配置 Everything es.exe 的路径",
+      "設定 Everything es.exe 的路徑",
+      "Configure the path to Everything es.exe",
+      "Everything es.exe のパスを設定",
+    ],
+    esPath: ["es.exe 路径", "es.exe 路徑", "es.exe Path", "es.exe パス"],
+    esPathDesc: [
+      "Everything 命令行工具 es.exe 的路径",
+      "Everything 命令列工具 es.exe 的路徑",
+      "Path to the Everything command line tool es.exe",
+      "Everything コマンドラインツール es.exe のパス",
+    ],
+    groupParams: ["搜索参数", "搜尋參數", "Search Parameters", "検索パラメータ"],
+    groupParamsDesc: [
+      "配置文件搜索的参数设置",
+      "設定檔案搜尋的參數",
+      "Configure file search parameters",
+      "ファイル検索パラメータの設定",
+    ],
+    maxResults: ["每页结果数", "每頁結果數", "Results per Page", "1ページあたりの結果数"],
+    maxResultsDesc: [
+      "每次搜索返回的最大结果数",
+      "每次搜尋傳回的最大結果數",
+      "Maximum number of results per search",
+      "1回の検索で返す最大結果数",
+    ],
+    searchPath: ["搜索路径", "搜尋路徑", "Search Path", "検索パス"],
+    searchPathDesc: [
+      "限定搜索的盘符或目录，留空搜索全部",
+      "限定搜尋的磁碟機或目錄，留空搜尋全部",
+      "Limit search to specific drives or directories, leave empty for all",
+      "特定のドライブまたはディレクトリに検索を制限、空にするとすべて検索",
+    ],
+    filter: ["文件类型过滤", "檔案類型過濾", "File Type Filter", "ファイルタイプフィルター"],
+    filterDesc: [
+      "按扩展名过滤，多个用分号分隔（如 *.exe;*.txt）",
+      "按副檔名過濾，多個用分號分隔（如 *.exe;*.txt）",
+      "Filter by extension, multiple separated by semicolons (e.g. *.exe;*.txt)",
+      "拡張子でフィルター、複数はセミコ区切り（例: *.exe;*.txt）",
+    ],
+    sort: ["排序方式", "排序方式", "Sort Order", "ソート順"],
+    sortDesc: [
+      "搜索结果的排序方式",
+      "搜尋結果的排序方式",
+      "How to sort search results",
+      "検索結果のソート方法",
+    ],
+    sortDefault: ["默认", "預設", "Default", "デフォルト"],
+    sortName: ["按名称", "按名稱", "By Name", "名前順"],
+    sortPath: ["按路径", "按路徑", "By Path", "パス順"],
+    sortDate: ["按修改时间", "按修改時間", "By Modified Date", "更新日時順"],
+    sortSize: ["按大小", "按大小", "By Size", "サイズ順"],
+    sortReverse: ["反向排序", "反向排序", "Reverse", "逆順"],
+    regex: ["正则搜索", "正規表達式搜尋", "Regex Search", "正規表現検索"],
+    regexDesc: [
+      "启用正则表达式搜索",
+      "啟用正規表達式搜尋",
+      "Enable regular expression search",
+      "正規表現検索を有効にする",
+    ],
+    searchPlaceholder: ["搜索文件...", "搜尋檔案...", "Search files...", "ファイルを検索..."],
+    noResults: [
+      "未找到匹配结果",
+      "未找到符合結果",
+      "No results found",
+      "一致する結果が見つかりません",
+    ],
+    searching: ["搜索中...", "搜尋中...", "Searching...", "検索中..."],
+    open: ["打开", "開啟", "Open", "開く"],
+    openFolder: ["打开所在目录", "開啟所在目錄", "Open Folder", "フォルダを開く"],
+    copyPath: ["复制路径", "複製路徑", "Copy Path", "パスをコピー"],
+    runAsAdmin: ["以管理员身份运行", "以管理員身份執行", "Run as Admin", "管理者として実行"],
+    notConfigured: [
+      "未配置 Everything",
+      "未設定 Everything",
+      "Everything not configured",
+      "Everything が設定されていません",
+    ],
+    notConfiguredDesc: [
+      "请先在设置中配置 es.exe 路径",
+      "請先在設定中設定 es.exe 路徑",
+      "Please configure the es.exe path in settings",
+      "設定で es.exe のパスを設定してください",
+    ],
   },
 };

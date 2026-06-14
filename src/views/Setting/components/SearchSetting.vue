@@ -154,8 +154,8 @@ const { registerSearchShortcutKey } = useAppConfigActions();
 const { appConfigStore } = useAppConfig();
 
 const modeTabSizeMap: Record<LanguageType, "large" | "default" | "small" | "mini"> = {
-  "zh-CN": "default",
-  "zh-HK": "default",
+  "zh-CN": "mini",
+  "zh-HK": "mini",
   en: "mini",
   ja: "mini",
 };

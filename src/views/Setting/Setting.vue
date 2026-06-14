@@ -55,6 +55,7 @@ import TrafficLights from "@/components/TrafficLights.vue";
 import AboutPane from "./components/About.vue";
 import CommandAliasPane from "./components/CommandAlias.vue";
 import DataPane from "./components/Data.vue";
+import FileSearchPane from "./components/FileSearch.vue";
 import GeneralPane from "./components/General.vue";
 import PortalPane from "./components/Portal.vue";
 import ProxyPane from "./components/Proxy.vue";
@@ -109,6 +110,12 @@ const settingTabs = computed(() => [
     value: "translation",
     icon: "icon-fanyi",
     contentComponent: Translation,
+  },
+  {
+    label: t("setting.tabFileSearch"),
+    value: "file_search",
+    icon: "icon-wenjian",
+    contentComponent: FileSearchPane,
   },
   {
     label: t("setting.tabProxy"),

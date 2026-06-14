@@ -36,6 +36,7 @@ import { useAppConfig, useAppConfigActions } from "@/composables";
 import { AppEvent, SEARCH_INPUT_HEIGHT, SEARCH_WINDOW_WIDTH, SEARCH_MODEL } from "@/constant";
 import { EventBus } from "@/utils/eventBus";
 import DefaultSearchMode from "./components/DefaultMode/DefaultSearchMode.vue";
+import FileSearchMode from "./components/FileSearchMode/FileSearchMode.vue";
 import TodoMode from "./components/TodoMode/TodoMode.vue";
 import TranslationMode from "./components/TranslationMode.vue";
 import WebSearchMode from "./components/WebSearchMode.vue";
@@ -70,6 +71,8 @@ const getModelDisabled = (val: (typeof SEARCH_MODEL)[keyof typeof SEARCH_MODEL])
       return !appConfigStore.enableWebSearch;
     case SEARCH_MODEL.TRANSLATION_MODEL:
       return !appConfigStore.enableTranslation;
+    case SEARCH_MODEL.FILE_MODEL:
+      return !appConfigStore.enableFileSearch;
     // case SEARCH_MODEL.TODO_MODEL:
     //   return appConfigStore.enableTodoMode;
     default:
@@ -88,6 +91,7 @@ const activeModeComponent = computed(() => {
     [SEARCH_MODEL.WEB_SEARCH_MODEL]: WebSearchMode,
     [SEARCH_MODEL.TRANSLATION_MODEL]: TranslationMode,
     [SEARCH_MODEL.TODO_MODEL]: TodoMode,
+    [SEARCH_MODEL.FILE_MODEL]: FileSearchMode,
   };
   return map[searchModel.value] ?? DefaultSearchMode;
 });
