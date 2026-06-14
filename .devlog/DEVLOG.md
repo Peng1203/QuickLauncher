@@ -1,3 +1,28 @@
+## 2026-06-14（文件搜索模式 / Everything 集成）
+
+### 文件搜索模式
+
+- 新增 `search_files` 命令，支持 Everything 搜索
+- 新增 `FileSearchResult` 模型（name, path, size, icon, type, extension）
+- 支持两种调用方式：es.exe 命令行 / HTTP API
+- HTTP API 参数：`s=search, c=count, j=json, path_column=1, size_column=1`
+- 搜索结果支持路径高亮、键盘导航、回车打开、Ctrl+Enter 管理员运行
+
+### 文件搜索设置
+
+- 新增配置字段：`fileSearchMode`, `fileSearchAutoStart`, `everythingExePath`, `everythingHttpHost`, `everythingHttpPort`
+- 设置页面：连接方式选择（es.exe / HTTP）、Everything 路径配置、HTTP 服务器配置
+- 自动启动 Everything：启动前检测进程状态，未运行时自动启动并等待 8 秒
+- es.exe 重试机制：IPC 未就绪时最多重试 5 次，每次等待递增
+
+### SearchModeTabs 更新
+
+- 新增 `drag` 属性控制拖拽
+- 新增 `disabled` 字段：禁用项半透明 + not-allowed 光标 + hover 效果
+- 拖拽重排触发 `drag` 事件
+- TransitionGroup 横向移动过渡效果
+- 快捷键切换模式时跳过 disabled 项
+
 ## 2026-06-14（Todo 提醒通知 / UI 优化）
 
 ### Todo 提醒通知功能
