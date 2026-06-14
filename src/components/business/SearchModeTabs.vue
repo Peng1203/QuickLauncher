@@ -24,7 +24,8 @@
             type="button"
             @click="!item.disabled && handleSwitchMode(item.value)"
           >
-            <Icon :name="item.icon" />
+            <Icon :name="item.icon" :color="item.color" />
+            <!-- {{ item.color }} -->
             <span>{{ $t(`searchSetting.${item.label}`) }}</span>
           </button>
         </TransitionGroup>
