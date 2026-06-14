@@ -793,7 +793,7 @@ function handleKeydown(event: KeyboardEvent) {
 
 const drag = ref(false);
 
-function handleDragStart(evt: any) {
+function handleDragStart(_evt: any) {
   drag.value = true;
 }
 

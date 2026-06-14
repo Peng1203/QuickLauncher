@@ -153,6 +153,8 @@ const { form, initForm, setForm } = useFormState<NewCategoryItem>({
   layout: "grid",
   sort_by: "default",
   sort_order: "default",
+  pinyin_full: "",
+  pinyin_abbr: "",
   order_index: 0,
 });
 
