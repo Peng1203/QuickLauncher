@@ -114,7 +114,7 @@ const settingTabs = computed(() => [
   {
     label: t("setting.tabFileSearch"),
     value: "file_search",
-    icon: "icon-wenjian",
+    icon: "icon-everything",
     contentComponent: FileSearchPane,
   },
   {

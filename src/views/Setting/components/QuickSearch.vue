@@ -1,7 +1,6 @@
 <template>
   <div class="flex flex-col gap-4 p-4">
     <SettingGroup :title="t('quickSearch.groupEnable')">
-      <!-- TODO -->
       <SettingSwitchItem
         v-model="appConfigStore.enableDefaultSearch"
         icon="icon-icon-sousuofenlei"
@@ -14,14 +13,14 @@
     <SettingGroup :title="t('quickSearch.groupCategory')">
       <SettingSwitchItem
         v-model="appConfigStore.enableDefaultSearchByCategory"
-        icon="icon-fenlei"
+        icon="icon-fenlei1"
         :title="t('quickSearch.categorySearch')"
         :description="t('quickSearch.categorySearchDesc')"
       />
 
       <SettingSwitchItem
         v-model="appConfigStore.enableCategorySearchDefaultData"
-        icon="icon-fenlei"
+        icon="icon-yujiazai"
         :title="t('quickSearch.defaultData')"
         :description="t('quickSearch.defaultDataDesc')"
       />

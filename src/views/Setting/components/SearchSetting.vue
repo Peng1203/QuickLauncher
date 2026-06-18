@@ -84,13 +84,11 @@
     <SettingGroup :title="t('searchSetting.groupMode')">
       <SettingSwitchItem
         v-model="appConfigStore.showSearchModeTabs"
-        icon="icon-buju"
+        icon="icon-tabqiehuan1"
         :title="t('searchSetting.showModeTabsTitle')"
         :description="t('searchSetting.showModeTabsDesc')"
       >
         <template #body>
-          <Icon name="icon-shuaxin" class="cursor-pointer" title="重置" @click="handleReset" />
-
           <SearchModeTabs
             drag
             :size="modeTabSizeMap[appConfigStore.language]"
@@ -101,6 +99,15 @@
             @change="handleToggleModl"
             @drag="handleDrag"
           />
+
+          <div class="mt-2 flex items-center justify-end">
+            <n-button type="default" size="small" @click="handleReset" class="flex-1">
+              <template #icon>
+                <Icon size="14" name="icon-shuaxin" class="cursor-pointer" title="重置" />
+              </template>
+              {{ $t("common.reset") }}
+            </n-button>
+          </div>
         </template>
       </SettingSwitchItem>
 

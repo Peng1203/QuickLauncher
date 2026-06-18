@@ -3,12 +3,12 @@
     <n-input
       ref="searchInputRef"
       v-model:value="keyword"
-      :disabled="!esConfigured"
       tabindex="-1"
       type="text"
       size="medium"
       class="w-full h-full max-h-11.25 resize-none text-sm hover:outline-0 focus-visible:outline-0 border-none bg-card shadow-none rounded-[10px]"
-      :class="hasResult ? 'border-b-0! rounded-b-none!' : ''"
+      :class="[hasResult ? 'border-b-0! rounded-b-none!' : '', esConfigured ? 'border-t-0!' : '']"
+      :disabled="!esConfigured"
       :placeholder="
         esConfigured ? t('fileSearch.searchPlaceholder') : t('fileSearch.notConfiguredDesc')
       "
@@ -382,5 +382,13 @@ defineExpose({
 .list-leave-active {
   position: absolute;
   width: 100%;
+}
+
+::v-deep(.n-input__border) {
+  border: none !important;
+}
+
+::v-deep(.n-input__placeholder) {
+  margin-left: 5px;
 }
 </style>

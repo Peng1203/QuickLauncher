@@ -3,10 +3,38 @@
     <SettingGroup :title="t('quickSearch.groupEnable')">
       <SettingSwitchItem
         v-model="appConfigStore.enableFileSearch"
-        icon="icon-wenjian"
+        icon="icon-everything"
         :title="t('fileSearch.enable')"
         :description="t('fileSearch.enableDesc')"
       />
+
+      <SettingSwitchItem
+        v-model="appConfigStore.fileSearchAutoStart"
+        icon="icon-guanlianqidongqi"
+        :title="t('fileSearch.autoStart')"
+        :description="t('fileSearch.autoStartDesc')"
+      />
+
+      <SettingItem
+        v-if="appConfigStore.fileSearchAutoStart"
+        icon="icon-wenjian"
+        :title="t('fileSearch.everythingExePath')"
+        :description="t('fileSearch.everythingExePathDesc')"
+      >
+        <n-input-group class="w-40!">
+          <n-input
+            v-model:value="appConfigStore.everythingExePath"
+            readonly
+            clearable
+            size="small"
+            placeholder="Everything.exe"
+            :title="appConfigStore.everythingExePath"
+          />
+          <n-button size="small" @click="handleSelectEverythingPath">
+            {{ t("common.browse") }}
+          </n-button>
+        </n-input-group>
+      </SettingItem>
     </SettingGroup>
 
     <SettingGroup :title="t('fileSearch.groupMode')" :description="t('fileSearch.groupModeDesc')">
@@ -17,58 +45,34 @@
         :title="t('fileSearch.searchMode')"
         :description="t('fileSearch.searchModeDesc')"
       />
-    </SettingGroup>
 
-    <SettingGroup
-      :title="t('fileSearch.groupAutoStart')"
-      :description="t('fileSearch.groupAutoStartDesc')"
-    >
-      <SettingSwitchItem
-        v-model="appConfigStore.fileSearchAutoStart"
-        icon="icon-qidong"
-        :title="t('fileSearch.autoStart')"
-        :description="t('fileSearch.autoStartDesc')"
-      />
-      <SettingItem
-        v-if="appConfigStore.fileSearchAutoStart"
-        icon="icon-wenjian"
-        :title="t('fileSearch.everythingExePath')"
-        :description="t('fileSearch.everythingExePathDesc')"
-      >
-        <div class="flex items-center gap-2">
-          <n-input
-            v-model:value="appConfigStore.everythingExePath"
-            size="small"
-            placeholder="Everything.exe"
-            readonly
-            class="flex-1"
-          />
-          <n-button size="small" @click="handleSelectEverythingPath">
-            {{ t("common.browse") }}
-          </n-button>
-        </div>
-      </SettingItem>
-    </SettingGroup>
-
-    <!-- es.exe 模式配置 -->
-    <template v-if="appConfigStore.fileSearchMode === 'es'">
-      <SettingGroup :title="t('fileSearch.groupPath')" :description="t('fileSearch.groupPathDesc')">
+      <!-- es.exe 模式配置 -->
+      <template v-if="appConfigStore.fileSearchMode === 'es'">
+        <!-- <SettingGroup
+          :title="t('fileSearch.groupPath')"
+          :description="t('fileSearch.groupPathDesc')"
+        >
+        </SettingGroup> -->
         <SettingItem
           icon="icon-wenjian"
           :title="t('fileSearch.esPath')"
           :description="t('fileSearch.esPathDesc')"
         >
           <div class="flex items-center gap-2">
-            <n-input
-              v-model:value="appConfigStore.esFilePath"
-              size="small"
-              placeholder="es.exe"
-              readonly
-              class="flex-1"
-            />
-            <n-button size="small" @click="handleSelectEsPath">
-              {{ t("common.browse") }}
-            </n-button>
+            <n-input-group class="w-40!">
+              <n-input
+                v-model:value="appConfigStore.esFilePath"
+                readonly
+                clearable
+                size="small"
+                class="flex-1"
+                placeholder="es.exe"
+                :title="appConfigStore.esFilePath"
+              />
+              <n-button size="small" @click="handleSelectEsPath">
+                {{ t("common.browse") }}
+              </n-button>
+            </n-input-group>
           </div>
         </SettingItem>
         <DescText class="!leading-3.5">
@@ -84,12 +88,15 @@
           </a>
           。
         </DescText>
-      </SettingGroup>
-    </template>
+      </template>
 
-    <!-- HTTP 模式配置 -->
-    <template v-if="appConfigStore.fileSearchMode === 'http'">
-      <SettingGroup :title="t('fileSearch.groupHttp')" :description="t('fileSearch.groupHttpDesc')">
+      <!-- HTTP 模式配置 -->
+      <template v-if="appConfigStore.fileSearchMode === 'http'">
+        <!-- <SettingGroup
+          :title="t('fileSearch.groupHttp')"
+          :description="t('fileSearch.groupHttpDesc')"
+        >
+        </SettingGroup> -->
         <SettingItem
           icon="icon-wangluo"
           :title="t('fileSearch.httpHost')"
@@ -120,15 +127,21 @@
           通过 Everything HTTP 服务器进行搜索。请确保 Everything 已启动并启用 HTTP 服务器功能。 在
           Everything 菜单中选择「工具 → 选项 → HTTP 服务器」进行配置。
         </DescText>
-      </SettingGroup>
-    </template>
+      </template>
+    </SettingGroup>
+
+    <!-- <SettingGroup
+      :title="t('fileSearch.groupAutoStart')"
+      :description="t('fileSearch.groupAutoStartDesc')"
+    >
+    </SettingGroup> -->
 
     <SettingGroup
       :title="t('fileSearch.groupParams')"
       :description="t('fileSearch.groupParamsDesc')"
     >
       <SettingItem
-        icon="icon-shuliang"
+        icon="icon-sousuojieguoweikong2"
         :title="t('fileSearch.maxResults')"
         :description="t('fileSearch.maxResultsDesc')"
       >
@@ -142,19 +155,25 @@
       </SettingItem>
 
       <SettingItem
-        icon="icon-wenjian"
+        icon="icon-xitongpanfu"
         :title="t('fileSearch.searchPath')"
         :description="t('fileSearch.searchPathDesc')"
       >
-        <n-input v-model:value="appConfigStore.fileSearchPath" size="small" placeholder="C:\;D:\" />
+        <n-input
+          class="w-40!"
+          v-model:value="appConfigStore.fileSearchPath"
+          size="small"
+          placeholder="C:\;D:\"
+        />
       </SettingItem>
 
       <SettingItem
-        icon="icon-wenjian"
+        icon="icon-a-guolvleixingguolv"
         :title="t('fileSearch.filter')"
         :description="t('fileSearch.filterDesc')"
       >
         <n-input
+          class="w-40!"
           v-model:value="appConfigStore.fileSearchFilter"
           size="small"
           placeholder="*.exe;*.txt;*.doc"
@@ -171,7 +190,7 @@
 
       <SettingSwitchItem
         v-model="appConfigStore.fileSearchRegex"
-        icon="icon-zhengze"
+        icon="icon-zhengzeshi"
         :title="t('fileSearch.regex')"
         :description="t('fileSearch.regexDesc')"
       />
