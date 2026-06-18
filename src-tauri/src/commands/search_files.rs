@@ -1,5 +1,6 @@
 use crate::models::file_search::FileSearchResult;
 use encoding_rs::GBK;
+use std::os::windows::process::CommandExt;
 use std::path::PathBuf;
 use std::process::Command;
 use tauri::AppHandle;
@@ -63,6 +64,7 @@ pub async fn search_files(
     if auto_start {
         let exe_path = PathBuf::from(&everything_path);
         Command::new(exe_path)
+            .creation_flags(0x08000000)
             .arg("-startup")
             .spawn()
             .expect("启动失败");
