@@ -1286,12 +1286,7 @@ export const messages = {
       "Choose between command line tool or HTTP server",
       "コマンドラインツールまたは HTTP サーバーを選択",
     ],
-    modeEs: [
-      "命令行工具 (es.exe)",
-      "命令列工具 (es.exe)",
-      "Command Line (es.exe)",
-      "コマンドライン (es.exe)",
-    ],
+    modeEs: ["命令行工具", "命令列工具", "Command Line", "コマンドライン"],
     modeHttp: ["HTTP 服务器", "HTTP 伺服器", "HTTP Server", "HTTP サーバー"],
     groupAutoStart: ["自动启动", "自動啟動", "Auto-start", "自動起動"],
     groupAutoStartDesc: [
@@ -1301,7 +1296,7 @@ export const messages = {
       "検索時に Everything を自動起動",
     ],
     autoStart: [
-      "自动启动 Everything",
+      "关联启动 Everything",
       "自動啟動 Everything",
       "Auto-start Everything",
       "Everything を自動起動",

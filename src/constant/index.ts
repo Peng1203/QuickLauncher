@@ -216,7 +216,7 @@ export const MODE_TABS: SearchModeItem[] = [
   {
     label: "fileSearchMode",
     value: SEARCH_MODEL.FILE_MODEL,
-    icon: "icon-wenjian",
+    icon: "icon-everything",
     disabled: false,
     color: "#F59E0B",
   },
