@@ -1,3 +1,18 @@
+## 2026-06-18（网站启动项浏览器参数 / Dto 适配修复）
+
+### 网站启动项浏览器参数
+
+- `run_launch` 命令支持网站类型启动项自定义浏览器启动参数
+- `OperationLaunch` 编辑页面新增浏览器参数输入框
+- 参数通过 `cmd /C start "" "url" "args"` 模式传递
+
+### Dto 适配修复
+
+- 修复 `created_at`/`updated_at` 字段类型为 `number` 导致的前端显示问题
+- 适配 `DefaultSearchMode` 和 `CommandAlias` 组件
+
+---
+
 ## 2026-06-14（文件搜索模式 / Everything 集成）
 
 ### 文件搜索模式
