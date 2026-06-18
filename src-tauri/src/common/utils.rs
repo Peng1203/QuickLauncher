@@ -79,6 +79,10 @@ pub fn is_valid_url(input: &str) -> bool {
         return false;
     }
 
+    if trimmed == "/" {
+        return false;
+    }
+
     // ============ 快速排除包含空格的输入（命令组合） ============
     // "ping baidu.com", "curl https://...", "command domain.com" 等一律排除
     if trimmed.contains(char::is_whitespace) {

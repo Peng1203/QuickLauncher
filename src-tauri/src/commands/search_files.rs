@@ -1,45 +1,12 @@
 use crate::models::file_search::FileSearchResult;
 use encoding_rs::GBK;
-use std::os::windows::process::CommandExt;
+use std::path::PathBuf;
 use std::process::Command;
 use tauri::AppHandle;
 use tauri_plugin_http::reqwest;
 use tauri_plugin_pinia::ManagerExt;
 use tracing;
 use windows_icons::get_icon_base64_by_path;
-
-/// 检测 Everything 是否正在运行
-fn is_everything_running() -> bool {
-    let output = Command::new("tasklist")
-        .args(["/FI", "IMAGENAME eq Everything.exe", "/NH"])
-        .creation_flags(0x08000000)
-        .output();
-
-    match output {
-        Ok(output) => {
-            let stdout = String::from_utf8_lossy(&output.stdout);
-            stdout.contains("Everything.exe")
-        }
-        Err(_) => false,
-    }
-}
-
-/// 启动 Everything
-fn start_everything(path: &str) -> Result<(), String> {
-    tracing::info!(path, "启动 Everything");
-
-    // 使用 cmd /C start 方式启动，确保 Everything 正确初始化
-    Command::new("cmd")
-        .args(["/C", "start", "", path])
-        .creation_flags(0x08000000) // CREATE_NO_WINDOW
-        .spawn()
-        .map_err(|e| {
-            tracing::error!(%e, "启动 Everything 失败");
-            format!("启动 Everything 失败: {}", e)
-        })?;
-
-    Ok(())
-}
 
 #[tracing::instrument(skip(app))]
 #[tauri::command]
@@ -88,37 +55,18 @@ pub async fn search_files(
         .get::<bool>("appConfig", "fileSearchAutoStart")
         .unwrap_or(false);
 
-    // let everything_is_running = is_everything_running();
-    // tracing::info!(auto_start, everything_is_running, search_mode, "文件搜索准备");
+    let everything_path = app
+        .pinia()
+        .get::<String>("appConfig", "everythingExePath")
+        .unwrap_or_default();
 
-    // if auto_start && !everything_is_running {
-    //     let everything_path = app
-    //         .pinia()
-    //         .get::<String>("appConfig", "everythingExePath")
-    //         .unwrap_or_default();
-
-    //     tracing::info!(everything_path, "尝试启动 Everything");
-
-    //     if everything_path.is_empty() {
-    //         tracing::warn!("Everything.exe 路径未配置，无法自动启动");
-    //     } else if !std::path::Path::new(&everything_path).exists() {
-    //         tracing::warn!(path = everything_path, "Everything.exe 文件不存在");
-    //     } else {
-    //         match start_everything(&everything_path) {
-    //             Ok(()) => {
-    //                 tracing::info!("Everything 启动成功，等待初始化...");
-    //                 tokio::time::sleep(std::time::Duration::from_secs(8)).await;
-    //                 tracing::info!("Everything 等待完成");
-    //             }
-    //             Err(e) => {
-    //                 tracing::warn!(%e, "自动启动 Everything 失败");
-    //             }
-    //         }
-    //     }
-    // } else if auto_start && search_mode == "http" {
-    //     // HTTP 模式下，即使 Everything 已运行，也等待一下确保 HTTP 服务器就绪
-    //     tokio::time::sleep(std::time::Duration::from_millis(500)).await;
-    // }
+    if auto_start {
+        let exe_path = PathBuf::from(&everything_path);
+        Command::new(exe_path)
+            .arg("-startup")
+            .spawn()
+            .expect("启动失败");
+    }
 
     let stdout = if search_mode == "http" {
         // HTTP 模式

@@ -25,7 +25,7 @@ impl MigrationTrait for Migration {
                     .col(string(Categories::Icon).null())
                     .col(string(Categories::PinyinFull).null())
                     .col(string(Categories::PinyinAbbr).null())
-                    .col(integer(Categories::OrderIndex).null())
+                    .col(integer(Categories::OrderIndex).null().default(0))
                     .col(big_integer(Categories::CreatedAt))
                     .col(big_integer(Categories::UpdatedAt))
                     .foreign_key(
@@ -69,7 +69,7 @@ impl MigrationTrait for Migration {
                     .col(string(LaunchItems::Extension).null())
                     .col(integer(LaunchItems::LaunchCount).null())
                     .col(integer(LaunchItems::FailureCount).null())
-                    .col(big_integer(LaunchItems::LastUsedAt))
+                    .col(big_integer(LaunchItems::LastUsedAt).null())
                     .col(big_integer(LaunchItems::CreatedAt))
                     .col(big_integer(LaunchItems::UpdatedAt))
                     .foreign_key(
@@ -102,7 +102,7 @@ impl MigrationTrait for Migration {
                     .col(integer(LaunchHistory::LaunchItemId).null())
                     .col(string(LaunchHistory::Command))
                     .col(string(LaunchHistory::Type))
-                    .col(big_integer(LaunchHistory::StartedAt))
+                    .col(big_integer(LaunchHistory::StartedAt).null())
                     .foreign_key(
                         ForeignKey::create()
                             .name("fk_launch_history_launch_item")
