@@ -19,7 +19,7 @@
       <template #suffix>
         <div class="suggestion-con">
           <span class="suggestion-text"></span>
-          <div class="shortcut-list mr-3">
+          <div class="shortcut-list">
             <span v-if="searching" class="shortcut-item">
               <span class="text-xs">{{ t("fileSearch.searching") }}</span>
             </span>
@@ -32,10 +32,10 @@
                 <Kbd>↵</Kbd>
                 <span class="text-xs ml-1">{{ t("fileSearch.open") }}</span>
               </span>
-              <span class="shortcut-item">
+              <!-- <span class="shortcut-item">
                 <Kbd>Ctrl + ↵</Kbd>
                 <span class="text-xs ml-1">{{ t("fileSearch.runAsAdmin") }}</span>
-              </span>
+              </span> -->
             </template>
           </div>
         </div>
@@ -69,6 +69,7 @@
             handleEnter();
           }
         "
+        @contextmenu.prevent="handleContextMenu($event, item, index)"
       >
         <!-- 文件图标 -->
         <div
@@ -88,12 +89,26 @@
       </li>
     </template>
   </transition-group>
+
+  <!-- 右键菜单 -->
+  <Teleport to="body">
+    <n-dropdown
+      v-model:show="contextMenuVisible"
+      placement="bottom-start"
+      trigger="manual"
+      :x="contextMenuPosition.x"
+      :y="contextMenuPosition.y"
+      :options="contextMenuOptions"
+      :on-clickoutside="closeContextMenu"
+      @select="handleContextMenuSelect"
+    />
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
-import { nextTick, ref, watch, onMounted, computed, useTemplateRef } from "vue";
-import { searchFiles, openPath } from "@/api";
+import { nextTick, ref, watch, onMounted, computed, useTemplateRef, h } from "vue";
+import { searchFiles, openPath, openRevealManager, exeCommand } from "@/api";
 import { SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
 import { t } from "@/i18n";
 import { useAppConfig } from "@/composables";
@@ -128,6 +143,86 @@ let searchRequestId = 0;
 const hasResult = computed(() => !!resultList.value.length);
 const chromeHeight = computed(() => props.chromeHeight);
 const esConfigured = computed(() => !!appConfigStore.esFilePath);
+
+// 右键菜单状态
+const contextMenuVisible = ref(false);
+const contextMenuPosition = ref({ x: 0, y: 0 });
+const contextMenuItem = ref<FileSearchResult | null>(null);
+
+function renderIcon(icon: string) {
+  return () => h("i", { class: `iconfont ${icon}` });
+}
+
+const contextMenuOptions = computed(() => {
+  if (!contextMenuItem.value) return [];
+
+  const item = contextMenuItem.value;
+  const isExe = item.extension?.toLowerCase() === "exe";
+
+  return [
+    // {
+    //   label: t("fileSearch.open"),
+    //   key: "open",
+    //   icon: renderIcon("icon-dakai"),
+    // },
+    {
+      label: t("common.openInExplorer"),
+      key: "openFolder",
+      icon: renderIcon("icon-dakaisuozaiwenjianjia"),
+    },
+    {
+      label: t("fileSearch.copyPath"),
+      key: "copyPath",
+      icon: renderIcon("icon-fuzhilujing"),
+    },
+    {
+      label: t("fileSearch.runAsAdmin"),
+      key: "runAsAdmin",
+      icon: renderIcon("icon-guanliyuan_jiaoseguanli"),
+      itemVisible: isExe,
+    },
+  ].filter((item) => item.itemVisible !== false);
+});
+
+function handleContextMenu(e: MouseEvent, item: FileSearchResult, index: number) {
+  console.log(`%c item ----`, "color: #fff;background-color: #000;font-size: 18px", item);
+  selectedIndex.value = index;
+  contextMenuItem.value = item;
+  contextMenuPosition.value = { x: e.clientX, y: e.clientY };
+  contextMenuVisible.value = true;
+}
+
+function closeContextMenu() {
+  contextMenuVisible.value = false;
+}
+
+async function handleContextMenuSelect(key: string) {
+  if (!contextMenuItem.value) return;
+
+  const item = contextMenuItem.value;
+
+  switch (key) {
+    case "open":
+      await openPath(item.path);
+      emit("closeWindow");
+      break;
+    case "openFolder":
+      await openRevealManager(item.path);
+      emit("closeWindow");
+      break;
+    case "copyPath":
+      const { writeText } = await import("@tauri-apps/plugin-clipboard-manager");
+      await writeText(item.path);
+      break;
+    case "runAsAdmin":
+      const { exeCommand } = await import("@/api");
+      await exeCommand(`powershell -Command "Start-Process '${item.path}' -Verb RunAs"`);
+      emit("closeWindow");
+      break;
+  }
+
+  closeContextMenu();
+}
 
 const searchWindowHeight = computed(() => {
   if (!resultList.value.length) return chromeHeight.value + SEARCH_INPUT_HEIGHT;
@@ -229,7 +324,6 @@ async function handleRunAsAdmin() {
   if (!item) return;
 
   try {
-    const { exeCommand } = await import("@/api");
     await exeCommand(`powershell -Command "Start-Process '${item.path}' -Verb RunAs"`);
     emit("closeWindow");
   } catch (e) {
@@ -254,11 +348,10 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       break;
     case 13: // ENTER
-      if (ctrlKey) {
-        handleRunAsAdmin();
-      } else {
-        handleEnter();
-      }
+      // if (ctrlKey) {
+      //   handleRunAsAdmin();
+      // }
+      handleEnter();
       break;
     case 27: // ESC
       emit("closeWindow");

@@ -1,7 +1,6 @@
 use crate::models::file_search::FileSearchResult;
 use encoding_rs::GBK;
 use std::os::windows::process::CommandExt;
-use std::path::PathBuf;
 use std::process::Command;
 use tauri::AppHandle;
 use tauri_plugin_http::reqwest;
@@ -62,10 +61,10 @@ pub async fn search_files(
         .unwrap_or_default();
 
     if auto_start {
-        let exe_path = PathBuf::from(&everything_path);
-        Command::new(exe_path)
-            .creation_flags(0x08000000)
+        // let exe_path = PathBuf::from(&everything_path);
+        Command::new(&everything_path)
             .arg("-startup")
+            .creation_flags(0x08000000)
             .spawn()
             .expect("启动失败");
     }
@@ -293,10 +292,14 @@ fn search_via_es(
 
     tracing::info!(keyword, es_path, "执行 Everything es.exe 搜索");
 
-    let output = Command::new(es_path).args(&args).output().map_err(|e| {
-        tracing::error!(%e, "执行 es.exe 失败");
-        format!("执行 es.exe 失败: {}", e)
-    })?;
+    let output = Command::new(es_path)
+        .creation_flags(0x08000000)
+        .args(&args)
+        .output()
+        .map_err(|e| {
+            tracing::error!(%e, "执行 es.exe 失败");
+            format!("执行 es.exe 失败: {}", e)
+        })?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
