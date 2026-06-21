@@ -10,16 +10,21 @@
       :class="hasResult ? '!border-b-0 !rounded-b-none' : ''"
       :placeholder="placeholder"
     >
-      <!-- @keydown="handleKeydown" -->
-      <!-- @keydown.up -->
       <template #prefix>
-        <!-- {{ hasResult }} {{ resultList.length }} -->
-        <!-- color="black" -->
         <n-icon size="22" class="iconfont icon-fanyi" />
       </template>
 
       <template #suffix>
         <div class="shortcut-list">
+          <template v-if="showDictButton && !isChangeTranslationLanguage">
+            <span
+              class="shortcut-item cursor-pointer hover:text-blue-500"
+              @click="handleToggleDictionary"
+            >
+              <Kbd>Ctrl + D</Kbd>
+              <span class="text-xs ml-1">{{ t("translation.dictionary") }}</span>
+            </span>
+          </template>
           <span class="shortcut-item">
             <Kbd>Tab</Kbd>
             <span class="text-xs ml-1">{{ t("translation.switchLang") }}</span>
@@ -33,8 +38,51 @@
       </template>
     </n-input>
   </label>
+
+  <!-- 词典详情视图 -->
+  <div
+    v-if="showDictionary"
+    class="absolute z-50 w-full bg-card rounded-b-[10px] overflow-y-auto"
+    :style="{
+      maxHeight: `calc(${searchWindowHeight}px - ${chromeHeight}px - ${SEARCH_INPUT_HEIGHT}px)`,
+    }"
+  >
+    <!-- 骨架屏加载效果 -->
+    <div v-if="dictionaryLoading" class="p-4 space-y-3">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-gray-200 rounded animate-pulse"></div>
+        <div class="h-6 w-24 bg-gray-200 rounded animate-pulse"></div>
+        <div class="h-4 w-16 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+      <div class="flex gap-2">
+        <div class="h-5 w-12 bg-gray-200 rounded animate-pulse"></div>
+        <div class="h-5 w-16 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+      <div class="space-y-2">
+        <div class="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+        <div class="h-4 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+        <div class="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+      <div class="border-t pt-3 mt-3">
+        <div class="h-4 w-20 bg-gray-200 rounded animate-pulse mb-2"></div>
+        <div class="flex gap-2">
+          <div class="h-5 w-14 bg-gray-200 rounded animate-pulse"></div>
+          <div class="h-5 w-18 bg-gray-200 rounded animate-pulse"></div>
+          <div class="h-5 w-12 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+      </div>
+      <div class="border-t pt-3 mt-3">
+        <div class="h-4 w-16 bg-gray-200 rounded animate-pulse mb-2"></div>
+        <div class="h-16 w-full bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    </div>
+    <!-- 词典内容 -->
+    <DictionaryCard v-else-if="dictionaryData" :data="dictionaryData" />
+  </div>
+
+  <!-- 翻译结果列表 -->
   <ul
-    v-if="hasResult"
+    v-else-if="hasResult"
     tabindex="-1"
     class="search-container absolute z-50 w-full overflow-y-scroll bg-card border-none rounded-b-[10px] !border-t-border max-h-[300px]"
     :style="{
@@ -53,7 +101,15 @@
           }
         "
       >
-        <span class="!ml-0.5">{{ item.label }}</span>
+        <span class="flex-1 !ml-0.5">{{ item.label }}</span>
+        <span
+          v-if="index === 0 && showDictButton"
+          class="text-gray-400 hover:text-blue-500 px-2"
+          :title="t('translation.dictionary')"
+          @click.stop="handleToggleDictionary"
+        >
+          📖
+        </span>
       </li>
     </template>
   </ul>
@@ -63,9 +119,9 @@
 import type { SearchModelType } from "../searchModes";
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { writeText } from "@tauri-apps/plugin-clipboard-manager";
-import { fetch } from "@tauri-apps/plugin-http";
 import { MD5 } from "crypto-js";
-import { ref, watch } from "vue";
+import { ref, watch, nextTick } from "vue";
+import { fetch as tauriFetch } from "@tauri-apps/plugin-http";
 import { useAppConfig, useNaiveUiApi } from "@/composables";
 import {
   BAIDU_TRANSLATION_TO,
@@ -74,6 +130,7 @@ import {
   SEARCH_WINDOW_WIDTH,
 } from "@/constant";
 import { t } from "@/i18n";
+import DictionaryCard from "@/components/DictionaryCard.vue";
 
 const props = defineProps<{ keyword?: string; chromeHeight?: number }>();
 const emit = defineEmits<{
@@ -99,8 +156,37 @@ const chromeHeight = computed(() => props.chromeHeight || 0);
 const selectedTranslationLanguage = ref<string>("");
 const isChangeTranslationLanguage = ref<boolean>(false);
 
+// 词典相关
+const showDictionary = ref(false);
+const dictionaryData = ref<DictionaryData | null>(null);
+const dictionaryLoading = ref(false);
+
+// 判断是否中英互译
+const isEnglishToChinese = computed(() => {
+  const { from, to } = getFromTo();
+  return (from === "auto" && to === "zh") || to === "zh";
+});
+
+const isChineseToEnglish = computed(() => {
+  return isChinese(tranStr.value) && !isChangeTranslationLanguage.value;
+});
+
+const isDictionaryMode = computed(() => {
+  return (isEnglishToChinese.value || isChineseToEnglish.value) && resultList.value.length > 0;
+});
+
+const showDictButton = computed(() => {
+  return isDictionaryMode.value && !isChangeTranslationLanguage.value;
+});
+
 // 动态计算 搜索窗口的总高度
 const searchWindowHeight = computed(() => {
+  // 词典模式使用固定高度
+  if (showDictionary.value) {
+    const dictHeight = dictionaryLoading.value ? 300 : 400;
+    return chromeHeight.value + SEARCH_INPUT_HEIGHT + dictHeight;
+  }
+
   if (!resultList.value.length) return chromeHeight.value + SEARCH_INPUT_HEIGHT;
 
   // 结果列表总高度 + 1像素的的顶部边框高度
@@ -153,9 +239,15 @@ async function baiduTranslate() {
     };
     const queryString = new URLSearchParams(params).toString();
 
-    const res = await fetch(`https://fanyi-api.baidu.com/api/trans/vip/translate?${queryString}`, {
-      method: "GET",
-    }).then((res) => res.json());
+    const res = await tauriFetch(
+      `https://fanyi-api.baidu.com/api/trans/vip/translate?${queryString}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      },
+    ).then((res) => res.json());
 
     if (!res.trans_result?.length) return;
     const { dst = "" } = res.trans_result[0];
@@ -237,7 +329,23 @@ watch(
 
       if (!tranStr.trim()) {
         resultList.value = [];
-        return current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+        showDictionary.value = false;
+        dictionaryData.value = null;
+        dictionaryLoading.value = false;
+        nextTick(() => {
+          current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+        });
+        return;
+      }
+
+      // 输入内容变化时退出词典模式
+      if (showDictionary.value) {
+        showDictionary.value = false;
+        dictionaryData.value = null;
+        dictionaryLoading.value = false;
+        nextTick(() => {
+          current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+        });
       }
 
       // 根据当前搜索模式 调用不同的搜索接口
@@ -263,7 +371,46 @@ function handleClose() {
   tranStr.value = "";
   selectedIndex.value = 0;
   resultList.value = [];
+  showDictionary.value = false;
+  dictionaryData.value = null;
   return current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+}
+
+async function handleToggleDictionary() {
+  if (showDictionary.value) {
+    // 切换回翻译结果
+    showDictionary.value = false;
+    dictionaryData.value = null;
+    dictionaryLoading.value = false;
+    current.setSize(new LogicalSize(SEARCH_WINDOW_WIDTH, searchWindowHeight.value));
+    return;
+  }
+
+  if (!resultList.value.length) return;
+
+  // 获取要查询的单词：输入是中文则用翻译结果，输入是英文则用输入
+  const queryWord = isChinese(tranStr.value) ? resultList.value[0]?.value : tranStr.value.trim();
+
+  if (!queryWord) return;
+
+  // 立即切换到词典视图并显示骨架屏
+  showDictionary.value = true;
+  dictionaryLoading.value = true;
+  dictionaryData.value = null;
+
+  // 调整窗口高度
+  const dictHeight = 300; // 骨架屏预估高度
+  current.setSize(
+    new LogicalSize(SEARCH_WINDOW_WIDTH, chromeHeight.value + SEARCH_INPUT_HEIGHT + dictHeight),
+  );
+
+  // 调用词典 API
+  const apiData = await fetchDictionary(queryWord as string);
+  if (apiData) {
+    dictionaryData.value = convertToDictionaryData(apiData);
+  }
+
+  dictionaryLoading.value = false;
 }
 
 function handleKeyUp() {
@@ -298,6 +445,15 @@ function handleCloseChangeTranslationLanguage() {
 }
 
 function handleKeydown(e: KeyboardEvent) {
+  // Ctrl+D 切换词典
+  if (e.ctrlKey && (e.key === "d" || e.key === "D")) {
+    if (showDictButton.value) {
+      handleToggleDictionary();
+      e.preventDefault();
+    }
+    return;
+  }
+
   switch (e.keyCode) {
     case 9:
       handleChangeTranslationLanguage();
@@ -307,11 +463,12 @@ function handleKeydown(e: KeyboardEvent) {
       handleEnter();
       break;
     case 27:
-      if (isChangeTranslationLanguage.value) {
+      if (showDictionary.value) {
+        showDictionary.value = false;
+        dictionaryData.value = null;
+      } else if (isChangeTranslationLanguage.value) {
         handleCloseChangeTranslationLanguage();
       } else {
-        // emit("switchMode", { mode: SEARCH_MODEL.DEFAULT_MODEL });
-        // handleClose();
         emit("closeWindow");
       }
       break;
@@ -324,6 +481,56 @@ function handleKeydown(e: KeyboardEvent) {
       e.preventDefault();
       break;
   }
+}
+
+async function fetchDictionary(word: string): Promise<DictionaryWord | null> {
+  try {
+    const { fetch: tauriFetch } = await import("@tauri-apps/plugin-http");
+    const res = await tauriFetch(
+      `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`,
+      {
+        method: "GET",
+      },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data[0] || null;
+  } catch (e) {
+    console.error("词典查询失败:", e);
+    return null;
+  }
+}
+
+function convertToDictionaryData(apiData: DictionaryWord): DictionaryData {
+  const phonetic = apiData.phonetic || apiData.phonetics?.[0]?.text || "";
+
+  const definitions =
+    apiData.meanings?.flatMap((m) =>
+      m.definitions.map((d) => ({
+        pos: m.partOfSpeech,
+        text: d.definition,
+      })),
+    ) || [];
+
+  const examples =
+    apiData.meanings?.flatMap((m) =>
+      m.definitions.filter((d) => d.example).map((d) => ({ en: d.example!, cn: "" })),
+    ) || [];
+
+  const synonyms = [...new Set(apiData.meanings?.flatMap((m) => m.synonyms) || [])];
+  const antonyms = [...new Set(apiData.meanings?.flatMap((m) => m.antonyms) || [])];
+
+  return {
+    word: apiData.word,
+    translation: definitions[0]?.text || "",
+    phonetic,
+    tags: synonyms.slice(0, 3),
+    definitions,
+    forms: {},
+    examples,
+    synonyms,
+    antonyms,
+  };
 }
 
 onMounted(() => {

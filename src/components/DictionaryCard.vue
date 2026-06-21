@@ -1,39 +1,10 @@
 <template>
   <div class="dictionary-card">
     <div class="card-inner">
-      <div class="header">
-        <div class="header-left">
-          <span class="header-icon">📖</span>
-          <span class="header-word">{{ data.word }}</span>
-        </div>
-        <div class="header-actions">
-          <span class="shortcut-hint"><Kbd>Tab</Kbd> 切换翻译语言</span>
-          <span class="shortcut-hint"><Kbd>↵</Kbd> 复制选中</span>
-          <span class="shortcut-hint"><Kbd>D</Kbd> 查看详情</span>
-        </div>
-      </div>
-
-      <div class="translation-title" @click="expanded = !expanded">
-        <span>{{ data.translation }}</span>
-        <svg
-          class="chevron"
-          :class="{ 'chevron-up': expanded }"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </div>
-
       <Transition name="expand">
-        <div v-show="expanded" class="detail-card">
+        <div class="detail-card">
           <div class="word-header">
+            <span class="header-icon">📖</span>
             <span class="word-text">{{ data.word }}</span>
             <span class="phonetic">/{{ data.phonetic }}/</span>
             <button class="speak-btn" @click="handleSpeak">
@@ -51,6 +22,9 @@
               </svg>
             </button>
           </div>
+          <!-- <div class="translation-title">
+            <span>{{ data.translation }}</span>
+          </div> -->
 
           <div class="tags">
             <span v-for="tag in data.tags" :key="tag" class="tag" :class="tagClass(tag)">
@@ -114,11 +88,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-
 export interface DictionaryData {
   word: string;
-  translation: string;
+  translation?: string;
   phonetic: string;
   tags: string[];
   definitions: { pos: string; text: string }[];
@@ -133,7 +105,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const expanded = ref(true);
 
 function tagClass(tag: string) {
   const map: Record<string, string> = {
@@ -219,7 +190,7 @@ function handleSpeak() {
 }
 
 .detail-card {
-  margin: 0 8px 8px;
+  margin: 8px 8px;
   padding: 20px;
   background: var(--card, oklch(1 0 0));
   border: 1px solid var(--border, oklch(0.89 0.005 250));
