@@ -52,6 +52,7 @@ use commands::update_category::update_category_ass_dir;
 use commands::update_launch::update_launch;
 use commands::update_launch_enabled_by_category::update_launch_enabled_by_category;
 use commands::update_todo::update_todo;
+use commands::webdav_backup::{webdav_backup, webdav_list_backups, webdav_restore, webdav_test_connection};
 use sea_orm::DatabaseConnection;
 use std::sync::Mutex;
 use tauri::Manager;
@@ -154,7 +155,11 @@ pub fn run() {
             delete_todo,
             clear_completed_todos,
             batch_update_todo_order,
-            search_files
+            search_files,
+            webdav_test_connection,
+            webdav_backup,
+            webdav_restore,
+            webdav_list_backups
         ])
         .setup(|app| {
             let app_data_dir = app

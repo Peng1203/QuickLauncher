@@ -178,6 +178,12 @@ declare global {
     confirmBeforeDelete: boolean;
     /** 启动命令别名 */
     enableCommandAlias: boolean;
+    /** WebDAV 云备份 */
+    webdavEnabled: boolean;
+    webdavUrl: string;
+    webdavUsername: string;
+    webdavPassword: string;
+    webdavPath: string;
     /** 传送门相关功能 */
     portalEnabled: boolean;
     portalOpacity: number;
@@ -312,6 +318,35 @@ declare global {
     icon: string;
     type: "file" | "directory";
     extension: string | null;
+  }
+
+  interface DictionaryWord {
+    word: string;
+    phonetic: string;
+    phonetics: { text: string; audio: string }[];
+    meanings: {
+      partOfSpeech: string;
+      definitions: {
+        definition: string;
+        synonyms: string[];
+        antonyms: string[];
+        example?: string;
+      }[];
+      synonyms: string[];
+      antonyms: string[];
+    }[];
+  }
+
+  interface DictionaryData {
+    word: string;
+    translation: string;
+    phonetic: string;
+    tags: string[];
+    definitions: { pos: string; text: string }[];
+    forms: Record<string, string>;
+    examples: { en: string; cn: string }[];
+    synonyms: string[];
+    antonyms: string[];
   }
 
   type ClipboardContentType = "Url" | "Directory" | "Unknown";

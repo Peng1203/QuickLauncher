@@ -47,3 +47,4 @@ pub mod update_category;
 pub mod update_launch;
 pub mod update_launch_enabled_by_category;
 pub mod update_todo;
+pub mod webdav_backup;

@@ -98,6 +98,12 @@ export enum InvokeMethod {
 
   // 文件搜索
   SEARCH_FILES = "search_files",
+
+  // WebDAV 云备份
+  WEBDAV_TEST_CONNECTION = "webdav_test_connection",
+  WEBDAV_BACKUP = "webdav_backup",
+  WEBDAV_RESTORE = "webdav_restore",
+  WEBDAV_LIST_BACKUPS = "webdav_list_backups",
 }
 
 export enum AppEvent {

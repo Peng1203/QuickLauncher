@@ -387,3 +387,24 @@ export function batchUpdateTodoOrder(items: { id: number; order_index: number }[
 export function searchFiles(keyword: string): Promise<FileSearchResult[]> {
   return invoke<FileSearchResult[]>(InvokeMethod.SEARCH_FILES, { keyword });
 }
+
+export function webdavTestConnection(): Promise<string> {
+  return invoke<string>(InvokeMethod.WEBDAV_TEST_CONNECTION);
+}
+
+export function webdavBackup(): Promise<string> {
+  return invoke<string>(InvokeMethod.WEBDAV_BACKUP);
+}
+
+export function webdavRestore(filename: string): Promise<string> {
+  return invoke<string>(InvokeMethod.WEBDAV_RESTORE, { filename });
+}
+
+export function webdavListBackups(): Promise<WebDavBackupInfo[]> {
+  return invoke<WebDavBackupInfo[]>(InvokeMethod.WEBDAV_LIST_BACKUPS);
+}
+
+export interface WebDavBackupInfo {
+  filename: string;
+  timestamp: number;
+}

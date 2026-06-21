@@ -103,6 +103,12 @@ export const useAppConfigStore = defineStore(
 
       enableCommandAlias: true,
 
+      webdavEnabled: false,
+      webdavUrl: "https://dav.jianguoyun.com/dav/",
+      webdavUsername: "",
+      webdavPassword: "",
+      webdavPath: "/QuickLauncher/",
+
       portalEnabled: false,
       portalOpacity: 80,
       portalNotifyMode: PortalNotifyMode.TRAY,
