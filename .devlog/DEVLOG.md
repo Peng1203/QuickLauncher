@@ -1,3 +1,33 @@
+## 2026-06-18（词典详情 / 坚果云备份 / Everything 自动启动）
+
+### 翻译模式词典详情
+
+- 翻译模式新增词典查询功能，仅中英互译时生效
+- 调用 `dictionaryapi.dev` API 查询单词释义
+- 快捷键 `Ctrl + D` 切换词典视图，第一项右侧显示词典按钮
+- 词典视图支持骨架屏加载效果，窗口高度动态适配
+- 输入内容变化时自动退出词典模式
+
+### 坚果云 WebDAV 云备份
+
+- 新增 `webdav_backup`、`webdav_restore`、`webdav_list_backups` 命令
+- 数据设置页新增 WebDAV 配置组：地址、用户名、密码、路径
+- 支持测试连接、云备份、云恢复功能
+- 恢复对话框显示云端备份列表
+
+### Everything 自动启动
+
+- 新增 `fileSearchAutoStart` 配置项
+- 搜索时检测 Everything 是否运行，未运行则自动启动
+- 支持配置 `everythingExePath` 指定 Everything.exe 路径
+- es.exe IPC 未就绪时自动重试（最多 5 次）
+
+### 文件搜索优化
+
+- HTTP API 模式添加 `path_column=1` 获取完整路径
+- 修复中文路径乱码（GBK 编码转换）
+- 搜索结果路径高亮匹配关键词
+
 ## 2026-06-18（网站启动项浏览器参数 / Dto 适配修复）
 
 ### 网站启动项浏览器参数
