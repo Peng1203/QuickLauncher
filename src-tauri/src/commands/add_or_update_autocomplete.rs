@@ -22,6 +22,7 @@ pub async fn add_or_update_autocomplete(
         query: Set(query.to_string()),
         usage_count: Set(Some(1)),
         launch_item_id: Set(launch_item_id),
+        last_used_at: Set(Utc::now().timestamp_millis()),
         ..Default::default()
     };
 
