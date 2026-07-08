@@ -108,7 +108,7 @@
 <script setup lang="ts">
 import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
 import { nextTick, ref, watch, onMounted, computed, useTemplateRef, h } from "vue";
-import { searchFiles, openPath, openRevealManager, exeCommand } from "@/api";
+import { searchFiles, openPath, openRevealManager } from "@/api";
 import { SEARCH_INPUT_HEIGHT, SEARCH_RESULT_ITEM_HEIGHT, SEARCH_WINDOW_WIDTH } from "@/constant";
 import { t } from "@/i18n";
 import { useAppConfig } from "@/composables";
@@ -185,7 +185,6 @@ const contextMenuOptions = computed(() => {
 });
 
 function handleContextMenu(e: MouseEvent, item: FileSearchResult, index: number) {
-  console.log(`%c item ----`, "color: #fff;background-color: #000;font-size: 18px", item);
   selectedIndex.value = index;
   contextMenuItem.value = item;
   contextMenuPosition.value = { x: e.clientX, y: e.clientY };
@@ -317,20 +316,6 @@ async function handleEnter() {
   }
 }
 
-async function handleRunAsAdmin() {
-  if (!resultList.value.length) return;
-
-  const item = resultList.value[selectedIndex.value];
-  if (!item) return;
-
-  try {
-    await exeCommand(`powershell -Command "Start-Process '${item.path}' -Verb RunAs"`);
-    emit("closeWindow");
-  } catch (e) {
-    console.error("以管理员身份运行失败:", e);
-  }
-}
-
 function handleKeydown(e: KeyboardEvent) {
   const { keyCode, ctrlKey, key } = e;
 
@@ -347,10 +332,7 @@ function handleKeydown(e: KeyboardEvent) {
     case 9: // TAB
       e.preventDefault();
       break;
-    case 13: // ENTER
-      // if (ctrlKey) {
-      //   handleRunAsAdmin();
-      // }
+    case 13:
       handleEnter();
       break;
     case 27: // ESC
