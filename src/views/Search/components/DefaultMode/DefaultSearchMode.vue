@@ -805,6 +805,10 @@ defineExpose({
   margin-left: 5px;
 }
 
+::v-deep(.n-input__input) {
+  z-index: 1000;
+}
+
 .input-container {
   width: 100%;
   height: 45px;
